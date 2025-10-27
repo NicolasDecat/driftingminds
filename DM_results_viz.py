@@ -20,6 +20,15 @@ import matplotlib.pyplot as plt
 REDCAP_API_URL = st.secrets["REDCAP_API_URL"]   # e.g., "https://redcap.myuni.edu/api/"
 REDCAP_API_TOKEN = st.secrets["REDCAP_API_TOKEN"]
 
+if not REDCAP_API_URL or not REDCAP_API_TOKEN:
+    st.title("Your sleep-onset profile")
+    st.warning(
+        "The app is deployed but the REDCap API secrets aren’t set yet.\n\n"
+        "Ask the admin for an API token, then add **REDCAP_API_URL** and "
+        "**REDCAP_API_TOKEN** in Streamlit Cloud → Manage app → Settings → Secrets."
+    )
+    st.stop()
+
 # Define which fields belong to which scales for the radar
 SCALES = {
     "Thoughts": ["freq_think_nocontrol", "freq_think_seq_bizarre", "freq_think_seq_ordinary"],
