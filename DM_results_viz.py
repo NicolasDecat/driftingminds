@@ -131,50 +131,77 @@ with st.expander("See your raw responses"):
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Pull anxiety (1–100)
-raw_anx = record.get("anxiety", None)
-try:
-    anxiety = float(raw_anx) if raw_anx not in (None, "") else np.nan
-except Exception:
-    anxiety = np.nan
+# ---- Retrieve values ----
+def get_val(rec, key, lo, hi):
+    v = rec.get(key)
+    try:
+        v = float(v)
+    except:
+        v = np.nan
+    if np.isnan(v):
+        return None
+    return max(lo, min(hi, v))
 
-if np.isnan(anxiety):
+anxiety = get_val(record, "anxiety", 1, 100)
+creativity = get_val(record, "creativity_trait", 1, 6)
+if creativity is not None:
+    creativity = np.interp(creativity, [1, 6], [0, 100])  # rescale 1–6 to 0–100
+
+if anxiety is None:
     st.warning("Anxiety score not found.")
     st.stop()
 
-# Clamp to [1, 100] just in case
-anxiety = max(1.0, min(100.0, anxiety))
+# ---- Style constants ----
+BG = "#0E1117"       # background
+CURVE = "#777C85"    # crowd curve (soft grey)
+MARK = "#22D3EE"     # participant (cyan)
+CURVE2 = "#777C85"   # second crowd
+MARK2 = "#7C3AED"    # participant (purple)
 
-# Design (keep consistent across future plots)
-BG = "#0E1117"       # page/card bg
-CURVE = "#9AA3AF"    # crowd curve (muted grey)
-MARK = "#22D3EE"     # participant marker (cyan)
+def plot_trait(value, color_curve, color_mark, title):
+    """Return a small clean figure for a single trait."""
+    x = np.linspace(0, 100, 400)
+    sigma = 10.0
+    y = np.exp(-0.5 * ((x - 50) / sigma) ** 2)
+    y /= y.max()
 
-# Fake normal distribution centered at 50
-x = np.linspace(0, 100, 400)
-sigma = 15.0
-y = np.exp(-0.5 * ((x - 50.0) / sigma) ** 2)
-y /= y.max()
+    fig, ax = plt.subplots(figsize=(3.8, 2.2))
+    fig.patch.set_facecolor(BG)
+    ax.set_facecolor(BG)
 
-# Figure
-fig, ax = plt.subplots(figsize=(7.0, 2.8))
-fig.patch.set_facecolor(BG)
-ax.set_facecolor(BG)
+    # curve + marker
+    ax.plot(x, y, color=color_curve, linewidth=1.2)
+    ax.axvline(value, color=color_mark, linewidth=2.2, alpha=0.95)
 
-# Crowd curve (thin, minimal)
-ax.plot(x, y, color=CURVE, linewidth=1.5, solid_capstyle="round")
+    # horizontal baseline + labels
+    ax.axhline(0, color=color_curve, linewidth=0.6, alpha=0.3)
+    ax.text(0, -0.08, "0", color="#9AA3AF", ha="center", va="top", fontsize=9)
+    ax.text(100, -0.08, "100", color="#9AA3AF", ha="center", va="top", fontsize=9)
 
-# Participant marker (thin vertical)
-ax.axvline(anxiety, color=MARK, linewidth=2.2, alpha=0.95)
+    # title above
+    ax.text(50, 1.05, title, color="#E6E6E6", ha="center", va="bottom",
+            fontsize=12, fontweight="medium")
 
-# Clean layout: no spines, ticks, labels
-for sp in ax.spines.values():
-    sp.set_visible(False)
-ax.set_xticks([]); ax.set_yticks([])
-ax.set_xlim(0, 100)
-ax.set_ylim(0, y.max()*1.08)
+    # clean layout
+    ax.set_xlim(0, 100)
+    ax.set_ylim(-0.15, 1.1)
+    ax.set_xticks([]); ax.set_yticks([])
+    for s in ax.spines.values():
+        s.set_visible(False)
+    return fig
 
-st.pyplot(fig, use_container_width=True)
+# ---- Layout in Streamlit ----
+col1, col2 = st.columns([1, 1], gap="large")
+
+with col1:
+    if anxiety is not None:
+        figA = plot_trait(anxiety, CURVE, MARK, "Anxiety")
+        st.pyplot(figA, use_container_width=False)
+
+with col2:
+    if creativity is not None:
+        figC = plot_trait(creativity, CURVE2, MARK2, "Creativity")
+        st.pyplot(figC, use_container_width=False)
 
 
 
