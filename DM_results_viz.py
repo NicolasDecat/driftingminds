@@ -16,23 +16,12 @@ import requests
 import streamlit as st
 import matplotlib.pyplot as plt
 
-# ---------- Config ----------
+#%% Config API ################################################################
+###############################################################################
 
 # To add in Streamlit > Manage app > Settings > Secrets
 # REDCAP_API_URL = "https://redcap-icm.icm-institute.org/api/"
 # REDCAP_API_TOKEN = "641919114F091FC5A1860BCFC53D3947"
-
-REDCAP_API_URL = st.secrets.get("REDCAP_API_URL")
-REDCAP_API_TOKEN = st.secrets.get("REDCAP_API_TOKEN")
-
-st.write("### Your sleep onset profile")
-  
-
-# Define which fields belong to which scales for the radar
-SCALES = {
-    "Thoughts": ["freq_think_nocontrol", "freq_think_seq_bizarre", "freq_think_seq_ordinary"],
-    "Perception":    ["freq_percept_precise",  "freq_percept_real",  "freq_percept_imposed"]
-}
 
 # Optional: load anonymized norms to position the participant vs crowd
 # def load_norms():
@@ -41,10 +30,16 @@ SCALES = {
 #         return df
 #     except Exception:
 #         return None
-
 # NORMS = load_norms()
 
-# ---------- Helpers ----------
+
+REDCAP_API_URL = st.secrets.get("REDCAP_API_URL")
+REDCAP_API_TOKEN = st.secrets.get("REDCAP_API_TOKEN")
+
+
+#%% Retrieve Participant data #################################################
+###############################################################################
+
 def fetch_by_record_id(record_id: str):
     payload = {
         "token": REDCAP_API_TOKEN,
@@ -69,31 +64,28 @@ def fetch_by_record_id(record_id: str):
         st.exception(e)
     return None
 
-def fetch_by_viz_code(viz_code: str) -> dict | None:
-    # Use REDCap "filterLogic" to look up by custom code (if you store it in a field).
-    payload = {
-        "token": REDCAP_API_TOKEN,
-        "content": "record",
-        "format": "json",
-        "type": "flat",
-        "filterLogic": f"[viz_code] = '{viz_code}'",
-        "rawOrLabel": "raw",
-        "rawOrLabelHeaders": "raw",
-        "exportSurveyFields": "true",
-        "exportDataAccessGroups": "false",
-    }
-    r = requests.post(REDCAP_API_URL, data=payload, timeout=15)
-    if r.ok:
-        data = r.json()
-        return data[0] if data else None
-    return None
 
+#%% Vizualisation #############################################################
+###############################################################################
+
+
+# ---------- Prepare computation ----------
+
+
+# Define which fields belong to which scales for the viz
+SCALES = {
+    "Thoughts": ["freq_think_nocontrol", "freq_think_seq_bizarre", "freq_think_seq_ordinary"],
+    "Perception":    ["freq_percept_precise",  "freq_percept_real",  "freq_percept_imposed"]
+}
+
+# convert any numeric string to a float
 def safe_float(x):
     try:
         return float(x)
     except:
         return np.nan
-
+    
+# Convert means
 def scale_means(record: dict) -> pd.Series:
     means = {}
     for scale, items in SCALES.items():
@@ -102,68 +94,43 @@ def scale_means(record: dict) -> pd.Series:
         means[scale] = float(np.mean(vals)) if vals else np.nan
     return pd.Series(means)
 
-def radar_plot(series: pd.Series, title: str):
-    labels = list(series.index)
-    values = series.values.astype(float)
 
-    # close the loop for radar
-    labels += [labels[0]]
-    values = np.append(values, values[0])
+# ---------- App Layout ----------
 
-    angles = np.linspace(0, 2*np.pi, len(labels), endpoint=False)
-    fig, ax = plt.subplots(subplot_kw=dict(polar=True))
-    ax.plot(angles, values)
-    ax.fill(angles, values, alpha=0.15)
-    ax.set_xticks(angles)
-    ax.set_xticklabels(labels)
-    ax.set_title(title)
-    return fig
 
-def bar_plot(series: pd.Series, title: str):
-    fig, ax = plt.subplots()
-    series.plot(kind="bar", ax=ax)
-    ax.set_title(title)
-    ax.set_ylabel("Mean score")
-    ax.set_xlabel("Scale")
-    return fig
-
-# ---------- App ----------
 st.set_page_config(page_title="Your Sleep Onset Profile")
 
 st.title("Your sleep-onset profile")
 
-# Read query params (?id=123 or ?code=XYZ)
+# Read query params (?id=123)
 qp = st.query_params
 record_id = qp.get("id", [None])[0]
-viz_code  = qp.get("code", [None])[0]
 
-# Fetch data
+# Load participant data
 record = None
-if viz_code:
-    record = fetch_by_viz_code(viz_code)
-elif record_id:
+if record_id:
     record = fetch_by_record_id(record_id)
-
 if not record:
-    st.error("We couldn’t find your responses. Please return to the survey or contact the study team.")
+    st.error("We couldn’t find your responses.")
     st.stop()
 
-# Show raw responses (toggle)
+# Show raw responses as toggle list
 with st.expander("See your raw responses"):
     st.json(record)
+
+
+# ---------- VIZUALISATION ----------
 
 # Compute scale means
 means = scale_means(record)
 
-# Radar
-st.subheader("Your profile (radar)")
-fig_radar = radar_plot(means, "Scale means")
-st.pyplot(fig_radar)
 
-# Bars
-st.subheader("Breakdown by scale")
-fig_bar = bar_plot(means, "Scale means")
-st.pyplot(fig_bar)
+
+
+
+
+
+
 
 # Optional: you vs crowd (if you maintain a norms table)
 # if NORMS is not None and set(SCALES.keys()).issubset(NORMS.columns):
