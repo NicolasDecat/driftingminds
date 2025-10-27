@@ -26,13 +26,22 @@ REDCAP_API_URL = st.secrets.get("REDCAP_API_URL")
 REDCAP_API_TOKEN = st.secrets.get("REDCAP_API_TOKEN")
 
 if not REDCAP_API_URL or not REDCAP_API_TOKEN:
-    st.title("Your sleep-onset profile")
-    st.warning(
-        "The app is deployed but the REDCap API secrets aren’t set yet.\n\n"
-        "Ask the admin for an API token, then add **REDCAP_API_URL** and "
-        "**REDCAP_API_TOKEN** in Streamlit Cloud → Manage app → Settings → Secrets."
-    )
+    st.error("Missing REDCap secrets. Set REDCAP_API_URL and REDCAP_API_TOKEN in Streamlit Secrets.")
     st.stop()
+
+# --- Quick connectivity check (fast, no token required) ---
+try:
+    r = requests.post(REDCAP_API_URL, data={"content": "version", "format": "json"}, timeout=6)
+    if r.ok:
+        st.caption(f"REDCap API reachable. Version: {r.text.strip()}")
+    else:
+        st.warning(f"REDCap API responded with HTTP {r.status_code}. Check URL or network.")
+except Exception as e:
+    st.error(f"Cannot reach REDCap API at {REDCAP_API_URL}. Is it public? Firewall/VPN? {e}")
+    st.stop()
+    
+
+    
 
 # Define which fields belong to which scales for the radar
 SCALES = {
