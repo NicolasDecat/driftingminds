@@ -19,8 +19,8 @@ import matplotlib.pyplot as plt
 REDCAP_API_URL = st.secrets.get("https://redcap-icm.icm-institute.org/api/")
 REDCAP_API_TOKEN = st.secrets.get("641919114F091FC5A1860BCFC53D3947")
 
-DEMO = st.query_params.get("demo", ["0"])[0] == "1"
-# DEMO = True
+# DEMO = st.query_params.get("demo", ["0"])[0] == "1"
+DEMO = True
 
 
 if (not REDCAP_API_URL or not REDCAP_API_TOKEN) and DEMO:
