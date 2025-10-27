@@ -128,50 +128,51 @@ with st.expander("See your raw responses"):
 #%% Vizualisation #############################################################
 ###############################################################################
 
-# Retrieve and normalize creativity value
-creativity = record.get("creativity_trait")
-try:
-    creativity = float(creativity)
-except:
-    creativity = np.nan
+import numpy as np
+import matplotlib.pyplot as plt
 
-if np.isnan(creativity):
-    st.warning("Creativity score not found.")
+# Pull anxiety (1–100)
+raw_anx = record.get("anxiety", None)
+try:
+    anxiety = float(raw_anx) if raw_anx not in (None, "") else np.nan
+except Exception:
+    anxiety = np.nan
+
+if np.isnan(anxiety):
+    st.warning("Anxiety score not found.")
     st.stop()
 
-# Scale from 1–6 → 0–100
-creativity_norm = np.interp(creativity, [1, 6], [0, 100])
+# Clamp to [1, 100] just in case
+anxiety = max(1.0, min(100.0, anxiety))
 
-# Generate fake normal distribution centered at 50
-x = np.linspace(0, 100, 300)
-y = np.exp(-0.5 * ((x - 50) / 15) ** 2)
-y /= y.max()  # normalize for plotting aesthetics
+# Design (keep consistent across future plots)
+BG = "#0E1117"       # page/card bg
+CURVE = "#9AA3AF"    # crowd curve (muted grey)
+MARK = "#22D3EE"     # participant marker (cyan)
 
-# Minimalistic plot
-fig, ax = plt.subplots(figsize=(6, 3))
-fig.patch.set_facecolor("#0E1117")
-ax.set_facecolor("#0E1117")
+# Fake normal distribution centered at 50
+x = np.linspace(0, 100, 400)
+sigma = 15.0
+y = np.exp(-0.5 * ((x - 50.0) / sigma) ** 2)
+y /= y.max()
 
-# Distribution curve
-ax.plot(x, y, color="#9AA3AF", linewidth=2)
+# Figure
+fig, ax = plt.subplots(figsize=(7.0, 2.8))
+fig.patch.set_facecolor(BG)
+ax.set_facecolor(BG)
 
-# Participant line
-ax.axvline(creativity_norm, color="#22D3EE", linewidth=3)
-ax.scatter([creativity_norm], [0], color="#22D3EE", s=40, zorder=3)
+# Crowd curve (thin, minimal)
+ax.plot(x, y, color=CURVE, linewidth=1.5, solid_capstyle="round")
 
-# Labels
+# Participant marker (thin vertical)
+ax.axvline(anxiety, color=MARK, linewidth=2.2, alpha=0.95)
+
+# Clean layout: no spines, ticks, labels
+for sp in ax.spines.values():
+    sp.set_visible(False)
+ax.set_xticks([]); ax.set_yticks([])
 ax.set_xlim(0, 100)
-ax.set_ylim(0, None)
-ax.set_xticks([0, 25, 50, 75, 100])
-ax.set_yticks([])
-ax.set_xlabel("Creativity level (relative to others)", color="#E6E6E6", fontsize=12)
-ax.tick_params(colors="#9AA3AF")
-for spine in ax.spines.values():
-    spine.set_visible(False)
-
-# Add text label for participant value
-ax.text(creativity_norm, max(y)*0.9, f"Your score: {creativity:.1f}/6",
-        color="#22D3EE", ha="center", va="bottom", fontsize=12, fontweight="bold")
+ax.set_ylim(0, y.max()*1.08)
 
 st.pyplot(fig, use_container_width=True)
 
