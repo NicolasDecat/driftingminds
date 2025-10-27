@@ -25,44 +25,8 @@ import matplotlib.pyplot as plt
 REDCAP_API_URL = st.secrets.get("REDCAP_API_URL")
 REDCAP_API_TOKEN = st.secrets.get("REDCAP_API_TOKEN")
 
-def redcap_check():
-    import requests, streamlit as st
-    url = st.secrets["REDCAP_API_URL"]
-    token = st.secrets["REDCAP_API_TOKEN"]
-
-    st.write("### REDCap connectivity check")
-    try:
-        # 1) Tokened version call (some sites require token even for version)
-        r = requests.post(url, data={"token": token, "content": "version", "format": "json"}, timeout=8)
-        st.write("Version status:", r.status_code, r.text)
-
-        # 2) Minimal project info (needs API rights)
-        r2 = requests.post(url, data={"token": token, "content": "project", "format": "json"}, timeout=8)
-        st.write("Project status:", r2.status_code, r2.text[:500])
-    except Exception as e:
-        st.error(f"REDCap check failed: {e}")
-
-redcap_check()
-
-
-
-if not REDCAP_API_URL or not REDCAP_API_TOKEN:
-    st.error("Missing REDCap secrets. Set REDCAP_API_URL and REDCAP_API_TOKEN in Streamlit Secrets.")
-    st.stop()
-
-# --- Quick connectivity check (fast, no token required) ---
-try:
-    r = requests.post(REDCAP_API_URL, data={"content": "version", "format": "json"}, timeout=6)
-    if r.ok:
-        st.caption(f"REDCap API reachable. Version: {r.text.strip()}")
-    else:
-        st.warning(f"REDCap API responded with HTTP {r.status_code}. Check URL or network.")
-except Exception as e:
-    st.error(f"Cannot reach REDCap API at {REDCAP_API_URL}. Is it public? Firewall/VPN? {e}")
-    st.stop()
-    
-
-    
+st.write("### Your sleep onset profile")
+  
 
 # Define which fields belong to which scales for the radar
 SCALES = {
@@ -169,7 +133,7 @@ st.set_page_config(page_title="Your Sleep Onset Profile")
 st.title("Your sleep-onset profile")
 
 # Read query params (?id=123 or ?code=XYZ)
-qp = st.experimental_get_query_params()
+qp = st.query_params
 record_id = qp.get("id", [None])[0]
 viz_code  = qp.get("code", [None])[0]
 
