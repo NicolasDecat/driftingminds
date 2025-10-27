@@ -60,25 +60,28 @@ SCALES = {
 # NORMS = load_norms()
 
 # ---------- Helpers ----------
-def fetch_by_record_id(record_id: str) -> dict | None:
+def fetch_by_record_id(record_id: str):
     payload = {
         "token": REDCAP_API_TOKEN,
         "content": "record",
         "format": "json",
         "type": "flat",
         "records[0]": record_id,
-        # optionally restrict to certain fields/forms:
-        # "fields[0]": "record_id",
-        # "forms[0]":  "sleep_onset_survey",
         "rawOrLabel": "raw",
         "rawOrLabelHeaders": "raw",
         "exportSurveyFields": "true",
         "exportDataAccessGroups": "false",
     }
-    r = requests.post(REDCAP_API_URL, data=payload, timeout=15)
-    if r.ok:
+    try:
+        with st.spinner("Fetching your responses…"):
+            r = requests.post(REDCAP_API_URL, data=payload, timeout=10)
+        r.raise_for_status()
         data = r.json()
         return data[0] if data else None
+    except requests.Timeout:
+        st.error("REDCap API request timed out. The server might be behind a firewall/VPN.")
+    except Exception as e:
+        st.exception(e)
     return None
 
 def fetch_by_viz_code(viz_code: str) -> dict | None:
