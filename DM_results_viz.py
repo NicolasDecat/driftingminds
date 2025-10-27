@@ -128,208 +128,52 @@ with st.expander("See your raw responses"):
 #%% Vizualisation #############################################################
 ###############################################################################
 
+# Retrieve and normalize creativity value
+creativity = record.get("creativity_trait")
+try:
+    creativity = float(creativity)
+except:
+    creativity = np.nan
 
-import matplotlib.pyplot as plt
-from io import BytesIO
-from PIL import Image
+if np.isnan(creativity):
+    st.warning("Creativity score not found.")
+    st.stop()
 
-# ---- Design system ----------------------------------------------------------
-PALETTE = {
-    "bg": "#0E1117",
-    "card": "#151A23",
-    "text": "#E6E6E6",
-    "muted": "#9AA3AF",
-    "accent1": "#7C3AED",   # purple
-    "accent2": "#22D3EE",   # cyan
-    "accent3": "#F59E0B",   # amber
-    "accent4": "#34D399",   # green
-    "bar_bg": "#2B3241",
-}
+# Scale from 1–6 → 0–100
+creativity_norm = np.interp(creativity, [1, 6], [0, 100])
 
-plt.rcParams.update({
-    "font.size": 12,
-    "figure.dpi": 200,
-    "axes.edgecolor": PALETTE["card"],
-    "axes.facecolor": PALETTE["card"],
-    "figure.facecolor": PALETTE["card"],
-    "text.color": PALETTE["text"]
-})
+# Generate fake normal distribution centered at 50
+x = np.linspace(0, 100, 300)
+y = np.exp(-0.5 * ((x - 50) / 15) ** 2)
+y /= y.max()  # normalize for plotting aesthetics
 
-# ---- Utils ------------------------------------------------------------------
-def get_num(record, key, cast=float):
-    v = record.get(key, None)
-    try:
-        if v is None or v == "":
-            return None
-        return cast(v)
-    except Exception:
-        return None
+# Minimalistic plot
+fig, ax = plt.subplots(figsize=(6, 3))
+fig.patch.set_facecolor("#0E1117")
+ax.set_facecolor("#0E1117")
 
-def normalized(v, vmin, vmax):
-    if v is None:
-        return None
-    return max(0.0, min(1.0, (v - vmin) / (vmax - vmin)))
+# Distribution curve
+ax.plot(x, y, color="#9AA3AF", linewidth=2)
 
-def decode_chronotype(x):
-    mapping = {"1":"Morning type","2":"Evening type","3":"Intermediate type","4":"I don't know",
-               1:"Morning type",2:"Evening type",3:"Intermediate type",4:"I don't know"}
-    return mapping.get(x, "—")
+# Participant line
+ax.axvline(creativity_norm, color="#22D3EE", linewidth=3)
+ax.scatter([creativity_norm], [0], color="#22D3EE", s=40, zorder=3)
 
-def chronotype_position(label):
-    return {"Morning type":0.1,"Intermediate type":0.5,"Evening type":0.9,"I don't know":0.5}.get(label, 0.5)
+# Labels
+ax.set_xlim(0, 100)
+ax.set_ylim(0, None)
+ax.set_xticks([0, 25, 50, 75, 100])
+ax.set_yticks([])
+ax.set_xlabel("Creativity level (relative to others)", color="#E6E6E6", fontsize=12)
+ax.tick_params(colors="#9AA3AF")
+for spine in ax.spines.values():
+    spine.set_visible(False)
 
-def decode_dream_recall(x):
-    mapping = {"1":"Less than once/month","2":"1–2 times/month","3":"Once/week",
-               "4":"Several times/week","5":"Every day",
-               1:"Less than once/month",2:"1–2 times/month",3:"Once/week",4:"Several times/week",5:"Every day"}
-    return mapping.get(x, "—")
+# Add text label for participant value
+ax.text(creativity_norm, max(y)*0.9, f"Your score: {creativity:.1f}/6",
+        color="#22D3EE", ha="center", va="bottom", fontsize=12, fontweight="bold")
 
-def dream_pos(label):
-    order = ["Less than once/month","1–2 times/month","Once/week","Several times/week","Every day"]
-    return 0.0 if label not in order else (order.index(label) / 4)
-
-# ---- Drawing primitives -----------------------------------------------------
-def draw_value_bar(ax, y, value01, left_label, value_text, anchors=("Low","High"),
-                   color=PALETTE["accent1"], h=0.16):
-    import matplotlib.patches as patches
-    ax.set_xlim(0,1); ax.set_ylim(0,1); ax.axis("off")
-    bar_x, bar_w = 0.12, 0.76; r = h/2
-
-    # background
-    bg = patches.FancyBboxPatch((bar_x, y - h/2), bar_w, h,
-                                boxstyle=f"round,pad=0,rounding_size={r}",
-                                linewidth=0, facecolor=PALETTE["bar_bg"])
-    ax.add_patch(bg)
-
-    # fill
-    if value01 is not None:
-        fg = patches.FancyBboxPatch((bar_x, y - h/2), max(0.001, bar_w*value01), h,
-                                    boxstyle=f"round,pad=0,rounding_size={r}",
-                                    linewidth=0, facecolor=color)
-        ax.add_patch(fg)
-
-    # labels
-    ax.text(0.08, y, left_label, va="center", ha="right", fontsize=12, fontweight="bold", color=PALETTE["text"])
-    ax.text(bar_x + bar_w + 0.015, y, value_text if value_text else "—",
-            va="center", ha="left", fontsize=11, color=PALETTE["muted"])
-
-    # anchors under bar
-    ax.text(bar_x, y - h*1.2, anchors[0], va="top", ha="left", fontsize=9, color=PALETTE["muted"])
-    ax.text(bar_x+bar_w, y - h*1.2, anchors[1], va="top", ha="right", fontsize=9, color=PALETTE["muted"])
-
-def draw_tick_slider(ax, y, pos01, left_label, ticks, color=PALETTE["accent3"], h=0.16):
-    import matplotlib.patches as patches
-    ax.set_xlim(0,1); ax.set_ylim(0,1); ax.axis("off")
-    bar_x, bar_w = 0.12, 0.76; r = h/2
-
-    bg = patches.FancyBboxPatch((bar_x, y - h/2), bar_w, h,
-                                boxstyle=f"round,pad=0,rounding_size={r}",
-                                linewidth=0, facecolor=PALETTE["bar_bg"])
-    ax.add_patch(bg)
-
-    if pos01 is not None:
-        cx = bar_x + bar_w*pos01
-        ax.add_patch(patches.Circle((cx, y), radius=h*0.42, facecolor=color, edgecolor="none"))
-
-    ax.text(0.08, y, left_label, va="center", ha="right", fontsize=12, fontweight="bold", color=PALETTE["text"])
-    # ticks
-    n = len(ticks)
-    for i, t in enumerate(ticks):
-        tx = bar_x + bar_w*(i/(n-1) if n>1 else 0.5)
-        ax.text(tx, y - h*1.2, t, va="top", ha="center", fontsize=9, color=PALETTE["muted"])
-
-# ---- Extract participant values --------------------------------------------
-anxiety = get_num(record, "anxiety", float)                      # 1–100
-creativity = get_num(record, "creativity_trait", float)          # 1–6
-chronotype_label = decode_chronotype(record.get("chronotype"))
-chronotype_pos = chronotype_position(chronotype_label)
-
-sleep_latency_min = get_num(record, "sleep_latency", float)      # minutes
-sleep_duration_h = get_num(record, "sleep_duration", float)      # hours
-sleep_quality = get_num(record, "subj_sleep_quality", float)     # 1–6
-dream_label = decode_dream_recall(record.get("dream_recall"))
-dream_pos01 = dream_pos(dream_label)
-
-# normalize for bars (for fill only)
-anxiety01    = normalized(anxiety, 1, 100)
-creativity01 = normalized(creativity, 1, 6)
-quality01    = normalized(sleep_quality, 1, 6)
-
-# human-readable value texts on the right (no cryptic %)
-anx_text = f"{int(round(anxiety))}/100" if anxiety is not None else None
-crea_text = f"{int(round(creativity))}/6" if creativity is not None else None
-qual_text = f"{int(round(sleep_quality))}/6" if sleep_quality is not None else None
-
-# ---- Streamlit layout -------------------------------------------------------
-st.markdown(
-    "<h2 style='margin-bottom:0.4rem;'>Your Sleep-Onset Profile</h2>"
-    "<p style='color:#9AA3AF;margin-top:0;'>A quick snapshot of your traits and sleep patterns.</p>",
-    unsafe_allow_html=True
-)
-
-col1, col2 = st.columns(2, gap="large")
-
-# Personality
-with col1:
-    fig1, ax1 = plt.subplots(figsize=(6.6, 4.0))
-    fig1.patch.set_facecolor(PALETTE["card"]); ax1.set_facecolor(PALETTE["card"]); ax1.axis("off")
-    ax1.text(0.06, 0.95, "🧭 Personality", fontsize=14, fontweight="bold", ha="left", va="top", color=PALETTE["text"])
-    ax1.text(0.06, 0.89, "Self-reported tendencies", fontsize=10, ha="left", va="top", color=PALETTE["muted"])
-
-    y0 = 0.72
-    draw_value_bar(ax1, y0,             anxiety01,    "Anxiety",    anx_text, anchors=("Low","High"),  color=PALETTE["accent1"])
-    draw_value_bar(ax1, y0 - 0.28,      creativity01, "Creativity", crea_text, anchors=("Lower","Higher"), color=PALETTE["accent2"])
-    draw_tick_slider(ax1, y0 - 0.56,    chronotype_pos, "Chronotype",
-                     ["Morning","Intermediate","Evening"], color=PALETTE["accent3"])
-
-    st.pyplot(fig1, use_container_width=True, clear_figure=True)
-    buf1 = BytesIO(); fig1.savefig(buf1, format="png", dpi=300, bbox_inches="tight", facecolor=fig1.get_facecolor())
-    plt.close(fig1)
-
-# Sleep
-with col2:
-    fig2, ax2 = plt.subplots(figsize=(6.6, 4.0))
-    fig2.patch.set_facecolor(PALETTE["card"]); ax2.set_facecolor(PALETTE["card"]); ax2.axis("off")
-    ax2.text(0.06, 0.95, "🌙 Sleep", fontsize=14, fontweight="bold", ha="left", va="top", color=PALETTE["text"])
-    ax2.text(0.06, 0.89, "Recent sleep patterns", fontsize=10, ha="left", va="top", color=PALETTE["muted"])
-
-    # key metrics
-    lat_txt = f"{int(round(sleep_latency_min))} min" if sleep_latency_min is not None else "—"
-    dur_txt = f"{sleep_duration_h:.1f} h" if sleep_duration_h is not None else "—"
-    ax2.text(0.12, 0.80, "Sleep latency", fontsize=10, color=PALETTE["muted"])
-    ax2.text(0.12, 0.74, lat_txt, fontsize=16, fontweight="bold", color=PALETTE["text"])
-    ax2.text(0.58, 0.80, "Sleep duration", fontsize=10, color=PALETTE["muted"])
-    ax2.text(0.58, 0.74, dur_txt, fontsize=16, fontweight="bold", color=PALETTE["text"])
-    ax2.text(0.58, 0.68, "Tip: 7–9 h is typical for adults", fontsize=9, color=PALETTE["muted"])
-
-    # quality stays a bar (1–6), dream recall becomes a discrete slider
-    draw_value_bar(ax2, 0.46, quality01, "Sleep quality", qual_text, anchors=("Poor","Great"), color=PALETTE["accent4"])
-    draw_tick_slider(ax2, 0.20, dream_pos01, "Dream recall",
-                     ["<1/mo","1–2/mo","1/wk","Several/wk","Daily"], color=PALETTE["accent1"])
-
-    st.pyplot(fig2, use_container_width=True, clear_figure=True)
-    buf2 = BytesIO(); fig2.savefig(buf2, format="png", dpi=300, bbox_inches="tight", facecolor=fig2.get_facecolor())
-    plt.close(fig2)
-
-# ---- Build a single shareable PNG ------------------------------------------
-img1 = Image.open(BytesIO(buf1.getvalue()))
-img2 = Image.open(BytesIO(buf2.getvalue()))
-w = max(img1.width, img2.width)
-def pad_to_width(im, width, bg=tuple(int(PALETTE["card"].lstrip("#")[i:i+2], 16) for i in (0,2,4))):
-    if im.width == width: return im
-    out = Image.new("RGB", (width, im.height), bg); out.paste(im, ((width-im.width)//2, 0)); return out
-img1 = pad_to_width(img1, w); img2 = pad_to_width(img2, w)
-stacked = Image.new("RGB", (w, img1.height + img2.height + 28),
-                    tuple(int(PALETTE["card"].lstrip("#")[i:i+2], 16) for i in (0,2,4)))
-stacked.paste(img1, (0, 0)); stacked.paste(img2, (0, img1.height + 28))
-out_buf = BytesIO(); stacked.save(out_buf, format="PNG")
-
-st.download_button("Download your profile (PNG)", data=out_buf.getvalue(),
-                   file_name=f"drifting-minds_profile_{record_id}.png", mime="image/png")
-
-st.caption("These visuals are for illustration only and don’t constitute medical advice.")
-
-
+st.pyplot(fig, use_container_width=True)
 
 
 
