@@ -17,8 +17,13 @@ import streamlit as st
 import matplotlib.pyplot as plt
 
 # ---------- Config ----------
-REDCAP_API_URL = st.secrets.get("https://redcap-icm.icm-institute.org/api/")
-REDCAP_API_TOKEN = st.secrets.get("641919114F091FC5A1860BCFC53D3947")
+
+# To add in Streamlit > Manage app > Settings > Secrets
+# REDCAP_API_URL = "https://redcap-icm.icm-institute.org/api/"
+# REDCAP_API_TOKEN = "641919114F091FC5A1860BCFC53D3947"
+
+REDCAP_API_URL = st.secrets.get("REDCAP_API_URL")
+REDCAP_API_TOKEN = st.secrets.get("REDCAP_API_TOKEN")
 
 if not REDCAP_API_URL or not REDCAP_API_TOKEN:
     st.title("Your sleep-onset profile")
