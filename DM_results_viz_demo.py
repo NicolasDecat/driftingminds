@@ -20,6 +20,8 @@ REDCAP_API_URL = st.secrets.get("REDCAP_API_URL")
 REDCAP_API_TOKEN = st.secrets.get("REDCAP_API_TOKEN")
 
 DEMO = st.query_params.get("demo", ["0"])[0] == "1"
+DEMO = True
+
 
 if (not REDCAP_API_URL or not REDCAP_API_TOKEN) and DEMO:
     st.title("Your sleep-onset profile — demo")
