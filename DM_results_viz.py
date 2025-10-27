@@ -16,8 +16,10 @@ import requests
 import streamlit as st
 import matplotlib.pyplot as plt
 
+
 #%% Config API ################################################################
 ###############################################################################
+
 
 # To add in Streamlit > Manage app > Settings > Secrets
 # REDCAP_API_URL = "https://redcap-icm.icm-institute.org/api/"
@@ -37,8 +39,10 @@ REDCAP_API_URL = st.secrets.get("REDCAP_API_URL")
 REDCAP_API_TOKEN = st.secrets.get("REDCAP_API_TOKEN")
 
 
+
 #%% Retrieve Participant data #################################################
 ###############################################################################
+
 
 def fetch_by_record_id(record_id: str):
     payload = {
@@ -65,7 +69,8 @@ def fetch_by_record_id(record_id: str):
     return None
 
 
-#%% Vizualisation #############################################################
+
+#%% Prepare vizualisation #####################################################
 ###############################################################################
 
 
@@ -104,7 +109,7 @@ st.title("Your sleep-onset profile")
 
 # Read query params (?id=123)
 qp = st.query_params
-record_id = qp.get("id", [None])[0]
+record_id = qp.get("id")  
 
 # Load participant data
 record = None
@@ -119,7 +124,9 @@ with st.expander("See your raw responses"):
     st.json(record)
 
 
-# ---------- VIZUALISATION ----------
+
+#%% Vizualisation #############################################################
+###############################################################################
 
 # Compute scale means
 means = scale_means(record)
