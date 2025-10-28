@@ -218,13 +218,10 @@ st.pyplot(fig, use_container_width=False)
 
 
 
-# Add vertical space below the radar (extra gap)
+# Add vertical space below the radar
 st.markdown("<div style='height:32px;'></div>", unsafe_allow_html=True)
 
-
-#%% Sleep-onset timeline — thin bar + custom labels ###########################
-
-
+#%% Sleep-onset timeline — thin bar + custom labels + suffix-compression ######
 import re
 import numpy as np
 import matplotlib.pyplot as plt
@@ -265,7 +262,7 @@ CUSTOM_LABELS = {
     "freq_creat": "feeling creative",
 }
 
-# --- Variable lists (same as before) ----------------------------------------
+# --- Variable lists ----------------------------------------------------------
 FREQ_VARS = list(CUSTOM_LABELS.keys())
 TIME_VARS = [
     "timequest_scenario","timequest_positive","timequest_absorbed","timequest_percept_fleeting",
@@ -286,7 +283,7 @@ def as_float(x):
     try: return float(x)
     except: return np.nan
 
-# Build dicts
+# Build dicts score->core
 freq_scores = {core_name(v): as_float(record.get(v, np.nan)) for v in FREQ_VARS}
 time_scores = {core_name(v): as_float(record.get(v, np.nan)) for v in TIME_VARS}
 common = [c for c in time_scores if c in freq_scores and not np.isnan(time_scores[c]) and not np.isnan(freq_scores[c])]
@@ -302,16 +299,54 @@ for c in common:
     elif 67 <= t <= 100:
         groups["Late"].append((c, f))
 
-# Top-3 by frequency (sorted high→low)
+# Top-3 by frequency (sorted high→low) -> mapped to custom labels
 top_labels = {}
 for k, items in groups.items():
     items_sorted = sorted(items, key=lambda x: x[1], reverse=True)[:3]
     names = []
     for core, _ in items_sorted:
         freq_var = f"freq_{core}"
-        label = CUSTOM_LABELS.get(freq_var, core.replace("_", " "))
-        names.append(label)
+        names.append(CUSTOM_LABELS.get(freq_var, core.replace("_", " ")))
     top_labels[k] = names
+
+# --- Compress labels sharing the same trailing word (e.g., "... perceptions") -
+def compress_by_suffix(names):
+    """
+    Merge items that share the same last word:
+      ["vague perceptions", "dull perceptions", "acting in the scene"]
+      -> ["vague, dull perceptions", "acting in the scene"]
+    Keeps original order for suffix groups as they first appear.
+    """
+    if not names: return names
+    # split into prefix + last word (suffix)
+    split = []
+    for i, lab in enumerate(names):
+        parts = lab.rsplit(" ", 1)
+        if len(parts) == 2:
+            split.append((i, parts[0], parts[1].lower()))
+        else:
+            split.append((i, lab, ""))  # no obvious suffix
+    # order-preserving grouping by suffix
+    seen_suffix = set()
+    out = []
+    for i, pref, suf in split:
+        if (i, pref, suf) is None:  # never hit; placeholder
+            continue
+        if suf not in seen_suffix:
+            # collect all prefixes sharing this suffix in input order
+            prefs = [p for _, p, s in split if s == suf and s != ""]
+            if suf != "" and len(prefs) > 1:
+                out.append(", ".join(prefs) + " " + suf)
+            elif suf != "":
+                out.append(pref + " " + suf)
+            else:
+                out.append(pref)  # entries without a clean suffix
+            seen_suffix.add(suf)
+    return out[:3]  # ensure at most 3 lines
+
+# Apply compression to each segment
+for seg_key in list(top_labels.keys()):
+    top_labels[seg_key] = compress_by_suffix(top_labels[seg_key])
 
 # --- Draw gradient bar -------------------------------------------------------
 fig, ax = plt.subplots(figsize=(7.2, 1.25))
@@ -322,7 +357,7 @@ ax.axis("off")
 # Geometry
 x0, x1 = 0.05, 0.95
 y_bar = 0.50
-h_bar = 0.07    # twice as thin as before (was 0.14)
+h_bar = 0.07    # stays thin
 seg   = (x1 - x0) / 3.0
 
 # Gradient: almost white (#FFFFFF) → dark purple (#5B21B6)
@@ -340,7 +375,7 @@ ax.imshow(
     interpolation="bilinear"
 )
 
-# End labels on bar (large, regular weight)
+# End labels on bar
 ax.text(x0 - 0.012, y_bar, "Awake",  ha="right", va="center", color="#000000", fontsize=12)
 ax.text(x1 + 0.012, y_bar, "Asleep", ha="left",  va="center", color="#000000", fontsize=12)
 
@@ -351,7 +386,7 @@ centers = {
     "Late":   x0 + seg * 2.5,
 }
 
-# --- Draw 3-line blocks (slightly more spacing) ------------------------------
+# --- Render 3-line blocks above the bar -------------------------------------
 def draw_stack_block(xc, names):
     block = "\n".join(names[:3]) if names else ""
     ax.text(
@@ -362,7 +397,7 @@ def draw_stack_block(xc, names):
         va="bottom",
         fontsize=9.4,
         color="#000000",
-        linespacing=1.35     # increased spacing between lines
+        linespacing=1.35
     )
 
 draw_stack_block(centers["Early"],  top_labels.get("Early", []))
@@ -371,7 +406,6 @@ draw_stack_block(centers["Late"],   top_labels.get("Late", []))
 
 plt.tight_layout(pad=0.18)
 st.pyplot(fig, use_container_width=True)
-
 
 
 
