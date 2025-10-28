@@ -310,7 +310,7 @@ CUSTOM_LABELS = {
     "freq_emo_neutral": "feeling no emotion",
     "freq_actor": "acting in the scene",
     "freq_think_seq_bizarre": "thinking illogical thoughts",
-    "freq_percept_precise": "distinct perceptions",
+    "freq_percept_precise": "precise perceptions",
     "freq_percept_imposed": "imposed perceptions",
     "freq_hear_env": "hearing my environment",
     "freq_positive": "feeling positive",
@@ -471,7 +471,7 @@ from scipy.stats import truncnorm
 
 # --- Compute participant's VVIQ score ---
 VVIQ_FIELDS = [
-    "quest_a2","quest_a3","quest_a4",
+    "quest_a1","quest_a2","quest_a3","quest_a4",
     "quest_b1","quest_b2","quest_b3","quest_b4",
     "quest_c1","quest_c2","quest_c3","quest_c4",
     "quest_d1","quest_d2","quest_d3","quest_d4"
