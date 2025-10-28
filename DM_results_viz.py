@@ -112,11 +112,11 @@ with st.expander("Raw responses"):
 ###############################################################################
 
 
-#%% Minimal Radar (fixed) #####################################################
+#%% Radar (1–6) with PythonCharts-style fixes, kept minimal ###################
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Order + short labels
+# --- fields (order) + short labels ---
 FIELDS = [
     ("degreequest_vividness",       "vivid"),
     ("degreequest_immersiveness",   "immersive"),
@@ -135,7 +135,7 @@ def clamp_1_6(v):
     if np.isnan(v): return np.nan
     return max(1.0, min(6.0, v))
 
-# Values
+# --- extract values (1–6), fill missing with neutral 3.5 to keep polygon continuous ---
 vals, labels = [], []
 for k, lab in FIELDS:
     v = clamp_1_6(as_float(record.get(k, np.nan)))
@@ -145,67 +145,72 @@ if all(np.isnan(v) for v in vals):
     st.warning("No dimension scores found.")
     st.stop()
 
-# Fill missing with neutral to keep polygon continuous
 neutral = 3.5
 vals_filled = [neutral if np.isnan(v) else v for v in vals]
 
-# Close loop
-values = np.array(vals_filled + [vals_filled[0]], dtype=float)
-angles = np.linspace(0, 2*np.pi, len(vals_filled), endpoint=False)
-angles = np.concatenate([angles, [angles[0]]])
+# close the loop
+values = vals_filled + [vals_filled[0]]
+num_vars = len(vals_filled)
+angles = np.linspace(0, 2*np.pi, num_vars, endpoint=False).tolist()
+angles += angles[:1]
 
-# Title & subtitle (outside the figure)
+# --- Titles outside the figure ---
 st.markdown(
     "<div style='font-size:1.5rem;font-weight:700;'>Project Drifting Minds</div>"
     "<div style='color:#666;margin-top:0.15rem;'>this is how my mind drifts into sleep</div>",
     unsafe_allow_html=True
 )
 
-# Colors
-RING_COLOR  = "#A0A7B3"   # outer ring + spokes
-POLY_COLOR  = "#7C3AED"   # opaque purple fill
-LABEL_COLOR = "#000000"   # black labels
+# --- Minimal colors ---
+RING_COLOR   = "#222222"   # outer ring + spokes (dark grey/black)
+LABEL_COLOR  = "#000000"   # black labels
+POLY_COLOR   = "#7C3AED"   # opaque purple (fill & outline)
 
-# Figure: smaller (about half)
-fig = plt.figure(figsize=(2.8, 2.8))   # was ~5.6; now half
-fig.patch.set_alpha(0)                 # no figure background
+# --- Figure: smaller (compact) & transparent background ---
+fig, ax = plt.subplots(figsize=(2.8, 2.8), subplot_kw=dict(polar=True))
+fig.patch.set_alpha(0)
+ax.set_facecolor("none")
 
-ax = plt.subplot(111, polar=True)
-ax.set_facecolor("none")               # transparent axes
-ax.grid(False)
+# --- PythonCharts-style axis fixes (adapted) ---
+ax.set_theta_offset(np.pi / 2)           # start at 12 o’clock
+ax.set_theta_direction(-1)               # clockwise
+ax.set_thetagrids(np.degrees(angles[:-1]), labels)  # place labels at spokes
 
-# Orientation
-ax.set_theta_offset(np.pi/2)
-ax.set_theta_direction(-1)
+# Align labels based on angle (prevents awkward overlaps)
+for lbl, ang in zip(ax.get_xticklabels(), angles[:-1]):
+    if ang in (0, np.pi):
+        lbl.set_horizontalalignment('center')
+    elif 0 < ang < np.pi:
+        lbl.set_horizontalalignment('left')
+    else:
+        lbl.set_horizontalalignment('right')
+    lbl.set_color(LABEL_COLOR)
 
-# Scale and ticks
-ax.set_rmin(0.0)                       # spokes go to center
-ax.set_rmax(6.0)
-ax.set_rticks([]); ax.set_thetagrids([])
+# Radial range & label position (we hide numeric r-ticks, but keep layout right)
+ax.set_ylim(0, 6)
+ax.set_rlabel_position(180 / num_vars)   # consistent label positioning
+ax.set_rticks([])
 
-# ---- ONE outer circle only ----
-theta = np.linspace(0, 2*np.pi, 512)
-ax.plot(theta, np.full_like(theta, 6.0), color=RING_COLOR, linewidth=0.8)
-
-# Spokes (center to edge)
+# --- Minimal grid: only ONE outer circle and center-reaching spokes ---
+ax.grid(False)  # kill default grid
+theta_dense = np.linspace(0, 2*np.pi, 512)
+ax.plot(theta_dense, np.full_like(theta_dense, 6.0), color=RING_COLOR, linewidth=0.8)  # single ring
 for a in angles[:-1]:
-    ax.plot([a, a], [0.0, 6.0], color=RING_COLOR, linewidth=0.6, alpha=0.35)
+    ax.plot([a, a], [0, 6], color=RING_COLOR, linewidth=0.6, alpha=0.35)               # spokes to center
 
-# Polygon (opaque purple)
-ax.fill(angles, values, color=POLY_COLOR, alpha=1.0, zorder=2)      # full opaque fill
-ax.plot(angles, values, color=POLY_COLOR, linewidth=1.2, zorder=3)  # outline in same purple
-
-# Points (optional, subtle)
+# --- Polygon (opaque purple) ---
+ax.fill(angles, values, color=POLY_COLOR, alpha=1.0, zorder=2)
+ax.plot(angles, values, color=POLY_COLOR, linewidth=1.2, zorder=3)
 ax.scatter(angles[:-1], values[:-1], s=10, color=POLY_COLOR, zorder=4)
 
-# Labels: black & further outside to avoid overlap
-for ang, lab in zip(angles[:-1], labels):
-    ax.text(ang, 6.55, lab, ha="center", va="center", fontsize=9, color=LABEL_COLOR)
+# No default polar spine (keeps it clean)
+ax.spines['polar'].set_visible(False)
 
-# Tight layout so Streamlit doesn't crop outer labels
-plt.tight_layout(pad=0.3)
+# Tight layout so outer labels aren’t clipped
+plt.tight_layout(pad=0.25)
 
 st.pyplot(fig, use_container_width=False)
+
 
 
 
