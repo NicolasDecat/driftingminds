@@ -105,7 +105,7 @@ if not record:
 #     st.json(record)
 
 
-st.image("assets/DM_flyer.gif", use_container_width=True) # add
+st.image("assets/symbols.png", use_container_width=True) # add
 
 
 
