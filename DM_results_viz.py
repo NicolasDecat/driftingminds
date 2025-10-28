@@ -448,6 +448,123 @@ else:
 
 
 
+# ---------- Vertical timeline plot (5 bands, top frequency per band) ---------
+
+# Space below the horizontal bar
+st.markdown("<div style='height:32px;'></div>", unsafe_allow_html=True)
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Helper: put 'perceptions' on next line to keep labels compact
+def split_suffix_newline(label: str):
+    if label.endswith(" perceptions"):
+        return label[:-12] + "\nperceptions"
+    return label
+
+# Build core -> (time, freq, label) for those with both values
+cores = []
+for c in common:  # 'common' already built earlier in your code
+    t = float(time_scores[c])
+    f = float(freq_scores[c])
+    lab = CUSTOM_LABELS.get(f"freq_{c}", c.replace("_", " "))
+    cores.append((c, t, f, lab))
+
+# 5 temporality bands
+bands = [
+    (1, 20),
+    (21, 40),
+    (41, 60),
+    (61, 80),
+    (81, 100),
+]
+band_centers = [ (lo+hi)/2 for (lo,hi) in bands ]
+
+# Assign cores to bands
+band_items = {i: [] for i in range(5)}  # i -> list of (core, t, f, label)
+for c, t, f, lab in cores:
+    for i, (lo, hi) in enumerate(bands):
+        if lo <= t <= hi:
+            band_items[i].append((c, t, f, lab))
+            break
+
+# For each band, pick top by freq; if tie, pick two (deterministic order)
+winners = {i: [] for i in range(5)}  # i -> [labels...] (1 or 2 max)
+for i in range(5):
+    items = band_items[i]
+    if not items:
+        continue
+    # sort by freq desc, then by label for stability
+    items_sorted = sorted(items, key=lambda x: (-x[2], x[3]))
+    top_f = items_sorted[0][2]
+    tied = [it for it in items_sorted if abs(it[2] - top_f) < 1e-9]
+    # keep up to 2 winners
+    chosen = tied[:2]
+    labs = [split_suffix_newline(it[3]) for it in chosen]
+    winners[i] = labs
+
+# ----------------------- Drawing -----------------------
+fig, ax = plt.subplots(figsize=(4.0, 5.6))
+fig.patch.set_alpha(0)
+ax.set_facecolor("none")
+ax.axis("off")
+
+# Coordinates
+x_bar = 0.5         # center x for the vertical bar
+bar_half_width = 0.02
+y0, y1 = 0.08, 0.92 # use margins so labels don't clip
+# Map time (1..100) to y in [y0, y1]
+def ty(val):
+    return y0 + (val - 1) / 99.0 * (y1 - y0)
+
+# Gradient: white -> dark purple
+left_rgb  = np.array([1.0, 1.0, 1.0])
+right_rgb = np.array([0x5B/255, 0x21/255, 0xB6/255])
+n = 900
+grad = np.linspace(0, 1, n)
+colors = (left_rgb[None, :] * (1 - grad)[:, None]) + (right_rgb[None, :] * grad[:, None])
+# Build vertical gradient image (tall & narrow)
+grad_img = np.tile(colors[:, None, :], (1, 30, 1))  # 30 px width strip
+
+ax.imshow(
+    grad_img,
+    extent=(x_bar - bar_half_width, x_bar + bar_half_width, ty(1), ty(100)),
+    origin="lower",
+    aspect="auto",
+    interpolation="bilinear"
+)
+
+# End labels (Awake bottom, Asleep top)
+ax.text(x_bar, ty(1) - 0.02, "Awake",  ha="center", va="top",  fontsize=11, color="#000000")
+ax.text(x_bar, ty(100) + 0.02, "Asleep", ha="center", va="bottom", fontsize=11, color="#000000")
+
+# Optional: faint band separators (very subtle)
+for (lo, hi) in bands[1:-1]:  # internal boundaries only
+    ax.plot([x_bar - bar_half_width*0.8, x_bar + bar_half_width*0.8],
+            [ty(lo), ty(lo)],
+            color="#000000", linewidth=0.4, alpha=0.25)
+
+# Annotations: for each band, place label(s) at band center
+x_right = x_bar + 0.08
+x_left  = x_bar - 0.08
+for i, center in enumerate(band_centers):
+    labs = winners[i]
+    if not labs:
+        continue
+    y_c = ty(center)
+    # Primary (highest freq): right side
+    first = labs[0]
+    ax.plot([x_bar + bar_half_width, x_right - 0.01], [y_c, y_c], color="#000000", linewidth=0.8)
+    ax.text(x_right, y_c, first, ha="left", va="center", fontsize=9.5, color="#000000", linespacing=1.2)
+
+    # Tie (second with same freq): left side
+    if len(labs) > 1:
+        second = labs[1]
+        ax.plot([x_bar - bar_half_width, x_left + 0.01], [y_c, y_c], color="#000000", linewidth=0.8)
+        ax.text(x_left, y_c, second, ha="right", va="center", fontsize=9.5, color="#000000", linespacing=1.2)
+
+plt.tight_layout(pad=0.2)
+st.pyplot(fig, use_container_width=True)
 
 
 
