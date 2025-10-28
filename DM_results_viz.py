@@ -112,11 +112,19 @@ with st.expander("Raw responses"):
 ###############################################################################
 
 
-#%% Radar (1–6) with PythonCharts-style setup for DM ##########################
+#%% Radar (polished) ##########################################################
 import numpy as np
 import matplotlib.pyplot as plt
 
-# --- fields (order) + short labels ---
+# REMOVE any earlier page title you had (e.g., st.title("Your sleep-onset profile"))
+
+# Titles (Streamlit, single place)
+st.markdown(
+    "<div style='font-size:1.5rem;font-weight:700;'>Project Drifting Minds</div>"
+    "<div style='color:#666;margin-top:0.2rem;'>this is how my mind drifts into sleep</div>",
+    unsafe_allow_html=True
+)
+
 FIELDS = [
     ("degreequest_vividness",       "vivid"),
     ("degreequest_immersiveness",   "immersive"),
@@ -135,7 +143,6 @@ def clamp_1_6(v):
     if np.isnan(v): return np.nan
     return max(1.0, min(6.0, v))
 
-# --- extract 1–6 values ---
 vals, labels = [], []
 for k, lab in FIELDS:
     v = clamp_1_6(as_float(record.get(k, np.nan)))
@@ -145,42 +152,31 @@ if all(np.isnan(v) for v in vals):
     st.warning("No dimension scores found.")
     st.stop()
 
-# Keep polygon continuous: fill missing with neutral 3.5
 neutral = 3.5
 vals_filled = [neutral if np.isnan(v) else v for v in vals]
 
-# Close the loop
 num_vars = len(vals_filled)
 angles = np.linspace(0, 2*np.pi, num_vars, endpoint=False).tolist()
 values = vals_filled + [vals_filled[0]]
-angles_p = angles + angles[:1]  # plotting angles (closed)
+angles_p = angles + angles[:1]
 
-# --- Title + Subtitle (Streamlit, outside the figure) ---
-st.markdown(
-    "<div style='font-size:1.5rem;font-weight:700;'>Project Drifting Minds</div>"
-    "<div style='color:#666;margin-top:0.2rem;'>this is how my mind drifts into sleep</div>",
-    unsafe_allow_html=True
-)
+# Colors / styling
+POLY = "#7C3AED"   # purple
+GRID = "#999999"
+SPINE= "#222222"
+TICK = "#222222"
+LABEL= "#000000"
 
-# --- Styling ---
-POLY = "#7C3AED"     # opaque purple (fill + outline)
-GRID = "#999999"     # circular gridlines
-SPINE = "#222222"    # outermost grid (spine)
-TICK = "#222222"     # tick label color
-LABEL = "#000000"    # spoke label color
-
-# --- Figure (compact) with NO background ---
 fig, ax = plt.subplots(figsize=(3.0, 3.0), subplot_kw=dict(polar=True))
-fig.patch.set_alpha(0)         # transparent figure
-ax.set_facecolor("none")       # transparent axes
+fig.patch.set_alpha(0)
+ax.set_facecolor("none")
 
-# Fix axis orientation (12 o’clock start, clockwise)
-ax.set_theta_offset(np.pi / 2)
+# Orientation & spokes
+ax.set_theta_offset(np.pi/2)
 ax.set_theta_direction(-1)
-
-# Spoke labels placed at angles
 ax.set_thetagrids(np.degrees(angles), labels)
-# Angle-aware label alignment
+
+# Smaller labels + bring them closer to the ring
 for lbl, ang in zip(ax.get_xticklabels(), angles):
     if ang in (0, np.pi):
         lbl.set_horizontalalignment('center')
@@ -188,27 +184,31 @@ for lbl, ang in zip(ax.get_xticklabels(), angles):
         lbl.set_horizontalalignment('left')
     else:
         lbl.set_horizontalalignment('right')
-    lbl.set_color(LABEL)  # black spoke labels
+    lbl.set_color(LABEL)
+    lbl.set_fontsize(8)       # smaller
+# Reduce pad to pull labels slightly inward (closer to ring)
+ax.tick_params(axis='x', pad=6)
 
-# Radial range 1–6 with labeled rings
+# Radial setup 1–6 with labels
 ax.set_ylim(0, 6)
-ax.set_rgrids([1, 2, 3, 4, 5, 6], angle=180/num_vars, color=TICK)  # y-labels centered between first two axes
-ax.tick_params(axis='y', labelsize=8, colors=TICK)                 # smaller radial tick labels
-ax.grid(color=GRID)                                                # grid color
-ax.spines['polar'].set_color(SPINE)                                # outer ring color
+ax.set_rgrids([1,2,3,4,5,6], angle=180/num_vars, color=TICK)
+ax.tick_params(axis='y', labelsize=8, colors=TICK)
 
-# Draw the polygon (opaque purple)
-ax.plot(angles_p, values, color=POLY, linewidth=1.2)
-ax.fill(angles_p, values, color=POLY, alpha=1.0)  # full opaque fill
+# Grid & spine
+ax.grid(color=GRID, linewidth=0.7)
+ax.spines['polar'].set_color(SPINE)
 
-# Ensure spokes meet the center (draw over grid for emphasis)
+# Data polygon (semi-transparent fill)
+ax.plot(angles_p, values, color=POLY, linewidth=1.2, zorder=3)
+ax.fill(angles_p, values, color=POLY, alpha=0.35, zorder=2)  # semi-transparent
+
+# Spokes to center (over grid for crispness)
 for a in angles:
-    ax.plot([a, a], [0, 6], color=GRID, linewidth=0.6, alpha=0.35, zorder=0)
+    ax.plot([a, a], [0, 6], color=GRID, linewidth=0.6, alpha=0.35, zorder=1)
 
-# Tight layout so labels aren't clipped
 plt.tight_layout(pad=0.25)
-
 st.pyplot(fig, use_container_width=False)
+
 
 
 
