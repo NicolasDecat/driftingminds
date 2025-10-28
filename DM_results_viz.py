@@ -218,12 +218,12 @@ st.pyplot(fig, use_container_width=False)
 
 
 
-#%% Sleep-onset timeline with gradient bar ####################################
+#%% Sleep-onset timeline — gradient bar, 3-line blocks, bigger end labels #####
 import re
 import numpy as np
 import matplotlib.pyplot as plt
 
-# --- Variable lists (same as before) -----------------------------------------
+# --- Variables lists (same as before) ----------------------------------------
 FREQ_VARS = [
     "freq_think_ordinary","freq_scenario","freq_negative","freq_absorbed",
     "freq_percept_fleeting","freq_think_bizarre","freq_planning","freq_spectator",
@@ -248,16 +248,21 @@ TIME_VARS = [
 ]
 
 # --- Helpers -----------------------------------------------------------------
-def core_name(v): return re.sub(r"^(freq_|timequest_)", "", v)
+def core_name(v): 
+    return re.sub(r"^(freq_|timequest_)", "", v)
+
 def as_float(x):
     try: return float(x)
     except: return np.nan
-def pretty_label(c): return c.replace("_", " ")
+
+def pretty_label(c): 
+    return c.replace("_", " ")
 
 # Build dicts
 freq_scores = {core_name(v): as_float(record.get(v, np.nan)) for v in FREQ_VARS}
 time_scores = {core_name(v): as_float(record.get(v, np.nan)) for v in TIME_VARS}
 
+# Keep only valid common cores
 common = [c for c in time_scores if c in freq_scores and not np.isnan(time_scores[c]) and not np.isnan(freq_scores[c])]
 
 # Bucket by temporality
@@ -272,56 +277,57 @@ for c in common:
         groups["Late"].append((c, f))
 
 # Top-3 by frequency per bucket
-top_labels = {k: [pretty_label(c) for c, _ in sorted(v, key=lambda x:x[1], reverse=True)[:3]] for k,v in groups.items()}
+top_labels = {k: [pretty_label(c) for c, _ in sorted(v, key=lambda x: x[1], reverse=True)[:3]] 
+              for k, v in groups.items()}
 
-# --- Draw gradient bar -------------------------------------------------------
-fig, ax = plt.subplots(figsize=(7.2, 1.2))
+# --- Draw gradient bar timeline ---------------------------------------------
+fig, ax = plt.subplots(figsize=(7.2, 1.25))
 fig.patch.set_alpha(0)
 ax.set_facecolor("none")
 ax.axis("off")
 
 # Geometry
 x0, x1 = 0.05, 0.95
-y_bar, h_bar = 0.45, 0.08
-seg = (x1 - x0) / 3
+y_bar = 0.50
+h_bar = 0.32   # 4× thicker than previous (was 0.08)
+seg = (x1 - x0) / 3.0
 
-# Gradient fill (light → dark)
-n = 300
+# Gradient (light -> dark)
+n = 400
 x_grad = np.linspace(x0, x1, n)
-for i, xv in enumerate(x_grad[:-1]):
-    shade = 1 - (i / (n-1)) * 0.85  # 1.0 → 0.15 grayscale
-    ax.fill_between([xv, x_grad[i+1]], y_bar-h_bar/2, y_bar+h_bar/2,
-                    color=str(shade), linewidth=0)
+for i in range(n-1):
+    xv0, xv1 = x_grad[i], x_grad[i+1]
+    shade = 1.0 - (i / (n-1)) * 0.85  # 1.0 (left) -> 0.15 (right)
+    ax.fill_between([xv0, xv1], y_bar - h_bar/2, y_bar + h_bar/2, color=str(shade), linewidth=0)
 
-# Tiny separators
+# Tiny separators (very short ticks)
 for i in (1, 2):
     xi = x0 + seg * i
-    ax.plot([xi, xi], [y_bar - 0.015, y_bar + 0.015], color="#000000", linewidth=0.8)
+    ax.plot([xi, xi], [y_bar - 0.02, y_bar + 0.02], color="#000000", linewidth=0.9)
 
-# "Awake" and "Asleep" labels on the bar line
-ax.text(x0 - 0.01, y_bar, "Awake",  ha="right", va="center", color="#000000", fontsize=9)
-ax.text(x1 + 0.01, y_bar, "Asleep", ha="left",  va="center", color="#000000", fontsize=9)
+# End labels ON the bar, larger
+ax.text(x0 - 0.012, y_bar, "Awake",  ha="right", va="center", color="#000000", fontsize=12, fontweight="600")
+ax.text(x1 + 0.012, y_bar, "Asleep", ha="left",  va="center", color="#000000", fontsize=12, fontweight="600")
 
-# Centers of thirds
+# Segment centers
 centers = {
     "Early":  x0 + seg * 0.5,
     "Middle": x0 + seg * 1.5,
     "Late":   x0 + seg * 2.5,
 }
 
-# --- Text stacks directly above bar (no bullets, no spacing) -----------------
-def draw_stack(xc, names):
-    base_y = y_bar + h_bar/2 + 0.02
-    dy = 0.038  # minimal line spacing
-    for i, name in enumerate(names[:3]):
-        ax.text(xc, base_y + i*dy, name, ha="center", va="bottom",
-                fontsize=8.5, color="#000000")
+# --- Three-line text blocks directly above the bar (no bullets) --------------
+def draw_stack_block(xc, names):
+    block = "\n".join(names[:3]) if names else ""
+    # Start just above the bar, tight spacing is handled by matplotlib's multi-line rendering
+    ax.text(xc, y_bar + h_bar/2 + 0.015, block, ha="center", va="bottom",
+            fontsize=9, color="#000000", linespacing=0.9)
 
-draw_stack(centers["Early"],  top_labels.get("Early", []))
-draw_stack(centers["Middle"], top_labels.get("Middle", []))
-draw_stack(centers["Late"],   top_labels.get("Late", []))
+draw_stack_block(centers["Early"],  top_labels.get("Early", []))
+draw_stack_block(centers["Middle"], top_labels.get("Middle", []))
+draw_stack_block(centers["Late"],   top_labels.get("Late", []))
 
-plt.tight_layout(pad=0.2)
+plt.tight_layout(pad=0.15)
 st.pyplot(fig, use_container_width=True)
 
 
