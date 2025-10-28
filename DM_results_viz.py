@@ -112,11 +112,11 @@ with st.expander("Raw responses"):
 ###############################################################################
 
 
-#%% Minimal radar (1–6): vivid, immersive, bizarre, spontaneous, fleeting, emotional, sleepy
+#%% Minimal Radar (fixed) #####################################################
 import numpy as np
 import matplotlib.pyplot as plt
 
-# ---- fields in order + short labels ----
+# Order + short labels
 FIELDS = [
     ("degreequest_vividness",       "vivid"),
     ("degreequest_immersiveness",   "immersive"),
@@ -127,7 +127,6 @@ FIELDS = [
     ("degreequest_sleepiness",      "sleepy"),
 ]
 
-# ---- helpers ----
 def as_float(x):
     try: return float(x)
     except: return np.nan
@@ -136,7 +135,7 @@ def clamp_1_6(v):
     if np.isnan(v): return np.nan
     return max(1.0, min(6.0, v))
 
-# ---- extract values ----
+# Values
 vals, labels = [], []
 for k, lab in FIELDS:
     v = clamp_1_6(as_float(record.get(k, np.nan)))
@@ -146,67 +145,68 @@ if all(np.isnan(v) for v in vals):
     st.warning("No dimension scores found.")
     st.stop()
 
-# fill missing with neutral (3.5) to keep polygon continuous
+# Fill missing with neutral to keep polygon continuous
 neutral = 3.5
 vals_filled = [neutral if np.isnan(v) else v for v in vals]
 
-# close the loop
+# Close loop
 values = np.array(vals_filled + [vals_filled[0]], dtype=float)
 angles = np.linspace(0, 2*np.pi, len(vals_filled), endpoint=False)
 angles = np.concatenate([angles, [angles[0]]])
 
-# ---- titles (outside the figure) ----
+# Title & subtitle (outside the figure)
 st.markdown(
     "<div style='font-size:1.5rem;font-weight:700;'>Project Drifting Minds</div>"
-    "<div style='color:#9AA3AF;margin-top:0.15rem;'>this is how my mind drifts into sleep</div>",
+    "<div style='color:#666;margin-top:0.15rem;'>this is how my mind drifts into sleep</div>",
     unsafe_allow_html=True
 )
 
-# ---- minimalist style ----
-COLOR_RING = "#A0A7B3"   # outer ring & spokes
-COLOR_LINE = "#3BC6FF"   # polygon outline
-COLOR_FILL = "#3BC6FF"   # polygon fill (transparent)
-COLOR_LABEL= "#E6E6E6"
+# Colors
+RING_COLOR  = "#A0A7B3"   # outer ring + spokes
+POLY_COLOR  = "#7C3AED"   # opaque purple fill
+LABEL_COLOR = "#000000"   # black labels
 
-fig = plt.figure(figsize=(5.6, 5.6))
-# no background
-fig.patch.set_alpha(0)
+# Figure: smaller (about half)
+fig = plt.figure(figsize=(2.8, 2.8))   # was ~5.6; now half
+fig.patch.set_alpha(0)                 # no figure background
 
 ax = plt.subplot(111, polar=True)
-ax.set_facecolor("none")                      # transparent axes
-ax.grid(False)                                # no default grids
+ax.set_facecolor("none")               # transparent axes
+ax.grid(False)
 
-# polar orientation
-ax.set_theta_offset(np.pi / 2)                # start at top
-ax.set_theta_direction(-1)                    # clockwise
+# Orientation
+ax.set_theta_offset(np.pi/2)
+ax.set_theta_direction(-1)
 
-# limits and ticks
-ax.set_rmin(1.0); ax.set_rmax(6.0)
+# Scale and ticks
+ax.set_rmin(0.0)                       # spokes go to center
+ax.set_rmax(6.0)
 ax.set_rticks([]); ax.set_thetagrids([])
 
-# single outer ring at r=6
+# ---- ONE outer circle only ----
 theta = np.linspace(0, 2*np.pi, 512)
-ax.plot(theta, np.full_like(theta, 6.0), color=COLOR_RING, linewidth=0.8)
+ax.plot(theta, np.full_like(theta, 6.0), color=RING_COLOR, linewidth=0.8)
 
-# thin spokes
+# Spokes (center to edge)
 for a in angles[:-1]:
-    ax.plot([a, a], [1.0, 6.0], color=COLOR_RING, linewidth=0.6, alpha=0.35)
+    ax.plot([a, a], [0.0, 6.0], color=RING_COLOR, linewidth=0.6, alpha=0.35)
 
-# polygon
-ax.plot(angles, values, color=COLOR_LINE, linewidth=1.6)
-ax.fill(angles, values, color=COLOR_FILL, alpha=0.12, zorder=2)
+# Polygon (opaque purple)
+ax.fill(angles, values, color=POLY_COLOR, alpha=1.0, zorder=2)      # full opaque fill
+ax.plot(angles, values, color=POLY_COLOR, linewidth=1.2, zorder=3)  # outline in same purple
 
-# point markers (subtle)
-ax.scatter(angles[:-1], values[:-1], s=14, color=COLOR_LINE, zorder=3, alpha=0.9)
+# Points (optional, subtle)
+ax.scatter(angles[:-1], values[:-1], s=10, color=POLY_COLOR, zorder=4)
 
-# labels just outside the ring
+# Labels: black & further outside to avoid overlap
 for ang, lab in zip(angles[:-1], labels):
-    ax.text(ang, 6.22, lab, ha="center", va="center", fontsize=10, color=COLOR_LABEL)
+    ax.text(ang, 6.55, lab, ha="center", va="center", fontsize=9, color=LABEL_COLOR)
 
-# tighten so Streamlit doesn't crop
-plt.tight_layout(pad=0.4)
+# Tight layout so Streamlit doesn't crop outer labels
+plt.tight_layout(pad=0.3)
 
 st.pyplot(fig, use_container_width=False)
+
 
 
 
