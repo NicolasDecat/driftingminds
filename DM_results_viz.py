@@ -448,7 +448,7 @@ else:
 
 
 
-# ---------- Vertical timeline (10-pt bins, ultra-thin + closer + smarter suffix) ---
+# ---------- Vertical timeline (10-pt bins, max 2 labels, cleaner ends) -------
 
 # Space below the previous plot
 st.markdown("<div style='height:32px;'></div>", unsafe_allow_html=True)
@@ -476,38 +476,17 @@ for c, t, f, lab in cores:
             bin_items[i].append((c, t, f, lab))
             break
 
-# Per-bin winners: all tied at max freq; skip if max <= 3
-raw_winners = {i: [] for i in range(len(bins))}
+# Per-bin winners: all tied at max freq; skip if max <= 3; cap to 2 labels
+winners = {i: [] for i in range(len(bins))}
 for i, items in bin_items.items():
     if not items:
         continue
-    items_sorted = sorted(items, key=lambda x: (-x[2], x[3]))
+    items_sorted = sorted(items, key=lambda x: (-x[2], x[3]))  # freq desc, then label
     top_f = items_sorted[0][2]
     if top_f <= 3:
         continue
     tied = [it for it in items_sorted if abs(it[2] - top_f) < 1e-9]
-    raw_winners[i] = [it[3] for it in tied]  # just labels for now
-
-def apply_perceptions_newline_when_shared(labels):
-    """
-    Only split 'perceptions' onto a new line if there are >= 2 labels in the bin
-    that end with ' perceptions'. Otherwise, leave single labels intact.
-    """
-    if not labels:
-        return labels
-    has_suffix = [lab.endswith(" perceptions") for lab in labels]
-    if sum(has_suffix) >= 2:
-        out = []
-        for lab in labels:
-            if lab.endswith(" perceptions"):
-                out.append(lab[:-12] + "\nperceptions")
-            else:
-                out.append(lab)
-        return out
-    return labels
-
-# Final winners with conditional suffix splitting
-winners = {i: apply_perceptions_newline_when_shared(raw_winners[i]) for i in range(len(bins))}
+    winners[i] = [it[3] for it in tied[:2]]  # <-- cap to 2 labels max
 
 # ----------------------- Draw -----------------------
 fig, ax = plt.subplots(figsize=(3.6, 6.0))
@@ -516,19 +495,19 @@ ax.set_facecolor("none")
 ax.axis("off")
 
 x_bar = 0.5
-bar_half_w = 0.007   # << much thinner bar
+bar_half_w = 0.007   # ultra-thin bar stays
 y_top, y_bot = 0.92, 0.08
 
 def ty(val):
     # Awake (1) at top, Asleep (100) at bottom
     return y_top - (val - 1) / 99.0 * (y_top - y_bot)
 
-# Gradient (Awake white top → Asleep purple bottom), even narrower strip
+# Gradient (Awake white top → Asleep purple bottom), narrow strip
 top_rgb  = np.array([1.0, 1.0, 1.0])
 bot_rgb  = np.array([0x5B/255, 0x21/255, 0xB6/255])
 n = 900
 rows = np.linspace(bot_rgb, top_rgb, n)
-grad_img = np.tile(rows[:, None, :], (1, 12, 1))  # << narrower
+grad_img = np.tile(rows[:, None, :], (1, 12, 1))
 
 ax.imshow(
     grad_img,
@@ -538,14 +517,14 @@ ax.imshow(
     interpolation="bilinear"
 )
 
-# End labels
-ax.text(x_bar, ty(1) + 0.02,  "Awake",  ha="center", va="bottom", fontsize=11, color="#000000")
-ax.text(x_bar, ty(100) - 0.02, "Asleep", ha="center", va="top",    fontsize=11, color="#000000")
+# End labels (a bit farther from the bar now)
+ax.text(x_bar, ty(1)  + 0.035, "Awake",  ha="center", va="bottom", fontsize=11, color="#000000")
+ax.text(x_bar, ty(100) - 0.035, "Asleep", ha="center", va="top",    fontsize=11, color="#000000")
 
-# Annotation geometry: closer to bar + ultra-short leader lines
-x_right = x_bar + 0.042   # << closer
+# Annotation geometry (keep labels close to bar; very short leader lines)
+x_right = x_bar + 0.042
 x_left  = x_bar - 0.042
-line_w  = 0.15            # << thinner
+line_w  = 0.15
 label_fs = 9.2
 
 for i, center in enumerate(bin_centers):
@@ -554,22 +533,16 @@ for i, center in enumerate(bin_centers):
         continue
     y_c = ty(center)
 
-    # More spacing between tied labels in the same bin
-    k = len(labs)
-    if k == 1:
+    # vertical offsets with a bit more spacing when there are two labels
+    if len(labs) == 1:
         y_positions = [y_c]
-    elif k == 2:
-        y_positions = [y_c + 0.018, y_c - 0.018]            # << more apart
-    elif k == 3:
-        y_positions = [y_c + 0.026, y_c, y_c - 0.026]       # << more apart
     else:
-        y_positions = [y_c + 0.032, y_c + 0.010, y_c - 0.010, y_c - 0.032][:k]
+        y_positions = [y_c + 0.02, y_c - 0.02]  # more separation for two labels
 
-    # Alternate sides per bin; leader lines are very short
+    # Alternate sides per bin
     side_right = (i % 2 == 0)
 
     if side_right:
-        # draw a tiny leader to the first label's y (shortened reach)
         ax.plot([x_bar + bar_half_w, x_right - 0.003], [y_positions[0], y_positions[0]],
                 color="#000000", linewidth=line_w)
         for yy, text_label in zip(y_positions, labs):
@@ -584,6 +557,7 @@ for i, center in enumerate(bin_centers):
 
 plt.tight_layout(pad=0.25)
 st.pyplot(fig, use_container_width=True)
+
 
 
 
