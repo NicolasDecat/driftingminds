@@ -137,20 +137,13 @@ def clamp_1_6(v):
     if np.isnan(v): return np.nan
     return max(1.0, min(6.0, v))
 
-def emo_to_1_6(x_emo):
-    """Map [-3..3] -> [1..6] linearly."""
-    if np.isnan(x_emo): return np.nan
-    return clamp_1_6(1.0 + 5.0 * ((x_emo + 3.0) / 6.0))
 
 # --- extract values from REDCap record ---
 vals = []
 labels = []
 for key, lab in FIELDS:
     raw = as_float(record.get(key, np.nan))
-    if key == "degreequest_emotionality":
-        val = emo_to_1_6(raw)
-    else:
-        val = clamp_1_6(raw)
+    val = clamp_1_6(raw)
     vals.append(val)
     labels.append(lab)
 
