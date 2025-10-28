@@ -216,6 +216,41 @@ plt.tight_layout(pad=0.25)
 st.pyplot(fig, use_container_width=False)
 
 
+# ---------- Trajectory plot ----------
+
+
+# Add vertical space below the horizontal bar
+st.markdown("<div style='height:32px;'></div>", unsafe_allow_html=True)
+
+import streamlit as st
+from PIL import Image
+import os
+
+# Retrieve participant's trajectory value
+traj_value = record.get("trajectories")  # expecting 1, 2, 3, or 4
+
+# Convert safely to int
+try:
+    traj_value = int(traj_value)
+except (TypeError, ValueError):
+    traj_value = None
+
+# Match image file path
+if traj_value in [1, 2, 3, 4]:
+    img_path = f"assets/trajectories-0{traj_value}.png"
+    if os.path.exists(img_path):
+        img = Image.open(img_path)
+        # Display image at half its container width
+        st.image(
+            img,
+            width=400,   # 👈 adjust this number if you want smaller/larger (e.g., 350 or 450)
+        )
+    else:
+        st.warning(f"Image not found: {img_path}")
+else:
+    st.info("No trajectory information available for this participant.")
+
+
 # ---------- Timeline plot ----------
 
 
@@ -287,165 +322,6 @@ def as_float(x):
 freq_scores = {core_name(v): as_float(record.get(v, np.nan)) for v in FREQ_VARS}
 time_scores = {core_name(v): as_float(record.get(v, np.nan)) for v in TIME_VARS}
 common = [c for c in time_scores if c in freq_scores and not np.isnan(time_scores[c]) and not np.isnan(freq_scores[c])]
-
-# Bucket by temporality
-groups = {"Early": [], "Middle": [], "Late": []}
-for c in common:
-    t, f = time_scores[c], freq_scores[c]
-    if 1 <= t <= 33:
-        groups["Early"].append((c, f))
-    elif 34 <= t <= 66:
-        groups["Middle"].append((c, f))
-    elif 67 <= t <= 100:
-        groups["Late"].append((c, f))
-
-# --- Top-3 by frequency (sorted high→low) and map to custom labels -----------
-top_labels = {}
-for k, items in groups.items():
-    items_sorted = sorted(items, key=lambda x: x[1], reverse=True)[:3]
-    names = []
-    for core, _ in items_sorted:
-        freq_var = f"freq_{core}"
-        names.append(CUSTOM_LABELS.get(freq_var, core.replace("_", " ")))
-    top_labels[k] = names
-
-# --- Merge repeated suffixes and place suffix on new line --------------------
-def compress_by_suffix(names):
-    """
-    Merge items sharing the same last word, placing that suffix on a new line.
-    Example:
-      ["vague perceptions", "dull perceptions"] -> ["vague, dull\nperceptions"]
-    IMPORTANT: Do NOT dedupe entries without a suffix (single-word or no-space).
-    """
-    if not names:
-        return names
-
-    split = []
-    for lab in names:
-        parts = lab.rsplit(" ", 1)
-        if len(parts) == 2:
-            prefix, suffix = parts[0], parts[1].lower()
-        else:
-            prefix, suffix = lab, ""  # no clean suffix
-        split.append((prefix, suffix))
-
-    out = []
-    seen_suffix = set()
-    for prefix, suffix in split:
-        if suffix == "":
-            # Keep all “no-suffix” entries as independent lines.
-            out.append(prefix)
-            continue
-
-        if suffix not in seen_suffix:
-            # Collect all prefixes sharing this suffix in input order
-            peers = [p for (p, s) in split if s == suffix]
-            if len(peers) > 1:
-                out.append(", ".join(peers) + "\n" + suffix)
-            else:
-                out.append(prefix + " " + suffix)
-            seen_suffix.add(suffix)
-
-    return out[:3]
-
-
-for seg_key in list(top_labels.keys()):
-    top_labels[seg_key] = compress_by_suffix(top_labels[seg_key])
-
-# --- Draw gradient bar -------------------------------------------------------
-fig, ax = plt.subplots(figsize=(7.2, 1.25))
-fig.patch.set_alpha(0)
-ax.set_facecolor("none")
-ax.axis("off")
-
-# Geometry
-x0, x1 = 0.05, 0.95
-y_bar = 0.50
-h_bar = 0.07
-seg   = (x1 - x0) / 3.0
-
-# Gradient: almost white → dark purple
-left_rgb  = np.array([1.0, 1.0, 1.0])         # white
-right_rgb = np.array([0x5B/255, 0x21/255, 0xB6/255])  # dark purple
-n = 900
-grad = np.linspace(0, 1, n)
-colors = (left_rgb[None, :] * (1 - grad)[:, None]) + (right_rgb[None, :] * grad[:, None])
-grad_img = np.tile(colors[None, :, :], (20, 1, 1))
-ax.imshow(
-    grad_img,
-    extent=(x0, x1, y_bar - h_bar/2, y_bar + h_bar/2),
-    origin="lower",
-    aspect="auto",
-    interpolation="bilinear"
-)
-
-# End labels on bar
-ax.text(x0 - 0.012, y_bar, "Awake",  ha="right", va="center", color="#000000", fontsize=12)
-ax.text(x1 + 0.012, y_bar, "Asleep", ha="left",  va="center", color="#000000", fontsize=12)
-
-# Centers of thirds
-centers = {
-    "Early":  x0 + seg * 0.5,
-    "Middle": x0 + seg * 1.5,
-    "Late":   x0 + seg * 2.5,
-}
-
-# --- Draw text blocks --------------------------------------------------------
-def draw_stack_block(xc, names):
-    block = "\n".join(names[:3]) if names else ""
-    ax.text(
-        xc,
-        y_bar + h_bar/2 + 0.02,
-        block,
-        ha="center",
-        va="bottom",
-        fontsize=9.4,
-        color="#000000",
-        linespacing=1.35
-    )
-
-draw_stack_block(centers["Early"],  top_labels.get("Early", []))
-draw_stack_block(centers["Middle"], top_labels.get("Middle", []))
-draw_stack_block(centers["Late"],   top_labels.get("Late", []))
-
-plt.tight_layout(pad=0.18)
-st.pyplot(fig, use_container_width=True)
-
-
-# ---------- Trajectory plot ----------
-
-
-# Add vertical space below the horizontal bar
-st.markdown("<div style='height:32px;'></div>", unsafe_allow_html=True)
-
-import streamlit as st
-from PIL import Image
-import os
-
-# Retrieve participant's trajectory value
-traj_value = record.get("trajectories")  # expecting 1, 2, 3, or 4
-
-# Convert safely to int
-try:
-    traj_value = int(traj_value)
-except (TypeError, ValueError):
-    traj_value = None
-
-# Match image file path
-if traj_value in [1, 2, 3, 4]:
-    img_path = f"assets/trajectories-0{traj_value}.png"
-    if os.path.exists(img_path):
-        img = Image.open(img_path)
-        # Display image at half its container width
-        st.image(
-            img,
-            width=400,   # 👈 adjust this number if you want smaller/larger (e.g., 350 or 450)
-        )
-    else:
-        st.warning(f"Image not found: {img_path}")
-else:
-    st.info("No trajectory information available for this participant.")
-
 
 
 # ---------- Vertical timeline (10-pt bins, max 2 labels, cleaner ends) -------
