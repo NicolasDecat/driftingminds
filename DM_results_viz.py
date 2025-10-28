@@ -185,11 +185,11 @@ SPINE = "#222222"
 TICK  = "#555555"
 LABEL = "#000000"
 
-# --- Scale (1.2 = bigger than original) ---
-s = 1.2
+# Scale
+s = 1.4
 
 # Left alignment layout
-col_left, col_right = st.columns([1.5, 1.5])
+col_left, col_right = st.columns([1.3, 1.7])
 
 # --- Figure ---
 fig, ax = plt.subplots(figsize=(3.0 * s, 3.0 * s), subplot_kw=dict(polar=True))
