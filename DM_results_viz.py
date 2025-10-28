@@ -461,6 +461,7 @@ st.pyplot(fig, use_container_width=True)
 
 # ---------- VVIQ Distribution Plot ---------------------------------------------
 
+
 # Add vertical space below the radar
 st.markdown("<div style='height:32px;'></div>", unsafe_allow_html=True)
 
@@ -549,6 +550,183 @@ st.pyplot(fig, use_container_width=True)
 
 
 
+# ====================== Profile assignment (normalize → composite → match) ======================
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# ---------- 1) Normalization helpers ------------------------------------------------------------
+
+def _to_float(x):
+    try:
+        return float(x)
+    except:
+        return np.nan
+
+def norm_1_6(x):
+    """Map a 1–6 Likert to [0,1]."""
+    x = _to_float(x)
+    if np.isnan(x): return np.nan
+    return (x - 1.0) / 5.0
+
+def norm_0_100(x):
+    """Map a 0–100 to [0,1]."""
+    x = _to_float(x)
+    if np.isnan(x): return np.nan
+    return x / 100.0
+
+def norm_1_100(x):
+    """Map a 1–100 to [0,1]."""
+    x = _to_float(x)
+    if np.isnan(x): return np.nan
+    return (x - 1.0) / 99.0
+
+def norm_clip(x, lo, hi):
+    """Generic min–max to [0,1] with clipping (useful for minutes/hours)."""
+    x = _to_float(x)
+    if np.isnan(x): return np.nan
+    return np.clip((x - lo) / (hi - lo), 0.0, 1.0)
+
+# ---------- 2) Define composite dimensions (YOU choose vars here) -------------------------------
+
+# Each dimension: list of (field_name_in_record, normalizer_fn, weight)
+# 👉 TODO: replace the example fields with your actual variables per dimension.
+DIMENSIONS = {
+    "sensory": [
+        # e.g., sensory imagery / perceptions
+        ("degreequest_vividness",       norm_1_6, 1.0),
+        ("degreequest_immersiveness",   norm_1_6, 1.0),
+    ],
+    "letting_go": [
+        # e.g., spontaneity / losing control / sleepiness
+        ("degreequest_spontaneity",     norm_1_6, 1.0),
+        ("degreequest_sleepiness",      norm_1_6, 1.0),
+    ],
+    "pragmatic": [
+        # e.g., planning / logical thoughts (use freq_* normalized 1–6 → [0,1])
+        ("freq_planning",               norm_1_6, 1.0),
+        ("freq_think_seq_ordinary",     norm_1_6, 1.0),
+    ],
+    "emotional": [
+        # e.g., emotional intensity / valence
+        ("freq_emo_intense",            norm_1_6, 1.0),
+        ("degreequest_emotionality",    norm_1_6, 1.0),
+    ],
+    "quiet": [
+        # e.g., spectator / neutral emotion (reverse if needed)
+        ("freq_emo_neutral",            norm_1_6, 1.0),
+        ("freq_spectator",              norm_1_6, 1.0),
+    ],
+}
+
+def composite_scores_from_record(record, dimensions=DIMENSIONS):
+    """
+    Compute a normalized, weighted composite score per dimension in [0,1].
+    Missing values are ignored; if all missing -> np.nan for that dimension.
+    """
+    out = {}
+    for dim, items in dimensions.items():
+        vals, wts = [], []
+        for field, norm_fn, wt in items:
+            v = norm_fn(record.get(field, np.nan))
+            if not np.isnan(v):
+                vals.append(v * wt)
+                wts.append(wt)
+        out[dim] = (np.sum(vals) / np.sum(wts)) if wts else np.nan
+    return out
+
+# ---------- 3) Define prototype profiles (vectors aligned to DIMENSIONS order) -------------------
+
+# IMPORTANT: keep the order of DIM_KEYS consistent across prototypes and participant vector
+DIM_KEYS = list(DIMENSIONS.keys())
+
+profiles = {
+    "Sensory Dreamer":      [0.8, 0.7, 0.7, 0.5, 0.9],
+    "Letting Go":           [0.6, 0.8, 0.5, 0.6, 0.8],
+    "Pragmatic Thinker":    [0.3, 0.2, 0.2, 0.5, 0.3],
+    "Emotional Ruminator":  [0.7, 0.6, 0.7, 0.6, 0.7],
+    "Quiet Mind":           [0.2, 0.3, 0.2, 0.5, 0.2],
+}
+
+# ---------- 4) Build participant vector + handle missing dims -----------------------------------
+
+def participant_vector(comp_dict, dim_keys=DIM_KEYS):
+    """Return vector [0..1] in the dim_keys order + mask for non-NaN dims."""
+    vec = np.array([comp_dict.get(k, np.nan) for k in dim_keys], dtype=float)
+    mask = ~np.isnan(vec)
+    return vec, mask
+
+def masked_euclidean(a, b, mask):
+    """Euclidean distance on the subset where mask is True. Returns np.nan if no overlap."""
+    if not np.any(mask):
+        return np.nan
+    diff = (a - b)[mask]
+    return float(np.sqrt(np.sum(diff * diff) / np.sum(mask)))  # meaned distance → comparable
+
+# ---------- 5) Compute & assign profile ----------------------------------------------------------
+
+# Compute participant composites
+comp = composite_scores_from_record(record, DIMENSIONS)
+p_vec, mask = participant_vector(comp, DIM_KEYS)
+
+# Compare to each prototype (masked Euclidean)
+distances = {}
+for name, proto in profiles.items():
+    proto_vec = np.array(proto, dtype=float)
+    distances[name] = masked_euclidean(p_vec, proto_vec, mask)
+
+# Pick best (smallest distance)
+best_profile = min(distances, key=lambda k: distances[k] if not np.isnan(distances[k]) else np.inf)
+best_distance = distances[best_profile]
+
+# Also compute a simple similarity (1 - normalized distance) for display
+# Normalize by sqrt of dimension count to keep in [0,1]
+dim_count = np.sum(mask)
+max_dist = 1.0  # since each dim in [0,1], worst per-dim diff ≤ 1
+similarities = {k: max(0.0, 1.0 - (d / max_dist)) if not np.isnan(d) else np.nan
+                for k, d in distances.items()}
+
+# ---------- 6) Display results ------------------------------------------------------------------
+
+# Header
+st.markdown(
+    f"""
+    <div style="margin-top:1rem; margin-bottom:0.25rem;">
+      <span style="font-weight:700;">Your profile:</span>
+      <span style="color:#7C3AED; font-weight:800;">{best_profile}</span>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# Compact bar chart of similarities
+order = sorted(similarities.keys(), key=lambda k: (-similarities[k] if not np.isnan(similarities[k]) else -np.inf))
+vals_plot = [similarities[k] for k in order]
+
+fig, ax = plt.subplots(figsize=(4.8, 2.8))
+fig.patch.set_alpha(0)
+ax.set_facecolor("none")
+
+bars = ax.barh(order, vals_plot, color="#D9D9D9", edgecolor="white")
+for i, k in enumerate(order):
+    if k == best_profile:
+        bars[i].set_color("#7C3AED")
+
+ax.set_xlim(0, 1)
+ax.invert_yaxis()
+ax.set_xlabel("Similarity", fontsize=9)
+ax.set_yticklabels(order, fontsize=9)
+ax.tick_params(axis="x", labelsize=8)
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+
+plt.tight_layout()
+st.pyplot(fig, use_container_width=True)
+
+# Optional: show your composite dimension scores (0–1) neatly
+with st.expander("See your composite dimension scores"):
+    pretty = {k: (None if np.isnan(v) else round(float(v), 2)) for k, v in comp.items()}
+    st.json(pretty)
 
 
 
