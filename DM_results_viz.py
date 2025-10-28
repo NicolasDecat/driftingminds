@@ -105,6 +105,10 @@ if not record:
 #     st.json(record)
 
 
+st.image("assets/DM_flyer.gif", use_container_width=True)
+
+
+
 
 #%% Vizualisation #############################################################
 ###############################################################################
