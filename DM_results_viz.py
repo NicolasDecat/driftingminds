@@ -583,8 +583,8 @@ def norm_clip(x, lo, hi):
 # Replace field names with your actual REDCap keys
 DIMENSIONS = {
     "vividness": [
-        ("freq_percept_fleeting",        norm_1_6,   1.0, {}),
-        ("freq_percept_intense ",           norm_1_6,   1.0, {}),
+        ("freq_percept_real",        norm_1_6,   1.0, {}),
+        ("freq_percept_intense",           norm_1_6,   1.0, {}),
     ],
     "spontaneity": [
         ("freq_think_nocontrol",      norm_1_6,   1.0, {}),
@@ -635,11 +635,11 @@ def vector_from_scores(scores, dim_keys=DIM_KEYS):
 # ---------- 3) Prototype profiles (aligned to DIM_KEYS order) ---------------------
 # Order = ["vividness","spontaneity","bizarreness","immersion","emotion_pos","sleep_latency","baseline_anxiety"]
 profiles = {
-    "Sensory Dreamer":   [0.90, 0.90, 0.30, 0.90, 0.80, 0.50, 0.50, 0.50],
-    "Letting Go":        [0.70, 0.75, 0.30, 0.50, 0.60, 0.50, 0.60, 0.50],
-    "Pragmatic Thinker": [0.20, 0.20, 0.10, 0.10, 0.30, 0.50, 0.50, 0.50],
-    "Ruminator":         [0.20, 0.20, 0.10, 0.10, 0.10, 0.20, 0.90, 0.90],
-    "Quiet Mind":        [0.20, 0.20, 0.20, 0.20, 0.20, 0.50, 0.50, 0.50],
+    "Sensory Dreamer":   [0.90, 0.30, 0.90, 0.80, 0.50, 0.50, 0.50],
+    "Letting Go":        [0.70, 0.30, 0.50, 0.60, 0.50, 0.60, 0.50],
+    "Pragmatic Thinker": [0.20, 0.10, 0.10, 0.30, 0.50, 0.50, 0.50],
+    "Ruminator":         [0.20, 0.10, 0.10, 0.10, 0.20, 0.90, 0.90],
+    "Quiet Mind":        [0.20, 0.20, 0.20, 0.20, 0.50, 0.50, 0.50],
 }
 
 # ---------- 4) Assignment by nearest prototype ---------------------------------------------------
@@ -670,6 +670,10 @@ import plotly.graph_objects as go
 
 st.set_page_config(page_title="Drifting Minds — Profile", layout="centered")
 
+if 'record' not in globals():
+    st.error("No 'record' dict found. Provide your participant data before profile assignment.")
+    st.stop()
+    
 prof, scores = assign_profile_from_record(record)
 
 st.markdown(f"## 🌙 Your sleep-onset profile: **{prof}**")
