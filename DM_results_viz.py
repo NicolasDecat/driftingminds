@@ -112,108 +112,102 @@ with st.expander("Raw responses"):
 ###############################################################################
 
 
+#%% Minimal radar (1–6): vivid, immersive, bizarre, spontaneous, fleeting, emotional, sleepy
 import numpy as np
 import matplotlib.pyplot as plt
 
-# --- fields & pretty names (order matters) ---
+# ---- fields in order + short labels ----
 FIELDS = [
     ("degreequest_vividness",       "vivid"),
     ("degreequest_immersiveness",   "immersive"),
     ("degreequest_bizarreness",     "bizarre"),
     ("degreequest_spontaneity",     "spontaneous"),
     ("degreequest_fleetingness",    "fleeting"),
-    ("degreequest_emotionality",    "emotional"),   # special range -3..3
+    ("degreequest_emotionality",    "emotional"),
     ("degreequest_sleepiness",      "sleepy"),
 ]
 
-# --- helpers ---
+# ---- helpers ----
 def as_float(x):
-    try:
-        return float(x)
-    except:
-        return np.nan
+    try: return float(x)
+    except: return np.nan
 
 def clamp_1_6(v):
     if np.isnan(v): return np.nan
     return max(1.0, min(6.0, v))
 
+# ---- extract values ----
+vals, labels = [], []
+for k, lab in FIELDS:
+    v = clamp_1_6(as_float(record.get(k, np.nan)))
+    vals.append(v); labels.append(lab)
 
-# --- extract values from REDCap record ---
-vals = []
-labels = []
-for key, lab in FIELDS:
-    raw = as_float(record.get(key, np.nan))
-    val = clamp_1_6(raw)
-    vals.append(val)
-    labels.append(lab)
-
-# if everything missing, bail out
 if all(np.isnan(v) for v in vals):
-    st.warning("No dimension scores found for this participant.")
+    st.warning("No dimension scores found.")
     st.stop()
 
-# replace missing with NaN-safe mean (or 3.5 fallback) to keep polygon continuous, but fade it out later
-mean_val = np.nanmean([v for v in vals if not np.isnan(v)]) if any(~np.isnan(v) for v in vals) else 3.5
-vals_filled = [mean_val if np.isnan(v) else v for v in vals]
+# fill missing with neutral (3.5) to keep polygon continuous
+neutral = 3.5
+vals_filled = [neutral if np.isnan(v) else v for v in vals]
 
 # close the loop
 values = np.array(vals_filled + [vals_filled[0]], dtype=float)
 angles = np.linspace(0, 2*np.pi, len(vals_filled), endpoint=False)
-angles = np.roll(angles, -1)  # rotate so first label sits near top-left
 angles = np.concatenate([angles, [angles[0]]])
 
-# --- minimal style ---
-BG      = "#0E1117"
-GRID    = "#2B3241"
-CURVE   = "#9AA3AF"   # subtle outline
-FILL    = "#22D3EE"   # accent
+# ---- titles (outside the figure) ----
+st.markdown(
+    "<div style='font-size:1.5rem;font-weight:700;'>Project Drifting Minds</div>"
+    "<div style='color:#9AA3AF;margin-top:0.15rem;'>this is how my mind drifts into sleep</div>",
+    unsafe_allow_html=True
+)
 
-fig = plt.figure(figsize=(5.4, 5.4))
-fig.patch.set_facecolor(BG)
+# ---- minimalist style ----
+COLOR_RING = "#A0A7B3"   # outer ring & spokes
+COLOR_LINE = "#3BC6FF"   # polygon outline
+COLOR_FILL = "#3BC6FF"   # polygon fill (transparent)
+COLOR_LABEL= "#E6E6E6"
+
+fig = plt.figure(figsize=(5.6, 5.6))
+# no background
+fig.patch.set_alpha(0)
+
 ax = plt.subplot(111, polar=True)
-ax.set_facecolor(BG)
+ax.set_facecolor("none")                      # transparent axes
+ax.grid(False)                                # no default grids
 
-# polar limits
-ax.set_theta_offset(np.pi / 2)   # start at top
-ax.set_theta_direction(-1)       # clockwise
+# polar orientation
+ax.set_theta_offset(np.pi / 2)                # start at top
+ax.set_theta_direction(-1)                    # clockwise
+
+# limits and ticks
 ax.set_rmin(1.0); ax.set_rmax(6.0)
-
-# minimal grid (no tick labels)
 ax.set_rticks([]); ax.set_thetagrids([])
-for r in [2, 4, 6]:
-    ax.plot(np.linspace(0, 2*np.pi, 360), np.full(360, r), color=GRID, linewidth=0.6, alpha=0.35)
 
-# spokes (very faint)
+# single outer ring at r=6
+theta = np.linspace(0, 2*np.pi, 512)
+ax.plot(theta, np.full_like(theta, 6.0), color=COLOR_RING, linewidth=0.8)
+
+# thin spokes
 for a in angles[:-1]:
-    ax.plot([a, a], [1, 6], color=GRID, linewidth=0.6, alpha=0.25)
+    ax.plot([a, a], [1.0, 6.0], color=COLOR_RING, linewidth=0.6, alpha=0.35)
 
 # polygon
-ax.plot(angles, values, color=CURVE, linewidth=1.2)
-ax.fill(angles, values, color=FILL, alpha=0.15)
-ax.scatter(angles[:-1], values[:-1], s=10, color=FILL, zorder=3)
+ax.plot(angles, values, color=COLOR_LINE, linewidth=1.6)
+ax.fill(angles, values, color=COLOR_FILL, alpha=0.12, zorder=2)
 
-# labels (outside, minimal)
-for ang, lab, v in zip(angles[:-1], labels, vals):
-    # position label slightly outside max radius
-    r_lab = 6.25
-    ha = "center"
-    rot = np.degrees(ang)
-    # adjust alignment for better readability
-    if -90 <= rot <= 90:
-        ha = "left"
-    elif rot < -90 or rot > 90:
-        ha = "right"
-    ax.text(ang, r_lab, lab, ha=ha, va="center", fontsize=10, color="#E6E6E6")
+# point markers (subtle)
+ax.scatter(angles[:-1], values[:-1], s=14, color=COLOR_LINE, zorder=3, alpha=0.9)
 
-# optional: show tiny dots faded for missing values
-for ang, orig in zip(angles[:-1], vals):
-    if np.isnan(orig):
-        ax.scatter([ang], [values[0]], s=10, color="#9AA3AF", alpha=0.2)
+# labels just outside the ring
+for ang, lab in zip(angles[:-1], labels):
+    ax.text(ang, 6.22, lab, ha="center", va="center", fontsize=10, color=COLOR_LABEL)
 
-# margins so Streamlit doesn't crop
-plt.tight_layout(pad=0.6)
+# tighten so Streamlit doesn't crop
+plt.tight_layout(pad=0.4)
 
 st.pyplot(fig, use_container_width=False)
+
 
 
 
