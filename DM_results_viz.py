@@ -516,7 +516,7 @@ ax.bar(
     width=edges[1]-edges[0],
     color="#7C3AED",
     edgecolor="white",
-    label=f"Your score: {vviq_score}"
+    label=f"Your score: {int(vviq_score)}"
 )
 
 # Add cutoffs
