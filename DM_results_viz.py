@@ -218,6 +218,133 @@ st.pyplot(fig, use_container_width=False)
 
 
 
+#%% Sleep-onset timeline (Early / Middle / Late with top 3 freq labels) ######
+import re
+import numpy as np
+import matplotlib.pyplot as plt
+
+# ---- Provided variable names ------------------------------------------------
+FREQ_VARS = [
+    "freq_think_ordinary","freq_scenario","freq_negative","freq_absorbed",
+    "freq_percept_fleeting","freq_think_bizarre","freq_planning","freq_spectator",
+    "freq_ruminate","freq_percept_intense","freq_percept_narrative","freq_percept_ordinary",
+    "freq_time_perc_fast","freq_percept_vague","freq_replay","freq_percept_bizarre",
+    "freq_emo_intense","freq_percept_continuous","freq_think_nocontrol","freq_percept_dull",
+    "freq_emo_neutral","freq_actor","freq_think_seq_bizarre","freq_percept_precise",
+    "freq_percept_imposed","freq_hear_env","freq_positive","freq_think_seq_ordinary",
+    "freq_percept_real","freq_time_perc_slow","freq_syn","freq_creat"
+]
+
+TIME_VARS = [
+    "timequest_scenario","timequest_positive","timequest_absorbed","timequest_percept_fleeting",
+    "timequest_think_bizarre","timequest_planning","timequest_spectator","timequest_ruminate",
+    "timequest_percept_intense","timequest_percept_narrative","timequest_percept_ordinary",
+    "timequest_time_perc_fast","timequest_percept_vague","timequest_replay",
+    "timequest_percept_bizarre","timequest_emo_intense","timequest_percept_continuous",
+    "timequest_think_nocontrol","timequest_percept_dull","timequest_emo_neutral",
+    "timequest_actor","timequest_think_seq_bizarre","timequest_percept_precise",
+    "timequest_percept_imposed","timequest_hear_env","timequest_negative",
+    "timequest_think_seq_ordinary","timequest_percept_real","timequest_time_perc_slow",
+    "timequest_syn","timequest_creat"
+]
+
+# ---- Helpers ----------------------------------------------------------------
+def core_name(var: str) -> str:
+    """Strip freq_ / timequest_ prefix and any accidental extra separators."""
+    return re.sub(r"^(freq_|timequest_)", "", var).strip("_").strip()
+
+def as_float(x):
+    try: return float(x)
+    except: return np.nan
+
+def pretty_label(core: str) -> str:
+    """Turn core tokens into a readable label (spaces, no prefix)."""
+    return core.replace("_", " ")
+
+# Build dicts: core -> value
+freq_scores = {}
+for v in FREQ_VARS:
+    core = core_name(v)
+    val = as_float(record.get(v, np.nan))
+    if not np.isnan(val):
+        freq_scores[core] = val  # 1..6
+
+time_scores = {}
+for v in TIME_VARS:
+    core = core_name(v)
+    val = as_float(record.get(v, np.nan))
+    if not np.isnan(val):
+        time_scores[core] = val  # 1..100
+
+# Only keep cores present in both sets
+common_cores = [c for c in time_scores.keys() if c in freq_scores]
+
+# ---- Bucket by temporality --------------------------------------------------
+groups = {"Early": [], "Middle": [], "Late": []}  # each item: (core, freq, time)
+
+for c in common_cores:
+    t = time_scores[c]
+    f = freq_scores[c]
+    if 1 <= t <= 33:
+        groups["Early"].append((c, f, t))
+    elif 34 <= t <= 66:
+        groups["Middle"].append((c, f, t))
+    elif 67 <= t <= 100:
+        groups["Late"].append((c, f, t))
+    # values outside 1..100 are ignored
+
+# ---- Select top 3 by frequency per group -----------------------------------
+top_labels = {}
+for k, items in groups.items():
+    if not items:
+        top_labels[k] = []
+        continue
+    # sort by frequency desc, keep top 3
+    items_sorted = sorted(items, key=lambda x: x[1], reverse=True)[:3]
+    top_labels[k] = [pretty_label(core) for (core, _, _) in items_sorted]
+
+# ---- Draw minimal timeline --------------------------------------------------
+fig, ax = plt.subplots(figsize=(7.0, 1.8))
+fig.patch.set_alpha(0)          # transparent figure
+ax.set_facecolor("none")        # transparent axes
+ax.axis("off")
+
+# Geometry
+y_line = 0.25
+x0, x1 = 0.05, 0.95
+seg = (x1 - x0) / 3.0
+x_early  = x0 + seg * 0.5     # centers of thirds
+x_middle = x0 + seg * 1.5
+x_late   = x0 + seg * 2.5
+
+# Base line
+ax.plot([x0, x1], [y_line, y_line], color="#222222", linewidth=1.2)
+
+# Small vertical separators
+for i in (1, 2):
+    xi = x0 + seg * i
+    ax.plot([xi, xi], [y_line - 0.06, y_line + 0.06], color="#222222", linewidth=1.0)
+
+# End labels
+ax.text(x0, y_line - 0.12, "Awake",  ha="left",  va="top",  color="#000000", fontsize=9)
+ax.text(x1, y_line - 0.12, "Asleep", ha="right", va="top",  color="#000000", fontsize=9)
+
+# Labels above each segment (stack up to 3, centered over segment)
+def draw_stack(x_center, names):
+    # vertical stack slightly above the line
+    ys = [0.78, 0.62, 0.46]  # top to bottom
+    for i, name in enumerate(names[:3]):
+        ax.text(x_center, ys[i], name, ha="center", va="center",
+                fontsize=9, color="#000000")
+
+draw_stack(x_early,  top_labels.get("Early", []))
+draw_stack(x_middle, top_labels.get("Middle", []))
+draw_stack(x_late,   top_labels.get("Late", []))
+
+# Tight layout (keeps stacks visible)
+plt.tight_layout(pad=0.2)
+st.pyplot(fig, use_container_width=True)
+
 
 
 
