@@ -120,25 +120,23 @@ if not record:
 
 # ---------- Radar ----------
 
-# ==== Left-aligned radar (slightly smaller, well-balanced) ====
+# ==== Large, left-aligned radar with extra spacing below title ====
 
 import numpy as np
 import matplotlib.pyplot as plt
 
-# --- Titles (centered & large) ---
+# --- Titles ---
 st.markdown(
     """
-    <div style="text-align:center; margin-bottom:0.6rem;">
-    <div style='height:32px;">
+    <div style="text-align:center; margin-bottom:2.5rem;">  <!-- more space -->
         <div style="font-size:2rem; font-weight:800;">Drifting Minds Study</div>
-        <div style="font-size:1rem; margin-top:0.3rem;">
+        <div style="font-size:1rem; margin-top:0.5rem;">
             This is how my mind drifts into sleep
         </div>
     </div>
     """,
     unsafe_allow_html=True
 )
-
 
 # --- Fields & labels ---
 FIELDS = [
@@ -181,17 +179,17 @@ values = vals_filled + [vals_filled[0]]
 angles_p = angles + angles[:1]
 
 # --- Colors ---
-POLY  = "#7C3AED"   # purple
+POLY  = "#7C3AED"
 GRID  = "#B0B0B0"
 SPINE = "#222222"
 TICK  = "#555555"
 LABEL = "#000000"
 
-# --- Scale factor ---
-s = 0.95  # almost full-size
+# --- Scale (1.2 = bigger than original) ---
+s = 1.2
 
-# Create two columns to align left
-col_left, col_right = st.columns([1.2, 1.8])
+# Left alignment layout
+col_left, col_right = st.columns([1.5, 1.5])
 
 # --- Figure ---
 fig, ax = plt.subplots(figsize=(3.0 * s, 3.0 * s), subplot_kw=dict(polar=True))
@@ -212,20 +210,20 @@ for lbl, ang in zip(ax.get_xticklabels(), angles):
     else:
         lbl.set_horizontalalignment("right")
     lbl.set_color(LABEL)
-    lbl.set_fontsize(7.5 * s)
-ax.tick_params(axis="x", pad=int(2 * s))
+    lbl.set_fontsize(8.5 * s)
+ax.tick_params(axis="x", pad=int(2.5 * s))
 
 # Radial range 1–6
 ax.set_ylim(0, 6)
 ax.set_rgrids([1, 2, 3, 4, 5, 6], angle=180 / num_vars, color=TICK)
-ax.tick_params(axis="y", labelsize=6.5 * s, colors=TICK, pad=-1)
+ax.tick_params(axis="y", labelsize=7.0 * s, colors=TICK, pad=-1)
 
-# Grid lines & spine (thicker again for this size)
+# Grid lines & spine
 ax.grid(color=GRID, linewidth=0.45 * s)
 ax.spines["polar"].set_color(SPINE)
 ax.spines["polar"].set_linewidth(0.7 * s)
 
-# Polygon (bolder)
+# Polygon
 ax.plot(angles_p, values, color=POLY, linewidth=1.0 * s, zorder=3)
 ax.fill(angles_p, values, color=POLY, alpha=0.22, zorder=2)
 
@@ -233,10 +231,11 @@ ax.fill(angles_p, values, color=POLY, alpha=0.22, zorder=2)
 for a in angles:
     ax.plot([a, a], [0, 6], color=GRID, linewidth=0.4 * s, alpha=0.35, zorder=1)
 
-plt.tight_layout(pad=0.25 * s)
+plt.tight_layout(pad=0.3 * s)
 
 with col_left:
     st.pyplot(fig, use_container_width=False)
+
 
 
 
