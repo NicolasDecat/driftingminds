@@ -547,14 +547,12 @@ plt.tight_layout()
 st.pyplot(fig, use_container_width=True)
 
 
+
 #%% Profile #############################################################
 ###############################################################################
-
 import numpy as np
-import matplotlib.pyplot as plt
 
 # ---------- 1) Normalization helpers ------------------------------------------------------------
-
 def _to_float(x):
     try:
         return float(x)
@@ -562,75 +560,57 @@ def _to_float(x):
         return np.nan
 
 def norm_1_6(x):
-    """Map a 1–6 Likert to [0,1]."""
     x = _to_float(x)
     if np.isnan(x): return np.nan
     return (x - 1.0) / 5.0
 
 def norm_0_100(x):
-    """Map a 0–100 to [0,1]."""
     x = _to_float(x)
     if np.isnan(x): return np.nan
     return x / 100.0
 
 def norm_1_100(x):
-    """Map a 1–100 to [0,1]."""
     x = _to_float(x)
     if np.isnan(x): return np.nan
     return (x - 1.0) / 99.0
 
 def norm_clip(x, lo, hi):
-    """Generic min–max to [0,1] with clipping (useful for minutes/hours)."""
     x = _to_float(x)
     if np.isnan(x): return np.nan
     return np.clip((x - lo) / (hi - lo), 0.0, 1.0)
 
-
 # ---------- 2) Define composite dimensions  -------------------------------
-
+# Replace field names with your actual REDCap keys
 DIMENSIONS = {
-    # Perceptual intensity & detail
     "vividness": [
         ("vividness_1to6",        norm_1_6,   1.0, {}),
         ("detail_1to6",           norm_1_6,   1.0, {}),
     ],
-    # Involuntary/“imposed” content
     "spontaneity": [
         ("spontaneity_1to6",      norm_1_6,   1.0, {}),
     ],
-    # Unlikelihood / illogical
     "bizarreness": [
         ("bizarreness_1to6",      norm_1_6,   1.0, {}),
     ],
-    # Absorption / disconnection
     "immersion": [
         ("immersion_1to6",        norm_1_6,   1.0, {}),
     ],
-    # Emotional valence (negative→positive)
     "emotion_pos": [
         ("emotion_valence_1to6",  norm_1_6,   1.0, {}),
     ],
-    # Sleep latency in minutes (higher = longer = harder to fall asleep)
     "sleep_latency": [
-        ("sleep_latency_min",     norm_clip,   1.0, {"lo": 0, "hi": 60}),  # adjust hi if you expect >60
+        ("sleep_latency_min",     norm_clip,  1.0, {"lo": 0, "hi": 60}),
     ],
-    # Baseline daily-life anxiety (1–100 scale in your form)
     "baseline_anxiety": [
         ("anxiety_1to100",        norm_1_100, 1.0, {}),
     ],
 }
 
 def composite_scores_from_record(record, dimensions=DIMENSIONS):
-    """
-    Compute a normalized, weighted composite score per dimension in [0,1].
-    Missing values are ignored; if all missing -> np.nan for that dimension.
-    Supports normalizers with kwargs (e.g., norm_clip(lo,hi)).
-    """
     out = {}
     for dim, items in dimensions.items():
         vals, wts = [], []
         for item in items:
-            # item can be (field, fn, wt) or (field, fn, wt, kwargs)
             if len(item) == 3:
                 field, norm_fn, wt = item
                 kwargs = {}
@@ -640,7 +620,6 @@ def composite_scores_from_record(record, dimensions=DIMENSIONS):
             try:
                 v = norm_fn(raw, **kwargs) if kwargs else norm_fn(raw)
             except TypeError:
-                # Fallback if function signature differs
                 v = norm_fn(raw)
             if not np.isnan(v):
                 vals.append(v * wt)
@@ -648,32 +627,23 @@ def composite_scores_from_record(record, dimensions=DIMENSIONS):
         out[dim] = (np.sum(vals) / np.sum(wts)) if wts else np.nan
     return out
 
-# Convenience: build vector in fixed order for distance computations
 DIM_KEYS = list(DIMENSIONS.keys())
 
 def vector_from_scores(scores, dim_keys=DIM_KEYS):
-    """Return participant vector (np.array) ordered by DIM_KEYS; np.nan -> replace with population mean later if desired."""
     return np.array([scores.get(k, np.nan) for k in dim_keys], dtype=float)
 
-# ---------- 3) Define prototype profiles (vectors aligned to DIM_KEYS order) ---------------------
-# Order = DIM_KEYS:
-# ["vividness","spontaneity","bizarreness","immersion","emotion_pos","sleep_latency","baseline_anxiety"]
-
+# ---------- 3) Prototype profiles (aligned to DIM_KEYS order) ---------------------
+# Order = ["vividness","spontaneity","bizarreness","immersion","emotion_pos","sleep_latency","baseline_anxiety"]
 profiles = {
     "Sensory Dreamer":   [0.85, 0.60, 0.70, 0.80, 0.60, 0.40, 0.40],
     "Letting Go":        [0.60, 0.75, 0.50, 0.70, 0.50, 0.60, 0.50],
     "Pragmatic Thinker": [0.30, 0.20, 0.20, 0.30, 0.50, 0.30, 0.30],
-    "Ruminator":         [0.50, 0.30, 0.30, 0.50, 0.30, 0.90, 0.90],  # long latency + high anxiety
+    "Ruminator":         [0.50, 0.30, 0.30, 0.50, 0.30, 0.90, 0.90],
     "Quiet Mind":        [0.20, 0.20, 0.20, 0.20, 0.50, 0.10, 0.20],
 }
 
 # ---------- 4) Assignment by nearest prototype ---------------------------------------------------
-
 def _nanaware_distance(a, b):
-    """
-    Euclidean distance ignoring dimensions that are NaN in either vector.
-    If all dims are NaN, return +inf.
-    """
     a = np.array(a, dtype=float)
     b = np.array(b, dtype=float)
     mask = ~(np.isnan(a) | np.isnan(b))
@@ -684,7 +654,7 @@ def _nanaware_distance(a, b):
 
 def assign_profile_from_record(record, profiles=profiles):
     scores = composite_scores_from_record(record)
-    vec = vector_from_scores(scores)  # order = DIM_KEYS
+    vec = vector_from_scores(scores)
     best_name, best_dist = None, np.inf
     for name, proto in profiles.items():
         d = _nanaware_distance(vec, proto)
@@ -692,33 +662,52 @@ def assign_profile_from_record(record, profiles=profiles):
             best_name, best_dist = name, d
     return best_name, scores
 
-# ---------- 6) Display results ------------------------------------------------------------------
-
+# ---------- 5) Streamlit display ----------------------------------------------------------------
 import streamlit as st
 import plotly.graph_objects as go
+
+st.set_page_config(page_title="Drifting Minds — Profile", layout="centered")
+
+# Fallback demo record (REMOVE in production; provide your real record dict)
+record = st.session_state.get("record", {
+    "vividness_1to6":        5,
+    "detail_1to6":           5,
+    "spontaneity_1to6":      2,
+    "bizarreness_1to6":      3,
+    "immersion_1to6":        5,
+    "emotion_valence_1to6":  2,
+    "sleep_latency_min":     50,
+    "anxiety_1to100":        88,
+})
 
 prof, scores = assign_profile_from_record(record)
 
 st.markdown(f"## 🌙 Your sleep-onset profile: **{prof}**")
 
-# Show radar chart
-categories = list(scores.keys())
-values = list(scores.values())
+# Radar: order by DIM_KEYS, replace NaNs with neutral (0.5) for display
+categories = DIM_KEYS[:]  # fixed order
+values = [scores.get(k, np.nan) for k in categories]
+values = [0.5 if (v is None or np.isnan(v)) else v for v in values]
+
+# Close the loop for polar
+r_vals = values + [values[0]]
+theta_vals = categories + [categories[0]]
 
 fig = go.Figure(data=go.Scatterpolar(
-    r=values + [values[0]],  # close loop
-    theta=categories + [categories[0]],
+    r=r_vals,
+    theta=theta_vals,
     fill='toself',
-    line_color='#7FDBFF'
+    line_color='#7FDBFF',
+    fillcolor='rgba(127,219,255,0.2)'
 ))
 fig.update_layout(
+    margin=dict(l=20, r=20, t=10, b=10),
     polar=dict(radialaxis=dict(visible=True, range=[0,1])),
     showlegend=False,
-    width=400, height=400
+    width=420, height=420,
 )
 st.plotly_chart(fig, use_container_width=True)
 
-# Optional short description (you can tune text later)
 descriptions = {
     "Sensory Dreamer": "You tend to drift into sleep through vivid, sensory experiences — colors, sounds, or mini-dreams.",
     "Letting Go": "You start by thinking intentionally, but gradually surrender to spontaneous imagery.",
@@ -726,8 +715,13 @@ descriptions = {
     "Ruminator": "You tend to replay or analyze things in bed, with longer sleep latency and emotional tension.",
     "Quiet Mind": "You fall asleep effortlessly, with little mental content — a peaceful fade into rest.",
 }
+st.caption(descriptions.get(prof, ""))
 
-st.write(descriptions.get(prof, ""))
+# Optional: show raw dimension scores for debugging
+with st.expander("See your dimension scores"):
+    for k in DIM_KEYS:
+        st.write(f"**{k}**: {scores.get(k)}")
+
 
 
 
