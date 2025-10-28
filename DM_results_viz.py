@@ -448,7 +448,7 @@ else:
 
 
 
-# ---------- Vertical timeline plot (5 bands, upside down, minimal) ----------
+# ---------- Vertical timeline plot (5 bands, upside down, fixed gradient) ----
 
 # Space below the horizontal bar
 st.markdown("<div style='height:32px;'></div>", unsafe_allow_html=True)
@@ -462,7 +462,7 @@ def split_suffix_newline(label: str):
 
 # Build core -> (time, freq, label) for those with both values
 cores = []
-for c in common:  # 'common', 'time_scores', 'freq_scores', 'CUSTOM_LABELS' already defined above
+for c in common:  # uses your existing 'common', 'time_scores', 'freq_scores', 'CUSTOM_LABELS'
     t = float(time_scores[c])
     f = float(freq_scores[c])
     lab = CUSTOM_LABELS.get(f"freq_{c}", c.replace("_", " "))
@@ -502,21 +502,22 @@ ax.axis("off")
 x_bar = 0.5
 bar_half_w = 0.02
 y_top, y_bot = 0.92, 0.08  # margins
+
 # Map time (1..100) to y with Awake (1) at TOP, Asleep (100) at BOTTOM
 def ty(val):
     return y_top - (val - 1) / 99.0 * (y_top - y_bot)
 
-# Vertical gradient: top (Awake) ≈ white -> bottom (Asleep) dark purple
-top_rgb  = np.array([1.0, 1.0, 1.0])
-bot_rgb  = np.array([0x5B/255, 0x21/255, 0xB6/255])
+# --- FIXED GRADIENT: top (Awake) white -> bottom (Asleep) dark purple -------
+top_rgb  = np.array([1.0, 1.0, 1.0])                         # white
+bot_rgb  = np.array([0x5B/255, 0x21/255, 0xB6/255])          # dark purple
 n = 900
-grad = np.linspace(1, 0, n)  # 1 at bottom, 0 at top (so bottom = purple)
-colors = (top_rgb[None, :] * grad[:, None]) + (bot_rgb[None, :] * (1 - grad)[:, None])
-grad_img = np.tile(colors[:, None, :], (1, 30, 1))  # narrow vertical strip
+# rows[0] must be BOTTOM color (imshow origin='lower'), rows[-1] TOP color
+rows = np.linspace(bot_rgb, top_rgb, n)                      # bottom→top
+grad_img = np.tile(rows[:, None, :], (1, 30, 1))             # skinny vertical strip
 
 ax.imshow(
     grad_img,
-    extent=(x_bar - bar_half_w, x_bar + bar_half_w, ty(100), ty(1)),
+    extent=(x_bar - bar_half_w, x_bar + bar_half_w, ty(100), ty(1)),  # bottom→top in data coords
     origin="lower",
     aspect="auto",
     interpolation="bilinear"
@@ -528,7 +529,7 @@ ax.text(x_bar, ty(100) - 0.02, "Asleep", ha="center", va="top",    fontsize=11, 
 
 # No division ticks (removed)
 
-# Annotations:
+# Annotations (ultra-thin leader lines; alternate sides when single label)
 x_right = x_bar + 0.08
 x_left  = x_bar - 0.08
 for i, center in enumerate(band_centers):
@@ -538,8 +539,7 @@ for i, center in enumerate(band_centers):
     y_c = ty(center)
 
     if len(labs) == 1:
-        # Alternate sides when only one label in the band
-        side_right = (i % 2 == 0)  # even index -> right, odd -> left
+        side_right = (i % 2 == 0)  # even band index -> right, odd -> left
         if side_right:
             ax.plot([x_bar + bar_half_w, x_right - 0.01], [y_c, y_c], color="#000000", linewidth=0.2)
             ax.text(x_right, y_c, labs[0], ha="left", va="center", fontsize=9.5, color="#000000", linespacing=1.2)
