@@ -112,13 +112,20 @@ with st.expander("Raw responses"):
 
 # ---------- Radar ----------
 
+#%% Final Radar — Project Drifting Minds ######################################
 import numpy as np
 import matplotlib.pyplot as plt
 
-# --- Single clean title ---
+# --- Titles (centered & large) ---
 st.markdown(
-    "<div style='font-size:1.5rem;font-weight:700;'>Project Drifting Minds</div>"
-    "<div style='color:#666;margin-top:0.2rem;'>this is how my mind drifts into sleep</div>",
+    """
+    <div style="text-align:center; margin-bottom:0.6rem;">
+        <div style="font-size:2rem; font-weight:800;">Project Drifting Minds</div>
+        <div style="color:#666; font-size:1rem; margin-top:0.3rem;">
+            this is how my mind drifts into sleep
+        </div>
+    </div>
+    """,
     unsafe_allow_html=True
 )
 
@@ -159,13 +166,13 @@ values = vals_filled + [vals_filled[0]]
 angles_p = angles + angles[:1]
 
 # --- Colors ---
-POLY = "#7C3AED"   # purple
-GRID = "#B0B0B0"
-SPINE= "#222222"
-TICK = "#222222"
-LABEL= "#000000"
+POLY  = "#7C3AED"   # purple
+GRID  = "#B0B0B0"
+SPINE = "#222222"
+TICK  = "#555555"
+LABEL = "#000000"
 
-# --- Figure setup ---
+# --- Figure ---
 fig, ax = plt.subplots(figsize=(3.0, 3.0), subplot_kw=dict(polar=True))
 fig.patch.set_alpha(0)
 ax.set_facecolor("none")
@@ -175,7 +182,7 @@ ax.set_theta_offset(np.pi/2)
 ax.set_theta_direction(-1)
 ax.set_thetagrids(np.degrees(angles), labels)
 
-# Smaller labels & closer to ring
+# Labels: smaller + closer
 for lbl, ang in zip(ax.get_xticklabels(), angles):
     if ang in (0, np.pi):
         lbl.set_horizontalalignment('center')
@@ -184,30 +191,31 @@ for lbl, ang in zip(ax.get_xticklabels(), angles):
     else:
         lbl.set_horizontalalignment('right')
     lbl.set_color(LABEL)
-    lbl.set_fontsize(8)
-# ↓ Pull labels closer (smaller pad)
-ax.tick_params(axis='x', pad=4)
+    lbl.set_fontsize(7.5)
+# Bring them closer
+ax.tick_params(axis='x', pad=2)
 
-# Radial range and gridlines
+# Radial range 1–6
 ax.set_ylim(0, 6)
-ax.set_rgrids([1, 2, 3, 4, 5, 6], angle=180/num_vars, color=TICK)
-ax.tick_params(axis='y', labelsize=8, colors=TICK)
+ax.set_rgrids([1,2,3,4,5,6], angle=180/num_vars, color=TICK)
+ax.tick_params(axis='y', labelsize=6.5, colors=TICK, pad=-1)  # smaller & closer radial labels
 
-# Thinner gridlines
-ax.grid(color=GRID, linewidth=0.5)
+# Thin grid lines
+ax.grid(color=GRID, linewidth=0.4)
 ax.spines['polar'].set_color(SPINE)
 ax.spines['polar'].set_linewidth(0.6)
 
-# Polygon (slightly more transparent + thinner outline)
-ax.plot(angles_p, values, color=POLY, linewidth=0.9, zorder=3)
-ax.fill(angles_p, values, color=POLY, alpha=0.25, zorder=2)
+# Polygon (thin + semi-transparent purple)
+ax.plot(angles_p, values, color=POLY, linewidth=0.8, zorder=3)
+ax.fill(angles_p, values, color=POLY, alpha=0.22, zorder=2)
 
-# Spokes (thin + full length)
+# Spokes (center to edge)
 for a in angles:
     ax.plot([a, a], [0, 6], color=GRID, linewidth=0.4, alpha=0.35, zorder=1)
 
 plt.tight_layout(pad=0.25)
 st.pyplot(fig, use_container_width=False)
+
 
 
 
