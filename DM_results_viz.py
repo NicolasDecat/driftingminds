@@ -349,6 +349,19 @@ def compress_by_suffix(names):
     return out[:3]
 
 
+if st.checkbox("Debug: show timeline grouping"):
+    def summarize(items):
+        # items: list of (core, freq)
+        return [{"core": c, "freq": float(f), "time": float(time_scores[c])} for c, f in items]
+    st.json({
+        "Early (1–33)": summarize(groups["Early"]),
+        "Middle (34–66)": summarize(groups["Middle"]),
+        "Late (67–100)": summarize(groups["Late"]),
+    })
+
+
+
+
 for seg_key in list(top_labels.keys()):
     top_labels[seg_key] = compress_by_suffix(top_labels[seg_key])
 
@@ -440,7 +453,6 @@ if traj_value in [1, 2, 3, 4]:
         st.image(
             img,
             width=400,   # 👈 adjust this number if you want smaller/larger (e.g., 350 or 450)
-            caption=f"Trajectory type {traj_value}",
         )
     else:
         st.warning(f"Image not found: {img_path}")
