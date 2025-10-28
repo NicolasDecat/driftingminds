@@ -129,6 +129,7 @@ import matplotlib.pyplot as plt
 st.markdown(
     """
     <div style="text-align:center; margin-bottom:0.6rem;">
+    <div style='height:32px;">
         <div style="font-size:2rem; font-weight:800;">Drifting Minds Study</div>
         <div style="font-size:1rem; margin-top:0.3rem;">
             This is how my mind drifts into sleep
@@ -137,6 +138,7 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
 
 # --- Fields & labels ---
 FIELDS = [
@@ -185,11 +187,11 @@ SPINE = "#222222"
 TICK  = "#555555"
 LABEL = "#000000"
 
-# --- Scale factor (0.75 = slightly smaller) ---
-s = 0.75
+# --- Scale factor ---
+s = 0.95  # almost full-size
 
 # Create two columns to align left
-col_left, col_right = st.columns([1.3, 2])  # smaller right column keeps left anchor strong
+col_left, col_right = st.columns([1.2, 1.8])
 
 # --- Figure ---
 fig, ax = plt.subplots(figsize=(3.0 * s, 3.0 * s), subplot_kw=dict(polar=True))
@@ -218,13 +220,13 @@ ax.set_ylim(0, 6)
 ax.set_rgrids([1, 2, 3, 4, 5, 6], angle=180 / num_vars, color=TICK)
 ax.tick_params(axis="y", labelsize=6.5 * s, colors=TICK, pad=-1)
 
-# Grid lines & spine (thinner)
-ax.grid(color=GRID, linewidth=0.4 * s)
+# Grid lines & spine (thicker again for this size)
+ax.grid(color=GRID, linewidth=0.45 * s)
 ax.spines["polar"].set_color(SPINE)
-ax.spines["polar"].set_linewidth(0.6 * s)
+ax.spines["polar"].set_linewidth(0.7 * s)
 
-# Polygon (scaled thickness)
-ax.plot(angles_p, values, color=POLY, linewidth=0.8 * s, zorder=3)
+# Polygon (bolder)
+ax.plot(angles_p, values, color=POLY, linewidth=1.0 * s, zorder=3)
 ax.fill(angles_p, values, color=POLY, alpha=0.22, zorder=2)
 
 # Spokes (center to edge)
