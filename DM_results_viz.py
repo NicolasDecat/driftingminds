@@ -217,11 +217,12 @@ plt.tight_layout(pad=0.25)
 st.pyplot(fig, use_container_width=False)
 
 
+# ---------- Timeline plot ----------
+
 
 # Add vertical space below the radar
 st.markdown("<div style='height:32px;'></div>", unsafe_allow_html=True)
 
-#%% Sleep-onset timeline — split suffix on new line for readability ###########
 import re
 import numpy as np
 import matplotlib.pyplot as plt
@@ -403,6 +404,39 @@ plt.tight_layout(pad=0.18)
 st.pyplot(fig, use_container_width=True)
 
 
+# ---------- Trajectory plot ----------
+
+
+# Add vertical space below the horizontal bar
+st.markdown("<div style='height:32px;'></div>", unsafe_allow_html=True)
+
+import streamlit as st
+from PIL import Image
+import os
+
+# Retrieve participant's trajectory value
+traj_value = record.get("trajectories")  # expecting 1, 2, 3, or 4
+
+# Convert safely to int
+try:
+    traj_value = int(traj_value)
+except (TypeError, ValueError):
+    traj_value = None
+
+# Match image file path
+if traj_value in [1, 2, 3, 4]:
+    img_path = f"assets/trajectories-0{traj_value}.png"
+    if os.path.exists(img_path):
+        img = Image.open(img_path)
+        st.image(
+            img,
+            use_column_width=True,
+            caption=f"Trajectory type {traj_value}",
+        )
+    else:
+        st.warning(f"Image not found: {img_path}")
+else:
+    st.info("No trajectory information available for this participant.")
 
 
 
