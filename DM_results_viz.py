@@ -120,7 +120,7 @@ if not record:
 
 # ---------- Radar ----------
 
-# ==== Small, left-aligned radar (2× smaller, same proportions) ====
+# ==== Left-aligned radar (slightly smaller, well-balanced) ====
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -185,11 +185,11 @@ SPINE = "#222222"
 TICK  = "#555555"
 LABEL = "#000000"
 
-# --- Scale factor (0.5 = twice smaller) ---
+# --- Scale factor (0.75 = slightly smaller) ---
 s = 0.75
 
 # Create two columns to align left
-col_left, col_right = st.columns([1, 3])
+col_left, col_right = st.columns([1.3, 2])  # smaller right column keeps left anchor strong
 
 # --- Figure ---
 fig, ax = plt.subplots(figsize=(3.0 * s, 3.0 * s), subplot_kw=dict(polar=True))
@@ -235,7 +235,7 @@ plt.tight_layout(pad=0.25 * s)
 
 with col_left:
     st.pyplot(fig, use_container_width=False)
-# col_right intentionally empty → left alignment
+
 
 
 
