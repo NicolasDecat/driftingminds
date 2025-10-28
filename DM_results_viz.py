@@ -186,7 +186,7 @@ TICK  = "#555555"
 LABEL = "#000000"
 
 # --- Scale factor (0.5 = twice smaller) ---
-s = 0.5
+s = 0.75
 
 # Create two columns to align left
 col_left, col_right = st.columns([1, 3])
