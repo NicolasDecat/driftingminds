@@ -221,42 +221,42 @@ st.pyplot(fig, use_container_width=False)
 # Add vertical space below the radar
 st.markdown("<div style='height:32px;'></div>", unsafe_allow_html=True)
 
-#%% Sleep-onset timeline — thin bar + custom labels + suffix-compression ######
+#%% Sleep-onset timeline — thin bar + 'perceptions' wording + suffix merge ####
 import re
 import numpy as np
 import matplotlib.pyplot as plt
 
-# --- Frequency variable label mapping ---------------------------------------
+# --- Frequency variable label mapping (with "perceptions") -------------------
 CUSTOM_LABELS = {
     "freq_think_ordinary": "thinking logical thoughts",
     "freq_scenario": "imagining scenarios",
     "freq_negative": "feeling negative",
     "freq_absorbed": "feeling absorbed",
-    "freq_percept_fleeting": "fleeting images/sounds",
+    "freq_percept_fleeting": "fleeting perceptions",
     "freq_think_bizarre": "thinking strange things",
     "freq_planning": "planning the day",
     "freq_spectator": "feeling like a spectator",
     "freq_ruminate": "ruminating",
-    "freq_percept_intense": "intense images/sounds",
+    "freq_percept_intense": "intense perceptions",
     "freq_percept_narrative": "narrative scenes",
-    "freq_percept_ordinary": "ordinary images/sounds",
+    "freq_percept_ordinary": "ordinary perceptions",
     "freq_time_perc_fast": "time feels fast",
-    "freq_percept_vague": "vague images/sounds",
+    "freq_percept_vague": "vague perceptions",
     "freq_replay": "replaying the day",
-    "freq_percept_bizarre": "strange images/sounds",
+    "freq_percept_bizarre": "strange perceptions",
     "freq_emo_intense": "feeling intense emotions",
-    "freq_percept_continuous": "continuous images/sounds",
+    "freq_percept_continuous": "continuous perceptions",
     "freq_think_nocontrol": "losing control of thoughts",
-    "freq_percept_dull": "dull images/sounds",
+    "freq_percept_dull": "dull perceptions",
     "freq_emo_neutral": "feeling no emotion",
     "freq_actor": "acting in the scene",
     "freq_think_seq_bizarre": "thinking illogical thoughts",
-    "freq_percept_precise": "distinct images/sounds",
-    "freq_percept_imposed": "imposed images/sounds",
+    "freq_percept_precise": "distinct perceptions",
+    "freq_percept_imposed": "imposed perceptions",
     "freq_hear_env": "hearing my environment",
     "freq_positive": "feeling positive",
     "freq_think_seq_ordinary": "thinking logical thoughts",
-    "freq_percept_real": "imagery feels real",
+    "freq_percept_real": "perceptions feel real",
     "freq_time_perc_slow": "time feels slow",
     "freq_syn": "experiencing synaesthesia",
     "freq_creat": "feeling creative",
@@ -283,7 +283,7 @@ def as_float(x):
     try: return float(x)
     except: return np.nan
 
-# Build dicts score->core
+# Build dicts
 freq_scores = {core_name(v): as_float(record.get(v, np.nan)) for v in FREQ_VARS}
 time_scores = {core_name(v): as_float(record.get(v, np.nan)) for v in TIME_VARS}
 common = [c for c in time_scores if c in freq_scores and not np.isnan(time_scores[c]) and not np.isnan(freq_scores[c])]
@@ -299,7 +299,7 @@ for c in common:
     elif 67 <= t <= 100:
         groups["Late"].append((c, f))
 
-# Top-3 by frequency (sorted high→low) -> mapped to custom labels
+# --- Top-3 by frequency (sorted high→low) and map to custom labels -----------
 top_labels = {}
 for k, items in groups.items():
     items_sorted = sorted(items, key=lambda x: x[1], reverse=True)[:3]
@@ -309,42 +309,31 @@ for k, items in groups.items():
         names.append(CUSTOM_LABELS.get(freq_var, core.replace("_", " ")))
     top_labels[k] = names
 
-# --- Compress labels sharing the same trailing word (e.g., "... perceptions") -
+# --- Merge repeated suffixes (e.g. "vague, dull perceptions") ----------------
 def compress_by_suffix(names):
-    """
-    Merge items that share the same last word:
-      ["vague perceptions", "dull perceptions", "acting in the scene"]
-      -> ["vague, dull perceptions", "acting in the scene"]
-    Keeps original order for suffix groups as they first appear.
-    """
-    if not names: return names
-    # split into prefix + last word (suffix)
+    if not names:
+        return names
     split = []
     for i, lab in enumerate(names):
         parts = lab.rsplit(" ", 1)
         if len(parts) == 2:
             split.append((i, parts[0], parts[1].lower()))
         else:
-            split.append((i, lab, ""))  # no obvious suffix
-    # order-preserving grouping by suffix
+            split.append((i, lab, ""))
     seen_suffix = set()
     out = []
     for i, pref, suf in split:
-        if (i, pref, suf) is None:  # never hit; placeholder
-            continue
         if suf not in seen_suffix:
-            # collect all prefixes sharing this suffix in input order
             prefs = [p for _, p, s in split if s == suf and s != ""]
             if suf != "" and len(prefs) > 1:
                 out.append(", ".join(prefs) + " " + suf)
             elif suf != "":
                 out.append(pref + " " + suf)
             else:
-                out.append(pref)  # entries without a clean suffix
+                out.append(pref)
             seen_suffix.add(suf)
-    return out[:3]  # ensure at most 3 lines
+    return out[:3]
 
-# Apply compression to each segment
 for seg_key in list(top_labels.keys()):
     top_labels[seg_key] = compress_by_suffix(top_labels[seg_key])
 
@@ -357,7 +346,7 @@ ax.axis("off")
 # Geometry
 x0, x1 = 0.05, 0.95
 y_bar = 0.50
-h_bar = 0.07    # stays thin
+h_bar = 0.07
 seg   = (x1 - x0) / 3.0
 
 # Gradient: almost white (#FFFFFF) → dark purple (#5B21B6)
@@ -386,7 +375,7 @@ centers = {
     "Late":   x0 + seg * 2.5,
 }
 
-# --- Render 3-line blocks above the bar -------------------------------------
+# --- Draw text blocks --------------------------------------------------------
 def draw_stack_block(xc, names):
     block = "\n".join(names[:3]) if names else ""
     ax.text(
@@ -406,6 +395,7 @@ draw_stack_block(centers["Late"],   top_labels.get("Late", []))
 
 plt.tight_layout(pad=0.18)
 st.pyplot(fig, use_container_width=True)
+
 
 
 
