@@ -462,6 +462,9 @@ st.pyplot(fig, use_container_width=True)
 
 # ---------- VVIQ Distribution Plot ---------------------------------------------
 
+# Add vertical space below the radar
+st.markdown("<div style='height:32px;'></div>", unsafe_allow_html=True)
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import truncnorm
@@ -513,7 +516,7 @@ ax.bar(
     width=edges[1]-edges[0],
     color="#7C3AED",
     edgecolor="white",
-    label="Your score"
+    label=f"Your score: {vviq_score}"
 )
 
 # Add cutoffs
@@ -530,8 +533,8 @@ ax.text(hyper_cut + 1.5, y_text, "Hyperphantasia", color="#888888",
         ha="left", va="center", fontsize=8)
 
 # Labels and title
-ax.set_title("VVIQ — Visual Imagery Vividness", fontsize=11, pad=10)
-ax.set_xlabel("VVIQ score (lower = more vivid)")
+ax.set_title("Your score of vididness for visual imagery during wakefulness", fontsize=11, pad=10)
+ax.set_xlabel("VVIQ score")
 ax.set_ylabel("Density")
 
 # Move legend to bottom-left
