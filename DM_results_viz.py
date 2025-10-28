@@ -448,15 +448,15 @@ else:
 
 
 
-# ---------- Vertical timeline plot (5 bands, upside down, fixed gradient) ----
+# ---------- Vertical timeline (10-point bins, show all top freq > 3) ---------
 
-# Space below the horizontal bar
+# Space below the previous plot
 st.markdown("<div style='height:32px;'></div>", unsafe_allow_html=True)
 
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Helper: put 'perceptions' on next line to keep labels compact
+# Keep labels compact: move "perceptions" to next line for readability
 def split_suffix_newline(label: str):
     return label[:-12] + "\nperceptions" if label.endswith(" perceptions") else label
 
@@ -468,95 +468,112 @@ for c in common:  # uses your existing 'common', 'time_scores', 'freq_scores', '
     lab = CUSTOM_LABELS.get(f"freq_{c}", c.replace("_", " "))
     cores.append((c, t, f, lab))
 
-# 5 temporality bands
-bands = [(1,20),(21,40),(41,60),(61,80),(81,100)]
-band_centers = [(lo+hi)/2 for (lo,hi) in bands]
+# Define 10-point bins
+bins = [(1,10),(11,20),(21,30),(31,40),(41,50),(51,60),(61,70),(71,80),(81,90),(91,100)]
+bin_centers = [(lo+hi)/2 for (lo,hi) in bins]
 
-# Assign cores to bands
-band_items = {i: [] for i in range(5)}
+# Assign cores to bins
+bin_items = {i: [] for i in range(len(bins))}
 for c, t, f, lab in cores:
-    for i, (lo, hi) in enumerate(bands):
+    for i, (lo, hi) in enumerate(bins):
         if lo <= t <= hi:
-            band_items[i].append((c, t, f, lab))
+            bin_items[i].append((c, t, f, lab))
             break
 
-# For each band, pick winner(s): top freq; include a second if exact tie
-winners = {i: [] for i in range(5)}
-for i in range(5):
-    items = band_items[i]
+# For each bin, pick ALL winners tied at max freq; ignore if max <= 3
+winners = {i: [] for i in range(len(bins))}
+for i in range(len(bins)):
+    items = bin_items[i]
     if not items:
         continue
-    items_sorted = sorted(items, key=lambda x: (-x[2], x[3]))  # by freq desc, then label
+    # sort for stability (freq desc, then label)
+    items_sorted = sorted(items, key=lambda x: (-x[2], x[3]))
     top_f = items_sorted[0][2]
+    if top_f <= 3:
+        continue  # skip low-signal bins
     tied = [it for it in items_sorted if abs(it[2] - top_f) < 1e-9]
-    labs = [split_suffix_newline(it[3]) for it in tied[:2]]  # up to 2 if exact tie
-    winners[i] = labs
+    winners[i] = [split_suffix_newline(it[3]) for it in tied]
 
 # ----------------------- Drawing -----------------------
-fig, ax = plt.subplots(figsize=(4.0, 5.6))
+fig, ax = plt.subplots(figsize=(4.2, 6.0))
 fig.patch.set_alpha(0)
 ax.set_facecolor("none")
 ax.axis("off")
 
-# Coordinates
+# Coordinates & mapping
 x_bar = 0.5
 bar_half_w = 0.02
 y_top, y_bot = 0.92, 0.08  # margins
 
-# Map time (1..100) to y with Awake (1) at TOP, Asleep (100) at BOTTOM
 def ty(val):
+    # Map time (1..100) to y with Awake (1) at TOP, Asleep (100) at BOTTOM
     return y_top - (val - 1) / 99.0 * (y_top - y_bot)
 
-# --- FIXED GRADIENT: top (Awake) white -> bottom (Asleep) dark purple -------
-top_rgb  = np.array([1.0, 1.0, 1.0])                         # white
-bot_rgb  = np.array([0x5B/255, 0x21/255, 0xB6/255])          # dark purple
+# Vertical gradient: top (Awake) white -> bottom (Asleep) dark purple
+top_rgb  = np.array([1.0, 1.0, 1.0])
+bot_rgb  = np.array([0x5B/255, 0x21/255, 0xB6/255])
 n = 900
-# rows[0] must be BOTTOM color (imshow origin='lower'), rows[-1] TOP color
-rows = np.linspace(bot_rgb, top_rgb, n)                      # bottom→top
-grad_img = np.tile(rows[:, None, :], (1, 30, 1))             # skinny vertical strip
+rows = np.linspace(bot_rgb, top_rgb, n)     # bottom→top in rows (origin='lower')
+grad_img = np.tile(rows[:, None, :], (1, 30, 1))
 
 ax.imshow(
     grad_img,
-    extent=(x_bar - bar_half_w, x_bar + bar_half_w, ty(100), ty(1)),  # bottom→top in data coords
+    extent=(x_bar - bar_half_w, x_bar + bar_half_w, ty(100), ty(1)),
     origin="lower",
     aspect="auto",
     interpolation="bilinear"
 )
 
-# End labels (Awake top, Asleep bottom)
+# End labels
 ax.text(x_bar, ty(1) + 0.02,  "Awake",  ha="center", va="bottom", fontsize=11, color="#000000")
 ax.text(x_bar, ty(100) - 0.02, "Asleep", ha="center", va="top",    fontsize=11, color="#000000")
 
-# No division ticks (removed)
+# Annotation styling
+x_right = x_bar + 0.09
+x_left  = x_bar - 0.09
+line_w  = 0.2
+label_fs = 9.3
 
-# Annotations (ultra-thin leader lines; alternate sides when single label)
-x_right = x_bar + 0.08
-x_left  = x_bar - 0.08
-for i, center in enumerate(band_centers):
+# Alternate sides per bin; if multiple winners in a bin, stack them on that side
+for i, center in enumerate(bin_centers):
     labs = winners[i]
     if not labs:
         continue
     y_c = ty(center)
 
-    if len(labs) == 1:
-        side_right = (i % 2 == 0)  # even band index -> right, odd -> left
-        if side_right:
-            ax.plot([x_bar + bar_half_w, x_right - 0.01], [y_c, y_c], color="#000000", linewidth=0.2)
-            ax.text(x_right, y_c, labs[0], ha="left", va="center", fontsize=9.5, color="#000000", linespacing=1.2)
-        else:
-            ax.plot([x_bar - bar_half_w, x_left + 0.01], [y_c, y_c], color="#000000", linewidth=0.2)
-            ax.text(x_left, y_c, labs[0], ha="right", va="center", fontsize=9.5, color="#000000", linespacing=1.2)
+    # vertical stacking offsets for multiple winners within the same bin
+    # keep compact: ± small offsets around y_c
+    k = len(labs)
+    if k == 1:
+        y_positions = [y_c]
+    elif k == 2:
+        y_positions = [y_c + 0.012, y_c - 0.012]
+    elif k == 3:
+        y_positions = [y_c + 0.018, y_c, y_c - 0.018]
     else:
-        # Tie: one on each side
-        ax.plot([x_bar + bar_half_w, x_right - 0.01], [y_c, y_c], color="#000000", linewidth=0.2)
-        ax.text(x_right, y_c, labs[0], ha="left", va="center", fontsize=9.5, color="#000000", linespacing=1.2)
+        # cap to first 4 visually; adjust if you want more
+        y_positions = [y_c + 0.024, y_c + 0.008, y_c - 0.008, y_c - 0.024][:k]
 
-        ax.plot([x_bar - bar_half_w, x_left + 0.01], [y_c, y_c], color="#000000", linewidth=0.2)
-        ax.text(x_left, y_c, labs[1], ha="right", va="center", fontsize=9.5, color="#000000", linespacing=1.2)
+    # Alternate side per bin index
+    side_right = (i % 2 == 0)
 
-plt.tight_layout(pad=0.2)
+    if side_right:
+        # thin leader line from bar to the first label y
+        ax.plot([x_bar + bar_half_w, x_right - 0.01], [y_positions[0], y_positions[0]],
+                color="#000000", linewidth=line_w)
+        # render labels stacked on the right
+        for yy, text_label in zip(y_positions, labs):
+            ax.text(x_right, yy, text_label, ha="left", va="center",
+                    fontsize=label_fs, color="#000000", linespacing=1.2)
+    else:
+        ax.plot([x_bar - bar_half_w, x_left + 0.01], [y_positions[0], y_positions[0]],
+                color="#000000", linewidth=line_w)
+        for yy, text_label in zip(y_positions, labs):
+            ax.text(x_left, yy, text_label, ha="right", va="center",
+                    fontsize=label_fs, color="#000000", linespacing=1.2)
+
+plt.tight_layout(pad=0.25)
 st.pyplot(fig, use_container_width=True)
-
 
 
 
