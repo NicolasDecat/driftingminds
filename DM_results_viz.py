@@ -135,7 +135,7 @@ FIELDS = [
     ("degreequest_bizarreness",     "bizarre"),
     ("degreequest_spontaneity",     "spontaneous"),
     ("degreequest_fleetingness",    "fleeting"),
-    ("degreequest_emotionality",    "emotional"),
+    ("degreequest_emotionality",    "positive\nemotions"),
     ("degreequest_sleepiness",      "sleepy"),
 ]
 
