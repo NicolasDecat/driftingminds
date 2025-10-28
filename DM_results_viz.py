@@ -533,9 +533,9 @@ ax.text(hyper_cut + 1.5, y_text, "Hyperphantasia", color="#888888",
         ha="left", va="center", fontsize=8)
 
 # Labels and title
-ax.set_title("Your score of vididness for visual imagery during wakefulness", fontsize=11, pad=10)
+ax.set_title("Vididness for visual imagery during wakefulness (VVIQ)", fontsize=11, pad=10)
 ax.set_xlabel("VVIQ score")
-ax.set_ylabel("Density")
+ax.set_ylabel("Distribution in the population")
 
 # Move legend to bottom-left
 ax.legend(frameon=False, fontsize=8, loc="lower left")
