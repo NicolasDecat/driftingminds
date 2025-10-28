@@ -460,10 +460,11 @@ st.pyplot(fig, use_container_width=True)
 
 
 
-# ---------- VVIQ Distribution Plot (40 bins + labeled cutoffs) ------------------------
+# ---------- VVIQ Distribution Plot ---------------------------------------------
 
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.stats import truncnorm
 
 # --- Compute participant's VVIQ score ---
 VVIQ_FIELDS = [
@@ -481,97 +482,60 @@ def as_float(x):
 
 vviq_score = sum(as_float(record.get(k, np.nan)) for k in VVIQ_FIELDS if not np.isnan(as_float(record.get(k, np.nan))))
 
-# --- Simulate population distribution (manual truncated normal, no scipy needed) ---
+# --- Simulate population distribution (truncated normal) ---
 N = 10000
 mu, sigma = 61.0, 9.2
 low, high = 16, 80
+a, b = (low - mu) / sigma, (high - mu) / sigma
+samples = truncnorm.rvs(a, b, loc=mu, scale=sigma, size=N, random_state=42)
 
-samples = np.random.normal(mu, sigma, N * 2)
-samples = samples[(samples >= low) & (samples <= high)]
-samples = samples[:N]
+# --- Distribution bins ---
+bins = np.linspace(low, high, 33)
+counts, edges = np.histogram(samples, bins=bins, density=True)
+centers = 0.5 * (edges[:-1] + edges[1:])
 
-# Cutoffs
-aphantasia_cut = 32
-hyper_cut = 75
+# --- Find bin that contains participant's score ---
+highlight_idx = np.digitize(vviq_score, edges) - 1
+highlight_idx = np.clip(highlight_idx, 0, len(counts)-1)
 
-# --- Plot ---
-fig, ax = plt.subplots(figsize=(8.8, 4.3))
+# --- Plot styling ---
+fig, ax = plt.subplots(figsize=(6.5, 3.5))
 fig.patch.set_alpha(0)
 ax.set_facecolor("none")
 
-# Histogram (light grey)
-counts, bins, patches = ax.hist(
-    samples,
-    bins=40,
-    density=True,
-    color="#D9D9D9",
-    edgecolor="white",
-)
+# Light grey bars for population
+ax.bar(centers, counts, width=edges[1]-edges[0], color="#D9D9D9", edgecolor="white")
 
 # Highlight participant’s bin in purple
-bin_width = bins[1] - bins[0]
-for p, left in zip(patches, bins[:-1]):
-    center = left + bin_width / 2
-    if center <= aphantasia_cut:
-        p.set_alpha(0.8)
-    elif center >= hyper_cut:
-        p.set_alpha(0.8)
-    else:
-        p.set_alpha(0.55)
-    # Purple highlight if participant's score falls here
-    if left <= vviq_score < left + bin_width:
-        p.set_facecolor("#7C3AED")
-        p.set_alpha(0.9)
-
-# --- Add vertical lines & labels ---
-ax.axvline(aphantasia_cut, color="#D62728", linestyle="--", linewidth=1.2)
-ax.axvline(hyper_cut, color="#2CA02C", linestyle="--", linewidth=1.2)
-
-# Labels for regions
-ax.text(
-    aphantasia_cut - 2,
-    ax.get_ylim()[1] * 0.9,
-    "Aphantasia",
-    color="#D62728",
-    ha="right",
-    va="center",
-    fontsize=9,
-)
-ax.text(
-    hyper_cut + 2,
-    ax.get_ylim()[1] * 0.9,
-    "Hyperphantasia",
-    color="#2CA02C",
-    ha="left",
-    va="center",
-    fontsize=9,
-)
-
-# --- Text annotation for participant ---
-ax.annotate(
-    f"Your score: {int(vviq_score)}",
-    xy=(vviq_score, 0),
-    xytext=(vviq_score, ax.get_ylim()[1] * 0.35),
-    textcoords="data",
-    ha="center",
-    fontsize=9.5,
+ax.bar(
+    centers[highlight_idx],
+    counts[highlight_idx],
+    width=edges[1]-edges[0],
     color="#7C3AED",
-    arrowprops=dict(arrowstyle="->", color="#7C3AED", lw=1),
+    edgecolor="white",
+    label="Your score"
 )
 
-# --- Titles & labels ---
-ax.set_title("VVIQ — Visual Imagery Vividness", fontsize=12, pad=10)
+# Add cutoffs
+aphantasia_cut = 32
+hyper_cut = 75
+ax.axvline(aphantasia_cut, color="#D9D9D9", linestyle="--", linewidth=1)
+ax.axvline(hyper_cut, color="#D9D9D9", linestyle="--", linewidth=1)
+
+# Labels and title
+ax.set_title("VVIQ — Visual Imagery Vividness", fontsize=11, pad=10)
 ax.set_xlabel("VVIQ score (lower = more vivid)")
 ax.set_ylabel("Density")
+ax.legend(frameon=False, fontsize=8, loc="upper right")
 
-# Aesthetic cleanup
+# Clean axes
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 ax.tick_params(axis="both", labelsize=8)
-ax.set_xlim(low, high)
 
 plt.tight_layout()
 st.pyplot(fig, use_container_width=True)
+
 
 
 
