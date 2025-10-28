@@ -238,8 +238,6 @@ with col_left:
 
 
 
-
-
 # ---------- Trajectory plot ----------
 
 
@@ -549,8 +547,8 @@ plt.tight_layout()
 st.pyplot(fig, use_container_width=True)
 
 
-
-# ====================== Profile assignment (normalize → composite → match) ======================
+#%% Profile #############################################################
+###############################################################################
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -587,35 +585,38 @@ def norm_clip(x, lo, hi):
     if np.isnan(x): return np.nan
     return np.clip((x - lo) / (hi - lo), 0.0, 1.0)
 
-# ---------- 2) Define composite dimensions (YOU choose vars here) -------------------------------
 
-# Each dimension: list of (field_name_in_record, normalizer_fn, weight)
-# 👉 TODO: replace the example fields with your actual variables per dimension.
+# ---------- 2) Define composite dimensions  -------------------------------
+
 DIMENSIONS = {
-    "sensory": [
-        # e.g., sensory imagery / perceptions
-        ("degreequest_vividness",       norm_1_6, 1.0),
-        ("degreequest_immersiveness",   norm_1_6, 1.0),
+    # Perceptual intensity & detail
+    "vividness": [
+        ("vividness_1to6",        norm_1_6,   1.0, {}),
+        ("detail_1to6",           norm_1_6,   1.0, {}),
     ],
-    "letting_go": [
-        # e.g., spontaneity / losing control / sleepiness
-        ("degreequest_spontaneity",     norm_1_6, 1.0),
-        ("degreequest_sleepiness",      norm_1_6, 1.0),
+    # Involuntary/“imposed” content
+    "spontaneity": [
+        ("spontaneity_1to6",      norm_1_6,   1.0, {}),
     ],
-    "pragmatic": [
-        # e.g., planning / logical thoughts (use freq_* normalized 1–6 → [0,1])
-        ("freq_planning",               norm_1_6, 1.0),
-        ("freq_think_seq_ordinary",     norm_1_6, 1.0),
+    # Unlikelihood / illogical
+    "bizarreness": [
+        ("bizarreness_1to6",      norm_1_6,   1.0, {}),
     ],
-    "emotional": [
-        # e.g., emotional intensity / valence
-        ("freq_emo_intense",            norm_1_6, 1.0),
-        ("degreequest_emotionality",    norm_1_6, 1.0),
+    # Absorption / disconnection
+    "immersion": [
+        ("immersion_1to6",        norm_1_6,   1.0, {}),
     ],
-    "quiet": [
-        # e.g., spectator / neutral emotion (reverse if needed)
-        ("freq_emo_neutral",            norm_1_6, 1.0),
-        ("freq_spectator",              norm_1_6, 1.0),
+    # Emotional valence (negative→positive)
+    "emotion_pos": [
+        ("emotion_valence_1to6",  norm_1_6,   1.0, {}),
+    ],
+    # Sleep latency in minutes (higher = longer = harder to fall asleep)
+    "sleep_latency": [
+        ("sleep_latency_min",     norm_clip,   1.0, {"lo": 0, "hi": 60}),  # adjust hi if you expect >60
+    ],
+    # Baseline daily-life anxiety (1–100 scale in your form)
+    "baseline_anxiety": [
+        ("anxiety_1to100",        norm_1_100, 1.0, {}),
     ],
 }
 
@@ -623,110 +624,112 @@ def composite_scores_from_record(record, dimensions=DIMENSIONS):
     """
     Compute a normalized, weighted composite score per dimension in [0,1].
     Missing values are ignored; if all missing -> np.nan for that dimension.
+    Supports normalizers with kwargs (e.g., norm_clip(lo,hi)).
     """
     out = {}
     for dim, items in dimensions.items():
         vals, wts = [], []
-        for field, norm_fn, wt in items:
-            v = norm_fn(record.get(field, np.nan))
+        for item in items:
+            # item can be (field, fn, wt) or (field, fn, wt, kwargs)
+            if len(item) == 3:
+                field, norm_fn, wt = item
+                kwargs = {}
+            else:
+                field, norm_fn, wt, kwargs = item
+            raw = record.get(field, np.nan)
+            try:
+                v = norm_fn(raw, **kwargs) if kwargs else norm_fn(raw)
+            except TypeError:
+                # Fallback if function signature differs
+                v = norm_fn(raw)
             if not np.isnan(v):
                 vals.append(v * wt)
                 wts.append(wt)
         out[dim] = (np.sum(vals) / np.sum(wts)) if wts else np.nan
     return out
 
-# ---------- 3) Define prototype profiles (vectors aligned to DIMENSIONS order) -------------------
-
-# IMPORTANT: keep the order of DIM_KEYS consistent across prototypes and participant vector
+# Convenience: build vector in fixed order for distance computations
 DIM_KEYS = list(DIMENSIONS.keys())
 
+def vector_from_scores(scores, dim_keys=DIM_KEYS):
+    """Return participant vector (np.array) ordered by DIM_KEYS; np.nan -> replace with population mean later if desired."""
+    return np.array([scores.get(k, np.nan) for k in dim_keys], dtype=float)
+
+# ---------- 3) Define prototype profiles (vectors aligned to DIM_KEYS order) ---------------------
+# Order = DIM_KEYS:
+# ["vividness","spontaneity","bizarreness","immersion","emotion_pos","sleep_latency","baseline_anxiety"]
+
 profiles = {
-    "Sensory Dreamer":      [0.8, 0.7, 0.7, 0.5, 0.9],
-    "Letting Go":           [0.6, 0.8, 0.5, 0.6, 0.8],
-    "Pragmatic Thinker":    [0.3, 0.2, 0.2, 0.5, 0.3],
-    "Emotional Ruminator":  [0.7, 0.6, 0.7, 0.6, 0.7],
-    "Quiet Mind":           [0.2, 0.3, 0.2, 0.5, 0.2],
+    "Sensory Dreamer":   [0.85, 0.60, 0.70, 0.80, 0.60, 0.40, 0.40],
+    "Letting Go":        [0.60, 0.75, 0.50, 0.70, 0.50, 0.60, 0.50],
+    "Pragmatic Thinker": [0.30, 0.20, 0.20, 0.30, 0.50, 0.30, 0.30],
+    "Ruminator":         [0.50, 0.30, 0.30, 0.50, 0.30, 0.90, 0.90],  # long latency + high anxiety
+    "Quiet Mind":        [0.20, 0.20, 0.20, 0.20, 0.50, 0.10, 0.20],
 }
 
-# ---------- 4) Build participant vector + handle missing dims -----------------------------------
+# ---------- 4) Assignment by nearest prototype ---------------------------------------------------
 
-def participant_vector(comp_dict, dim_keys=DIM_KEYS):
-    """Return vector [0..1] in the dim_keys order + mask for non-NaN dims."""
-    vec = np.array([comp_dict.get(k, np.nan) for k in dim_keys], dtype=float)
-    mask = ~np.isnan(vec)
-    return vec, mask
-
-def masked_euclidean(a, b, mask):
-    """Euclidean distance on the subset where mask is True. Returns np.nan if no overlap."""
+def _nanaware_distance(a, b):
+    """
+    Euclidean distance ignoring dimensions that are NaN in either vector.
+    If all dims are NaN, return +inf.
+    """
+    a = np.array(a, dtype=float)
+    b = np.array(b, dtype=float)
+    mask = ~(np.isnan(a) | np.isnan(b))
     if not np.any(mask):
-        return np.nan
-    diff = (a - b)[mask]
-    return float(np.sqrt(np.sum(diff * diff) / np.sum(mask)))  # meaned distance → comparable
+        return np.inf
+    diff = a[mask] - b[mask]
+    return np.sqrt(np.sum(diff * diff))
 
-# ---------- 5) Compute & assign profile ----------------------------------------------------------
-
-# Compute participant composites
-comp = composite_scores_from_record(record, DIMENSIONS)
-p_vec, mask = participant_vector(comp, DIM_KEYS)
-
-# Compare to each prototype (masked Euclidean)
-distances = {}
-for name, proto in profiles.items():
-    proto_vec = np.array(proto, dtype=float)
-    distances[name] = masked_euclidean(p_vec, proto_vec, mask)
-
-# Pick best (smallest distance)
-best_profile = min(distances, key=lambda k: distances[k] if not np.isnan(distances[k]) else np.inf)
-best_distance = distances[best_profile]
-
-# Also compute a simple similarity (1 - normalized distance) for display
-# Normalize by sqrt of dimension count to keep in [0,1]
-dim_count = np.sum(mask)
-max_dist = 1.0  # since each dim in [0,1], worst per-dim diff ≤ 1
-similarities = {k: max(0.0, 1.0 - (d / max_dist)) if not np.isnan(d) else np.nan
-                for k, d in distances.items()}
+def assign_profile_from_record(record, profiles=profiles):
+    scores = composite_scores_from_record(record)
+    vec = vector_from_scores(scores)  # order = DIM_KEYS
+    best_name, best_dist = None, np.inf
+    for name, proto in profiles.items():
+        d = _nanaware_distance(vec, proto)
+        if d < best_dist:
+            best_name, best_dist = name, d
+    return best_name, scores
 
 # ---------- 6) Display results ------------------------------------------------------------------
 
-# Header
-st.markdown(
-    f"""
-    <div style="margin-top:1rem; margin-bottom:0.25rem;">
-      <span style="font-weight:700;">Your profile:</span>
-      <span style="color:#7C3AED; font-weight:800;">{best_profile}</span>
-    </div>
-    """,
-    unsafe_allow_html=True
+import streamlit as st
+import plotly.graph_objects as go
+
+prof, scores = assign_profile_from_record(record)
+
+st.markdown(f"## 🌙 Your sleep-onset profile: **{prof}**")
+
+# Show radar chart
+categories = list(scores.keys())
+values = list(scores.values())
+
+fig = go.Figure(data=go.Scatterpolar(
+    r=values + [values[0]],  # close loop
+    theta=categories + [categories[0]],
+    fill='toself',
+    line_color='#7FDBFF'
+))
+fig.update_layout(
+    polar=dict(radialaxis=dict(visible=True, range=[0,1])),
+    showlegend=False,
+    width=400, height=400
 )
+st.plotly_chart(fig, use_container_width=True)
 
-# Compact bar chart of similarities
-order = sorted(similarities.keys(), key=lambda k: (-similarities[k] if not np.isnan(similarities[k]) else -np.inf))
-vals_plot = [similarities[k] for k in order]
+# Optional short description (you can tune text later)
+descriptions = {
+    "Sensory Dreamer": "You tend to drift into sleep through vivid, sensory experiences — colors, sounds, or mini-dreams.",
+    "Letting Go": "You start by thinking intentionally, but gradually surrender to spontaneous imagery.",
+    "Pragmatic Thinker": "You stay in control — analytical or practical thoughts until you switch off abruptly.",
+    "Ruminator": "You tend to replay or analyze things in bed, with longer sleep latency and emotional tension.",
+    "Quiet Mind": "You fall asleep effortlessly, with little mental content — a peaceful fade into rest.",
+}
 
-fig, ax = plt.subplots(figsize=(4.8, 2.8))
-fig.patch.set_alpha(0)
-ax.set_facecolor("none")
+st.write(descriptions.get(prof, ""))
 
-bars = ax.barh(order, vals_plot, color="#D9D9D9", edgecolor="white")
-for i, k in enumerate(order):
-    if k == best_profile:
-        bars[i].set_color("#7C3AED")
 
-ax.set_xlim(0, 1)
-ax.invert_yaxis()
-ax.set_xlabel("Similarity", fontsize=9)
-ax.set_yticklabels(order, fontsize=9)
-ax.tick_params(axis="x", labelsize=8)
-ax.spines["top"].set_visible(False)
-ax.spines["right"].set_visible(False)
-
-plt.tight_layout()
-st.pyplot(fig, use_container_width=True)
-
-# Optional: show your composite dimension scores (0–1) neatly
-with st.expander("See your composite dimension scores"):
-    pretty = {k: (None if np.isnan(v) else round(float(v), 2)) for k, v in comp.items()}
-    st.json(pretty)
 
 
 
