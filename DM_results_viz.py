@@ -376,14 +376,14 @@ for c, t, f, lab in cores:
             bin_items[i].append((c, t, f, lab))
             break
 
-# Per-bin winners: all tied at max freq; skip if max <= 3; cap to 2 labels
+# Per-bin winners: all tied at max freq; skip if max < 3; cap to 2 labels
 winners = {i: [] for i in range(len(bins))}
 for i, items in bin_items.items():
     if not items:
         continue
     items_sorted = sorted(items, key=lambda x: (-x[2], x[3]))  # freq desc, then label
     top_f = items_sorted[0][2]
-    if top_f <= 3:
+    if top_f < 3:
         continue
     tied = [it for it in items_sorted if abs(it[2] - top_f) < 1e-9]
     winners[i] = [it[3] for it in tied[:2]]  # <-- cap to 2 labels max
