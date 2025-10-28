@@ -128,81 +128,90 @@ with st.expander("See your raw responses"):
 #%% Vizualisation #############################################################
 ###############################################################################
 
+
 import numpy as np
 import matplotlib.pyplot as plt
 
-# ---- Retrieve values ----
-def get_val(rec, key, lo, hi):
+# ---- Values -----------------------------------------------------------------
+def get_val(rec, key):
     v = rec.get(key)
     try:
         v = float(v)
     except:
         v = np.nan
-    if np.isnan(v):
-        return None
-    return max(lo, min(hi, v))
+    return None if np.isnan(v) else v
 
-anxiety = get_val(record, "anxiety", 1, 100)
-creativity = get_val(record, "creativity_trait", 1, 6)
-if creativity is not None:
-    creativity = np.interp(creativity, [1, 6], [0, 100])  # rescale 1–6 to 0–100
+anxiety   = get_val(record, "anxiety")            # expects 1–100
+creativity = get_val(record, "creativity_trait")  # expects 1–6
 
 if anxiety is None:
     st.warning("Anxiety score not found.")
     st.stop()
 
-# ---- Style constants ----
-BG = "#0E1117"       # background
-CURVE = "#777C85"    # crowd curve (soft grey)
-MARK = "#22D3EE"     # participant (cyan)
-CURVE2 = "#777C85"   # second crowd
-MARK2 = "#7C3AED"    # participant (purple)
+# Clamp
+anxiety = min(100.0, max(0.0, anxiety))
+if creativity is not None:
+    creativity = min(6.0, max(1.0, creativity))
 
-def plot_trait(value, color_curve, color_mark, title):
-    """Return a small clean figure for a single trait."""
-    x = np.linspace(0, 100, 400)
-    sigma = 10.0
-    y = np.exp(-0.5 * ((x - 50) / sigma) ** 2)
+# ---- Style ------------------------------------------------------------------
+BG      = "#0E1117"
+CURVE   = "#7F8894"   # soft grey
+MARK_A  = "#22D3EE"   # cyan
+MARK_C  = "#7C3AED"   # purple
+
+def plot_minimal(value, xmin, xmax, mu, sigma, color_curve, color_mark, left_label, right_label):
+    """Returns a minimal figure with thin Gaussian, baseline + end labels, and a vertical marker."""
+    x = np.linspace(xmin, xmax, 400)
+    y = np.exp(-0.5*((x - mu)/sigma)**2)
     y /= y.max()
 
-    fig, ax = plt.subplots(figsize=(3.8, 2.2))
+    fig, ax = plt.subplots(figsize=(3.9, 2.2))
     fig.patch.set_facecolor(BG)
     ax.set_facecolor(BG)
 
-    # curve + marker
-    ax.plot(x, y, color=color_curve, linewidth=1.2)
-    ax.axvline(value, color=color_mark, linewidth=2.2, alpha=0.95)
+    # Thin curve & marker
+    ax.plot(x, y, color=color_curve, linewidth=1.1)
+    ax.axvline(value, color=color_mark, linewidth=2.0, alpha=0.95)
 
-    # horizontal baseline + labels
+    # Baseline + end labels (subtle)
     ax.axhline(0, color=color_curve, linewidth=0.6, alpha=0.3)
-    ax.text(0, -0.08, "0", color="#9AA3AF", ha="center", va="top", fontsize=9)
-    ax.text(100, -0.08, "100", color="#9AA3AF", ha="center", va="top", fontsize=9)
+    ax.text(xmin, -0.12, f"{left_label}", color="#9AA3AF", ha="center", va="top", fontsize=9)
+    ax.text(xmax, -0.12, f"{right_label}", color="#9AA3AF", ha="center", va="top", fontsize=9)
 
-    # title above
-    ax.text(50, 1.05, title, color="#E6E6E6", ha="center", va="bottom",
-            fontsize=12, fontweight="medium")
-
-    # clean layout
-    ax.set_xlim(0, 100)
-    ax.set_ylim(-0.15, 1.1)
+    # Clean layout
+    ax.set_xlim(xmin, xmax)
+    ax.set_ylim(-0.18, 1.05)                # extra bottom room for labels
     ax.set_xticks([]); ax.set_yticks([])
     for s in ax.spines.values():
         s.set_visible(False)
+
+    # Tighten paddings so Streamlit doesn't crop labels
+    fig.subplots_adjust(left=0.03, right=0.97, top=0.92, bottom=0.35)
     return fig
 
-# ---- Layout in Streamlit ----
+# ---- Streamlit layout: titles OUTSIDE figures (no overlap) ------------------
 col1, col2 = st.columns([1, 1], gap="large")
 
 with col1:
-    if anxiety is not None:
-        figA = plot_trait(anxiety, CURVE, MARK, "Anxiety")
-        st.pyplot(figA, use_container_width=False)
+    st.markdown("<div style='color:#E6E6E6;font-weight:600;'>Anxiety</div>", unsafe_allow_html=True)
+    figA = plot_minimal(
+        value=anxiety, xmin=0, xmax=100, mu=50, sigma=10,          # narrower distribution
+        color_curve=CURVE, color_mark=MARK_A,
+        left_label="0", right_label="100"
+    )
+    st.pyplot(figA, use_container_width=False)
 
 with col2:
+    st.markdown("<div style='color:#E6E6E6;font-weight:600;'>Creativity</div>", unsafe_allow_html=True)
     if creativity is not None:
-        figC = plot_trait(creativity, CURVE2, MARK2, "Creativity")
+        figC = plot_minimal(
+            value=creativity, xmin=1, xmax=6, mu=3.5, sigma=1.0,   # centered on 3.5 for 1–6 scale
+            color_curve=CURVE, color_mark=MARK_C,
+            left_label="1", right_label="6"
+        )
         st.pyplot(figC, use_container_width=False)
-
+    else:
+        st.caption("No creativity score available.")
 
 
 
