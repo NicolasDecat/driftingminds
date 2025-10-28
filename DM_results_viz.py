@@ -218,12 +218,12 @@ st.pyplot(fig, use_container_width=False)
 
 
 
-#%% Sleep-onset timeline — compact, arrowed, tight stacks ####################
+#%% Sleep-onset timeline with gradient bar ####################################
 import re
 import numpy as np
 import matplotlib.pyplot as plt
 
-# --- Variables provided previously (keep as is) ------------------------------
+# --- Variable lists (same as before) -----------------------------------------
 FREQ_VARS = [
     "freq_think_ordinary","freq_scenario","freq_negative","freq_absorbed",
     "freq_percept_fleeting","freq_think_bizarre","freq_planning","freq_spectator",
@@ -248,21 +248,16 @@ TIME_VARS = [
 ]
 
 # --- Helpers -----------------------------------------------------------------
-def core_name(var: str) -> str:
-    return re.sub(r"^(freq_|timequest_)", "", var).strip("_").strip()
-
+def core_name(v): return re.sub(r"^(freq_|timequest_)", "", v)
 def as_float(x):
     try: return float(x)
     except: return np.nan
+def pretty_label(c): return c.replace("_", " ")
 
-def pretty_label(core: str) -> str:
-    return core.replace("_", " ")
-
-# Build dicts: core -> values
+# Build dicts
 freq_scores = {core_name(v): as_float(record.get(v, np.nan)) for v in FREQ_VARS}
 time_scores = {core_name(v): as_float(record.get(v, np.nan)) for v in TIME_VARS}
 
-# Keep only cores present in both with valid numbers
 common = [c for c in time_scores if c in freq_scores and not np.isnan(time_scores[c]) and not np.isnan(freq_scores[c])]
 
 # Bucket by temporality
@@ -276,39 +271,36 @@ for c in common:
     elif 67 <= t <= 100:
         groups["Late"].append((c, f))
 
-# Top-3 by frequency for each group
-top_labels = {}
-for k, items in groups.items():
-    items = sorted(items, key=lambda x: x[1], reverse=True)[:3]
-    top_labels[k] = [pretty_label(c) for c, _ in items]
+# Top-3 by frequency per bucket
+top_labels = {k: [pretty_label(c) for c, _ in sorted(v, key=lambda x:x[1], reverse=True)[:3]] for k,v in groups.items()}
 
-# --- Draw compact timeline ---------------------------------------------------
-fig, ax = plt.subplots(figsize=(7.2, 1.15))
+# --- Draw gradient bar -------------------------------------------------------
+fig, ax = plt.subplots(figsize=(7.2, 1.2))
 fig.patch.set_alpha(0)
 ax.set_facecolor("none")
 ax.axis("off")
 
 # Geometry
-y_line = 0.5
-x0, x1 = 0.06, 0.94
-seg = (x1 - x0) / 3.0
+x0, x1 = 0.05, 0.95
+y_bar, h_bar = 0.45, 0.08
+seg = (x1 - x0) / 3
 
-# Base line (without arrowhead)
-ax.plot([x0, x1], [y_line, y_line], color="#222222", linewidth=1.2, solid_capstyle="round")
+# Gradient fill (light → dark)
+n = 300
+x_grad = np.linspace(x0, x1, n)
+for i, xv in enumerate(x_grad[:-1]):
+    shade = 1 - (i / (n-1)) * 0.85  # 1.0 → 0.15 grayscale
+    ax.fill_between([xv, x_grad[i+1]], y_bar-h_bar/2, y_bar+h_bar/2,
+                    color=str(shade), linewidth=0)
 
-# Arrowhead at right end
-arrow_len = 0.01
-ax.plot([x1 - arrow_len, x1], [y_line + 0.02, y_line], color="#222222", linewidth=1.2)
-ax.plot([x1 - arrow_len, x1], [y_line - 0.02, y_line], color="#222222", linewidth=1.2)
-
-# Tiny vertical separators (very small amplitude)
+# Tiny separators
 for i in (1, 2):
     xi = x0 + seg * i
-    ax.plot([xi, xi], [y_line - 0.02, y_line + 0.02], color="#222222", linewidth=1.0)
+    ax.plot([xi, xi], [y_bar - 0.015, y_bar + 0.015], color="#000000", linewidth=0.8)
 
-# Extremity labels ON the line, next to ends
-ax.text(x0 - 0.008, y_line, "Awake",  ha="right", va="center", color="#000000", fontsize=9)
-ax.text(x1 + 0.008, y_line, "Asleep", ha="left",  va="center", color="#000000", fontsize=9)
+# "Awake" and "Asleep" labels on the bar line
+ax.text(x0 - 0.01, y_bar, "Awake",  ha="right", va="center", color="#000000", fontsize=9)
+ax.text(x1 + 0.01, y_bar, "Asleep", ha="left",  va="center", color="#000000", fontsize=9)
 
 # Centers of thirds
 centers = {
@@ -317,14 +309,13 @@ centers = {
     "Late":   x0 + seg * 2.5,
 }
 
-# Bullet list stacked very close to the line
+# --- Text stacks directly above bar (no bullets, no spacing) -----------------
 def draw_stack(xc, names):
-    # Tight vertical spacing; first bullet just above the line
-    base = y_line + 0.045
-    dy = 0.05
+    base_y = y_bar + h_bar/2 + 0.02
+    dy = 0.038  # minimal line spacing
     for i, name in enumerate(names[:3]):
-        ax.text(xc, base + i*dy, f"• {name}", ha="center", va="bottom",
-                fontsize=9, color="#000000")
+        ax.text(xc, base_y + i*dy, name, ha="center", va="bottom",
+                fontsize=8.5, color="#000000")
 
 draw_stack(centers["Early"],  top_labels.get("Early", []))
 draw_stack(centers["Middle"], top_labels.get("Middle", []))
@@ -332,6 +323,7 @@ draw_stack(centers["Late"],   top_labels.get("Late", []))
 
 plt.tight_layout(pad=0.2)
 st.pyplot(fig, use_container_width=True)
+
 
 
 
