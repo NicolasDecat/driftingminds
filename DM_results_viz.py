@@ -128,8 +128,8 @@ st.markdown(
     """
     <div style="text-align:center; margin-bottom:0.6rem;">
         <div style="font-size:2rem; font-weight:800;">Drifting Minds Study</div>
-        <div style="color:#666; font-size:1rem; margin-top:0.3rem;">
-            this is how my mind drifts into sleep
+        <div style="font-size:1rem; margin-top:0.3rem;">
+            This is how my mind drifts into sleep
         </div>
     </div>
     """,
