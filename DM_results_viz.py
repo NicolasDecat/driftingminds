@@ -218,10 +218,10 @@ st.pyplot(fig, use_container_width=False)
 
 
 
-# Add vertical space below the radar
-st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True)
+# Add vertical space below the radar (extra gap)
+st.markdown("<div style='height:32px;'></div>", unsafe_allow_html=True)
 
-#%% Sleep-onset timeline — thin gradient bar, spaced 3-line blocks ############
+#%% Sleep-onset timeline — refined gradient + spacing + sorted names ##########
 import re
 import numpy as np
 import matplotlib.pyplot as plt
@@ -266,13 +266,18 @@ common = [c for c in time_scores if c in freq_scores and not np.isnan(time_score
 groups = {"Early": [], "Middle": [], "Late": []}
 for c in common:
     t, f = time_scores[c], freq_scores[c]
-    if 1 <= t <= 33:       groups["Early"].append((c, f))
-    elif 34 <= t <= 66:    groups["Middle"].append((c, f))
-    elif 67 <= t <= 100:   groups["Late"].append((c, f))
+    if 1 <= t <= 33:
+        groups["Early"].append((c, f))
+    elif 34 <= t <= 66:
+        groups["Middle"].append((c, f))
+    elif 67 <= t <= 100:
+        groups["Late"].append((c, f))
 
-# Top-3 by frequency per bucket
-top_labels = {k: [pretty_label(c) for c, _ in sorted(v, key=lambda x: x[1], reverse=True)[:3]]
-              for k, v in groups.items()}
+# Top-3 by frequency per bucket (sorted high→low; keep order in display)
+top_labels = {}
+for k, items in groups.items():
+    items_sorted = sorted(items, key=lambda x: x[1], reverse=True)[:3]
+    top_labels[k] = [pretty_label(c) for (c, _) in items_sorted]
 
 # --- Draw gradient bar -------------------------------------------------------
 fig, ax = plt.subplots(figsize=(7.2, 1.25))
@@ -283,17 +288,16 @@ ax.axis("off")
 # Geometry
 x0, x1 = 0.05, 0.95
 y_bar = 0.50
-h_bar = 0.16     # half of the previous 0.32 (twice as thin)
+h_bar = 0.14     # slightly thinner than previous (0.16)
 seg   = (x1 - x0) / 3.0
 
-# Gradient: light gray (#F2F2F2) → dark purple (#5B21B6)
-left_rgb  = np.array([0xF2, 0xF2, 0xF2]) / 255.0
+# Gradient: almost white (#FFFFFF) → dark purple (#5B21B6)
+left_rgb  = np.array([0xFF, 0xFF, 0xFF]) / 255.0
 right_rgb = np.array([0x5B, 0x21, 0xB6]) / 255.0
-n = 800
+n = 900
 grad = np.linspace(0, 1, n)
 colors = (left_rgb[None, :] * (1 - grad)[:, None]) + (right_rgb[None, :] * grad[:, None])
-# Create an image strip for a smooth gradient bar
-grad_img = np.tile(colors[None, :, :], (20, 1, 1))  # 20px tall strip
+grad_img = np.tile(colors[None, :, :], (24, 1, 1))  # image strip for a smooth gradient
 ax.imshow(
     grad_img,
     extent=(x0, x1, y_bar - h_bar/2, y_bar + h_bar/2),
@@ -302,36 +306,36 @@ ax.imshow(
     interpolation="bilinear"
 )
 
-# End labels ON the bar, larger but regular (no bold)
+# End labels on the bar (regular weight, bigger)
 ax.text(x0 - 0.012, y_bar, "Awake",  ha="right", va="center", color="#000000", fontsize=12)
 ax.text(x1 + 0.012, y_bar, "Asleep", ha="left",  va="center", color="#000000", fontsize=12)
 
-# Segment centers
+# Centers of segments
 centers = {
     "Early":  x0 + seg * 0.5,
     "Middle": x0 + seg * 1.5,
     "Late":   x0 + seg * 2.5,
 }
 
-# --- Three-line text blocks, with a bit more spacing -------------------------
+# --- Three-line blocks with a touch more spacing -----------------------------
 def draw_stack_block(xc, names):
     block = "\n".join(names[:3]) if names else ""
     ax.text(
         xc,
-        y_bar + h_bar/2 + 0.018,   # just above bar
+        y_bar + h_bar/2 + 0.02,  # just above bar
         block,
         ha="center",
         va="bottom",
-        fontsize=9.2,
+        fontsize=9.4,
         color="#000000",
-        linespacing=1.18           # slightly more space between lines
+        linespacing=1.28         # slightly more space between lines
     )
 
 draw_stack_block(centers["Early"],  top_labels.get("Early", []))
 draw_stack_block(centers["Middle"], top_labels.get("Middle", []))
 draw_stack_block(centers["Late"],   top_labels.get("Late", []))
 
-plt.tight_layout(pad=0.15)
+plt.tight_layout(pad=0.18)
 st.pyplot(fig, use_container_width=True)
 
 
