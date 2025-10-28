@@ -112,7 +112,6 @@ with st.expander("Raw responses"):
 
 # ---------- Radar ----------
 
-#%% Final Radar — Project Drifting Minds ######################################
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -313,33 +312,42 @@ for k, items in groups.items():
 # --- Merge repeated suffixes and place suffix on new line --------------------
 def compress_by_suffix(names):
     """
-    Merge items sharing the same last word and place that suffix on the next line.
+    Merge items sharing the same last word, placing that suffix on a new line.
     Example:
-      ["vague perceptions", "dull perceptions"] →
-      ["vague, dull\nperceptions"]
+      ["vague perceptions", "dull perceptions"] -> ["vague, dull\nperceptions"]
+    IMPORTANT: Do NOT dedupe entries without a suffix (single-word or no-space).
     """
     if not names:
         return names
+
     split = []
-    for i, lab in enumerate(names):
+    for lab in names:
         parts = lab.rsplit(" ", 1)
         if len(parts) == 2:
-            split.append((i, parts[0], parts[1].lower()))
+            prefix, suffix = parts[0], parts[1].lower()
         else:
-            split.append((i, lab, ""))
-    seen_suffix = set()
+            prefix, suffix = lab, ""  # no clean suffix
+        split.append((prefix, suffix))
+
     out = []
-    for i, pref, suf in split:
-        if suf not in seen_suffix:
-            prefs = [p for _, p, s in split if s == suf and s != ""]
-            if suf != "" and len(prefs) > 1:
-                out.append(", ".join(prefs) + "\n" + suf)
-            elif suf != "":
-                out.append(pref + " " + suf)
+    seen_suffix = set()
+    for prefix, suffix in split:
+        if suffix == "":
+            # Keep all “no-suffix” entries as independent lines.
+            out.append(prefix)
+            continue
+
+        if suffix not in seen_suffix:
+            # Collect all prefixes sharing this suffix in input order
+            peers = [p for (p, s) in split if s == suffix]
+            if len(peers) > 1:
+                out.append(", ".join(peers) + "\n" + suffix)
             else:
-                out.append(pref)
-            seen_suffix.add(suf)
+                out.append(prefix + " " + suffix)
+            seen_suffix.add(suffix)
+
     return out[:3]
+
 
 for seg_key in list(top_labels.keys()):
     top_labels[seg_key] = compress_by_suffix(top_labels[seg_key])
