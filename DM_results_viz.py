@@ -218,12 +218,12 @@ st.pyplot(fig, use_container_width=False)
 
 
 
-#%% Sleep-onset timeline (Early / Middle / Late with top 3 freq labels) ######
+#%% Sleep-onset timeline — compact, arrowed, tight stacks ####################
 import re
 import numpy as np
 import matplotlib.pyplot as plt
 
-# ---- Provided variable names ------------------------------------------------
+# --- Variables provided previously (keep as is) ------------------------------
 FREQ_VARS = [
     "freq_think_ordinary","freq_scenario","freq_negative","freq_absorbed",
     "freq_percept_fleeting","freq_think_bizarre","freq_planning","freq_spectator",
@@ -234,7 +234,6 @@ FREQ_VARS = [
     "freq_percept_imposed","freq_hear_env","freq_positive","freq_think_seq_ordinary",
     "freq_percept_real","freq_time_perc_slow","freq_syn","freq_creat"
 ]
-
 TIME_VARS = [
     "timequest_scenario","timequest_positive","timequest_absorbed","timequest_percept_fleeting",
     "timequest_think_bizarre","timequest_planning","timequest_spectator","timequest_ruminate",
@@ -248,9 +247,8 @@ TIME_VARS = [
     "timequest_syn","timequest_creat"
 ]
 
-# ---- Helpers ----------------------------------------------------------------
+# --- Helpers -----------------------------------------------------------------
 def core_name(var: str) -> str:
-    """Strip freq_ / timequest_ prefix and any accidental extra separators."""
     return re.sub(r"^(freq_|timequest_)", "", var).strip("_").strip()
 
 def as_float(x):
@@ -258,90 +256,80 @@ def as_float(x):
     except: return np.nan
 
 def pretty_label(core: str) -> str:
-    """Turn core tokens into a readable label (spaces, no prefix)."""
     return core.replace("_", " ")
 
-# Build dicts: core -> value
-freq_scores = {}
-for v in FREQ_VARS:
-    core = core_name(v)
-    val = as_float(record.get(v, np.nan))
-    if not np.isnan(val):
-        freq_scores[core] = val  # 1..6
+# Build dicts: core -> values
+freq_scores = {core_name(v): as_float(record.get(v, np.nan)) for v in FREQ_VARS}
+time_scores = {core_name(v): as_float(record.get(v, np.nan)) for v in TIME_VARS}
 
-time_scores = {}
-for v in TIME_VARS:
-    core = core_name(v)
-    val = as_float(record.get(v, np.nan))
-    if not np.isnan(val):
-        time_scores[core] = val  # 1..100
+# Keep only cores present in both with valid numbers
+common = [c for c in time_scores if c in freq_scores and not np.isnan(time_scores[c]) and not np.isnan(freq_scores[c])]
 
-# Only keep cores present in both sets
-common_cores = [c for c in time_scores.keys() if c in freq_scores]
-
-# ---- Bucket by temporality --------------------------------------------------
-groups = {"Early": [], "Middle": [], "Late": []}  # each item: (core, freq, time)
-
-for c in common_cores:
-    t = time_scores[c]
-    f = freq_scores[c]
+# Bucket by temporality
+groups = {"Early": [], "Middle": [], "Late": []}
+for c in common:
+    t, f = time_scores[c], freq_scores[c]
     if 1 <= t <= 33:
-        groups["Early"].append((c, f, t))
+        groups["Early"].append((c, f))
     elif 34 <= t <= 66:
-        groups["Middle"].append((c, f, t))
+        groups["Middle"].append((c, f))
     elif 67 <= t <= 100:
-        groups["Late"].append((c, f, t))
-    # values outside 1..100 are ignored
+        groups["Late"].append((c, f))
 
-# ---- Select top 3 by frequency per group -----------------------------------
+# Top-3 by frequency for each group
 top_labels = {}
 for k, items in groups.items():
-    if not items:
-        top_labels[k] = []
-        continue
-    # sort by frequency desc, keep top 3
-    items_sorted = sorted(items, key=lambda x: x[1], reverse=True)[:3]
-    top_labels[k] = [pretty_label(core) for (core, _, _) in items_sorted]
+    items = sorted(items, key=lambda x: x[1], reverse=True)[:3]
+    top_labels[k] = [pretty_label(c) for c, _ in items]
 
-# ---- Draw minimal timeline --------------------------------------------------
-fig, ax = plt.subplots(figsize=(7.0, 1.8))
-fig.patch.set_alpha(0)          # transparent figure
-ax.set_facecolor("none")        # transparent axes
+# --- Draw compact timeline ---------------------------------------------------
+fig, ax = plt.subplots(figsize=(7.2, 1.15))
+fig.patch.set_alpha(0)
+ax.set_facecolor("none")
 ax.axis("off")
 
 # Geometry
-y_line = 0.25
-x0, x1 = 0.05, 0.95
+y_line = 0.5
+x0, x1 = 0.06, 0.94
 seg = (x1 - x0) / 3.0
-x_early  = x0 + seg * 0.5     # centers of thirds
-x_middle = x0 + seg * 1.5
-x_late   = x0 + seg * 2.5
 
-# Base line
-ax.plot([x0, x1], [y_line, y_line], color="#222222", linewidth=1.2)
+# Base line (without arrowhead)
+ax.plot([x0, x1], [y_line, y_line], color="#222222", linewidth=1.2, solid_capstyle="round")
 
-# Small vertical separators
+# Arrowhead at right end
+arrow_len = 0.01
+ax.plot([x1 - arrow_len, x1], [y_line + 0.02, y_line], color="#222222", linewidth=1.2)
+ax.plot([x1 - arrow_len, x1], [y_line - 0.02, y_line], color="#222222", linewidth=1.2)
+
+# Tiny vertical separators (very small amplitude)
 for i in (1, 2):
     xi = x0 + seg * i
-    ax.plot([xi, xi], [y_line - 0.06, y_line + 0.06], color="#222222", linewidth=1.0)
+    ax.plot([xi, xi], [y_line - 0.02, y_line + 0.02], color="#222222", linewidth=1.0)
 
-# End labels
-ax.text(x0, y_line - 0.12, "Awake",  ha="left",  va="top",  color="#000000", fontsize=9)
-ax.text(x1, y_line - 0.12, "Asleep", ha="right", va="top",  color="#000000", fontsize=9)
+# Extremity labels ON the line, next to ends
+ax.text(x0 - 0.008, y_line, "Awake",  ha="right", va="center", color="#000000", fontsize=9)
+ax.text(x1 + 0.008, y_line, "Asleep", ha="left",  va="center", color="#000000", fontsize=9)
 
-# Labels above each segment (stack up to 3, centered over segment)
-def draw_stack(x_center, names):
-    # vertical stack slightly above the line
-    ys = [0.78, 0.62, 0.46]  # top to bottom
+# Centers of thirds
+centers = {
+    "Early":  x0 + seg * 0.5,
+    "Middle": x0 + seg * 1.5,
+    "Late":   x0 + seg * 2.5,
+}
+
+# Bullet list stacked very close to the line
+def draw_stack(xc, names):
+    # Tight vertical spacing; first bullet just above the line
+    base = y_line + 0.045
+    dy = 0.05
     for i, name in enumerate(names[:3]):
-        ax.text(x_center, ys[i], name, ha="center", va="center",
+        ax.text(xc, base + i*dy, f"• {name}", ha="center", va="bottom",
                 fontsize=9, color="#000000")
 
-draw_stack(x_early,  top_labels.get("Early", []))
-draw_stack(x_middle, top_labels.get("Middle", []))
-draw_stack(x_late,   top_labels.get("Late", []))
+draw_stack(centers["Early"],  top_labels.get("Early", []))
+draw_stack(centers["Middle"], top_labels.get("Middle", []))
+draw_stack(centers["Late"],   top_labels.get("Late", []))
 
-# Tight layout (keeps stacks visible)
 plt.tight_layout(pad=0.2)
 st.pyplot(fig, use_container_width=True)
 
