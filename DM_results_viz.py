@@ -120,6 +120,8 @@ if not record:
 
 # ---------- Radar ----------
 
+# ==== Small, left-aligned radar (2× smaller, same proportions) ====
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -148,17 +150,21 @@ FIELDS = [
 ]
 
 def as_float(x):
-    try: return float(x)
-    except: return np.nan
+    try:
+        return float(x)
+    except:
+        return np.nan
 
 def clamp_1_6(v):
-    if np.isnan(v): return np.nan
+    if np.isnan(v):
+        return np.nan
     return max(1.0, min(6.0, v))
 
 vals, labels = [], []
 for k, lab in FIELDS:
     v = clamp_1_6(as_float(record.get(k, np.nan)))
-    vals.append(v); labels.append(lab)
+    vals.append(v)
+    labels.append(lab)
 
 if all(np.isnan(v) for v in vals):
     st.warning("No dimension scores found.")
@@ -168,7 +174,7 @@ neutral = 3.5
 vals_filled = [neutral if np.isnan(v) else v for v in vals]
 
 num_vars = len(vals_filled)
-angles = np.linspace(0, 2*np.pi, num_vars, endpoint=False).tolist()
+angles = np.linspace(0, 2 * np.pi, num_vars, endpoint=False).tolist()
 values = vals_filled + [vals_filled[0]]
 angles_p = angles + angles[:1]
 
@@ -179,49 +185,58 @@ SPINE = "#222222"
 TICK  = "#555555"
 LABEL = "#000000"
 
+# --- Scale factor (0.5 = twice smaller) ---
+s = 0.5
+
+# Create two columns to align left
+col_left, col_right = st.columns([1, 3])
+
 # --- Figure ---
-fig, ax = plt.subplots(figsize=(3.0, 3.0), subplot_kw=dict(polar=True))
+fig, ax = plt.subplots(figsize=(3.0 * s, 3.0 * s), subplot_kw=dict(polar=True))
 fig.patch.set_alpha(0)
 ax.set_facecolor("none")
 
 # Orientation
-ax.set_theta_offset(np.pi/2)
+ax.set_theta_offset(np.pi / 2)
 ax.set_theta_direction(-1)
 ax.set_thetagrids(np.degrees(angles), labels)
 
-# Labels: smaller + closer
+# Label placement (scaled fonts)
 for lbl, ang in zip(ax.get_xticklabels(), angles):
     if ang in (0, np.pi):
-        lbl.set_horizontalalignment('center')
+        lbl.set_horizontalalignment("center")
     elif 0 < ang < np.pi:
-        lbl.set_horizontalalignment('left')
+        lbl.set_horizontalalignment("left")
     else:
-        lbl.set_horizontalalignment('right')
+        lbl.set_horizontalalignment("right")
     lbl.set_color(LABEL)
-    lbl.set_fontsize(7.5)
-# Bring them closer
-ax.tick_params(axis='x', pad=2)
+    lbl.set_fontsize(7.5 * s)
+ax.tick_params(axis="x", pad=int(2 * s))
 
 # Radial range 1–6
 ax.set_ylim(0, 6)
-ax.set_rgrids([1,2,3,4,5,6], angle=180/num_vars, color=TICK)
-ax.tick_params(axis='y', labelsize=6.5, colors=TICK, pad=-1)  # smaller & closer radial labels
+ax.set_rgrids([1, 2, 3, 4, 5, 6], angle=180 / num_vars, color=TICK)
+ax.tick_params(axis="y", labelsize=6.5 * s, colors=TICK, pad=-1)
 
-# Thin grid lines
-ax.grid(color=GRID, linewidth=0.4)
-ax.spines['polar'].set_color(SPINE)
-ax.spines['polar'].set_linewidth(0.6)
+# Grid lines & spine (thinner)
+ax.grid(color=GRID, linewidth=0.4 * s)
+ax.spines["polar"].set_color(SPINE)
+ax.spines["polar"].set_linewidth(0.6 * s)
 
-# Polygon (thin + semi-transparent purple)
-ax.plot(angles_p, values, color=POLY, linewidth=0.8, zorder=3)
+# Polygon (scaled thickness)
+ax.plot(angles_p, values, color=POLY, linewidth=0.8 * s, zorder=3)
 ax.fill(angles_p, values, color=POLY, alpha=0.22, zorder=2)
 
 # Spokes (center to edge)
 for a in angles:
-    ax.plot([a, a], [0, 6], color=GRID, linewidth=0.4, alpha=0.35, zorder=1)
+    ax.plot([a, a], [0, 6], color=GRID, linewidth=0.4 * s, alpha=0.35, zorder=1)
 
-plt.tight_layout(pad=0.25)
-st.pyplot(fig, use_container_width=False)
+plt.tight_layout(pad=0.25 * s)
+
+with col_left:
+    st.pyplot(fig, use_container_width=False)
+# col_right intentionally empty → left alignment
+
 
 
 # ---------- Trajectory plot ----------
