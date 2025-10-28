@@ -218,12 +218,15 @@ st.pyplot(fig, use_container_width=False)
 
 
 
-#%% Sleep-onset timeline — gradient bar, 3-line blocks, bigger end labels #####
+# Add vertical space below the radar
+st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True)
+
+#%% Sleep-onset timeline — thin gradient bar, spaced 3-line blocks ############
 import re
 import numpy as np
 import matplotlib.pyplot as plt
 
-# --- Variables lists (same as before) ----------------------------------------
+# --- Variables lists (unchanged) ---------------------------------------------
 FREQ_VARS = [
     "freq_think_ordinary","freq_scenario","freq_negative","freq_absorbed",
     "freq_percept_fleeting","freq_think_bizarre","freq_planning","freq_spectator",
@@ -248,39 +251,30 @@ TIME_VARS = [
 ]
 
 # --- Helpers -----------------------------------------------------------------
-def core_name(v): 
-    return re.sub(r"^(freq_|timequest_)", "", v)
-
+def core_name(v): return re.sub(r"^(freq_|timequest_)", "", v)
 def as_float(x):
     try: return float(x)
     except: return np.nan
-
-def pretty_label(c): 
-    return c.replace("_", " ")
+def pretty_label(c): return c.replace("_", " ")
 
 # Build dicts
 freq_scores = {core_name(v): as_float(record.get(v, np.nan)) for v in FREQ_VARS}
 time_scores = {core_name(v): as_float(record.get(v, np.nan)) for v in TIME_VARS}
-
-# Keep only valid common cores
 common = [c for c in time_scores if c in freq_scores and not np.isnan(time_scores[c]) and not np.isnan(freq_scores[c])]
 
 # Bucket by temporality
 groups = {"Early": [], "Middle": [], "Late": []}
 for c in common:
     t, f = time_scores[c], freq_scores[c]
-    if 1 <= t <= 33:
-        groups["Early"].append((c, f))
-    elif 34 <= t <= 66:
-        groups["Middle"].append((c, f))
-    elif 67 <= t <= 100:
-        groups["Late"].append((c, f))
+    if 1 <= t <= 33:       groups["Early"].append((c, f))
+    elif 34 <= t <= 66:    groups["Middle"].append((c, f))
+    elif 67 <= t <= 100:   groups["Late"].append((c, f))
 
 # Top-3 by frequency per bucket
-top_labels = {k: [pretty_label(c) for c, _ in sorted(v, key=lambda x: x[1], reverse=True)[:3]] 
+top_labels = {k: [pretty_label(c) for c, _ in sorted(v, key=lambda x: x[1], reverse=True)[:3]]
               for k, v in groups.items()}
 
-# --- Draw gradient bar timeline ---------------------------------------------
+# --- Draw gradient bar -------------------------------------------------------
 fig, ax = plt.subplots(figsize=(7.2, 1.25))
 fig.patch.set_alpha(0)
 ax.set_facecolor("none")
@@ -289,25 +283,28 @@ ax.axis("off")
 # Geometry
 x0, x1 = 0.05, 0.95
 y_bar = 0.50
-h_bar = 0.32   # 4× thicker than previous (was 0.08)
-seg = (x1 - x0) / 3.0
+h_bar = 0.16     # half of the previous 0.32 (twice as thin)
+seg   = (x1 - x0) / 3.0
 
-# Gradient (light -> dark)
-n = 400
-x_grad = np.linspace(x0, x1, n)
-for i in range(n-1):
-    xv0, xv1 = x_grad[i], x_grad[i+1]
-    shade = 1.0 - (i / (n-1)) * 0.85  # 1.0 (left) -> 0.15 (right)
-    ax.fill_between([xv0, xv1], y_bar - h_bar/2, y_bar + h_bar/2, color=str(shade), linewidth=0)
+# Gradient: light gray (#F2F2F2) → dark purple (#5B21B6)
+left_rgb  = np.array([0xF2, 0xF2, 0xF2]) / 255.0
+right_rgb = np.array([0x5B, 0x21, 0xB6]) / 255.0
+n = 800
+grad = np.linspace(0, 1, n)
+colors = (left_rgb[None, :] * (1 - grad)[:, None]) + (right_rgb[None, :] * grad[:, None])
+# Create an image strip for a smooth gradient bar
+grad_img = np.tile(colors[None, :, :], (20, 1, 1))  # 20px tall strip
+ax.imshow(
+    grad_img,
+    extent=(x0, x1, y_bar - h_bar/2, y_bar + h_bar/2),
+    origin="lower",
+    aspect="auto",
+    interpolation="bilinear"
+)
 
-# Tiny separators (very short ticks)
-for i in (1, 2):
-    xi = x0 + seg * i
-    ax.plot([xi, xi], [y_bar - 0.02, y_bar + 0.02], color="#000000", linewidth=0.9)
-
-# End labels ON the bar, larger
-ax.text(x0 - 0.012, y_bar, "Awake",  ha="right", va="center", color="#000000", fontsize=12, fontweight="600")
-ax.text(x1 + 0.012, y_bar, "Asleep", ha="left",  va="center", color="#000000", fontsize=12, fontweight="600")
+# End labels ON the bar, larger but regular (no bold)
+ax.text(x0 - 0.012, y_bar, "Awake",  ha="right", va="center", color="#000000", fontsize=12)
+ax.text(x1 + 0.012, y_bar, "Asleep", ha="left",  va="center", color="#000000", fontsize=12)
 
 # Segment centers
 centers = {
@@ -316,12 +313,19 @@ centers = {
     "Late":   x0 + seg * 2.5,
 }
 
-# --- Three-line text blocks directly above the bar (no bullets) --------------
+# --- Three-line text blocks, with a bit more spacing -------------------------
 def draw_stack_block(xc, names):
     block = "\n".join(names[:3]) if names else ""
-    # Start just above the bar, tight spacing is handled by matplotlib's multi-line rendering
-    ax.text(xc, y_bar + h_bar/2 + 0.015, block, ha="center", va="bottom",
-            fontsize=9, color="#000000", linespacing=0.9)
+    ax.text(
+        xc,
+        y_bar + h_bar/2 + 0.018,   # just above bar
+        block,
+        ha="center",
+        va="bottom",
+        fontsize=9.2,
+        color="#000000",
+        linespacing=1.18           # slightly more space between lines
+    )
 
 draw_stack_block(centers["Early"],  top_labels.get("Early", []))
 draw_stack_block(centers["Middle"], top_labels.get("Middle", []))
@@ -329,6 +333,7 @@ draw_stack_block(centers["Late"],   top_labels.get("Late", []))
 
 plt.tight_layout(pad=0.15)
 st.pyplot(fig, use_container_width=True)
+
 
 
 
