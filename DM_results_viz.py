@@ -221,7 +221,7 @@ st.pyplot(fig, use_container_width=False)
 # Add vertical space below the radar
 st.markdown("<div style='height:32px;'></div>", unsafe_allow_html=True)
 
-#%% Sleep-onset timeline — thin bar + 'perceptions' wording + suffix merge ####
+#%% Sleep-onset timeline — split suffix on new line for readability ###########
 import re
 import numpy as np
 import matplotlib.pyplot as plt
@@ -309,8 +309,14 @@ for k, items in groups.items():
         names.append(CUSTOM_LABELS.get(freq_var, core.replace("_", " ")))
     top_labels[k] = names
 
-# --- Merge repeated suffixes (e.g. "vague, dull perceptions") ----------------
+# --- Merge repeated suffixes and place suffix on new line --------------------
 def compress_by_suffix(names):
+    """
+    Merge items sharing the same last word and place that suffix on the next line.
+    Example:
+      ["vague perceptions", "dull perceptions"] →
+      ["vague, dull\nperceptions"]
+    """
     if not names:
         return names
     split = []
@@ -326,7 +332,7 @@ def compress_by_suffix(names):
         if suf not in seen_suffix:
             prefs = [p for _, p, s in split if s == suf and s != ""]
             if suf != "" and len(prefs) > 1:
-                out.append(", ".join(prefs) + " " + suf)
+                out.append(", ".join(prefs) + "\n" + suf)
             elif suf != "":
                 out.append(pref + " " + suf)
             else:
@@ -349,9 +355,9 @@ y_bar = 0.50
 h_bar = 0.07
 seg   = (x1 - x0) / 3.0
 
-# Gradient: almost white (#FFFFFF) → dark purple (#5B21B6)
-left_rgb  = np.array([0xFF, 0xFF, 0xFF]) / 255.0
-right_rgb = np.array([0x5B, 0x21, 0xB6]) / 255.0
+# Gradient: almost white → dark purple
+left_rgb  = np.array([1.0, 1.0, 1.0])         # white
+right_rgb = np.array([0x5B/255, 0x21/255, 0xB6/255])  # dark purple
 n = 900
 grad = np.linspace(0, 1, n)
 colors = (left_rgb[None, :] * (1 - grad)[:, None]) + (right_rgb[None, :] * grad[:, None])
