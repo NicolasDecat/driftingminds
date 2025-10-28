@@ -460,6 +460,81 @@ st.pyplot(fig, use_container_width=True)
 
 
 
+# ---------- VVIQ Distribution Plot ---------------------------------------------
+
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import truncnorm
+
+# --- Compute participant's VVIQ score ---
+VVIQ_FIELDS = [
+    "quest_a2","quest_a3","quest_a4",
+    "quest_b1","quest_b2","quest_b3","quest_b4",
+    "quest_c1","quest_c2","quest_c3","quest_c4",
+    "quest_d1","quest_d2","quest_d3","quest_d4"
+]
+
+def as_float(x):
+    try:
+        return float(x)
+    except:
+        return np.nan
+
+vviq_score = sum(as_float(record.get(k, np.nan)) for k in VVIQ_FIELDS if not np.isnan(as_float(record.get(k, np.nan))))
+
+# --- Simulate population distribution (truncated normal) ---
+N = 10000
+mu, sigma = 61.0, 9.2
+low, high = 16, 80
+a, b = (low - mu) / sigma, (high - mu) / sigma
+samples = truncnorm.rvs(a, b, loc=mu, scale=sigma, size=N, random_state=42)
+
+# --- Distribution bins ---
+bins = np.linspace(low, high, 33)
+counts, edges = np.histogram(samples, bins=bins, density=True)
+centers = 0.5 * (edges[:-1] + edges[1:])
+
+# --- Find bin that contains participant's score ---
+highlight_idx = np.digitize(vviq_score, edges) - 1
+highlight_idx = np.clip(highlight_idx, 0, len(counts)-1)
+
+# --- Plot styling ---
+fig, ax = plt.subplots(figsize=(6.5, 3.5))
+fig.patch.set_alpha(0)
+ax.set_facecolor("none")
+
+# Light grey bars for population
+ax.bar(centers, counts, width=edges[1]-edges[0], color="#D9D9D9", edgecolor="white")
+
+# Highlight participant’s bin in purple
+ax.bar(
+    centers[highlight_idx],
+    counts[highlight_idx],
+    width=edges[1]-edges[0],
+    color="#7C3AED",
+    edgecolor="white",
+    label="Your score"
+)
+
+# Add cutoffs
+aphantasia_cut = 32
+hyper_cut = 75
+ax.axvline(aphantasia_cut, color="#D62728", linestyle="--", linewidth=1)
+ax.axvline(hyper_cut, color="#2CA02C", linestyle="--", linewidth=1)
+
+# Labels and title
+ax.set_title("VVIQ — Visual Imagery Vividness", fontsize=11, pad=10)
+ax.set_xlabel("VVIQ score (lower = more vivid)")
+ax.set_ylabel("Density")
+ax.legend(frameon=False, fontsize=8, loc="upper right")
+
+# Clean axes
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+ax.tick_params(axis="both", labelsize=8)
+
+plt.tight_layout()
+st.pyplot(fig, use_container_width=True)
 
 
 
