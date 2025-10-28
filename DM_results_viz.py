@@ -221,22 +221,52 @@ st.pyplot(fig, use_container_width=False)
 # Add vertical space below the radar (extra gap)
 st.markdown("<div style='height:32px;'></div>", unsafe_allow_html=True)
 
-#%% Sleep-onset timeline — refined gradient + spacing + sorted names ##########
+
+#%% Sleep-onset timeline — thin bar + custom labels ###########################
+
+
 import re
 import numpy as np
 import matplotlib.pyplot as plt
 
-# --- Variables lists (unchanged) ---------------------------------------------
-FREQ_VARS = [
-    "freq_think_ordinary","freq_scenario","freq_negative","freq_absorbed",
-    "freq_percept_fleeting","freq_think_bizarre","freq_planning","freq_spectator",
-    "freq_ruminate","freq_percept_intense","freq_percept_narrative","freq_percept_ordinary",
-    "freq_time_perc_fast","freq_percept_vague","freq_replay","freq_percept_bizarre",
-    "freq_emo_intense","freq_percept_continuous","freq_think_nocontrol","freq_percept_dull",
-    "freq_emo_neutral","freq_actor","freq_think_seq_bizarre","freq_percept_precise",
-    "freq_percept_imposed","freq_hear_env","freq_positive","freq_think_seq_ordinary",
-    "freq_percept_real","freq_time_perc_slow","freq_syn","freq_creat"
-]
+# --- Frequency variable label mapping ---------------------------------------
+CUSTOM_LABELS = {
+    "freq_think_ordinary": "thinking logical thoughts",
+    "freq_scenario": "imagining scenarios",
+    "freq_negative": "feeling negative",
+    "freq_absorbed": "feeling absorbed",
+    "freq_percept_fleeting": "fleeting images/sounds",
+    "freq_think_bizarre": "thinking strange things",
+    "freq_planning": "planning the day",
+    "freq_spectator": "feeling like a spectator",
+    "freq_ruminate": "ruminating",
+    "freq_percept_intense": "intense images/sounds",
+    "freq_percept_narrative": "narrative scenes",
+    "freq_percept_ordinary": "ordinary images/sounds",
+    "freq_time_perc_fast": "time feels fast",
+    "freq_percept_vague": "vague images/sounds",
+    "freq_replay": "replaying the day",
+    "freq_percept_bizarre": "strange images/sounds",
+    "freq_emo_intense": "feeling intense emotions",
+    "freq_percept_continuous": "continuous images/sounds",
+    "freq_think_nocontrol": "losing control of thoughts",
+    "freq_percept_dull": "dull images/sounds",
+    "freq_emo_neutral": "feeling no emotion",
+    "freq_actor": "acting in the scene",
+    "freq_think_seq_bizarre": "thinking illogical thoughts",
+    "freq_percept_precise": "distinct images/sounds",
+    "freq_percept_imposed": "imposed images/sounds",
+    "freq_hear_env": "hearing my environment",
+    "freq_positive": "feeling positive",
+    "freq_think_seq_ordinary": "thinking logical thoughts",
+    "freq_percept_real": "imagery feels real",
+    "freq_time_perc_slow": "time feels slow",
+    "freq_syn": "experiencing synaesthesia",
+    "freq_creat": "feeling creative",
+}
+
+# --- Variable lists (same as before) ----------------------------------------
+FREQ_VARS = list(CUSTOM_LABELS.keys())
 TIME_VARS = [
     "timequest_scenario","timequest_positive","timequest_absorbed","timequest_percept_fleeting",
     "timequest_think_bizarre","timequest_planning","timequest_spectator","timequest_ruminate",
@@ -255,7 +285,6 @@ def core_name(v): return re.sub(r"^(freq_|timequest_)", "", v)
 def as_float(x):
     try: return float(x)
     except: return np.nan
-def pretty_label(c): return c.replace("_", " ")
 
 # Build dicts
 freq_scores = {core_name(v): as_float(record.get(v, np.nan)) for v in FREQ_VARS}
@@ -273,11 +302,16 @@ for c in common:
     elif 67 <= t <= 100:
         groups["Late"].append((c, f))
 
-# Top-3 by frequency per bucket (sorted high→low; keep order in display)
+# Top-3 by frequency (sorted high→low)
 top_labels = {}
 for k, items in groups.items():
     items_sorted = sorted(items, key=lambda x: x[1], reverse=True)[:3]
-    top_labels[k] = [pretty_label(c) for (c, _) in items_sorted]
+    names = []
+    for core, _ in items_sorted:
+        freq_var = f"freq_{core}"
+        label = CUSTOM_LABELS.get(freq_var, core.replace("_", " "))
+        names.append(label)
+    top_labels[k] = names
 
 # --- Draw gradient bar -------------------------------------------------------
 fig, ax = plt.subplots(figsize=(7.2, 1.25))
@@ -288,7 +322,7 @@ ax.axis("off")
 # Geometry
 x0, x1 = 0.05, 0.95
 y_bar = 0.50
-h_bar = 0.14     # slightly thinner than previous (0.16)
+h_bar = 0.07    # twice as thin as before (was 0.14)
 seg   = (x1 - x0) / 3.0
 
 # Gradient: almost white (#FFFFFF) → dark purple (#5B21B6)
@@ -297,7 +331,7 @@ right_rgb = np.array([0x5B, 0x21, 0xB6]) / 255.0
 n = 900
 grad = np.linspace(0, 1, n)
 colors = (left_rgb[None, :] * (1 - grad)[:, None]) + (right_rgb[None, :] * grad[:, None])
-grad_img = np.tile(colors[None, :, :], (24, 1, 1))  # image strip for a smooth gradient
+grad_img = np.tile(colors[None, :, :], (20, 1, 1))
 ax.imshow(
     grad_img,
     extent=(x0, x1, y_bar - h_bar/2, y_bar + h_bar/2),
@@ -306,29 +340,29 @@ ax.imshow(
     interpolation="bilinear"
 )
 
-# End labels on the bar (regular weight, bigger)
+# End labels on bar (large, regular weight)
 ax.text(x0 - 0.012, y_bar, "Awake",  ha="right", va="center", color="#000000", fontsize=12)
 ax.text(x1 + 0.012, y_bar, "Asleep", ha="left",  va="center", color="#000000", fontsize=12)
 
-# Centers of segments
+# Centers of thirds
 centers = {
     "Early":  x0 + seg * 0.5,
     "Middle": x0 + seg * 1.5,
     "Late":   x0 + seg * 2.5,
 }
 
-# --- Three-line blocks with a touch more spacing -----------------------------
+# --- Draw 3-line blocks (slightly more spacing) ------------------------------
 def draw_stack_block(xc, names):
     block = "\n".join(names[:3]) if names else ""
     ax.text(
         xc,
-        y_bar + h_bar/2 + 0.02,  # just above bar
+        y_bar + h_bar/2 + 0.02,
         block,
         ha="center",
         va="bottom",
         fontsize=9.4,
         color="#000000",
-        linespacing=1.28         # slightly more space between lines
+        linespacing=1.35     # increased spacing between lines
     )
 
 draw_stack_block(centers["Early"],  top_labels.get("Early", []))
