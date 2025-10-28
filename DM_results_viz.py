@@ -428,9 +428,10 @@ if traj_value in [1, 2, 3, 4]:
     img_path = f"assets/trajectories-0{traj_value}.png"
     if os.path.exists(img_path):
         img = Image.open(img_path)
+        # Display image at half its container width
         st.image(
             img,
-            use_column_width=True,
+            width=400,   # 👈 adjust this number if you want smaller/larger (e.g., 350 or 450)
             caption=f"Trajectory type {traj_value}",
         )
     else:
