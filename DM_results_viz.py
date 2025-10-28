@@ -70,6 +70,8 @@ def fetch_by_record_id(record_id: str):
 
 
 
+
+
 #%% Prepare vizualisation #####################################################
 ###############################################################################
 
@@ -84,6 +86,9 @@ def safe_float(x):
         return np.nan
 
 # ---------- App Layout ----------
+
+st.image("assets/symbols.png", use_container_width=True) # add
+
 
 
 st.set_page_config(page_title="Driftind Minds")
@@ -105,7 +110,6 @@ if not record:
 #     st.json(record)
 
 
-st.image("assets/symbols.png", use_container_width=True) # add
 
 
 
