@@ -129,106 +129,15 @@ with st.expander("See your raw responses"):
 ###############################################################################
 
 
-import numpy as np
-import matplotlib.pyplot as plt
-
-# ---- Values -----------------------------------------------------------------
-def get_val(rec, key):
-    v = rec.get(key)
-    try:
-        v = float(v)
-    except:
-        v = np.nan
-    return None if np.isnan(v) else v
-
-anxiety   = get_val(record, "anxiety")            # expects 1–100
-creativity = get_val(record, "creativity_trait")  # expects 1–6
-
-if anxiety is None:
-    st.warning("Anxiety score not found.")
-    st.stop()
-
-# Clamp
-anxiety = min(100.0, max(0.0, anxiety))
-if creativity is not None:
-    creativity = min(6.0, max(1.0, creativity))
-
-# ---- Style ------------------------------------------------------------------
-BG      = "#0E1117"
-CURVE   = "#7F8894"   # soft grey
-MARK_A  = "#22D3EE"   # cyan
-MARK_C  = "#7C3AED"   # purple
-
-def plot_minimal(value, xmin, xmax, mu, sigma, color_curve, color_mark, left_label, right_label):
-    """Returns a minimal figure with thin Gaussian, baseline + end labels, and a vertical marker."""
-    x = np.linspace(xmin, xmax, 400)
-    y = np.exp(-0.5*((x - mu)/sigma)**2)
-    y /= y.max()
-
-    fig, ax = plt.subplots(figsize=(3.9, 2.2))
-    fig.patch.set_facecolor(BG)
-    ax.set_facecolor(BG)
-
-    # Thin curve & marker
-    ax.plot(x, y, color=color_curve, linewidth=1.1)
-    ax.axvline(value, color=color_mark, linewidth=2.0, alpha=0.95)
-
-    # Baseline + end labels (subtle)
-    ax.axhline(0, color=color_curve, linewidth=0.6, alpha=0.3)
-    ax.text(xmin, -0.12, f"{left_label}", color="#9AA3AF", ha="center", va="top", fontsize=9)
-    ax.text(xmax, -0.12, f"{right_label}", color="#9AA3AF", ha="center", va="top", fontsize=9)
-
-    # Clean layout
-    ax.set_xlim(xmin, xmax)
-    ax.set_ylim(-0.18, 1.05)                # extra bottom room for labels
-    ax.set_xticks([]); ax.set_yticks([])
-    for s in ax.spines.values():
-        s.set_visible(False)
-
-    # Tighten paddings so Streamlit doesn't crop labels
-    fig.subplots_adjust(left=0.03, right=0.97, top=0.92, bottom=0.35)
-    return fig
-
-# ---- Streamlit layout: titles OUTSIDE figures (no overlap) ------------------
-col1, col2 = st.columns([1, 1], gap="large")
-
-with col1:
-    st.markdown("<div style='color:#E6E6E6;font-weight:600;'>Anxiety</div>", unsafe_allow_html=True)
-    figA = plot_minimal(
-        value=anxiety, xmin=0, xmax=100, mu=50, sigma=10,          # narrower distribution
-        color_curve=CURVE, color_mark=MARK_A,
-        left_label="0", right_label="100"
-    )
-    st.pyplot(figA, use_container_width=False)
-
-with col2:
-    st.markdown("<div style='color:#E6E6E6;font-weight:600;'>Creativity</div>", unsafe_allow_html=True)
-    if creativity is not None:
-        figC = plot_minimal(
-            value=creativity, xmin=1, xmax=6, mu=3.5, sigma=1.0,   # centered on 3.5 for 1–6 scale
-            color_curve=CURVE, color_mark=MARK_C,
-            left_label="1", right_label="6"
-        )
-        st.pyplot(figC, use_container_width=False)
-    else:
-        st.caption("No creativity score available.")
 
 
 
 
-# Optional: you vs crowd (if you maintain a norms table)
-# if NORMS is not None and set(SCALES.keys()).issubset(NORMS.columns):
-#     st.subheader("How you compare to other participants (optional)")
-#     # Build a small table of percentiles per scale
-#     comp = {}
-#     for s in SCALES.keys():
-#         comp[s] = {
-#             "your_mean": means[s],
-#             "p50": float(np.nanpercentile(NORMS[s], 50)),
-#             "p25": float(np.nanpercentile(NORMS[s], 25)),
-#             "p75": float(np.nanpercentile(NORMS[s], 75)),
-#         }
-#     st.dataframe(pd.DataFrame(comp).T)
-#     st.caption("Reference values update as more anonymous data accumulates.")
-# else:
-#     st.info("Group comparison will appear here once we’ve collected enough anonymous data.")
+
+
+
+
+
+
+
+
