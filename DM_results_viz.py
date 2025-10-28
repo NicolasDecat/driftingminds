@@ -101,8 +101,8 @@ if not record:
     st.stop()
 
 # Show raw responses as toggle list
-with st.expander("Raw responses"):
-    st.json(record)
+# with st.expander("Raw responses"):
+#     st.json(record)
 
 
 
@@ -329,7 +329,7 @@ common = [c for c in time_scores if c in freq_scores and not np.isnan(time_score
 # Space below the previous plot
 st.markdown("<div style='height:32px;'></div>", unsafe_allow_html=True)
 
-import numpy as np
+import numpy as np 
 import matplotlib.pyplot as plt
 
 # Build core -> (time, freq, label)
