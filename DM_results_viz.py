@@ -76,36 +76,19 @@ def fetch_by_record_id(record_id: str):
 
 # ---------- Prepare computation ----------
 
-
-# Define which fields belong to which scales for the viz
-SCALES = {
-    "Thoughts": ["freq_think_nocontrol", "freq_think_seq_bizarre", "freq_think_seq_ordinary"],
-    "Perception":    ["freq_percept_precise",  "freq_percept_real",  "freq_percept_imposed"]
-}
-
-# convert any numeric string to a float
+# convert numeric string to float
 def safe_float(x):
     try:
         return float(x)
     except:
         return np.nan
-    
-# Convert means
-def scale_means(record: dict) -> pd.Series:
-    means = {}
-    for scale, items in SCALES.items():
-        vals = [safe_float(record.get(f, np.nan)) for f in items]
-        vals = [v for v in vals if np.isfinite(v)]
-        means[scale] = float(np.mean(vals)) if vals else np.nan
-    return pd.Series(means)
-
 
 # ---------- App Layout ----------
 
 
-st.set_page_config(page_title="Your Sleep Onset Profile")
+st.set_page_config(page_title="Driftind Minds")
 
-st.title("Your sleep-onset profile")
+st.title("Project Driftind Minds: this is how my mind drifts into sleep")
 
 # Read query params (?id=123)
 qp = st.query_params
@@ -120,7 +103,7 @@ if not record:
     st.stop()
 
 # Show raw responses as toggle list
-with st.expander("See your raw responses"):
+with st.expander("Raw responses"):
     st.json(record)
 
 
