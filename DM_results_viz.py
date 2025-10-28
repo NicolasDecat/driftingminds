@@ -583,23 +583,23 @@ def norm_clip(x, lo, hi):
 # Replace field names with your actual REDCap keys
 DIMENSIONS = {
     "vividness": [
-        ("vividness_1to6",        norm_1_6,   1.0, {}),
-        ("detail_1to6",           norm_1_6,   1.0, {}),
+        ("freq_percept_fleeting",        norm_1_6,   1.0, {}),
+        ("freq_percept_intense ",           norm_1_6,   1.0, {}),
     ],
     "spontaneity": [
-        ("spontaneity_1to6",      norm_1_6,   1.0, {}),
+        ("freq_think_nocontrol",      norm_1_6,   1.0, {}),
     ],
     "bizarreness": [
-        ("bizarreness_1to6",      norm_1_6,   1.0, {}),
+        ("freq_percept_bizarre",      norm_1_6,   1.0, {}),
     ],
     "immersion": [
-        ("immersion_1to6",        norm_1_6,   1.0, {}),
+        ("freq_absorbed",        norm_1_6,   1.0, {}),
     ],
     "emotion_pos": [
-        ("emotion_valence_1to6",  norm_1_6,   1.0, {}),
+        ("freq_positive",  norm_1_6,   1.0, {}),
     ],
     "sleep_latency": [
-        ("sleep_latency_min",     norm_clip,  1.0, {"lo": 0, "hi": 60}),
+        ("sleep_latency_min",     norm_clip,  1.0, {"lo": 0, "hi": 120}),
     ],
     "baseline_anxiety": [
         ("anxiety_1to100",        norm_1_100, 1.0, {}),
@@ -635,11 +635,11 @@ def vector_from_scores(scores, dim_keys=DIM_KEYS):
 # ---------- 3) Prototype profiles (aligned to DIM_KEYS order) ---------------------
 # Order = ["vividness","spontaneity","bizarreness","immersion","emotion_pos","sleep_latency","baseline_anxiety"]
 profiles = {
-    "Sensory Dreamer":   [0.85, 0.60, 0.70, 0.80, 0.60, 0.40, 0.40],
-    "Letting Go":        [0.60, 0.75, 0.50, 0.70, 0.50, 0.60, 0.50],
-    "Pragmatic Thinker": [0.30, 0.20, 0.20, 0.30, 0.50, 0.30, 0.30],
-    "Ruminator":         [0.50, 0.30, 0.30, 0.50, 0.30, 0.90, 0.90],
-    "Quiet Mind":        [0.20, 0.20, 0.20, 0.20, 0.50, 0.10, 0.20],
+    "Sensory Dreamer":   [0.90, 0.90, 0.30, 0.90, 0.80, 0.50, 0.50, 0.50],
+    "Letting Go":        [0.70, 0.75, 0.30, 0.50, 0.60, 0.50, 0.60, 0.50],
+    "Pragmatic Thinker": [0.20, 0.20, 0.10, 0.10, 0.30, 0.50, 0.50, 0.50],
+    "Ruminator":         [0.20, 0.20, 0.10, 0.10, 0.10, 0.20, 0.90, 0.90],
+    "Quiet Mind":        [0.20, 0.20, 0.20, 0.20, 0.20, 0.50, 0.50, 0.50],
 }
 
 # ---------- 4) Assignment by nearest prototype ---------------------------------------------------
@@ -663,22 +663,12 @@ def assign_profile_from_record(record, profiles=profiles):
     return best_name, scores
 
 # ---------- 5) Streamlit display ----------------------------------------------------------------
+
+
 import streamlit as st
 import plotly.graph_objects as go
 
 st.set_page_config(page_title="Drifting Minds — Profile", layout="centered")
-
-# Fallback demo record (REMOVE in production; provide your real record dict)
-record = st.session_state.get("record", {
-    "vividness_1to6":        5,
-    "detail_1to6":           5,
-    "spontaneity_1to6":      2,
-    "bizarreness_1to6":      3,
-    "immersion_1to6":        5,
-    "emotion_valence_1to6":  2,
-    "sleep_latency_min":     50,
-    "anxiety_1to100":        88,
-})
 
 prof, scores = assign_profile_from_record(record)
 
