@@ -522,11 +522,20 @@ hyper_cut = 75
 ax.axvline(aphantasia_cut, color="#D9D9D9", linestyle="--", linewidth=1)
 ax.axvline(hyper_cut, color="#D9D9D9", linestyle="--", linewidth=1)
 
+# --- Add cutoff labels ---
+y_text = ax.get_ylim()[1] * 0.92  # vertical placement near top of plot
+ax.text(aphantasia_cut - 1.5, y_text, "Aphantasia", color="#888888",
+        ha="right", va="center", fontsize=8)
+ax.text(hyper_cut + 1.5, y_text, "Hyperphantasia", color="#888888",
+        ha="left", va="center", fontsize=8)
+
 # Labels and title
 ax.set_title("VVIQ — Visual Imagery Vividness", fontsize=11, pad=10)
 ax.set_xlabel("VVIQ score (lower = more vivid)")
 ax.set_ylabel("Density")
-ax.legend(frameon=False, fontsize=8, loc="upper right")
+
+# Move legend to bottom-left
+ax.legend(frameon=False, fontsize=8, loc="lower left")
 
 # Clean axes
 ax.spines["top"].set_visible(False)
@@ -535,6 +544,7 @@ ax.tick_params(axis="both", labelsize=8)
 
 plt.tight_layout()
 st.pyplot(fig, use_container_width=True)
+
 
 
 
