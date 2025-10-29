@@ -334,28 +334,28 @@ st.markdown(
     f"""
     <div style="
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: center;
-        gap: 60px;
+        gap: 50px;
         margin-top: 30px;
         margin-bottom: 40px;
         flex-wrap: wrap;
-        text-align: left;
     ">
-        <!-- Left block: title -->
-        <div style="display: flex; flex-direction: column; align-items: flex-start;">
+        <!-- Left block: "Your profile is..." + profile name -->
+        <div style="text-align: left;">
             <p style="font-size:1rem; margin:0; color:#000000;">Your profile is...</p>
             <h2 style="font-size:2rem; margin:6px 0 0 0;"><strong>{prof}</strong></h2>
         </div>
 
         <!-- Right block: description -->
-        <div style="max-width:420px;">
-            <p style="font-size:1.05rem; margin:0; line-height:1.4;">{prof_desc}</p>
+        <div style="max-width:420px; text-align:left;">
+            <p style="font-size:1.05rem; margin:0; line-height:1.5;">{prof_desc}</p>
         </div>
     </div>
     """,
     unsafe_allow_html=True,
 )
+
 
 
 
