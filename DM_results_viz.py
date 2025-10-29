@@ -402,8 +402,7 @@ csv_path = os.path.join("assets", "N1000_comparative_viz_ready.csv")
 pop_data = pd.read_csv(csv_path)
 
 
-# --- Sleep latency distribution -------------------
-
+# --- Sleep latency distribution (smoothed KDE, final refined version) -------
 from scipy.stats import gaussian_kde
 import matplotlib.pyplot as plt
 import numpy as np
@@ -412,7 +411,7 @@ import pandas as pd
 # pop_data: DataFrame loaded from your assets
 # scores: dict from assign_profile_from_record(record), contains 'sleep_latency' (0–1)
 
-CAP_MIN = 60.0  # same cap used in normalization
+CAP_MIN = 60.0  # normalization cap
 
 # Find appropriate column
 lat_col = [c for c in pop_data.columns if "sleep_latency" in c.lower()][0]
@@ -424,6 +423,7 @@ sl_norm = scores.get("sleep_latency", np.nan)
 if not np.isnan(sl_norm):
     part_minutes = sl_norm * CAP_MIN if sl_norm <= 1.5 else sl_norm
     part_minutes = float(np.clip(part_minutes, 0, CAP_MIN))
+    rounded_minutes = int(round(part_minutes))
 
     # --- KDE curve
     kde = gaussian_kde(samples, bw_method="scott")
@@ -444,15 +444,22 @@ if not np.isnan(sl_norm):
     ax.scatter([part_minutes], [kde(part_minutes)], color="#7C3AED", s=20, zorder=3)
 
     # --- Labels and style
-    ax.set_title("Time to fall asleep", fontsize=10, pad=6)
+    ax.set_title(f"{rounded_minutes} minutes to fall asleep", fontsize=10, pad=6)
     ax.set_xlabel("Time (min)", fontsize=9)
     ax.set_ylabel("Population", fontsize=9)
 
-    # Remove y ticks and labels for minimalism
+    # --- Remove y ticks for minimalism
     ax.set_yticks([])
     ax.set_yticklabels([])
 
-    # Clean minimal design
+    # --- Replace last x tick label with "≥60"
+    xticks = ax.get_xticks()
+    xlabels = [f"{int(t)}" for t in xticks]
+    if len(xlabels) > 0:
+        xlabels[-1] = "≥60"
+    ax.set_xticklabels(xlabels)
+
+    # --- Clean minimal design
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.tick_params(axis="x", labelsize=8)
@@ -460,8 +467,10 @@ if not np.isnan(sl_norm):
 
     plt.tight_layout()
     st.pyplot(fig, use_container_width=False)
+
 else:
     st.info("No sleep-latency value available for this participant.")
+
 
 
 
