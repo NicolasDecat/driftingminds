@@ -309,16 +309,42 @@ def assign_profile_from_record(record, profiles=profiles):
 # ---------- 5) Streamlit display ----------------------------------------------------------------
 
 
-# ---------- 5) Streamlit display ----------------------------------------------------------------
 import streamlit as st
+import plotly.graph_objects as go
 
 st.set_page_config(page_title="Drifting Minds — Profile", layout="centered")
 
 if 'record' not in globals():
     st.error("No 'record' dict found. Provide your participant data before profile assignment.")
     st.stop()
-
+    
 prof, scores = assign_profile_from_record(record)
+
+st.markdown(f"## 🌙 Your sleep-onset profile: **{prof}**")
+
+# Radar: order by DIM_KEYS, replace NaNs with neutral (0.5) for display
+categories = DIM_KEYS[:]  # fixed order
+values = [scores.get(k, np.nan) for k in categories]
+values = [0.5 if (v is None or np.isnan(v)) else v for v in values]
+
+# Close the loop for polar
+r_vals = values + [values[0]]
+theta_vals = categories + [categories[0]]
+
+fig = go.Figure(data=go.Scatterpolar(
+    r=r_vals,
+    theta=theta_vals,
+    fill='toself',
+    line_color='#7FDBFF',
+    fillcolor='rgba(127,219,255,0.2)'
+))
+fig.update_layout(
+    margin=dict(l=20, r=20, t=10, b=10),
+    polar=dict(radialaxis=dict(visible=True, range=[0,1])),
+    showlegend=False,
+    width=420, height=420,
+)
+st.plotly_chart(fig, use_container_width=True)
 
 descriptions = {
     "Sensory Dreamer": "You tend to drift into sleep through vivid, sensory experiences — colors, sounds, or mini-dreams.",
@@ -327,42 +353,7 @@ descriptions = {
     "Ruminator": "You tend to replay or analyze things in bed, with longer sleep latency and emotional tension.",
     "Quiet Mind": "You fall asleep effortlessly, with little mental content — a peaceful fade into rest.",
 }
-
-# --- Minimal, elegant card for name + description ---
-st.markdown(
-    """
-    <style>
-      .dm-card {
-        border-radius: 18px;
-        padding: 22px 24px;
-        background: linear-gradient(180deg, rgba(20,28,38,0.75) 0%, rgba(20,28,38,0.55) 100%);
-        border: 1px solid rgba(255,255,255,0.08);
-        backdrop-filter: blur(6px);
-      }
-      .dm-title {
-        font-size: 1.6rem;
-        line-height: 1.2;
-        margin: 0 0 8px 0;
-      }
-      .dm-desc {
-        color: rgba(255,255,255,0.85);
-        margin: 0;
-      }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-with st.container():
-    st.markdown(
-        f"""
-        <div class="dm-card">
-          <h3 class="dm-title">🌙 Your sleep-onset profile: <strong>{prof}</strong></h3>
-          <p class="dm-desc">{descriptions.get(prof, "")}</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+st.caption(descriptions.get(prof, ""))
 
 
 
