@@ -329,7 +329,7 @@ _descriptions_ci = {k.lower(): v for k, v in descriptions.items()}
 prof_key = str(prof).strip().lower()
 prof_desc = _descriptions_ci.get(prof_key, "")
 
-# --- Render clean horizontal layout: profile title (left) + description (right) ---
+# --- Render clean horizontal layout: left title block + right description block ---
 st.markdown(
     f"""
     <div style="
@@ -355,6 +355,7 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
 
 
 
