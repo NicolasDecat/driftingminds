@@ -113,6 +113,257 @@ if not record:
 
 
 
+#%% Profile #############################################################
+###############################################################################
+import numpy as np
+
+# ---------- 1) Normalization helpers ------------------------------------------------------------
+def _to_float(x):
+    try:
+        return float(x)
+    except:
+        return np.nan
+
+def norm_1_6(x):
+    x = _to_float(x)
+    if np.isnan(x): return np.nan
+    return np.clip((x - 1.0) / 5.0, 0.0, 1.0)
+
+def norm_0_100(x):
+    x = _to_float(x)
+    if np.isnan(x): return np.nan
+    return np.clip(x / 100.0, 0.0, 1.0)
+
+def norm_1_100(x):
+    x = _to_float(x)
+    if np.isnan(x): return np.nan
+    return np.clip((x - 1.0) / 99.0, 0.0, 1.0)
+
+def _to_minutes_relaxed(x):
+    """
+    Parse latency expressed as:
+      - float/int minutes: 15, "15", "15.5"
+      - HH:MM or H:MM strings: "0:20", "1:05"
+      - '1h 5m', '1h05', '65 min' style strings
+      - already-normalized 0..1 (return None to signal 'already normalized')
+    Returns minutes as float, or np.nan if cannot parse.
+    """
+    # numeric already?
+    if isinstance(x, (int, float)):
+        if 0.0 <= x <= 1.0:
+            return None  # already normalized
+        return float(x)
+
+    if x is None:
+        return np.nan
+
+    s = str(x).strip().lower()
+    if s == "" or s in {"na", "n/a", "none"}:
+        return np.nan
+
+    # HH:MM pattern
+    m = re.match(r"^\s*(\d{1,2})\s*:\s*(\d{1,2})\s*$", s)
+    if m:
+        hh, mm = int(m.group(1)), int(m.group(2))
+        return float(hh * 60 + mm)
+
+    # "1h05" or "1h 05m" or "1 h 5" etc.
+    m = re.findall(r"(\d+(?:\.\d+)?)\s*(h|hr|hrs|hour|hours|m|min|mins|minute|minutes)?", s)
+    if m:
+        total = 0.0
+        any_unit = False
+        for val, unit in m:
+            if val == "": 
+                continue
+            v = float(val)
+            if unit in ("h","hr","hrs","hour","hours"):
+                total += v * 60.0
+                any_unit = True
+            elif unit in ("m","min","mins","minute","minutes"):
+                total += v
+                any_unit = True
+        if any_unit:
+            return total
+
+    # plain float-ish: "15" / "15.5"
+    try:
+        v = float(s)
+        if 0.0 <= v <= 1.0:
+            return None  # already normalized
+        return v
+    except:
+        return np.nan
+
+
+def norm_latency_auto(x, cap_minutes=60.0):
+    """
+    Normalize sleep latency to [0,1] robustly.
+    Accepts minutes, HH:MM, '1h05', '15 min', or already-normalized 0..1.
+    Clips at cap_minutes (default 60).
+    """
+    # First try relaxed minutes
+    mins = _to_minutes_relaxed(x)
+    if mins is None:
+        # already normalized 0..1
+        v = _to_float(x)
+        return np.clip(v, 0.0, 1.0)
+    if np.isnan(mins):
+        return np.nan
+    return np.clip(mins / cap_minutes, 0.0, 1.0)
+
+
+# ---------- 2) Aliases + robust fetch -------------------------------
+def _get_first(record, keys):
+    """Return the first present, non-empty value for any of the candidate keys."""
+    if isinstance(keys, (list, tuple)):
+        for k in keys:
+            if k in record and record[k] not in (None, "", "NA"):
+                return record[k]
+        return np.nan
+    # single key
+    return record.get(keys, np.nan)
+
+# ---------- 2) Define composite dimensions  -------------------------------
+# Use lists of candidate keys to survive small naming differences
+DIMENSIONS = {
+    "vividness": [
+        ("freq_percept_real",      norm_1_6,   1.0, {}),
+        ("freq_percept_intense",   norm_1_6,   1.0, {}),
+    ],
+    "spontaneity": [
+        ("freq_think_nocontrol",   norm_1_6,   1.0, {}),
+    ],
+    "bizarreness": [
+        ("freq_percept_bizarre",   norm_1_6,   1.0, {}),
+    ],
+    "immersion": [
+        ("freq_absorbed",          norm_1_6,   1.0, {}),
+    ],
+    "emotion_pos": [
+        ("freq_positive",          norm_1_6,   1.0, {}),
+    ],
+    "sleep_latency": [
+    (["sleep_latency_min","sleep_latency","sleep_latency_minutes",
+      "latency_minutes","sleep_onset_latency"],  # aliases
+     norm_latency_auto, 1.0, {"cap_minutes": 60.0}),
+    ],
+    "baseline_anxiety": [
+        (["anxiety"], norm_1_100, 1.0, {}),
+    ],
+}
+
+def composite_scores_from_record(record, dimensions=DIMENSIONS):
+    out = {}
+    for dim, items in dimensions.items():
+        vals, wts = [], []
+        for item in items:
+            if len(item) == 3:
+                field_keys, norm_fn, wt = item
+                kwargs = {}
+            else:
+                field_keys, norm_fn, wt, kwargs = item
+            raw = _get_first(record, field_keys)
+            try:
+                v = norm_fn(raw, **kwargs) if kwargs else norm_fn(raw)
+            except TypeError:
+                v = norm_fn(raw)
+            if not np.isnan(v):
+                vals.append(v * wt)
+                wts.append(wt)
+        out[dim] = (np.sum(vals) / np.sum(wts)) if wts else np.nan
+    return out
+
+DIM_KEYS = list(DIMENSIONS.keys())
+
+def vector_from_scores(scores, dim_keys=DIM_KEYS):
+    return np.array([scores.get(k, np.nan) for k in dim_keys], dtype=float)
+
+# ---------- 3) Prototype profiles (aligned to DIM_KEYS order) ---------------------
+# Order = ["vividness","spontaneity","bizarreness","immersion","emotion_pos","sleep_latency","baseline_anxiety"]
+profiles = {
+    "Sensory Dreamer":   [0.90, 0.30, 0.90, 0.80, 0.50, 0.50, 0.50],
+    "Letting Go":        [0.70, 0.30, 0.50, 0.60, 0.50, 0.60, 0.50],
+    "Pragmatic Thinker": [0.20, 0.10, 0.10, 0.30, 0.50, 0.50, 0.50],
+    "Ruminator":         [0.20, 0.10, 0.10, 0.10, 0.20, 0.90, 0.90],
+    "Quiet Mind":        [0.20, 0.20, 0.20, 0.20, 0.50, 0.50, 0.50],
+}
+
+# ---------- 4) Assignment by nearest prototype ---------------------------------------------------
+def _nanaware_distance(a, b):
+    a = np.array(a, dtype=float)
+    b = np.array(b, dtype=float)
+    mask = ~(np.isnan(a) | np.isnan(b))
+    if not np.any(mask):
+        return np.inf
+    diff = a[mask] - b[mask]
+    return np.sqrt(np.sum(diff * diff))
+
+def assign_profile_from_record(record, profiles=profiles):
+    scores = composite_scores_from_record(record)
+    vec = vector_from_scores(scores)
+    best_name, best_dist = None, np.inf
+    for name, proto in profiles.items():
+        d = _nanaware_distance(vec, proto)
+        if d < best_dist:
+            best_name, best_dist = name, d
+    return best_name, scores
+
+# ---------- 5) Streamlit display ----------------------------------------------------------------
+
+
+import streamlit as st
+import plotly.graph_objects as go
+
+st.set_page_config(page_title="Drifting Minds — Profile", layout="centered")
+
+if 'record' not in globals():
+    st.error("No 'record' dict found. Provide your participant data before profile assignment.")
+    st.stop()
+    
+prof, scores = assign_profile_from_record(record)
+
+st.markdown(f"## 🌙 Your sleep-onset profile: **{prof}**")
+
+# Radar: order by DIM_KEYS, replace NaNs with neutral (0.5) for display
+categories = DIM_KEYS[:]  # fixed order
+values = [scores.get(k, np.nan) for k in categories]
+values = [0.5 if (v is None or np.isnan(v)) else v for v in values]
+
+# Close the loop for polar
+r_vals = values + [values[0]]
+theta_vals = categories + [categories[0]]
+
+fig = go.Figure(data=go.Scatterpolar(
+    r=r_vals,
+    theta=theta_vals,
+    fill='toself',
+    line_color='#7FDBFF',
+    fillcolor='rgba(127,219,255,0.2)'
+))
+fig.update_layout(
+    margin=dict(l=20, r=20, t=10, b=10),
+    polar=dict(radialaxis=dict(visible=True, range=[0,1])),
+    showlegend=False,
+    width=420, height=420,
+)
+st.plotly_chart(fig, use_container_width=True)
+
+descriptions = {
+    "Sensory Dreamer": "You tend to drift into sleep through vivid, sensory experiences — colors, sounds, or mini-dreams.",
+    "Letting Go": "You start by thinking intentionally, but gradually surrender to spontaneous imagery.",
+    "Pragmatic Thinker": "You stay in control — analytical or practical thoughts until you switch off abruptly.",
+    "Ruminator": "You tend to replay or analyze things in bed, with longer sleep latency and emotional tension.",
+    "Quiet Mind": "You fall asleep effortlessly, with little mental content — a peaceful fade into rest.",
+}
+st.caption(descriptions.get(prof, ""))
+
+
+
+
+
+
+
+
 
 #%% Vizualisation #############################################################
 ###############################################################################
@@ -548,249 +799,6 @@ st.pyplot(fig, use_container_width=True)
 
 
 
-#%% Profile #############################################################
-###############################################################################
-import numpy as np
-
-# ---------- 1) Normalization helpers ------------------------------------------------------------
-def _to_float(x):
-    try:
-        return float(x)
-    except:
-        return np.nan
-
-def norm_1_6(x):
-    x = _to_float(x)
-    if np.isnan(x): return np.nan
-    return np.clip((x - 1.0) / 5.0, 0.0, 1.0)
-
-def norm_0_100(x):
-    x = _to_float(x)
-    if np.isnan(x): return np.nan
-    return np.clip(x / 100.0, 0.0, 1.0)
-
-def norm_1_100(x):
-    x = _to_float(x)
-    if np.isnan(x): return np.nan
-    return np.clip((x - 1.0) / 99.0, 0.0, 1.0)
-
-def _to_minutes_relaxed(x):
-    """
-    Parse latency expressed as:
-      - float/int minutes: 15, "15", "15.5"
-      - HH:MM or H:MM strings: "0:20", "1:05"
-      - '1h 5m', '1h05', '65 min' style strings
-      - already-normalized 0..1 (return None to signal 'already normalized')
-    Returns minutes as float, or np.nan if cannot parse.
-    """
-    # numeric already?
-    if isinstance(x, (int, float)):
-        if 0.0 <= x <= 1.0:
-            return None  # already normalized
-        return float(x)
-
-    if x is None:
-        return np.nan
-
-    s = str(x).strip().lower()
-    if s == "" or s in {"na", "n/a", "none"}:
-        return np.nan
-
-    # HH:MM pattern
-    m = re.match(r"^\s*(\d{1,2})\s*:\s*(\d{1,2})\s*$", s)
-    if m:
-        hh, mm = int(m.group(1)), int(m.group(2))
-        return float(hh * 60 + mm)
-
-    # "1h05" or "1h 05m" or "1 h 5" etc.
-    m = re.findall(r"(\d+(?:\.\d+)?)\s*(h|hr|hrs|hour|hours|m|min|mins|minute|minutes)?", s)
-    if m:
-        total = 0.0
-        any_unit = False
-        for val, unit in m:
-            if val == "": 
-                continue
-            v = float(val)
-            if unit in ("h","hr","hrs","hour","hours"):
-                total += v * 60.0
-                any_unit = True
-            elif unit in ("m","min","mins","minute","minutes"):
-                total += v
-                any_unit = True
-        if any_unit:
-            return total
-
-    # plain float-ish: "15" / "15.5"
-    try:
-        v = float(s)
-        if 0.0 <= v <= 1.0:
-            return None  # already normalized
-        return v
-    except:
-        return np.nan
-
-
-def norm_latency_auto(x, cap_minutes=60.0):
-    """
-    Normalize sleep latency to [0,1] robustly.
-    Accepts minutes, HH:MM, '1h05', '15 min', or already-normalized 0..1.
-    Clips at cap_minutes (default 60).
-    """
-    # First try relaxed minutes
-    mins = _to_minutes_relaxed(x)
-    if mins is None:
-        # already normalized 0..1
-        v = _to_float(x)
-        return np.clip(v, 0.0, 1.0)
-    if np.isnan(mins):
-        return np.nan
-    return np.clip(mins / cap_minutes, 0.0, 1.0)
-
-
-# ---------- 2) Aliases + robust fetch -------------------------------
-def _get_first(record, keys):
-    """Return the first present, non-empty value for any of the candidate keys."""
-    if isinstance(keys, (list, tuple)):
-        for k in keys:
-            if k in record and record[k] not in (None, "", "NA"):
-                return record[k]
-        return np.nan
-    # single key
-    return record.get(keys, np.nan)
-
-# ---------- 2) Define composite dimensions  -------------------------------
-# Use lists of candidate keys to survive small naming differences
-DIMENSIONS = {
-    "vividness": [
-        ("freq_percept_real",      norm_1_6,   1.0, {}),
-        ("freq_percept_intense",   norm_1_6,   1.0, {}),
-    ],
-    "spontaneity": [
-        ("freq_think_nocontrol",   norm_1_6,   1.0, {}),
-    ],
-    "bizarreness": [
-        ("freq_percept_bizarre",   norm_1_6,   1.0, {}),
-    ],
-    "immersion": [
-        ("freq_absorbed",          norm_1_6,   1.0, {}),
-    ],
-    "emotion_pos": [
-        ("freq_positive",          norm_1_6,   1.0, {}),
-    ],
-    "sleep_latency": [
-    (["sleep_latency_min","sleep_latency","sleep_latency_minutes",
-      "latency_minutes","sleep_onset_latency"],  # aliases
-     norm_latency_auto, 1.0, {"cap_minutes": 60.0}),
-    ],
-    "baseline_anxiety": [
-        (["anxiety"], norm_1_100, 1.0, {}),
-    ],
-}
-
-def composite_scores_from_record(record, dimensions=DIMENSIONS):
-    out = {}
-    for dim, items in dimensions.items():
-        vals, wts = [], []
-        for item in items:
-            if len(item) == 3:
-                field_keys, norm_fn, wt = item
-                kwargs = {}
-            else:
-                field_keys, norm_fn, wt, kwargs = item
-            raw = _get_first(record, field_keys)
-            try:
-                v = norm_fn(raw, **kwargs) if kwargs else norm_fn(raw)
-            except TypeError:
-                v = norm_fn(raw)
-            if not np.isnan(v):
-                vals.append(v * wt)
-                wts.append(wt)
-        out[dim] = (np.sum(vals) / np.sum(wts)) if wts else np.nan
-    return out
-
-DIM_KEYS = list(DIMENSIONS.keys())
-
-def vector_from_scores(scores, dim_keys=DIM_KEYS):
-    return np.array([scores.get(k, np.nan) for k in dim_keys], dtype=float)
-
-# ---------- 3) Prototype profiles (aligned to DIM_KEYS order) ---------------------
-# Order = ["vividness","spontaneity","bizarreness","immersion","emotion_pos","sleep_latency","baseline_anxiety"]
-profiles = {
-    "Sensory Dreamer":   [0.90, 0.30, 0.90, 0.80, 0.50, 0.50, 0.50],
-    "Letting Go":        [0.70, 0.30, 0.50, 0.60, 0.50, 0.60, 0.50],
-    "Pragmatic Thinker": [0.20, 0.10, 0.10, 0.30, 0.50, 0.50, 0.50],
-    "Ruminator":         [0.20, 0.10, 0.10, 0.10, 0.20, 0.90, 0.90],
-    "Quiet Mind":        [0.20, 0.20, 0.20, 0.20, 0.50, 0.50, 0.50],
-}
-
-# ---------- 4) Assignment by nearest prototype ---------------------------------------------------
-def _nanaware_distance(a, b):
-    a = np.array(a, dtype=float)
-    b = np.array(b, dtype=float)
-    mask = ~(np.isnan(a) | np.isnan(b))
-    if not np.any(mask):
-        return np.inf
-    diff = a[mask] - b[mask]
-    return np.sqrt(np.sum(diff * diff))
-
-def assign_profile_from_record(record, profiles=profiles):
-    scores = composite_scores_from_record(record)
-    vec = vector_from_scores(scores)
-    best_name, best_dist = None, np.inf
-    for name, proto in profiles.items():
-        d = _nanaware_distance(vec, proto)
-        if d < best_dist:
-            best_name, best_dist = name, d
-    return best_name, scores
-
-# ---------- 5) Streamlit display ----------------------------------------------------------------
-
-
-import streamlit as st
-import plotly.graph_objects as go
-
-st.set_page_config(page_title="Drifting Minds — Profile", layout="centered")
-
-if 'record' not in globals():
-    st.error("No 'record' dict found. Provide your participant data before profile assignment.")
-    st.stop()
-    
-prof, scores = assign_profile_from_record(record)
-
-st.markdown(f"## 🌙 Your sleep-onset profile: **{prof}**")
-
-# Radar: order by DIM_KEYS, replace NaNs with neutral (0.5) for display
-categories = DIM_KEYS[:]  # fixed order
-values = [scores.get(k, np.nan) for k in categories]
-values = [0.5 if (v is None or np.isnan(v)) else v for v in values]
-
-# Close the loop for polar
-r_vals = values + [values[0]]
-theta_vals = categories + [categories[0]]
-
-fig = go.Figure(data=go.Scatterpolar(
-    r=r_vals,
-    theta=theta_vals,
-    fill='toself',
-    line_color='#7FDBFF',
-    fillcolor='rgba(127,219,255,0.2)'
-))
-fig.update_layout(
-    margin=dict(l=20, r=20, t=10, b=10),
-    polar=dict(radialaxis=dict(visible=True, range=[0,1])),
-    showlegend=False,
-    width=420, height=420,
-)
-st.plotly_chart(fig, use_container_width=True)
-
-descriptions = {
-    "Sensory Dreamer": "You tend to drift into sleep through vivid, sensory experiences — colors, sounds, or mini-dreams.",
-    "Letting Go": "You start by thinking intentionally, but gradually surrender to spontaneous imagery.",
-    "Pragmatic Thinker": "You stay in control — analytical or practical thoughts until you switch off abruptly.",
-    "Ruminator": "You tend to replay or analyze things in bed, with longer sleep latency and emotional tension.",
-    "Quiet Mind": "You fall asleep effortlessly, with little mental content — a peaceful fade into rest.",
-}
-st.caption(descriptions.get(prof, ""))
 
 
 
