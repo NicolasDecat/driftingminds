@@ -402,25 +402,34 @@ csv_path = os.path.join("assets", "N1000_comparative_viz_ready.csv")
 pop_data = pd.read_csv(csv_path)
 
 
-# --- Sleep latency distribution (smoothed KDE, with "60+" tick) -------------
+# --- Sleep latency distribution (smoothed KDE, final polished version) -------
 from scipy.stats import gaussian_kde
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-CAP_MIN = 60.0  # normalization cap
+CAP_MIN = 60.0  # normalization cap for display
 
-# Find appropriate column
+# --- Get data from population
 lat_col = [c for c in pop_data.columns if "sleep_latency" in c.lower()][0]
 raw = pd.to_numeric(pop_data[lat_col], errors="coerce").dropna()
 samples = np.clip(raw.values * CAP_MIN if raw.max() <= 1.5 else raw.values, 0, CAP_MIN)
 
-# Participant value (minutes)
+# --- Participant value (raw + normalized)
 sl_norm = scores.get("sleep_latency", np.nan)
 if not np.isnan(sl_norm):
-    part_minutes = sl_norm * CAP_MIN if sl_norm <= 1.5 else sl_norm
-    part_minutes = float(np.clip(part_minutes, 0, CAP_MIN))
-    rounded_minutes = int(round(part_minutes))
+    # Raw value (uncapped, in minutes)
+    sl_raw = _get_first(record, ["sleep_latency_min", "sleep_latency", "sleep_latency_minutes",
+                                 "latency_minutes", "sleep_onset_latency"])
+    try:
+        part_raw_minutes = float(sl_raw)
+    except Exception:
+        part_raw_minutes = np.nan
+
+    # Display (capped for plot)
+    part_display = sl_norm * CAP_MIN if sl_norm <= 1.5 else sl_norm
+    part_display = float(np.clip(part_display, 0, CAP_MIN))
+    rounded_raw = int(round(part_raw_minutes)) if not np.isnan(part_raw_minutes) else int(round(part_display))
 
     # --- KDE curve
     kde = gaussian_kde(samples, bw_method="scott")
@@ -432,30 +441,29 @@ if not np.isnan(sl_norm):
     fig.patch.set_alpha(0)
     ax.set_facecolor("none")
 
-    # Filled envelope
+    # Smooth grey distribution envelope
     ax.fill_between(xs, ys, color="#D9D9D9", alpha=0.8, linewidth=0)
     ax.plot(xs, ys, color="#BBBBBB", linewidth=1)
 
-    # Participant marker
-    ax.axvline(part_minutes, color="#7C3AED", lw=2)
-    ax.scatter([part_minutes], [kde(part_minutes)], color="#7C3AED", s=20, zorder=3)
+    # Thin purple marker line for participant
+    ax.axvline(part_display, color="#7C3AED", lw=1.2)
+    ax.scatter([part_display], [kde(part_display)], color="#7C3AED", s=20, zorder=3)
 
-    # --- Labels and style
-    ax.set_title(f"{rounded_minutes} minutes to fall asleep", fontsize=10, pad=6)
+    # --- Labels and styling
+    ax.set_title(f"{rounded_raw} minutes to fall asleep", fontsize=10, pad=6)
     ax.set_xlabel("Time (min)", fontsize=9)
     ax.set_ylabel("Population", fontsize=9)
 
-    # --- Remove y ticks for minimalism
+    # Minimal axis design
     ax.set_yticks([])
     ax.set_yticklabels([])
 
-    # --- Custom X ticks: ensure last label is "60+"
-    xticks = np.linspace(0, CAP_MIN, 7)  # 0,10,20,...,60
+    # Custom x ticks with final "60+"
+    xticks = np.linspace(0, CAP_MIN, 7)
     ax.set_xticks(xticks)
     xlabels = [str(int(t)) if t < CAP_MIN else "60+" for t in xticks]
     ax.set_xticklabels(xlabels)
 
-    # --- Clean minimal design
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.tick_params(axis="x", labelsize=8)
@@ -466,7 +474,6 @@ if not np.isnan(sl_norm):
 
 else:
     st.info("No sleep-latency value available for this participant.")
-
 
 
 
