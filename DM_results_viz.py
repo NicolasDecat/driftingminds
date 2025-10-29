@@ -461,7 +461,8 @@ with col_left:
         ax.plot(xs, ys, color="#BBBBBB", linewidth=1)
 
         # Thin purple marker
-        ax.scatter([part_display], [kde(part_display)], color="#7C3AED", s=25, zorder=3)
+        ax.axvline(part_display, color="#7C3AED", lw=0.5)
+        ax.scatter([part_display], [kde(part_display)], color="#7C3AED", s=20, zorder=3)
 
         ax.set_title(f"{rounded_raw} minutes to fall asleep", fontsize=10, pad=6)
         ax.set_xlabel("Time (min)", fontsize=9)
