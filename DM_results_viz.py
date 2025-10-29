@@ -392,10 +392,21 @@ with st.expander("See how this was computed"):
 
 
 
+#%% Comparitive visualisation ################################################
+###############################################################################
 
 
 
-#%% Vizualisation #############################################################
+# Load population (N=1000) data
+csv_path = os.path.join("assets", "N1000_comparative_viz_ready.csv")
+pop_data = pd.read_csv(csv_path)
+
+
+
+
+
+
+#%% Easy-to-pick vizualisation ################################################
 ###############################################################################
 
 
