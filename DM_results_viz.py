@@ -348,7 +348,7 @@ st.markdown(
     f"""
     <div style="text-align:center; margin-top:20px; margin-bottom:25px;">
         <h3 style="font-size:1.6rem; margin-bottom:8px;">
-            🌙 Your sleep-onset profile: <strong>{prof}</strong>
+            Your sleep-onset profile: <strong>{prof}</strong>
         </h3>
         <p style="color:rgba(255,255,255,0.9); font-size:1.05rem; margin-top:0;">
             {descriptions.get(prof, "")}
