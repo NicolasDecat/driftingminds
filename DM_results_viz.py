@@ -563,23 +563,25 @@ with col_right:
             # Remove y ticks
             ax.set_yticks([]); ax.set_yticklabels([])
 
-            # X ticks: 1..12 but hide labels 4..10, set last to "12+"
+            # X ticks: 1..12 but only show labels 4..10, and set last to "12+"
             ticks = np.arange(1, 13, 1)
             ax.set_xticks(ticks)
-            labels = [str(i) for i in ticks]
-            for i in range(4, 11):  # 4..10
-                labels[i-1] = ""    # index offset because ticks start at 1
-            labels[-1] = "12+"
+            
+            labels = ["" for _ in ticks]  # start with all hidden
+            for i in range(4, 11):        # 4..10 inclusive
+                labels[i-1] = str(i)
+            
             ax.set_xticklabels(labels)
-
+            
+            # Clean minimal style
             ax.spines["top"].set_visible(False)
             ax.spines["right"].set_visible(False)
             ax.tick_params(axis="x", labelsize=8)
             ax.tick_params(axis="y", length=0)
-
+            
             plt.tight_layout()
             st.pyplot(fig, use_container_width=False)
-
+            
 
 
 
