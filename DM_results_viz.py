@@ -331,57 +331,61 @@ prof_desc = _descriptions_ci.get(prof_key, "")
 
 from textwrap import dedent
 
-# Inject compact, responsive CSS once (safe across themes)
+# --- CSS styling for profile box ---
 st.markdown(dedent("""
 <style>
-  .dm-prof-wrap{
+  .dm-prof-wrap {
     max-width: 100%;
     margin: 0 auto;
   }
-  .dm-prof-intro{
+  .dm-prof-intro {
     font-size: 1rem;
     margin: 0 0 6px 0;
-    color: #000000; /* explicit black as requested */
+    color: #000000;
     text-align: left;
   }
-  .dm-prof-frame{
+  .dm-prof-frame {
     display: flex;
-    gap: 32px;
-    align-items: flex-start;      /* align desc with the profile name line */
-    border: 1px solid #000000;    /* thin black frame */
-    background: rgba(240,240,240,0.6); /* very light grey */
+    align-items: baseline;          /* align first line of text with profile name */
+    gap: 28px;
+    border: 1px solid #000000;
+    background: #FFFBEA;            /* blanc crème tone */
     border-radius: 8px;
-    padding: 10px 16px;
+    padding: 12px 18px;
     box-sizing: border-box;
-    width: 100%;                  /* never exceed Streamlit content column */
+    width: 100%;
   }
-  .dm-prof-name{
+  .dm-prof-name {
     min-width: 160px;
     flex: 0 0 auto;
     text-align: left;
   }
-  .dm-prof-name h2{
+  .dm-prof-name h2 {
     font-size: 2rem;
     margin: 0;
   }
-  .dm-prof-desc{
-    flex: 1 1 0;                  /* take remaining space, stay within frame */
+  .dm-prof-desc {
+    flex: 1 1 0;
     max-width: 100%;
     text-align: left;
   }
-  .dm-prof-desc p{
+  .dm-prof-desc p {
     font-size: 1.05rem;
     margin: 0;
-    line-height: 1.5;
+    line-height: 1.45;
   }
   /* Stack vertically on narrow screens */
   @media (max-width: 640px){
-    .dm-prof-frame{ flex-direction: column; gap: 12px; }
+    .dm-prof-frame {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
   }
 </style>
 """), unsafe_allow_html=True)
 
-# Render: left title block + right description, both inside a single framed row
+# --- Render profile name + description in a framed row ---
 st.markdown(dedent(f"""
 <div class="dm-prof-wrap">
   <p class="dm-prof-intro">Your profile is...</p>
