@@ -107,7 +107,19 @@ if not record:
 # with st.expander("Raw responses"):
 #     st.json(record)
     
+# --- Titles ---
 
+st.markdown(
+    """
+    <div style="text-align:center; margin-bottom:2.5rem;">  <!-- more space -->
+        <div style="font-size:2rem; font-weight:800;">Drifting Minds Study</div>
+        <div style="font-size:1rem; margin-top:0.5rem;">
+            This is how my mind drifts into sleep
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 
 
@@ -138,14 +150,6 @@ def norm_1_100(x):
     return np.clip((x - 1.0) / 99.0, 0.0, 1.0)
 
 def _to_minutes_relaxed(x):
-    """
-    Parse latency expressed as:
-      - float/int minutes: 15, "15", "15.5"
-      - HH:MM or H:MM strings: "0:20", "1:05"
-      - '1h 5m', '1h05', '65 min' style strings
-      - already-normalized 0..1 (return None to signal 'already normalized')
-    Returns minutes as float, or np.nan if cannot parse.
-    """
     # numeric already?
     if isinstance(x, (int, float)):
         if 0.0 <= x <= 1.0:
@@ -192,13 +196,7 @@ def _to_minutes_relaxed(x):
     except:
         return np.nan
 
-
 def norm_latency_auto(x, cap_minutes=60.0):
-    """
-    Normalize sleep latency to [0,1] robustly.
-    Accepts minutes, HH:MM, '1h05', '15 min', or already-normalized 0..1.
-    Clips at cap_minutes (default 60).
-    """
     # First try relaxed minutes
     mins = _to_minutes_relaxed(x)
     if mins is None:
@@ -222,7 +220,7 @@ def _get_first(record, keys):
     return record.get(keys, np.nan)
 
 # ---------- 2) Define composite dimensions  -------------------------------
-# Use lists of candidate keys to survive small naming differences
+
 DIMENSIONS = {
     "vividness": [
         ("freq_percept_real",      norm_1_6,   1.0, {}),
@@ -307,7 +305,6 @@ def assign_profile_from_record(record, profiles=profiles):
     return best_name, scores
 
 # ---------- 5) Streamlit display (clean version, no radar, with title) -------
-###############################################################################
 
 # Ensure a record is available
 if 'record' not in globals():
@@ -316,19 +313,6 @@ if 'record' not in globals():
 
 # Compute participant’s profile and scores
 prof, scores = assign_profile_from_record(record)
-
-# --- Page title & subtitle ---
-st.markdown(
-    """
-    <div style="text-align:center; padding-top:10px; padding-bottom:20px;">
-        <h1 style="font-size:2rem; margin-bottom:0;">🌙 <strong>Drifting Minds Study</strong></h1>
-        <p style="font-size:1.1rem; color:rgba(255,255,255,0.8); margin-top:4px;">
-            This is how my mind drifts into sleep
-        </p>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
 
 # --- Profile descriptions ---
 descriptions = {
@@ -430,25 +414,9 @@ with st.expander("See how this was computed"):
 ###############################################################################
 
 
-# ---------- Radar ----------
 
-# ==== Large, left-aligned radar with extra spacing below title ====
 
-import numpy as np
-import matplotlib.pyplot as plt
 
-# --- Titles ---
-st.markdown(
-    """
-    <div style="text-align:center; margin-bottom:2.5rem;">  <!-- more space -->
-        <div style="font-size:2rem; font-weight:800;">Drifting Minds Study</div>
-        <div style="font-size:1rem; margin-top:0.5rem;">
-            This is how my mind drifts into sleep
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
 
 # --- Fields & labels ---
 FIELDS = [
