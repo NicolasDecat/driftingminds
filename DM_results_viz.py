@@ -574,17 +574,78 @@ def norm_1_100(x):
     if np.isnan(x): return np.nan
     return np.clip((x - 1.0) / 99.0, 0.0, 1.0)
 
-def norm_clip(x, lo, hi):
-    x = _to_float(x)
-    if np.isnan(x): return np.nan
-    if hi <= lo: return np.nan
-    return np.clip((x - lo) / (hi - lo), 0.0, 1.0)
+def _to_minutes_relaxed(x):
+    """
+    Parse latency expressed as:
+      - float/int minutes: 15, "15", "15.5"
+      - HH:MM or H:MM strings: "0:20", "1:05"
+      - '1h 5m', '1h05', '65 min' style strings
+      - already-normalized 0..1 (return None to signal 'already normalized')
+    Returns minutes as float, or np.nan if cannot parse.
+    """
+    # numeric already?
+    if isinstance(x, (int, float)):
+        if 0.0 <= x <= 1.0:
+            return None  # already normalized
+        return float(x)
 
-def norm_anxiety_auto(x):
-    x = _to_float(x)
-    if np.isnan(x): 
+    if x is None:
         return np.nan
-    return np.clip((x - 1.0) / 99.0, 0.0, 1.0)
+
+    s = str(x).strip().lower()
+    if s == "" or s in {"na", "n/a", "none"}:
+        return np.nan
+
+    # HH:MM pattern
+    m = re.match(r"^\s*(\d{1,2})\s*:\s*(\d{1,2})\s*$", s)
+    if m:
+        hh, mm = int(m.group(1)), int(m.group(2))
+        return float(hh * 60 + mm)
+
+    # "1h05" or "1h 05m" or "1 h 5" etc.
+    m = re.findall(r"(\d+(?:\.\d+)?)\s*(h|hr|hrs|hour|hours|m|min|mins|minute|minutes)?", s)
+    if m:
+        total = 0.0
+        any_unit = False
+        for val, unit in m:
+            if val == "": 
+                continue
+            v = float(val)
+            if unit in ("h","hr","hrs","hour","hours"):
+                total += v * 60.0
+                any_unit = True
+            elif unit in ("m","min","mins","minute","minutes"):
+                total += v
+                any_unit = True
+        if any_unit:
+            return total
+
+    # plain float-ish: "15" / "15.5"
+    try:
+        v = float(s)
+        if 0.0 <= v <= 1.0:
+            return None  # already normalized
+        return v
+    except:
+        return np.nan
+
+
+def norm_latency_auto(x, cap_minutes=60.0):
+    """
+    Normalize sleep latency to [0,1] robustly.
+    Accepts minutes, HH:MM, '1h05', '15 min', or already-normalized 0..1.
+    Clips at cap_minutes (default 60).
+    """
+    # First try relaxed minutes
+    mins = _to_minutes_relaxed(x)
+    if mins is None:
+        # already normalized 0..1
+        v = _to_float(x)
+        return np.clip(v, 0.0, 1.0)
+    if np.isnan(mins):
+        return np.nan
+    return np.clip(mins / cap_minutes, 0.0, 1.0)
+
 
 # ---------- 2) Aliases + robust fetch -------------------------------
 def _get_first(record, keys):
@@ -617,10 +678,12 @@ DIMENSIONS = {
         ("freq_positive",          norm_1_6,   1.0, {}),
     ],
     "sleep_latency": [
-        ("sleep_latency_min",      norm_clip,  1.0, {"lo": 0, "hi": 60}),
+    (["sleep_latency_min","sleep_latency","sleep_latency_minutes",
+      "latency_minutes","sleep_onset_latency"],  # aliases
+     norm_latency_auto, 1.0, {"cap_minutes": 60.0}),
     ],
     "baseline_anxiety": [
-        (["anxiety"], norm_anxiety_auto, 1.0, {}),
+        (["anxiety"], norm_1_100, 1.0, {}),
     ],
 }
 
