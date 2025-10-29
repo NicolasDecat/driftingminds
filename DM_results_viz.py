@@ -304,7 +304,7 @@ def assign_profile_from_record(record, profiles=profiles):
             best_name, best_dist = name, d
     return best_name, scores
 
-# ---------- 5) Streamlit display (clean version, no radar, with title) -------
+# ---------- 5) Streamlit display (name + description only, no duplicate title) --
 
 # Ensure a record is available
 if 'record' not in globals():
@@ -314,7 +314,7 @@ if 'record' not in globals():
 # Compute participant’s profile and scores
 prof, scores = assign_profile_from_record(record)
 
-# --- Profile descriptions ---
+# Profile descriptions
 descriptions = {
     "Sensory Dreamer": "You tend to drift into sleep through vivid, sensory experiences — colors, sounds, or mini-dreams.",
     "Letting Go": "You start by thinking intentionally, but gradually surrender to spontaneous imagery.",
@@ -323,27 +323,14 @@ descriptions = {
     "Quiet Mind": "You fall asleep effortlessly, with little mental content — a peaceful fade into rest.",
 }
 
-# --- Title & subtitle ---
-st.markdown(
-    """
-    <div style="text-align:center; padding-top:10px; padding-bottom:25px;">
-        <h1 style="font-size:2rem; margin-bottom:0;">🌙 <strong>Drifting Minds Study</strong></h1>
-        <p style="font-size:1.1rem; color:rgba(255,255,255,0.8); margin-top:6px;">
-            This is how my mind drifts into sleep
-        </p>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-# --- Clean centered text for profile name + description ---
+# === Name + description (centered, no grey box, no duplicate page title) ===
 st.markdown(
     f"""
     <div style="text-align:center; margin-top:10px; margin-bottom:35px;">
-        <h3 style="font-size:1.7rem; margin-bottom:8px;">
-            Your sleep-onset profile: <strong>{prof}</strong>
-        </h3>
-        <p style="color:rgba(255,255,255,0.9); font-size:1.05rem; margin-top:0;">
+        <h2 style="font-size:1.8rem; margin:0 0 8px 0;">
+            <strong>{prof}</strong>
+        </h2>
+        <p style="color:rgba(255,255,255,0.9); font-size:1.05rem; margin:0;">
             {descriptions.get(prof, "")}
         </p>
     </div>
@@ -398,8 +385,6 @@ with st.expander("See how this was computed"):
     )
 
     st.caption("Notes: sleep_latency normalized with cap=60 min; baseline_anxiety normalized from 1–100 → 0–1.")
-
-
 
 
 
