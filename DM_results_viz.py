@@ -114,7 +114,7 @@ st.markdown(
     <div style="text-align:center; margin-bottom:2.5rem;">  <!-- more space -->
         <div style="font-size:2rem; font-weight:800;">Drifting Minds Study</div>
         <div style="font-size:1rem; margin-top:0.5rem;">
-            This is how my mind drifts into sleep
+            - This is how my mind drifts into sleep -
         </div>
     </div>
     """,
@@ -329,16 +329,18 @@ _descriptions_ci = {k.lower(): v for k, v in descriptions.items()}
 prof_key = str(prof).strip().lower()
 prof_desc = _descriptions_ci.get(prof_key, "")
 
-# --- Render: no forced white text color (theme-safe) ---
+# --- Render clean layout: "Your profile is..." + profile name + description ---
 st.markdown(
     f"""
-    <div style="text-align:center; margin-top:10px; margin-bottom:35px;">
-        <h2 style="font-size:1.8rem; margin:0 0 8px 0;"><strong>{prof}</strong></h2>
+    <div style="text-align:center; margin-top:15px; margin-bottom:35px;">
+        <p style="font-size:1rem; margin:0; opacity:0.8;">Your profile is...</p>
+        <h2 style="font-size:2rem; margin:5px 0 10px 0;"><strong>{prof}</strong></h2>
         <p style="font-size:1.05rem; margin:0;">{prof_desc}</p>
     </div>
     """,
     unsafe_allow_html=True,
 )
+
 
 # --- Helper for nice numeric formatting ---
 def _fmt(v, nd=3):
