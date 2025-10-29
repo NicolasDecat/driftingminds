@@ -437,7 +437,7 @@ def _fmt(v, nd=3):
         return str(v)
 
 # --- Toggle: computation outcomes (no highlights, no radar) ---
-with st.expander("See how this was computed"):
+with st.expander("computation BTS"):
     # 1) Dimension scores (0–1)
     dim_rows = []
     for k in DIM_KEYS:
