@@ -12,6 +12,7 @@ import os
 import json
 import numpy as np
 import pandas as pd
+import re
 import requests
 import streamlit as st
 import matplotlib.pyplot as plt
@@ -105,14 +106,14 @@ if not record:
 # Show raw responses as toggle list
 # with st.expander("Raw responses"):
 #     st.json(record)
-
+    
 
 
 
 
 #%% Profile #############################################################
 ###############################################################################
-import numpy as np
+
 
 # ---------- 1) Normalization helpers ------------------------------------------------------------
 def _to_float(x):
@@ -311,7 +312,6 @@ def assign_profile_from_record(record, profiles=profiles):
 import streamlit as st
 import plotly.graph_objects as go
 
-st.set_page_config(page_title="Drifting Minds — Profile", layout="centered")
 
 if 'record' not in globals():
     st.error("No 'record' dict found. Provide your participant data before profile assignment.")
