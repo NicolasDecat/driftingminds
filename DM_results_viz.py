@@ -395,6 +395,10 @@ with st.expander("See how this was computed"):
 #%% Comparitive visualisation ################################################
 ###############################################################################
 
+from scipy.stats import gaussian_kde
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
 
 # Load population (N=1000) data
@@ -402,11 +406,8 @@ csv_path = os.path.join("assets", "N1000_comparative_viz_ready.csv")
 pop_data = pd.read_csv(csv_path)
 
 
-# --- Sleep latency distribution (smoothed KDE, final polished version) -------
-from scipy.stats import gaussian_kde
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
+# ---------- 4) Sleep latency distribution ---------------------------------------------------
+
 
 CAP_MIN = 60.0  # normalization cap for display
 
@@ -476,6 +477,113 @@ else:
     st.info("No sleep-latency value available for this participant.")
 
 
+# --- Sleep duration distribution ---------------------
+
+
+# 1) Locate a duration column in pop_data
+dur_cols = [c for c in pop_data.columns if c.lower() in (
+    "sleep_duration", "sleep_duration_h", "sleep_duration_hours", "total_sleep_time_h"
+)]
+if not dur_cols:
+    st.warning("Couldn’t find a sleep duration column in pop_data "
+               "(looked for: sleep_duration, sleep_duration_h, sleep_duration_hours, total_sleep_time_h).")
+else:
+    col = dur_cols[0]
+
+    def _to_hours_for_plot(x):
+        # Accepts numbers or strings like "12+"; returns float in [1,12]
+        if x is None:
+            return np.nan
+        s = str(x).strip()
+        if s.endswith("+"):
+            try:
+                return float(s[:-1])
+            except:
+                return 12.0
+        try:
+            return float(s)
+        except:
+            return np.nan
+
+    # 2) Population samples (hours) capped to 12 for plotting
+    raw_series = pop_data[col].apply(_to_hours_for_plot)
+    samples = raw_series.astype(float).to_numpy()
+    samples = samples[np.isfinite(samples)]
+    samples = np.clip(samples, 1.0, 12.0)
+
+    if samples.size == 0:
+        st.info("No valid sleep duration values found in population data.")
+    else:
+        # 3) Participant raw duration (keep the raw text for title, e.g., '12+')
+        dur_raw = _get_first(record, [
+            "sleep_duration", "sleep_duration_h", "sleep_duration_hours", "total_sleep_time_h"
+        ])
+        dur_raw_str = str(dur_raw).strip() if dur_raw is not None else ""
+        # For plotting, convert to hours within [1,12]
+        try:
+            if dur_raw_str.endswith("+"):
+                part_plot_hours = float(dur_raw_str[:-1])
+                title_str = f"{dur_raw_str} hours of sleep"
+            else:
+                part_plot_hours = float(dur_raw_str)
+                title_str = f"{int(round(part_plot_hours))} hours of sleep"
+        except:
+            # Fallback if missing/invalid: use median for marker & generic title
+            part_plot_hours = float(np.nanmedian(samples))
+            title_str = "Sleep duration"
+
+        part_plot_hours = float(np.clip(part_plot_hours, 1.0, 12.0))
+
+        # 4) KDE envelope over 1..12
+        xs = np.linspace(1.0, 12.0, 400)
+        try:
+            kde = gaussian_kde(samples, bw_method="scott")
+            ys = kde(xs)
+            y_part = kde([part_plot_hours])[0]
+        except Exception:
+            # If KDE fails (e.g., tiny variance), draw a tiny bump
+            ys = np.exp(-0.5 * ((xs - np.nanmedian(samples)) / 0.15) ** 2)
+            ys /= np.trapz(ys, xs)
+            # approximate y at participant
+            y_part = np.exp(-0.5 * ((part_plot_hours - np.nanmedian(samples)) / 0.15) ** 2)
+
+        # 5) Plot (same compact look as latency)
+        fig, ax = plt.subplots(figsize=(2.2, 2.4))  # narrow, matches your small tiles
+        fig.patch.set_alpha(0)
+        ax.set_facecolor("none")
+
+        # Grey filled envelope
+        ax.fill_between(xs, ys, color="#D9D9D9", alpha=0.8, linewidth=0)
+        ax.plot(xs, ys, color="#BBBBBB", linewidth=1)
+
+        # Thin purple marker at participant
+        ax.axvline(part_plot_hours, color="#7C3AED", lw=1.2)
+        ax.scatter([part_plot_hours], [y_part], color="#7C3AED", s=20, zorder=3)
+
+        # Labels & style
+        ax.set_title(title_str, fontsize=10, pad=6)
+        ax.set_xlabel("Time (h)", fontsize=9)
+        ax.set_ylabel("Population", fontsize=9)
+
+        # Remove y ticks/labels
+        ax.set_yticks([])
+        ax.set_yticklabels([])
+
+        # X ticks: 1..12 with last label "12+"
+        xticks = np.arange(1, 13, 1)  # 1,2,...,12
+        ax.set_xticks(xticks)
+        xlabels = [str(int(x)) for x in xticks]
+        xlabels[-1] = "12+"
+        ax.set_xticklabels(xlabels)
+
+        # Minimal look
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.tick_params(axis="x", labelsize=8)
+        ax.tick_params(axis="y", length=0)
+
+        plt.tight_layout()
+        st.pyplot(fig, use_container_width=False)
 
 
 
