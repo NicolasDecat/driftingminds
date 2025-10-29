@@ -579,30 +579,43 @@ def norm_clip(x, lo, hi):
     if np.isnan(x): return np.nan
     return np.clip((x - lo) / (hi - lo), 0.0, 1.0)
 
+# ---------- 2) Aliases + robust fetch -------------------------------
+def _get_first(record, keys):
+    """Return the first present, non-empty value for any of the candidate keys."""
+    if isinstance(keys, (list, tuple)):
+        for k in keys:
+            if k in record and record[k] not in (None, "", "NA"):
+                return record[k]
+        return np.nan
+    # single key
+    return record.get(keys, np.nan)
+
 # ---------- 2) Define composite dimensions  -------------------------------
-# Replace field names with your actual REDCap keys
+# Use lists of candidate keys to survive small naming differences
 DIMENSIONS = {
     "vividness": [
-        ("freq_percept_real",        norm_1_6,   1.0, {}),
-        ("freq_percept_intense",           norm_1_6,   1.0, {}),
+        (["freq_percept_real"],      norm_1_6,   1.0, {}),
+        (["freq_percept_intense"],   norm_1_6,   1.0, {}),
     ],
     "spontaneity": [
-        ("freq_think_nocontrol",      norm_1_6,   1.0, {}),
+        (["freq_think_nocontrol"],   norm_1_6,   1.0, {}),
     ],
     "bizarreness": [
-        ("freq_percept_bizarre",      norm_1_6,   1.0, {}),
+        (["freq_percept_bizarre"],   norm_1_6,   1.0, {}),
     ],
     "immersion": [
-        ("freq_absorbed",        norm_1_6,   1.0, {}),
+        (["freq_absorbed"],          norm_1_6,   1.0, {}),
     ],
     "emotion_pos": [
-        ("freq_positive",  norm_1_6,   1.0, {}),
+        (["freq_positive"],          norm_1_6,   1.0, {}),
     ],
     "sleep_latency": [
-        ("sleep_latency_min",     norm_clip,  1.0, {"lo": 0, "hi": 120}),
+        (["sleep_latency_min","sleep_latency","sleep_latency_minutes"],
+                                    norm_clip,  1.0, {"lo": 0, "hi": 120}),
     ],
     "baseline_anxiety": [
-        ("anxiety_1to100",        norm_1_100, 1.0, {}),
+        (["anxiety","baseline_anxiety","anxiety_1to6"],
+                                    norm_1_6,   1.0, {}),
     ],
 }
 
@@ -612,11 +625,11 @@ def composite_scores_from_record(record, dimensions=DIMENSIONS):
         vals, wts = [], []
         for item in items:
             if len(item) == 3:
-                field, norm_fn, wt = item
+                field_keys, norm_fn, wt = item
                 kwargs = {}
             else:
-                field, norm_fn, wt, kwargs = item
-            raw = record.get(field, np.nan)
+                field_keys, norm_fn, wt, kwargs = item
+            raw = _get_first(record, field_keys)
             try:
                 v = norm_fn(raw, **kwargs) if kwargs else norm_fn(raw)
             except TypeError:
