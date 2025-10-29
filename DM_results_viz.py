@@ -306,17 +306,31 @@ def assign_profile_from_record(record, profiles=profiles):
             best_name, best_dist = name, d
     return best_name, scores
 
-# ---------- 5) Streamlit display (no radar) ----------------------------------
+# ---------- 5) Streamlit display (clean version, no radar, with title) -------
+###############################################################################
 
-# Ensure we have a record computed above
+# Ensure a record is available
 if 'record' not in globals():
     st.error("No 'record' dict found. Provide your participant data before profile assignment.")
     st.stop()
 
-# Use your existing computation pipeline
+# Compute participant’s profile and scores
 prof, scores = assign_profile_from_record(record)
 
-# Profile descriptions
+# --- Page title & subtitle ---
+st.markdown(
+    """
+    <div style="text-align:center; padding-top:10px; padding-bottom:20px;">
+        <h1 style="font-size:2rem; margin-bottom:0;">🌙 <strong>Drifting Minds Study</strong></h1>
+        <p style="font-size:1.1rem; color:rgba(255,255,255,0.8); margin-top:4px;">
+            This is how my mind drifts into sleep
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+# --- Profile descriptions ---
 descriptions = {
     "Sensory Dreamer": "You tend to drift into sleep through vivid, sensory experiences — colors, sounds, or mini-dreams.",
     "Letting Go": "You start by thinking intentionally, but gradually surrender to spontaneous imagery.",
@@ -325,7 +339,7 @@ descriptions = {
     "Quiet Mind": "You fall asleep effortlessly, with little mental content — a peaceful fade into rest.",
 }
 
-# Minimal reveal card (name + description)
+# --- Elegant profile reveal card ---
 st.markdown(
     """
     <style>
@@ -335,9 +349,11 @@ st.markdown(
         background: linear-gradient(180deg, rgba(20,28,38,0.75) 0%, rgba(20,28,38,0.55) 100%);
         border: 1px solid rgba(255,255,255,0.08);
         backdrop-filter: blur(6px);
+        text-align: center;
+        margin-bottom: 25px;
       }
       .dm-title { font-size: 1.6rem; margin: 0 0 8px 0; }
-      .dm-desc  { color: rgba(255,255,255,0.85); margin: 0; }
+      .dm-desc  { color: rgba(255,255,255,0.85); margin: 0; font-size: 1.05rem; }
     </style>
     """,
     unsafe_allow_html=True,
@@ -346,15 +362,14 @@ st.markdown(
 st.markdown(
     f"""
     <div class="dm-card">
-      <h3 class="dm-title">🌙 Your sleep-onset profile: <strong>{prof}</strong></h3>
+      <h3 class="dm-title">Your sleep-onset profile: <strong>{prof}</strong></h3>
       <p class="dm-desc">{descriptions.get(prof, "")}</p>
     </div>
     """,
     unsafe_allow_html=True,
 )
 
-# ------- Toggle with computation outcomes (tables only, no plots) -----------
-
+# --- Helper for nice numeric formatting ---
 def _fmt(v, nd=3):
     if v is None:
         return "NA"
@@ -368,59 +383,35 @@ def _fmt(v, nd=3):
     except Exception:
         return str(v)
 
+# --- Toggle: computation outcomes (no highlights, no radar) ---
 with st.expander("See how this was computed"):
-    # 1) Dimension scores (0–1) table
+    # 1) Dimension scores (0–1)
     dim_rows = []
     for k in DIM_KEYS:
         v = scores.get(k, np.nan)
         dim_rows.append({
-            "dimension": k,
-            "score_0to1": None if (v is None or (isinstance(v, float) and np.isnan(v))) else float(v),
+            "Dimension": k,
+            "Score (0–1)": None if (v is None or (isinstance(v, float) and np.isnan(v))) else float(v),
         })
     dim_df = pd.DataFrame(dim_rows)
+
+    st.markdown("**Normalized dimension scores**")
     st.dataframe(
         dim_df,
         hide_index=True,
-        column_config={
-            "dimension": st.column_config.TextColumn("Dimension"),
-            "score_0to1": st.column_config.NumberColumn("Score (0–1)", format="%.3f",
-                                                        help="Normalized value used for profile assignment"),
-        },
         use_container_width=True,
     )
 
-    # 2) Readable highlights (reuse the same cap as norm_latency_auto)
-    CAP_MINUTES = 60.0
-    sl_norm = scores.get("sleep_latency", np.nan)
-    latency_minutes = None if (isinstance(sl_norm, float) and np.isnan(sl_norm)) else float(sl_norm) * CAP_MINUTES
-
-    st.markdown("**Highlights**")
-    st.write(
-        f"- Vividness: **{_fmt(scores.get('vividness'))}**  "
-        f"· Spontaneity: **{_fmt(scores.get('spontaneity'))}**  "
-        f"· Bizarreness: **{_fmt(scores.get('bizarreness'))}**"
-    )
-    st.write(
-        f"- Immersion: **{_fmt(scores.get('immersion'))}**  "
-        f"· Positive emotion: **{_fmt(scores.get('emotion_pos'))}**  "
-        f"· Baseline anxiety: **{_fmt(scores.get('baseline_anxiety'))}**"
-    )
-    st.write(f"- Sleep latency (≈ minutes): **{_fmt(latency_minutes)}** (cap = {int(CAP_MINUTES)} min)")
-
-    # 3) Prototype fit (distance; lower = closer)
+    # 2) Prototype fit (distance; lower = closer)
     vec = vector_from_scores(scores)
-    dists = [{"profile": name, "distance": _nanaware_distance(vec, proto)}
+    dists = [{"Profile": name, "Distance": _nanaware_distance(vec, proto)}
              for name, proto in profiles.items()]
-    dist_df = pd.DataFrame(dists).sort_values("distance")
+    dist_df = pd.DataFrame(dists).sort_values("Distance")
 
     st.markdown("**Prototype fit (lower = closer)**")
     st.dataframe(
         dist_df,
         hide_index=True,
-        column_config={
-            "profile": st.column_config.TextColumn("Profile"),
-            "distance": st.column_config.NumberColumn("Distance", format="%.3f"),
-        },
         use_container_width=True,
     )
 
