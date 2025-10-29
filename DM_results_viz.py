@@ -331,49 +331,62 @@ prof_desc = _descriptions_ci.get(prof_key, "")
 
 from textwrap import dedent
 
-# --- CSS styling for profile box ---
+# --- CSS styling for profile box (black background, white text, centered vertically) ---
 st.markdown(dedent("""
 <style>
   .dm-prof-wrap {
     max-width: 100%;
     margin: 0 auto;
   }
+
   .dm-prof-intro {
     font-size: 1rem;
     margin: 0 0 6px 0;
     color: #000000;
     text-align: left;
   }
+
   .dm-prof-frame {
     display: flex;
-    align-items: baseline;          /* align first line of text with profile name */
+    align-items: center;            /* vertically center both blocks */
+    justify-content: flex-start;
     gap: 28px;
     border: 1px solid #000000;
-    background: #FFFBEA;            /* blanc crème tone */
+    background: #000000;            /* full black background */
     border-radius: 8px;
-    padding: 12px 18px;
+    padding: 16px 20px;
     box-sizing: border-box;
     width: 100%;
+    color: #FFFFFF;                 /* make all text white */
   }
+
   .dm-prof-name {
     min-width: 160px;
     flex: 0 0 auto;
     text-align: left;
   }
+
   .dm-prof-name h2 {
     font-size: 2rem;
     margin: 0;
+    color: #FFFFFF;
   }
+
   .dm-prof-desc {
     flex: 1 1 0;
     max-width: 100%;
     text-align: left;
+    display: flex;
+    align-items: center;           /* ensure the text is centered vertically */
   }
+
   .dm-prof-desc p {
     font-size: 1.05rem;
     margin: 0;
     line-height: 1.45;
+    color: #FFFFFF;
   }
+
   /* Stack vertically on narrow screens */
   @media (max-width: 640px){
     .dm-prof-frame {
@@ -385,7 +398,7 @@ st.markdown(dedent("""
 </style>
 """), unsafe_allow_html=True)
 
-# --- Render profile name + description in a framed row ---
+# --- Render profile name + description in a black framed row ---
 st.markdown(dedent(f"""
 <div class="dm-prof-wrap">
   <p class="dm-prof-intro">Your profile is...</p>
@@ -399,6 +412,7 @@ st.markdown(dedent(f"""
   </div>
 </div>
 """), unsafe_allow_html=True)
+
 
 
 
