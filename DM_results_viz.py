@@ -798,7 +798,21 @@ with st.expander("See your dimension scores"):
         st.write(f"**{k}**: {scores.get(k)}")
 
 
-
+import plotly.express as px
+dim_df = (
+    pd.DataFrame({
+        "Dimension": list(scores.keys()),
+        "Score": [scores[k] for k in scores]
+    })
+    .assign(Score=lambda df: df["Score"].fillna(0.5))
+)
+fig = px.bar(
+    dim_df, 
+    x="Score", y="Dimension", orientation="h",
+    color="Score", color_continuous_scale="Blues",
+    range_x=[0,1], height=300
+)
+st.plotly_chart(fig, use_container_width=True)
 
 
 
