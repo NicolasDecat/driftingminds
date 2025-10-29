@@ -329,14 +329,14 @@ _descriptions_ci = {k.lower(): v for k, v in descriptions.items()}
 prof_key = str(prof).strip().lower()
 prof_desc = _descriptions_ci.get(prof_key, "")
 
-# --- Render clean horizontal layout: left title block + right description block ---
+# --- Render clean horizontal layout: left-aligned title block + right description ---
 st.markdown(
     f"""
     <div style="
         display: flex;
         align-items: flex-start;
-        justify-content: center;
-        gap: 50px;
+        justify-content: flex-start;
+        gap: 40px;
         margin-top: 30px;
         margin-bottom: 40px;
         flex-wrap: wrap;
@@ -355,6 +355,7 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
 
 
 
