@@ -402,14 +402,11 @@ csv_path = os.path.join("assets", "N1000_comparative_viz_ready.csv")
 pop_data = pd.read_csv(csv_path)
 
 
-# --- Sleep latency distribution (smoothed KDE, final refined version) -------
+# --- Sleep latency distribution (smoothed KDE, with "60+" tick) -------------
 from scipy.stats import gaussian_kde
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
-# pop_data: DataFrame loaded from your assets
-# scores: dict from assign_profile_from_record(record), contains 'sleep_latency' (0–1)
 
 CAP_MIN = 60.0  # normalization cap
 
@@ -452,11 +449,10 @@ if not np.isnan(sl_norm):
     ax.set_yticks([])
     ax.set_yticklabels([])
 
-    # --- Replace last x tick label with "≥60"
-    xticks = ax.get_xticks()
-    xlabels = [f"{int(t)}" for t in xticks]
-    if len(xlabels) > 0:
-        xlabels[-1] = "≥60"
+    # --- Custom X ticks: ensure last label is "60+"
+    xticks = np.linspace(0, CAP_MIN, 7)  # 0,10,20,...,60
+    ax.set_xticks(xticks)
+    xlabels = [str(int(t)) if t < CAP_MIN else "60+" for t in xticks]
     ax.set_xticklabels(xlabels)
 
     # --- Clean minimal design
@@ -470,6 +466,7 @@ if not np.isnan(sl_norm):
 
 else:
     st.info("No sleep-latency value available for this participant.")
+
 
 
 
