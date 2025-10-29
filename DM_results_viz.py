@@ -343,15 +343,21 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# --- Clean centered text (no grey rectangle) ---
 st.markdown(
     f"""
-    <div class="dm-card">
-      <h3 class="dm-title">Your sleep-onset profile: <strong>{prof}</strong></h3>
-      <p class="dm-desc">{descriptions.get(prof, "")}</p>
+    <div style="text-align:center; margin-top:20px; margin-bottom:25px;">
+        <h3 style="font-size:1.6rem; margin-bottom:8px;">
+            🌙 Your sleep-onset profile: <strong>{prof}</strong>
+        </h3>
+        <p style="color:rgba(255,255,255,0.9); font-size:1.05rem; margin-top:0;">
+            {descriptions.get(prof, "")}
+        </p>
     </div>
     """,
     unsafe_allow_html=True,
 )
+
 
 # --- Helper for nice numeric formatting ---
 def _fmt(v, nd=3):
