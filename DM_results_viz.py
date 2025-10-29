@@ -581,22 +581,10 @@ def norm_clip(x, lo, hi):
     return np.clip((x - lo) / (hi - lo), 0.0, 1.0)
 
 def norm_anxiety_auto(x):
-    """
-    Auto-normalize anxiety values coming as either:
-      - 1–6 Likert  -> (x-1)/5
-      - 0–100 scale -> x/100
-      - already 0–1 -> passthrough
-    """
     x = _to_float(x)
-    if np.isnan(x): return np.nan
-    if 0.0 <= x <= 1.0:
-        return float(x)  # already normalized
-    if 1.0 < x <= 6.0:
-        return np.clip((x - 1.0) / 5.0, 0.0, 1.0)
-    if 6.0 < x <= 100.0:
-        return np.clip(x / 100.0, 0.0, 1.0)
-    # If out-of-range, treat as missing
-    return np.nan
+    if np.isnan(x): 
+        return np.nan
+    return np.clip((x - 1.0) / 99.0, 0.0, 1.0)
 
 # ---------- 2) Aliases + robust fetch -------------------------------
 def _get_first(record, keys):
@@ -629,11 +617,10 @@ DIMENSIONS = {
         ("freq_positive",          norm_1_6,   1.0, {}),
     ],
     "sleep_latency": [
-        ("sleep_latency_min",      norm_clip,  1.0, {"lo": 0, "hi": 120}),
+        ("sleep_latency_min",      norm_clip,  1.0, {"lo": 0, "hi": 60}),
     ],
     "baseline_anxiety": [
-        # Accept any of these keys; whichever exists will be used
-        (["anxiety", "baseline_anxiety", "anxiety_1to6", "anxiety_1to100"], norm_anxiety_auto, 1.0, {}),
+        (["anxiety"], norm_anxiety_auto, 1.0, {}),
     ],
 }
 
