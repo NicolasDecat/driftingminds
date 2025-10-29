@@ -329,25 +329,34 @@ _descriptions_ci = {k.lower(): v for k, v in descriptions.items()}
 prof_key = str(prof).strip().lower()
 prof_desc = _descriptions_ci.get(prof_key, "")
 
-# --- Render clean layout: "Your profile is..." + profile name + description ---
+# --- Render clean horizontal layout: profile title (left) + description (right) ---
 st.markdown(
     f"""
     <div style="
         display: flex;
-        flex-direction: column;
         align-items: center;
         justify-content: center;
-        text-align: center;
-        margin-top: 25px;
+        gap: 60px;
+        margin-top: 30px;
         margin-bottom: 40px;
+        flex-wrap: wrap;
+        text-align: left;
     ">
-        <p style="font-size:1rem; margin:0; color:#000000;">Your profile is...</p>
-        <h2 style="font-size:2rem; margin:6px 0 10px 0;"><strong>{prof}</strong></h2>
-        <p style="font-size:1.05rem; margin:0; max-width:480px;">{prof_desc}</p>
+        <!-- Left block: title -->
+        <div style="display: flex; flex-direction: column; align-items: flex-start;">
+            <p style="font-size:1rem; margin:0; color:#000000;">Your profile is...</p>
+            <h2 style="font-size:2rem; margin:6px 0 0 0;"><strong>{prof}</strong></h2>
+        </div>
+
+        <!-- Right block: description -->
+        <div style="max-width:420px;">
+            <p style="font-size:1.05rem; margin:0; line-height:1.4;">{prof_desc}</p>
+        </div>
     </div>
     """,
     unsafe_allow_html=True,
 )
+
 
 
 # --- Helper for nice numeric formatting ---
