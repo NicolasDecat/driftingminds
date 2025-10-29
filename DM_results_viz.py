@@ -329,32 +329,32 @@ _descriptions_ci = {k.lower(): v for k, v in descriptions.items()}
 prof_key = str(prof).strip().lower()
 prof_desc = _descriptions_ci.get(prof_key, "")
 
-# --- Render clean horizontal layout: left-aligned title block + right description ---
-st.markdown(
-    f"""
-    <div style="
-        display: flex;
-        align-items: flex-start;
-        justify-content: flex-start;
-        gap: 40px;
-        margin-top: 30px;
-        margin-bottom: 40px;
-        flex-wrap: wrap;
-    ">
-        <!-- Left block: "Your profile is..." + profile name -->
-        <div style="text-align: left;">
-            <p style="font-size:1rem; margin:0; color:#000000;">Your profile is...</p>
-            <h2 style="font-size:2rem; margin:6px 0 0 0;"><strong>{prof}</strong></h2>
-        </div>
+from textwrap import dedent
 
-        <!-- Right block: description -->
-        <div style="max-width:420px; text-align:left;">
-            <p style="font-size:1.05rem; margin:0; line-height:1.5;">{prof_desc}</p>
-        </div>
-    </div>
-    """,
+st.markdown(
+    dedent(f"""\
+<div style="
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 40px;
+    margin-top: 30px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+">
+  <div style="text-align: left;">
+    <p style="font-size:1rem; margin:0; color:#000000;">Your profile is...</p>
+    <h2 style="font-size:2rem; margin:6px 0 0 0;"><strong>{prof}</strong></h2>
+  </div>
+
+  <div style="max-width:420px; text-align:left;">
+    <p style="font-size:1.05rem; margin:0; line-height:1.5;">{prof_desc}</p>
+  </div>
+</div>
+"""),
     unsafe_allow_html=True,
 )
+
 
 
 
