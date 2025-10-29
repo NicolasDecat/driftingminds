@@ -34,6 +34,7 @@ import matplotlib.pyplot as plt
 #         return None
 # NORMS = load_norms()
 
+st.set_page_config(page_title="Drifting Minds — Profile", layout="centered")
 
 REDCAP_API_URL = st.secrets.get("REDCAP_API_URL")
 REDCAP_API_TOKEN = st.secrets.get("REDCAP_API_TOKEN")
@@ -88,10 +89,6 @@ def safe_float(x):
 # ---------- App Layout ----------
 
 st.image("assets/symbols.png", use_container_width=True) # add
-
-
-
-st.set_page_config(page_title="Driftind Minds")
 
 # Read query params (?id=123)
 qp = st.query_params
