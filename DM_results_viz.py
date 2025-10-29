@@ -331,44 +331,71 @@ prof_desc = _descriptions_ci.get(prof_key, "")
 
 from textwrap import dedent
 
-st.markdown(
-    dedent(f"""\
-<div style="
+# Inject compact, responsive CSS once (safe across themes)
+st.markdown(dedent("""
+<style>
+  .dm-prof-wrap{
+    max-width: 100%;
+    margin: 0 auto;
+  }
+  .dm-prof-intro{
+    font-size: 1rem;
+    margin: 0 0 6px 0;
+    color: #000000; /* explicit black as requested */
+    text-align: left;
+  }
+  .dm-prof-frame{
     display: flex;
-    align-items: flex-start;
-    justify-content: flex-start;
-    gap: 50px;
-    margin-top: 30px;
-    margin-bottom: 40px;
-    flex-wrap: wrap;
-">
-    <!-- Left block: intro + profile name -->
-    <div style="text-align: left;">
-        <p style="font-size:1rem; margin:0 0 4px 0; color:#000000;">Your profile is...</p>
-        <div style="
-            display: flex;
-            align-items: flex-start;
-            gap: 40px;
-            border: 1px solid #000000;
-            background-color: rgba(240,240,240,0.6);
-            border-radius: 8px;
-            padding: 10px 16px;
-        ">
-            <!-- Profile name -->
-            <div style="min-width: 160px;">
-                <h2 style="font-size:2rem; margin:0;"><strong>{prof}</strong></h2>
-            </div>
+    gap: 32px;
+    align-items: flex-start;      /* align desc with the profile name line */
+    border: 1px solid #000000;    /* thin black frame */
+    background: rgba(240,240,240,0.6); /* very light grey */
+    border-radius: 8px;
+    padding: 10px 16px;
+    box-sizing: border-box;
+    width: 100%;                  /* never exceed Streamlit content column */
+  }
+  .dm-prof-name{
+    min-width: 160px;
+    flex: 0 0 auto;
+    text-align: left;
+  }
+  .dm-prof-name h2{
+    font-size: 2rem;
+    margin: 0;
+  }
+  .dm-prof-desc{
+    flex: 1 1 0;                  /* take remaining space, stay within frame */
+    max-width: 100%;
+    text-align: left;
+  }
+  .dm-prof-desc p{
+    font-size: 1.05rem;
+    margin: 0;
+    line-height: 1.5;
+  }
+  /* Stack vertically on narrow screens */
+  @media (max-width: 640px){
+    .dm-prof-frame{ flex-direction: column; gap: 12px; }
+  }
+</style>
+"""), unsafe_allow_html=True)
 
-            <!-- Profile description -->
-            <div style="max-width:420px; text-align:left;">
-                <p style="font-size:1.05rem; margin:0; line-height:1.5;">{prof_desc}</p>
-            </div>
-        </div>
+# Render: left title block + right description, both inside a single framed row
+st.markdown(dedent(f"""
+<div class="dm-prof-wrap">
+  <p class="dm-prof-intro">Your profile is...</p>
+  <div class="dm-prof-frame">
+    <div class="dm-prof-name">
+      <h2><strong>{prof}</strong></h2>
     </div>
+    <div class="dm-prof-desc">
+      <p>{prof_desc}</p>
+    </div>
+  </div>
 </div>
-"""),
-    unsafe_allow_html=True,
-)
+"""), unsafe_allow_html=True)
+
 
 
 
