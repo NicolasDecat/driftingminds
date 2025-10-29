@@ -314,7 +314,7 @@ if 'record' not in globals():
 # Compute participant’s profile and scores
 prof, scores = assign_profile_from_record(record)
 
-# Profile descriptions
+# --- Profile descriptions (as before) ---
 descriptions = {
     "Sensory Dreamer": "You tend to drift into sleep through vivid, sensory experiences — colors, sounds, or mini-dreams.",
     "Letting Go": "You start by thinking intentionally, but gradually surrender to spontaneous imagery.",
@@ -323,16 +323,17 @@ descriptions = {
     "Quiet Mind": "You fall asleep effortlessly, with little mental content — a peaceful fade into rest.",
 }
 
-# === Name + description (centered, no grey box, no duplicate page title) ===
+# --- Robust lookup (ignores case + stray spaces) ---
+_descriptions_ci = {k.lower(): v for k, v in descriptions.items()}
+prof_key = str(prof).strip().lower()
+prof_desc = _descriptions_ci.get(prof_key, "")
+
+# --- Render: no forced white text color (theme-safe) ---
 st.markdown(
     f"""
     <div style="text-align:center; margin-top:10px; margin-bottom:35px;">
-        <h2 style="font-size:1.8rem; margin:0 0 8px 0;">
-            <strong>{prof}</strong>
-        </h2>
-        <p style="color:rgba(255,255,255,0.9); font-size:1.05rem; margin:0;">
-            {descriptions.get(prof, "")}
-        </p>
+        <h2 style="font-size:1.8rem; margin:0 0 8px 0;"><strong>{prof}</strong></h2>
+        <p style="font-size:1.05rem; margin:0;">{prof_desc}</p>
     </div>
     """,
     unsafe_allow_html=True,
