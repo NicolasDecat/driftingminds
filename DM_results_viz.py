@@ -338,36 +338,16 @@ st.markdown(
         align-items: center;
         justify-content: center;
         text-align: center;
-        width: 100%;
         margin-top: 25px;
         margin-bottom: 40px;
     ">
-        <p style="
-            font-size:1rem;
-            margin:0;
-            color:#000000;
-            text-align:center;
-            width:100%;
-        ">Your profile is...</p>
-
-        <h2 style="
-            font-size:2rem;
-            margin:6px 0 10px 0;
-            text-align:center;
-            width:100%;
-        "><strong>{prof}</strong></h2>
-
-        <p style="
-            font-size:1.05rem;
-            margin:0;
-            max-width:480px;
-            text-align:center;
-        ">{prof_desc}</p>
+        <p style="font-size:1rem; margin:0; color:#000000;">Your profile is...</p>
+        <h2 style="font-size:2rem; margin:6px 0 10px 0;"><strong>{prof}</strong></h2>
+        <p style="font-size:1.05rem; margin:0; max-width:480px;">{prof_desc}</p>
     </div>
     """,
     unsafe_allow_html=True,
 )
-
 
 
 # --- Helper for nice numeric formatting ---
