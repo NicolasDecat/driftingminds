@@ -306,45 +306,17 @@ def assign_profile_from_record(record, profiles=profiles):
             best_name, best_dist = name, d
     return best_name, scores
 
-# ---------- 5) Streamlit display ----------------------------------------------------------------
+# ---------- 5) Streamlit display (no radar) ----------------------------------
 
-
-import streamlit as st
-import plotly.graph_objects as go
-
-
+# Ensure we have a record computed above
 if 'record' not in globals():
     st.error("No 'record' dict found. Provide your participant data before profile assignment.")
     st.stop()
-    
+
+# Use your existing computation pipeline
 prof, scores = assign_profile_from_record(record)
 
-st.markdown(f"## 🌙 Your sleep-onset profile: **{prof}**")
-
-# Radar: order by DIM_KEYS, replace NaNs with neutral (0.5) for display
-categories = DIM_KEYS[:]  # fixed order
-values = [scores.get(k, np.nan) for k in categories]
-values = [0.5 if (v is None or np.isnan(v)) else v for v in values]
-
-# Close the loop for polar
-r_vals = values + [values[0]]
-theta_vals = categories + [categories[0]]
-
-fig = go.Figure(data=go.Scatterpolar(
-    r=r_vals,
-    theta=theta_vals,
-    fill='toself',
-    line_color='#7FDBFF',
-    fillcolor='rgba(127,219,255,0.2)'
-))
-fig.update_layout(
-    margin=dict(l=20, r=20, t=10, b=10),
-    polar=dict(radialaxis=dict(visible=True, range=[0,1])),
-    showlegend=False,
-    width=420, height=420,
-)
-st.plotly_chart(fig, use_container_width=True)
-
+# Profile descriptions
 descriptions = {
     "Sensory Dreamer": "You tend to drift into sleep through vivid, sensory experiences — colors, sounds, or mini-dreams.",
     "Letting Go": "You start by thinking intentionally, but gradually surrender to spontaneous imagery.",
@@ -352,7 +324,108 @@ descriptions = {
     "Ruminator": "You tend to replay or analyze things in bed, with longer sleep latency and emotional tension.",
     "Quiet Mind": "You fall asleep effortlessly, with little mental content — a peaceful fade into rest.",
 }
-st.caption(descriptions.get(prof, ""))
+
+# Minimal reveal card (name + description)
+st.markdown(
+    """
+    <style>
+      .dm-card {
+        border-radius: 18px;
+        padding: 22px 24px;
+        background: linear-gradient(180deg, rgba(20,28,38,0.75) 0%, rgba(20,28,38,0.55) 100%);
+        border: 1px solid rgba(255,255,255,0.08);
+        backdrop-filter: blur(6px);
+      }
+      .dm-title { font-size: 1.6rem; margin: 0 0 8px 0; }
+      .dm-desc  { color: rgba(255,255,255,0.85); margin: 0; }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+st.markdown(
+    f"""
+    <div class="dm-card">
+      <h3 class="dm-title">🌙 Your sleep-onset profile: <strong>{prof}</strong></h3>
+      <p class="dm-desc">{descriptions.get(prof, "")}</p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+# ------- Toggle with computation outcomes (tables only, no plots) -----------
+
+def _fmt(v, nd=3):
+    if v is None:
+        return "NA"
+    try:
+        if np.isnan(v):
+            return "NA"
+    except TypeError:
+        pass
+    try:
+        return f"{float(v):.{nd}f}"
+    except Exception:
+        return str(v)
+
+with st.expander("See how this was computed"):
+    # 1) Dimension scores (0–1) table
+    dim_rows = []
+    for k in DIM_KEYS:
+        v = scores.get(k, np.nan)
+        dim_rows.append({
+            "dimension": k,
+            "score_0to1": None if (v is None or (isinstance(v, float) and np.isnan(v))) else float(v),
+        })
+    dim_df = pd.DataFrame(dim_rows)
+    st.dataframe(
+        dim_df,
+        hide_index=True,
+        column_config={
+            "dimension": st.column_config.TextColumn("Dimension"),
+            "score_0to1": st.column_config.NumberColumn("Score (0–1)", format="%.3f",
+                                                        help="Normalized value used for profile assignment"),
+        },
+        use_container_width=True,
+    )
+
+    # 2) Readable highlights (reuse the same cap as norm_latency_auto)
+    CAP_MINUTES = 60.0
+    sl_norm = scores.get("sleep_latency", np.nan)
+    latency_minutes = None if (isinstance(sl_norm, float) and np.isnan(sl_norm)) else float(sl_norm) * CAP_MINUTES
+
+    st.markdown("**Highlights**")
+    st.write(
+        f"- Vividness: **{_fmt(scores.get('vividness'))}**  "
+        f"· Spontaneity: **{_fmt(scores.get('spontaneity'))}**  "
+        f"· Bizarreness: **{_fmt(scores.get('bizarreness'))}**"
+    )
+    st.write(
+        f"- Immersion: **{_fmt(scores.get('immersion'))}**  "
+        f"· Positive emotion: **{_fmt(scores.get('emotion_pos'))}**  "
+        f"· Baseline anxiety: **{_fmt(scores.get('baseline_anxiety'))}**"
+    )
+    st.write(f"- Sleep latency (≈ minutes): **{_fmt(latency_minutes)}** (cap = {int(CAP_MINUTES)} min)")
+
+    # 3) Prototype fit (distance; lower = closer)
+    vec = vector_from_scores(scores)
+    dists = [{"profile": name, "distance": _nanaware_distance(vec, proto)}
+             for name, proto in profiles.items()]
+    dist_df = pd.DataFrame(dists).sort_values("distance")
+
+    st.markdown("**Prototype fit (lower = closer)**")
+    st.dataframe(
+        dist_df,
+        hide_index=True,
+        column_config={
+            "profile": st.column_config.TextColumn("Profile"),
+            "distance": st.column_config.NumberColumn("Distance", format="%.3f"),
+        },
+        use_container_width=True,
+    )
+
+    st.caption("Notes: sleep_latency normalized with cap=60 min; baseline_anxiety normalized from 1–100 → 0–1.")
+
 
 
 
