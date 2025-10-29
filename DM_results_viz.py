@@ -562,22 +562,41 @@ def _to_float(x):
 def norm_1_6(x):
     x = _to_float(x)
     if np.isnan(x): return np.nan
-    return (x - 1.0) / 5.0
+    return np.clip((x - 1.0) / 5.0, 0.0, 1.0)
 
 def norm_0_100(x):
     x = _to_float(x)
     if np.isnan(x): return np.nan
-    return x / 100.0
+    return np.clip(x / 100.0, 0.0, 1.0)
 
 def norm_1_100(x):
     x = _to_float(x)
     if np.isnan(x): return np.nan
-    return (x - 1.0) / 99.0
+    return np.clip((x - 1.0) / 99.0, 0.0, 1.0)
 
 def norm_clip(x, lo, hi):
     x = _to_float(x)
     if np.isnan(x): return np.nan
+    if hi <= lo: return np.nan
     return np.clip((x - lo) / (hi - lo), 0.0, 1.0)
+
+def norm_anxiety_auto(x):
+    """
+    Auto-normalize anxiety values coming as either:
+      - 1–6 Likert  -> (x-1)/5
+      - 0–100 scale -> x/100
+      - already 0–1 -> passthrough
+    """
+    x = _to_float(x)
+    if np.isnan(x): return np.nan
+    if 0.0 <= x <= 1.0:
+        return float(x)  # already normalized
+    if 1.0 < x <= 6.0:
+        return np.clip((x - 1.0) / 5.0, 0.0, 1.0)
+    if 6.0 < x <= 100.0:
+        return np.clip(x / 100.0, 0.0, 1.0)
+    # If out-of-range, treat as missing
+    return np.nan
 
 # ---------- 2) Aliases + robust fetch -------------------------------
 def _get_first(record, keys):
@@ -594,28 +613,27 @@ def _get_first(record, keys):
 # Use lists of candidate keys to survive small naming differences
 DIMENSIONS = {
     "vividness": [
-        (["freq_percept_real"],      norm_1_6,   1.0, {}),
-        (["freq_percept_intense"],   norm_1_6,   1.0, {}),
+        ("freq_percept_real",      norm_1_6,   1.0, {}),
+        ("freq_percept_intense",   norm_1_6,   1.0, {}),
     ],
     "spontaneity": [
-        (["freq_think_nocontrol"],   norm_1_6,   1.0, {}),
+        ("freq_think_nocontrol",   norm_1_6,   1.0, {}),
     ],
     "bizarreness": [
-        (["freq_percept_bizarre"],   norm_1_6,   1.0, {}),
+        ("freq_percept_bizarre",   norm_1_6,   1.0, {}),
     ],
     "immersion": [
-        (["freq_absorbed"],          norm_1_6,   1.0, {}),
+        ("freq_absorbed",          norm_1_6,   1.0, {}),
     ],
     "emotion_pos": [
-        (["freq_positive"],          norm_1_6,   1.0, {}),
+        ("freq_positive",          norm_1_6,   1.0, {}),
     ],
     "sleep_latency": [
-        (["sleep_latency_min","sleep_latency","sleep_latency_minutes"],
-                                    norm_clip,  1.0, {"lo": 0, "hi": 120}),
+        ("sleep_latency_min",      norm_clip,  1.0, {"lo": 0, "hi": 120}),
     ],
     "baseline_anxiety": [
-        (["anxiety","baseline_anxiety","anxiety_1to6"],
-                                    norm_1_6,   1.0, {}),
+        # Accept any of these keys; whichever exists will be used
+        (["anxiety", "baseline_anxiety", "anxiety_1to6", "anxiety_1to100"], norm_anxiety_auto, 1.0, {}),
     ],
 }
 
