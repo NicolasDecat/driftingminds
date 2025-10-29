@@ -404,25 +404,23 @@ pop_data = pd.read_csv(csv_path)
 
 # --- Sleep latency distribution -------------------
 
-
-# 1) Pick a sleep-latency column from pop_data
 lat_cols = [c for c in pop_data.columns
             if c.lower() in ("sleep_latency", "sleep_latency_min", "sleep_latency_minutes")]
+
 if not lat_cols:
     st.warning("Couldn’t find a sleep latency column in pop_data "
                "(looked for: sleep_latency, sleep_latency_min, sleep_latency_minutes).")
 else:
     col = lat_cols[0]
-    raw = pd.to_numeric(pop_data[col], errors="coerce")
+    raw = pd.to_numeric(pop_data[col], errors="coerce").dropna()
 
-    # 2) Convert population values to minutes
-    CAP_MIN = 60.0  # keep consistent with norm_latency_auto
-    if raw.max() <= 1.5:   # looks normalized 0–1
+    CAP_MIN = 60.0  # must match normalization cap
+    if raw.max() <= 1.5:   # normalized (0–1)
         samples = np.clip(raw.values * CAP_MIN, 0, CAP_MIN)
-    else:                  # looks like minutes already
+    else:                  # in minutes
         samples = np.clip(raw.values, 0, CAP_MIN)
 
-    # 3) Participant value (minutes)
+    # --- Participant value (minutes)
     sl_norm = scores.get("sleep_latency", np.nan)
     if np.isnan(sl_norm):
         st.info("No sleep-latency value available for this participant.")
@@ -430,18 +428,24 @@ else:
         part_minutes = sl_norm * CAP_MIN if sl_norm <= 1.5 else sl_norm
         part_minutes = float(np.clip(part_minutes, 0, CAP_MIN))
 
-        # 4) Histogram bins and density (same structure as VVIQ code)
-        low, high = 0.0, CAP_MIN
-        bins = np.linspace(low, high, 33)
-        counts, edges = np.histogram(samples, bins=bins, density=True)
+        # --- Compute optimal bin size (Freedman–Diaconis rule)
+        q75, q25 = np.percentile(samples, [75, 25])
+        iqr = q75 - q25
+        bin_width = 2 * iqr * (len(samples) ** (-1/3))
+        if bin_width <= 0 or np.isnan(bin_width):
+            bin_width = 2  # fallback
+        n_bins = int(np.ceil((samples.max() - samples.min()) / bin_width))
+        n_bins = max(10, min(n_bins, 40))  # keep within reasonable bounds
+
+        counts, edges = np.histogram(samples, bins=n_bins, density=True)
         centers = 0.5 * (edges[:-1] + edges[1:])
 
-        # 5) Highlight participant’s bin
+        # --- Find participant bin
         highlight_idx = np.digitize(part_minutes, edges) - 1
         highlight_idx = np.clip(highlight_idx, 0, len(counts) - 1)
 
-        # 6) Plot styling (mirrors your VVIQ aesthetics)
-        fig, ax = plt.subplots(figsize=(6.5, 3.5))
+        # --- Plot styling (compact)
+        fig, ax = plt.subplots(figsize=(4.0, 2.6))  # compact aspect ratio
         fig.patch.set_alpha(0)
         ax.set_facecolor("none")
 
@@ -455,19 +459,20 @@ else:
                color="#7C3AED", edgecolor="white",
                label="Your latency")
 
-        # Labels/title/legend — consistent with VVIQ plot tone
-        ax.set_title("Sleep latency — time to fall asleep", fontsize=11, pad=10)
-        ax.set_xlabel("Minutes to fall asleep")
-        ax.set_ylabel("Density")
+        # --- Labels and aesthetics
+        ax.set_title("Sleep latency — time to fall asleep", fontsize=10, pad=6)
+        ax.set_xlabel("Minutes to fall asleep", fontsize=9)
+        ax.set_ylabel("Distribution in the population", fontsize=9)
         ax.legend(frameon=False, fontsize=8, loc="lower left")
 
-        # Clean axes
+        # Clean minimal style
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         ax.tick_params(axis="both", labelsize=8)
 
         plt.tight_layout()
-        st.pyplot(fig, use_container_width=True)
+        st.pyplot(fig, use_container_width=False)
+
 
 
 
