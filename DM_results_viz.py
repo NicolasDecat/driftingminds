@@ -404,74 +404,53 @@ pop_data = pd.read_csv(csv_path)
 
 # --- Sleep latency distribution -------------------
 
-lat_cols = [c for c in pop_data.columns
-            if c.lower() in ("sleep_latency", "sleep_latency_min", "sleep_latency_minutes")]
+from scipy.stats import gaussian_kde
+import matplotlib.pyplot as plt
+import numpy as np
 
-if not lat_cols:
-    st.warning("Couldn’t find a sleep latency column in pop_data "
-               "(looked for: sleep_latency, sleep_latency_min, sleep_latency_minutes).")
-else:
-    col = lat_cols[0]
-    raw = pd.to_numeric(pop_data[col], errors="coerce").dropna()
+CAP_MIN = 60.0
 
-    CAP_MIN = 60.0  # must match normalization cap
-    if raw.max() <= 1.5:   # normalized (0–1)
-        samples = np.clip(raw.values * CAP_MIN, 0, CAP_MIN)
-    else:                  # in minutes
-        samples = np.clip(raw.values, 0, CAP_MIN)
+# Prepare samples (minutes)
+lat_col = [c for c in pop_data.columns if "sleep_latency" in c.lower()][0]
+raw = pd.to_numeric(pop_data[lat_col], errors="coerce").dropna()
+samples = np.clip(raw.values * CAP_MIN if raw.max() <= 1.5 else raw.values, 0, CAP_MIN)
 
-    # --- Participant value (minutes)
-    sl_norm = scores.get("sleep_latency", np.nan)
-    if np.isnan(sl_norm):
-        st.info("No sleep-latency value available for this participant.")
-    else:
-        part_minutes = sl_norm * CAP_MIN if sl_norm <= 1.5 else sl_norm
-        part_minutes = float(np.clip(part_minutes, 0, CAP_MIN))
+# Participant value (minutes)
+sl_norm = scores.get("sleep_latency", np.nan)
+if not np.isnan(sl_norm):
+    part_minutes = sl_norm * CAP_MIN if sl_norm <= 1.5 else sl_norm
+    part_minutes = float(np.clip(part_minutes, 0, CAP_MIN))
 
-        # --- Compute optimal bin size (Freedman–Diaconis rule)
-        q75, q25 = np.percentile(samples, [75, 25])
-        iqr = q75 - q25
-        bin_width = 2 * iqr * (len(samples) ** (-1/3))
-        if bin_width <= 0 or np.isnan(bin_width):
-            bin_width = 2  # fallback
-        n_bins = int(np.ceil((samples.max() - samples.min()) / bin_width))
-        n_bins = max(10, min(n_bins, 40))  # keep within reasonable bounds
+    # --- KDE curve
+    kde = gaussian_kde(samples, bw_method="scott")  # auto bandwidth
+    xs = np.linspace(0, CAP_MIN, 400)
+    ys = kde(xs)
 
-        counts, edges = np.histogram(samples, bins=n_bins, density=True)
-        centers = 0.5 * (edges[:-1] + edges[1:])
+    # --- Plot
+    fig, ax = plt.subplots(figsize=(4.0, 2.4))
+    fig.patch.set_alpha(0)
+    ax.set_facecolor("none")
 
-        # --- Find participant bin
-        highlight_idx = np.digitize(part_minutes, edges) - 1
-        highlight_idx = np.clip(highlight_idx, 0, len(counts) - 1)
+    # Filled density envelope
+    ax.fill_between(xs, ys, color="#D9D9D9", alpha=0.7, linewidth=0)
+    ax.plot(xs, ys, color="#BBBBBB", linewidth=1)
 
-        # --- Plot styling (compact)
-        fig, ax = plt.subplots(figsize=(4.0, 2.6))  # compact aspect ratio
-        fig.patch.set_alpha(0)
-        ax.set_facecolor("none")
+    # Participant marker
+    ax.axvline(part_minutes, color="#7C3AED", lw=2)
+    ax.scatter([part_minutes], [kde(part_minutes)], color="#7C3AED", s=25, zorder=3)
 
-        # Population bars (light grey)
-        ax.bar(centers, counts, width=edges[1]-edges[0],
-               color="#D9D9D9", edgecolor="white")
+    # Labels
+    ax.set_title("Sleep latency — time to fall asleep", fontsize=10, pad=6)
+    ax.set_xlabel("Minutes to fall asleep", fontsize=9)
+    ax.set_ylabel("Distribution in the population", fontsize=9)
 
-        # Participant highlight (purple)
-        ax.bar(centers[highlight_idx], counts[highlight_idx],
-               width=edges[1]-edges[0],
-               color="#7C3AED", edgecolor="white",
-               label="Your latency")
+    # Styling
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.tick_params(axis="both", labelsize=8)
 
-        # --- Labels and aesthetics
-        ax.set_title("Sleep latency — time to fall asleep", fontsize=10, pad=6)
-        ax.set_xlabel("Minutes to fall asleep", fontsize=9)
-        ax.set_ylabel("Distribution in the population", fontsize=9)
-        ax.legend(frameon=False, fontsize=8, loc="lower left")
-
-        # Clean minimal style
-        ax.spines["top"].set_visible(False)
-        ax.spines["right"].set_visible(False)
-        ax.tick_params(axis="both", labelsize=8)
-
-        plt.tight_layout()
-        st.pyplot(fig, use_container_width=False)
+    plt.tight_layout()
+    st.pyplot(fig, use_container_width=False)
 
 
 
