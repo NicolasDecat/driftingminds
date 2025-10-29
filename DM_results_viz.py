@@ -407,10 +407,14 @@ pop_data = pd.read_csv(csv_path)
 from scipy.stats import gaussian_kde
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
-CAP_MIN = 60.0
+# pop_data: DataFrame loaded from your assets
+# scores: dict from assign_profile_from_record(record), contains 'sleep_latency' (0–1)
 
-# Prepare samples (minutes)
+CAP_MIN = 60.0  # same cap used in normalization
+
+# Find appropriate column
 lat_col = [c for c in pop_data.columns if "sleep_latency" in c.lower()][0]
 raw = pd.to_numeric(pop_data[lat_col], errors="coerce").dropna()
 samples = np.clip(raw.values * CAP_MIN if raw.max() <= 1.5 else raw.values, 0, CAP_MIN)
@@ -422,35 +426,43 @@ if not np.isnan(sl_norm):
     part_minutes = float(np.clip(part_minutes, 0, CAP_MIN))
 
     # --- KDE curve
-    kde = gaussian_kde(samples, bw_method="scott")  # auto bandwidth
+    kde = gaussian_kde(samples, bw_method="scott")
     xs = np.linspace(0, CAP_MIN, 400)
     ys = kde(xs)
 
     # --- Plot
-    fig, ax = plt.subplots(figsize=(4.0, 2.4))
+    fig, ax = plt.subplots(figsize=(2.2, 2.4))  # compact, narrow
     fig.patch.set_alpha(0)
     ax.set_facecolor("none")
 
-    # Filled density envelope
-    ax.fill_between(xs, ys, color="#D9D9D9", alpha=0.7, linewidth=0)
+    # Filled envelope
+    ax.fill_between(xs, ys, color="#D9D9D9", alpha=0.8, linewidth=0)
     ax.plot(xs, ys, color="#BBBBBB", linewidth=1)
 
     # Participant marker
     ax.axvline(part_minutes, color="#7C3AED", lw=2)
-    ax.scatter([part_minutes], [kde(part_minutes)], color="#7C3AED", s=25, zorder=3)
+    ax.scatter([part_minutes], [kde(part_minutes)], color="#7C3AED", s=20, zorder=3)
 
-    # Labels
-    ax.set_title("Sleep latency — time to fall asleep", fontsize=10, pad=6)
-    ax.set_xlabel("Minutes to fall asleep", fontsize=9)
-    ax.set_ylabel("Distribution in the population", fontsize=9)
+    # --- Labels and style
+    ax.set_title("Time to fall asleep", fontsize=10, pad=6)
+    ax.set_xlabel("Time (min)", fontsize=9)
+    ax.set_ylabel("Population", fontsize=9)
 
-    # Styling
+    # Remove y ticks and labels for minimalism
+    ax.set_yticks([])
+    ax.set_yticklabels([])
+
+    # Clean minimal design
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
-    ax.tick_params(axis="both", labelsize=8)
+    ax.tick_params(axis="x", labelsize=8)
+    ax.tick_params(axis="y", length=0)
 
     plt.tight_layout()
     st.pyplot(fig, use_container_width=False)
+else:
+    st.info("No sleep-latency value available for this participant.")
+
 
 
 
