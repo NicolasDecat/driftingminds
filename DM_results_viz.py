@@ -337,23 +337,39 @@ st.markdown(
     display: flex;
     align-items: flex-start;
     justify-content: flex-start;
-    gap: 40px;
+    gap: 50px;
     margin-top: 30px;
     margin-bottom: 40px;
     flex-wrap: wrap;
 ">
-  <div style="text-align: left;">
-    <p style="font-size:1rem; margin:0; color:#000000;">Your profile is...</p>
-    <h2 style="font-size:2rem; margin:6px 0 0 0;"><strong>{prof}</strong></h2>
-  </div>
+    <!-- Left block: intro + profile name -->
+    <div style="text-align: left;">
+        <p style="font-size:1rem; margin:0 0 4px 0; color:#000000;">Your profile is...</p>
+        <div style="
+            display: flex;
+            align-items: flex-start;
+            gap: 40px;
+            border: 1px solid #000000;
+            background-color: rgba(240,240,240,0.6);
+            border-radius: 8px;
+            padding: 10px 16px;
+        ">
+            <!-- Profile name -->
+            <div style="min-width: 160px;">
+                <h2 style="font-size:2rem; margin:0;"><strong>{prof}</strong></h2>
+            </div>
 
-  <div style="max-width:420px; text-align:left;">
-    <p style="font-size:1.05rem; margin:0; line-height:1.5;">{prof_desc}</p>
-  </div>
+            <!-- Profile description -->
+            <div style="max-width:420px; text-align:left;">
+                <p style="font-size:1.05rem; margin:0; line-height:1.5;">{prof_desc}</p>
+            </div>
+        </div>
+    </div>
 </div>
 """),
     unsafe_allow_html=True,
 )
+
 
 
 
