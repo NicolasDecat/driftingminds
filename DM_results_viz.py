@@ -629,124 +629,113 @@ for name, cfg in DIM_BAR_CONFIG.items():
     score100 = None if (isinstance(score01, float) and np.isnan(score01)) else float(score01 * 100.0)
     bars.append({"name": name, "help": cfg["help"], "score": score100})
 
-# --- Recompute the SAME scores for every row in the population ---------------
+# --- Load population (N=1000) & recompute SAME scores for all ----------------
+csv_path = os.path.join("assets", "N1000_comparative_viz_ready.csv")
+try:
+    pop_data = pd.read_csv(csv_path)
+except Exception as e:
+    st.error(f"Could not load population data at {csv_path}: {e}")
+    pop_data = None
+
 def compute_population_distributions(df: pd.DataFrame, dim_config: dict, k_bump=0.8):
-    """
-    Returns a dict: {dimension_name: np.ndarray of 0..100 scores for all valid rows}
-    Each row is passed through compute_dimension_score with the same logic as the user.
-    """
     if df is None or df.empty:
         return {}
-
     dist = {name: [] for name in dim_config.keys()}
-
-    # iterate rows; to be robust against Series.get, convert to dict
     for _, row in df.iterrows():
         rec = row.to_dict()
         for name, cfg in dim_config.items():
             s = compute_dimension_score(rec, cfg, k_bump=k_bump)
             if not (isinstance(s, float) and np.isnan(s)):
                 dist[name].append(float(np.clip(s * 100.0, 0.0, 100.0)))
-
-    # convert lists to clean numpy arrays
     for name in dist:
         arr = np.array(dist[name], dtype=float)
-        arr = arr[~np.isnan(arr)]
-        dist[name] = arr
+        dist[name] = arr[~np.isnan(arr)]
     return dist
 
 pop_dists = compute_population_distributions(pop_data, DIM_BAR_CONFIG, k_bump=0.8)
+pop_medians = {k: (float(np.nanmedian(v)) if (isinstance(v, np.ndarray) and v.size) else None)
+               for k, v in pop_dists.items()}
 
-# --- Mini "mountain" plot per dimension --------------------------------------
-import matplotlib.pyplot as plt
+# --- Styling -----------------------------------------------------------------
+from textwrap import dedent
+st.markdown(dedent("""
+<style>
+  .dm2-bars { margin-top: 22px; }
+  .dm2-row { display:flex; align-items:center; gap:14px; margin:14px 0; }
+  .dm2-label { width: 160px; font-weight: 700; font-size: 1rem; white-space: nowrap; }
+  .dm2-wrap { flex: 1 1 auto; }
+  .dm2-track {
+    position: relative;
+    width: 100%;
+    height: 14px;
+    background: #EDEDED;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .dm2-fill {
+    height: 100%;
+    background: #7B61FF;  /* purple */
+    border-radius: 999px;
+    transition: width 600ms ease;
+  }
+  .dm2-median {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px; height: 8px;
+    background: #B0B0B0;  /* grey dot */
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .dm2-anchors {
+    display:flex; justify-content:space-between;
+    font-size: 0.85rem; color:#666; margin-top: 6px;
+  }
+  .dm2-val { width: 52px; text-align: right; font-variant-numeric: tabular-nums; }
+  @media (max-width: 640px){
+    .dm2-label { width: 120px; font-size: 0.95rem; }
+  }
+</style>
+"""), unsafe_allow_html=True)
 
-PURPLE = "#7B61FF"
-MEDIAN_GREY = "#B0B0B0"
-ENVELOPE_GREY = "#E6E6E6"
-TEXT_BLACK = "#000000"
+# --- Render horizontal bars with median dot & end labels ---------------------
+st.markdown("<div class='dm2-bars'>", unsafe_allow_html=True)
 
-# --- Smooth helpers (extra-smooth for a soft compact "mountain") -------------
-def _gaussian_kernel(size=181, sigma=20.0):
-    """
-    Very wide Gaussian kernel for ultra-smooth, cinematic flattening.
-    """
-    n = int(size)
-    if n % 2 == 0:
-        n += 1
-    m = n // 2
-    xs = np.arange(-m, m + 1)
-    k = np.exp(-(xs**2) / (2 * sigma**2))
-    k /= np.sum(k)
-    return k
-
-def _smooth_counts(counts, sigma=20.0):
-    k = _gaussian_kernel(size=int(6 * sigma) + 1, sigma=sigma)
-    y = np.convolve(counts, k, mode="same")
-    # normalize peak height to a small value for flatter look
-    if np.nanmax(y) > 0:
-        y = (y / np.nanmax(y)) * 0.35  # flatten vertically (0.35 instead of 1.0)
-    return y
-
-def plot_mountain(values_0_100, participant_score_0_100, title, subtitle=None,
-                  width=6.0, height=0.9):
-    # --- Create smooth density ------------------------------------------------
-    bins = np.linspace(0, 100, 201)
-    hist, _ = np.histogram(values_0_100, bins=bins, density=True)
-    xc = 0.5 * (bins[:-1] + bins[1:])
-    y = _smooth_counts(hist, sigma=20.0)
-    x = xc
-
-    # participant
-    p = None if participant_score_0_100 is None else np.clip(participant_score_0_100, 0, 100)
-
-    # --- Figure aesthetics ----------------------------------------------------
-    fig = plt.figure(figsize=(width, height), dpi=144)
-    ax = plt.gca()
-
-    # Base envelope (light grey)
-    ax.fill_between(x, 0, y, color=ENVELOPE_GREY, alpha=1.0, linewidth=0)
-
-    # Fill up to participant (purple)
-    if p is not None and not np.isnan(p):
-        mask = x <= p
-        ax.fill_between(x[mask], 0, y[mask], color=PURPLE, alpha=1.0, linewidth=0)
-        # Draw participant bar that stops at the curve height
-        # Find approximate curve height at p
-        y_p = np.interp(p, x, y)
-        ax.plot([p, p], [0, y_p], color=TEXT_BLACK, linewidth=1.2)
-
-    # Layout polish
-    ax.set_xlim(0, 100)
-    ax.set_ylim(0, np.nanmax(y) * 1.2)
-    ax.set_yticks([])
-    ax.set_xticks([])
-    for spine in ["top", "right", "left", "bottom"]:
-        ax.spines[spine].set_visible(False)
-
-    # Labels at extremes (dimension anchors)
-    if subtitle and "↔" in subtitle:
-        left_label, right_label = [s.strip() for s in subtitle.split("↔")]
-        ax.text(0, -0.08, left_label, ha="left", va="top", fontsize=9, color="#666")
-        ax.text(100, -0.08, right_label, ha="right", va="top", fontsize=9, color="#666")
-    else:
-        ax.text(0, -0.08, "0", ha="left", va="top", fontsize=8, color="#666")
-        ax.text(100, -0.08, "100", ha="right", va="top", fontsize=8, color="#666")
-
-    plt.tight_layout(pad=0.3)
-    return fig
-
-# --- Render minimalist smooth mountains -------------------------------------
 for b in bars:
     name = b["name"]
-    help_txt = b["help"]
-    part = b["score"]
-    pop_vec = pop_dists.get(name, None)
-    if pop_vec is None or pop_vec.size == 0:
-        st.info(f"No valid population data for {name}.")
-        continue
+    help_txt = b["help"]  # expected "Left ↔ Right"
+    score = b["score"]    # 0..100 or None
+    median = pop_medians.get(name, None)  # 0..100 or None
 
-    fig = plot_mountain(pop_vec, part, title=name, subtitle=help_txt)
-    st.pyplot(fig, clear_figure=True)
+    # Prepare pieces
+    width = 0 if (score is None or np.isnan(score)) else int(round(np.clip(score, 0, 100)))
+    med_left = None if (median is None or np.isnan(median)) else float(np.clip(median, 0, 100))
+
+    # Split anchors from help text
+    if isinstance(help_txt, str) and "↔" in help_txt:
+        left_anchor, right_anchor = [s.strip() for s in help_txt.split("↔", 1)]
+    else:
+        left_anchor, right_anchor = "0", "100"
+
+    st.markdown(dedent(f"""
+    <div class="dm2-row">
+      <div class="dm2-label">{name}</div>
+      <div class="dm2-wrap">
+        <div class="dm2-track" aria-label="{name} score {width if score is not None else 'NA'}">
+          <div class="dm2-fill" style="width:{width}%;"></div>
+          {"<div class='dm2-median' style='left:" + str(med_left) + "%;'></div>" if med_left is not None else ""}
+        </div>
+        <div class="dm2-anchors">
+          <span>{left_anchor}</span>
+          <span>{right_anchor}</span>
+        </div>
+      </div>
+      <div class="dm2-val">{'NA' if score is None or np.isnan(score) else str(int(round(score))) + '%'}</div>
+    </div>
+    """), unsafe_allow_html=True)
+
+st.markdown("</div>", unsafe_allow_html=True)
+
 
 
 
