@@ -614,23 +614,13 @@ st.markdown("</div>", unsafe_allow_html=True)
 
 
 
-
-# --- Load population data ----------------------------------------------------
+# --- Load population (N=1000) -----------------------------------------------
 csv_path = os.path.join("assets", "N1000_comparative_viz_ready.csv")
 try:
     pop_data = pd.read_csv(csv_path)
 except Exception as e:
     st.error(f"Could not load population data at {csv_path}: {e}")
     pop_data = None
-
-# --- Map config names -> population columns ----------------------------------
-DIM_TO_COL = {
-    "Perception":  "Perception",
-    "Bizarreness": "Bizarreness",
-    "Immersion":   "Immersion",
-    "Spontaneity": "Spontaneity",
-    "Emotion":     "Emotion",
-}
 
 # --- Compute participant scores (0..100) -------------------------------------
 bars = []
@@ -639,21 +629,43 @@ for name, cfg in DIM_BAR_CONFIG.items():
     score100 = None if (isinstance(score01, float) and np.isnan(score01)) else float(score01 * 100.0)
     bars.append({"name": name, "help": cfg["help"], "score": score100})
 
-# --- Utility: get clean population vector per dimension in 0..100 ------------
-def _pop_vector(df, colname):
-    if df is None or colname not in df.columns:
-        return None
-    x = pd.to_numeric(df[colname], errors="coerce").dropna().values.astype(float)
-    # auto-rescale if 0..1
-    if np.nanmax(x) <= 1.00001:
-        x = x * 100.0
-    # clamp hard to [0,100]
-    x = np.clip(x, 0.0, 100.0)
-    return x
+# --- Recompute the SAME scores for every row in the population ---------------
+def compute_population_distributions(df: pd.DataFrame, dim_config: dict, k_bump=0.8):
+    """
+    Returns a dict: {dimension_name: np.ndarray of 0..100 scores for all valid rows}
+    Each row is passed through compute_dimension_score with the same logic as the user.
+    """
+    if df is None or df.empty:
+        return {}
 
-# --- Small Gaussian smoothing (no scipy) -------------------------------------
+    dist = {name: [] for name in dim_config.keys()}
+
+    # iterate rows; to be robust against Series.get, convert to dict
+    for _, row in df.iterrows():
+        rec = row.to_dict()
+        for name, cfg in dim_config.items():
+            s = compute_dimension_score(rec, cfg, k_bump=k_bump)
+            if not (isinstance(s, float) and np.isnan(s)):
+                dist[name].append(float(np.clip(s * 100.0, 0.0, 100.0)))
+
+    # convert lists to clean numpy arrays
+    for name in dist:
+        arr = np.array(dist[name], dtype=float)
+        arr = arr[~np.isnan(arr)]
+        dist[name] = arr
+    return dist
+
+pop_dists = compute_population_distributions(pop_data, DIM_BAR_CONFIG, k_bump=0.8)
+
+# --- Mini "mountain" plot per dimension --------------------------------------
+import matplotlib.pyplot as plt
+
+PURPLE = "#7B61FF"
+MEDIAN_GREY = "#B0B0B0"
+ENVELOPE_GREY = "#E6E6E6"
+TEXT_BLACK = "#000000"
+
 def _gaussian_kernel(size=9, sigma=2.0):
-    # size odd, centered kernel
     n = int(size)
     if n % 2 == 0: n += 1
     m = n // 2
@@ -666,25 +678,16 @@ def _smooth_counts(counts, sigma=2.0):
     k = _gaussian_kernel(size=int(6*sigma)+1, sigma=sigma)
     return np.convolve(counts, k, mode="same")
 
-# --- Mini "mountain" plot per dimension --------------------------------------
-import matplotlib.pyplot as plt
-
-PURPLE = "#7B61FF"
-MEDIAN_GREY = "#B0B0B0"
-ENVELOPE_GREY = "#E6E6E6"
-TEXT_BLACK = "#000000"
-
 def plot_mountain(values_0_100, participant_score_0_100, title, subtitle=None,
                   width=6.0, height=1.35):
     # x grid
-    x = np.linspace(0, 100, 201)  # 0.5 steps for smoothness
-    # histogram on 0..100 bins
-    bins = np.linspace(0, 100, 101)  # 1-pt bins
+    x = np.linspace(0, 100, 201)              # smooth curve
+    bins = np.linspace(0, 100, 101)           # 1-point bins
     hist, _ = np.histogram(values_0_100, bins=bins, density=True)
-    # upsample to x grid
-    xc = 0.5*(bins[:-1] + bins[1:])
+    xc = 0.5 * (bins[:-1] + bins[1:])
     y = np.interp(x, xc, hist)
-    # smooth and normalize to max=1 for consistent height
+
+    # smooth + normalize height to 1 for consistent visuals
     y = _smooth_counts(y, sigma=2.0)
     if np.nanmax(y) > 0:
         y = y / np.nanmax(y)
@@ -695,36 +698,31 @@ def plot_mountain(values_0_100, participant_score_0_100, title, subtitle=None,
     fig = plt.figure(figsize=(width, height), dpi=144)
     ax = plt.gca()
 
-    # Base envelope (light grey)
+    # envelope
     ax.fill_between(x, 0, y, color=ENVELOPE_GREY, alpha=1.0, linewidth=0)
 
-    # Purple fill up to participant score
+    # fill up to participant
     if participant_score_0_100 is not None and not np.isnan(participant_score_0_100):
         p = np.clip(participant_score_0_100, 0, 100)
         mask = x <= p
         ax.fill_between(x[mask], 0, y[mask], color=PURPLE, alpha=1.0, linewidth=0)
-        # participant marker
         ax.axvline(p, 0, 1, color=TEXT_BLACK, linewidth=1.2)
-        ax.text(p+1.2, 0.92, f"{int(round(p))}", va="top", ha="left",
-                fontsize=9, color=TEXT_BLACK)
+        ax.text(p+1.2, 0.92, f"{int(round(p))}", va="top", ha="left", fontsize=9, color=TEXT_BLACK)
 
-    # Median (vertical grey line)
+    # median line
     if not np.isnan(med):
-        ax.axvline(med, 0, 1, color=MEDIAN_GREY, linewidth=1.0, linestyle="-")
-        ax.text(med, 0.02, "median", va="bottom", ha="center",
-                fontsize=8, color=MEDIAN_GREY)
+        ax.axvline(med, 0, 1, color=MEDIAN_GREY, linewidth=1.0)
+        ax.text(med, 0.02, "median", va="bottom", ha="center", fontsize=8, color=MEDIAN_GREY)
 
-    # Aesthetics
-    ax.set_xlim(0, 100)
-    ax.set_ylim(0, 1.05)
-    ax.set_yticks([])
-    ax.set_xticks([0, 25, 50, 75, 100])
+    # aesthetics
+    ax.set_xlim(0, 100); ax.set_ylim(0, 1.05)
+    ax.set_yticks([]); ax.set_xticks([0, 25, 50, 75, 100])
     ax.tick_params(axis="x", labelsize=9, colors="#555")
     for spine in ["top", "right", "left"]:
         ax.spines[spine].set_visible(False)
     ax.spines["bottom"].set_color("#DDD")
 
-    # Titles (compact)
+    # titles
     ax.text(0, 1.08, title, ha="left", va="bottom", fontsize=12, fontweight="bold", color=TEXT_BLACK)
     if subtitle:
         ax.text(0, 0.86, subtitle, ha="left", va="bottom", fontsize=9, color="#666")
@@ -734,19 +732,19 @@ def plot_mountain(values_0_100, participant_score_0_100, title, subtitle=None,
 
 # --- Render the five mountains ------------------------------------------------
 st.markdown("<div style='margin-top: 22px; font-weight:800; font-size:1.1rem;'>Your mind vs the crowd</div>", unsafe_allow_html=True)
+
 for b in bars:
     name = b["name"]
     help_txt = b["help"]
     part = b["score"]
 
-    pop_vec = _pop_vector(pop_data, DIM_TO_COL.get(name, name)) if pop_data is not None else None
+    pop_vec = pop_dists.get(name, None)
     if pop_vec is None or pop_vec.size == 0:
-        st.info(f"No population data for {name}.")
+        st.info(f"No valid population data for {name}.")
         continue
 
     fig = plot_mountain(pop_vec, part, title=name, subtitle=help_txt)
     st.pyplot(fig, clear_figure=True)
-
 
 
 
