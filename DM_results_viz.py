@@ -585,14 +585,7 @@ for name, cfg in DIM_BAR_CONFIG.items():
     score100 = None if (isinstance(score01, float) and np.isnan(score01)) else float(score01 * 100.0)
     bars.append({"name": name, "help": cfg["help"], "score": score100})
 
-# --- Load population (N=1000) & recompute SAME scores for all ----------------
-csv_path = os.path.join("assets", "N1000_comparative_viz_ready.csv")
-try:
-    pop_data = pd.read_csv(csv_path)
-except Exception as e:
-    st.error(f"Could not load population data at {csv_path}: {e}")
-    pop_data = None
-
+# --- Recompute SAME scores for all population rows ---------------------------
 def compute_population_distributions(df: pd.DataFrame, dim_config: dict, k_bump=0.8):
     if df is None or df.empty:
         return {}
@@ -609,43 +602,47 @@ def compute_population_distributions(df: pd.DataFrame, dim_config: dict, k_bump=
     return dist
 
 pop_dists = compute_population_distributions(pop_data, DIM_BAR_CONFIG, k_bump=0.8)
-pop_medians = {k: (float(np.nanmedian(v)) if (isinstance(v, np.ndarray) and v.size) else None)
-               for k, v in pop_dists.items()}
+pop_medians = {
+    k: (float(np.nanmedian(v)) if (isinstance(v, np.ndarray) and v.size) else None)
+    for k, v in pop_dists.items()
+}
 
 # --- Styling -----------------------------------------------------------------
 from textwrap import dedent
 st.markdown(dedent("""
 <style>
-  .dm2-bars { margin-top: 22px; }
-  .dm2-row { display:flex; align-items:center; gap:14px; margin:14px 0; }
-  .dm2-label { width: 160px; font-weight: 700; font-size: 1rem; white-space: nowrap; }
-  .dm2-wrap { flex: 1 1 auto; }
+  .dm2-bars { margin-top: 16px; }
+  .dm2-row {
+    display:flex; align-items:center; gap:10px;
+    margin:8px 0; /* tighter spacing */
+  }
+  .dm2-label, .dm2-val {
+    position: relative; top: -1px;  /* micro-nudge up for perfect alignment */
+  }
+  .dm2-label {
+    width: 160px; font-weight: 700; font-size: 1rem; white-space: nowrap;
+  }
+  .dm2-wrap { flex: 1 1 auto; display:flex; flex-direction:column; gap:4px; }
   .dm2-track {
-    position: relative;
-    width: 100%;
-    height: 14px;
-    background: #EDEDED;
-    border-radius: 999px;
-    overflow: hidden;
+    position: relative; width: 100%; height: 14px;
+    background: #EDEDED; border-radius: 999px; overflow: hidden;
   }
   .dm2-fill {
     height: 100%;
-    background: #7B61FF;  /* purple */
+    /* light → dark purple gradient */
+    background: linear-gradient(90deg, #CBBEFF 0%, #A18BFF 60%, #7B61FF 100%);
     border-radius: 999px;
     transition: width 600ms ease;
   }
   .dm2-median {
-    position: absolute;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 8px; height: 8px;
-    background: #B0B0B0;  /* grey dot */
-    border-radius: 50%;
-    pointer-events: none;
+    position: absolute; top: 50%; transform: translate(-50%, -50%);
+    width: 8px; height: 8px; background: #000000; /* BLACK dot */
+    border-radius: 50%; pointer-events: none;
   }
   .dm2-anchors {
     display:flex; justify-content:space-between;
-    font-size: 0.85rem; color:#666; margin-top: 6px;
+    font-size: 0.85rem; color:#666; margin-top: 0; /* tighter */
+    line-height: 1;     /* compact baseline */
   }
   .dm2-val { width: 52px; text-align: right; font-variant-numeric: tabular-nums; }
   @media (max-width: 640px){
@@ -663,7 +660,6 @@ for b in bars:
     score = b["score"]    # 0..100 or None
     median = pop_medians.get(name, None)  # 0..100 or None
 
-    # Prepare pieces
     width = 0 if (score is None or np.isnan(score)) else int(round(np.clip(score, 0, 100)))
     med_left = None if (median is None or np.isnan(median)) else float(np.clip(median, 0, 100))
 
@@ -691,6 +687,7 @@ for b in bars:
     """), unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
+
 
 
 
