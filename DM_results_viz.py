@@ -665,10 +665,10 @@ MEDIAN_GREY = "#B0B0B0"
 ENVELOPE_GREY = "#E6E6E6"
 TEXT_BLACK = "#000000"
 
-# --- Smooth helpers (strong smoothing for a clean "mountain") ----------------
-def _gaussian_kernel(size=101, sigma=12.0):
+# --- Smooth helpers (extra-smooth for a soft compact "mountain") -------------
+def _gaussian_kernel(size=181, sigma=20.0):
     """
-    Large symmetric Gaussian kernel for gentle, cinematic smoothing.
+    Very wide Gaussian kernel for ultra-smooth, cinematic flattening.
     """
     n = int(size)
     if n % 2 == 0:
@@ -679,25 +679,24 @@ def _gaussian_kernel(size=101, sigma=12.0):
     k /= np.sum(k)
     return k
 
-def _smooth_counts(counts, sigma=12.0):
+def _smooth_counts(counts, sigma=20.0):
     k = _gaussian_kernel(size=int(6 * sigma) + 1, sigma=sigma)
     y = np.convolve(counts, k, mode="same")
-    # Normalize area (so all curves comparable height)
+    # normalize peak height to a small value for flatter look
     if np.nanmax(y) > 0:
-        y /= np.nanmax(y)
+        y = (y / np.nanmax(y)) * 0.35  # flatten vertically (0.35 instead of 1.0)
     return y
 
 def plot_mountain(values_0_100, participant_score_0_100, title, subtitle=None,
-                  width=6.0, height=1.35):
+                  width=6.0, height=0.9):
     # --- Create smooth density ------------------------------------------------
     bins = np.linspace(0, 100, 201)
     hist, _ = np.histogram(values_0_100, bins=bins, density=True)
     xc = 0.5 * (bins[:-1] + bins[1:])
-    y = _smooth_counts(hist, sigma=12.0)  # <–– very smooth
+    y = _smooth_counts(hist, sigma=20.0)
     x = xc
 
-    # Median and participant
-    med = float(np.nanmedian(values_0_100)) if values_0_100.size else np.nan
+    # participant
     p = None if participant_score_0_100 is None else np.clip(participant_score_0_100, 0, 100)
 
     # --- Figure aesthetics ----------------------------------------------------
@@ -711,45 +710,36 @@ def plot_mountain(values_0_100, participant_score_0_100, title, subtitle=None,
     if p is not None and not np.isnan(p):
         mask = x <= p
         ax.fill_between(x[mask], 0, y[mask], color=PURPLE, alpha=1.0, linewidth=0)
-        ax.axvline(p, 0, 1, color=TEXT_BLACK, linewidth=1.2)
-        ax.text(p + 1.2, 0.90, f"{int(round(p))}", va="top", ha="left",
-                fontsize=9, color=TEXT_BLACK)
-
-    # Median line
-    if not np.isnan(med):
-        ax.axvline(med, 0, 1, color=MEDIAN_GREY, linewidth=1.0)
-        ax.text(med, 0.05, "median", va="bottom", ha="center",
-                fontsize=8, color=MEDIAN_GREY)
+        # Draw participant bar that stops at the curve height
+        # Find approximate curve height at p
+        y_p = np.interp(p, x, y)
+        ax.plot([p, p], [0, y_p], color=TEXT_BLACK, linewidth=1.2)
 
     # Layout polish
     ax.set_xlim(0, 100)
-    ax.set_ylim(0, 1.05)
+    ax.set_ylim(0, np.nanmax(y) * 1.2)
     ax.set_yticks([])
-    ax.set_xticks([0, 25, 50, 75, 100])
-    ax.tick_params(axis="x", labelsize=9, colors="#555")
-    for spine in ["top", "right", "left"]:
+    ax.set_xticks([])
+    for spine in ["top", "right", "left", "bottom"]:
         ax.spines[spine].set_visible(False)
-    ax.spines["bottom"].set_color("#DDD")
 
-    # Titles
-    ax.text(0, 1.10, title, ha="left", va="bottom", fontsize=12,
-            fontweight="bold", color=TEXT_BLACK)
-    if subtitle:
-        ax.text(0, 0.90, subtitle, ha="left", va="bottom",
-                fontsize=9, color="#666")
+    # Labels at extremes (dimension anchors)
+    if subtitle and "↔" in subtitle:
+        left_label, right_label = [s.strip() for s in subtitle.split("↔")]
+        ax.text(0, -0.08, left_label, ha="left", va="top", fontsize=9, color="#666")
+        ax.text(100, -0.08, right_label, ha="right", va="top", fontsize=9, color="#666")
+    else:
+        ax.text(0, -0.08, "0", ha="left", va="top", fontsize=8, color="#666")
+        ax.text(100, -0.08, "100", ha="right", va="top", fontsize=8, color="#666")
 
-    plt.tight_layout(pad=0.5)
+    plt.tight_layout(pad=0.3)
     return fig
 
-
-# --- Render the five mountains ------------------------------------------------
-st.markdown("<div style='margin-top: 22px; font-weight:800; font-size:1.1rem;'>Your mind vs the crowd</div>", unsafe_allow_html=True)
-
+# --- Render minimalist smooth mountains -------------------------------------
 for b in bars:
     name = b["name"]
     help_txt = b["help"]
     part = b["score"]
-
     pop_vec = pop_dists.get(name, None)
     if pop_vec is None or pop_vec.size == 0:
         st.info(f"No valid population data for {name}.")
