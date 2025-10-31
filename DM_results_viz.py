@@ -466,40 +466,44 @@ with st.expander("computation BTS"):
 
 
 
-#%% Five-Dimension Bars #######################################################
+#%% Five-Dimension Bars (One-sided amplification) #############################
 ###############################################################################
 
-# --- Config of dimensions: freq_* items + degreequest_* weights -------------
 DIM_BAR_CONFIG = {
     "Perception": {
         "freq_keys": ["freq_percept_intense", "freq_percept_precise", "freq_percept_real"],
         "weight_keys": ["degreequest_vividness", "degreequest_distinctness"],
-        "invert_keys": [],  # none
+        "invert_keys": [],
+        "weight_mode": "standard",   # standard = boost only if w>0.5
         "help": "I think  ↔  I see/hear",
     },
     "Bizarreness": {
         "freq_keys": ["freq_think_bizarre", "freq_percept_bizarre", "freq_think_seq_bizarre"],
         "weight_keys": ["degreequest_bizarreness"],
         "invert_keys": [],
+        "weight_mode": "standard",
         "help": "Ordinary  ↔  Bizarre",
     },
     "Immersion": {
         "freq_keys": ["freq_absorbed", "freq_actor", "freq_percept_narrative"],
         "weight_keys": ["degreequest_immersiveness"],
         "invert_keys": [],
+        "weight_mode": "standard",
         "help": "Grounded  ↔  Absorbed",
     },
     "Spontaneity": {
         "freq_keys": ["freq_percept_imposed", "freq_spectator"],
         "weight_keys": ["degreequest_spontaneity"],
         "invert_keys": [],
+        "weight_mode": "standard",
         "help": "Voluntary  ↔  Spontaneous",
     },
     "Emotion": {
-        # Higher should = more positive. Invert negatives.
+        # Base is "positivity": positives kept, negatives/rumination inverted.
         "freq_keys": ["freq_positive", "freq_negative", "freq_ruminate"],
-        "weight_keys": ["degreequest_emotionality"],
+        "weight_keys": ["degreequest_emotionality"],  # 1=very negative, 6=very positive (bipolar)
         "invert_keys": ["freq_negative", "freq_ruminate"],
+        "weight_mode": "emotion_bipolar",  # boost on strong (pos OR neg), neutral does nothing
         "help": "Negative  ↔  Positive",
     },
 }
@@ -508,7 +512,6 @@ def _get(record, key, default=np.nan):
     return record.get(key, default)
 
 def _norm16(x):
-    # Same as norm_1_6 but local alias
     try:
         v = float(x)
     except:
@@ -517,11 +520,34 @@ def _norm16(x):
     return np.clip((v - 1.0) / 5.0, 0.0, 1.0)
 
 def _mean_ignore_nan(arr):
-    arr = np.array([a for a in arr if not (isinstance(a, float) and np.isnan(a))], dtype=float)
-    return np.nan if arr.size == 0 else float(np.mean(arr))
+    arr = [a for a in arr if not (isinstance(a, float) and np.isnan(a))]
+    return np.nan if len(arr) == 0 else float(np.mean(arr))
 
-def compute_dimension_score(record, cfg):
-    # 1) Base from freq_* items (normalize 1–6 → 0–1, invert selected)
+def _weight_boost(wvals, mode: str):
+    """
+    Return a boost term in [0, 0.5] that controls the one-sided amplification.
+    - 'standard': average w (0..1), boost = max(0, w - 0.5)  → 0..0.5
+    - 'emotion_bipolar': average w (0..1) where 0=very negative, 1=very positive.
+       Use intensity relative to neutral 0.5: boost = max(0, 2*abs(w-0.5) - 0.5) → 0..0.5
+       (i.e., only strong emotions—positive OR negative—amplify; neutral does not)
+    If all weights missing → treat as neutral (0.5) → boost = 0.
+    """
+    w = _mean_ignore_nan([_norm16(v) for v in wvals])
+    if isinstance(w, float) and np.isnan(w):
+        w = 0.5  # no weight info → neutral (no amplification)
+
+    if mode == "emotion_bipolar":
+        # map distance from neutral to a 0..1 intensity: I = 2*|w-0.5|
+        intensity = 2.0 * abs(w - 0.5)   # 0 at 0.5; 1 at 0 or 1
+        boost = max(0.0, intensity - 0.5)  # only stronger-than-moderate emotions amplify
+    else:
+        boost = max(0.0, w - 0.5)
+
+    # both formulas produce a boost in [0, 0.5]
+    return float(np.clip(boost, 0.0, 0.5))
+
+def compute_dimension_score(record, cfg, k_bump=0.8):
+    # 1) Base from freq_* (normalize 1–6 → 0–1; invert some for Emotion)
     vals = []
     for k in cfg["freq_keys"]:
         v = _norm16(_get(record, k))
@@ -529,45 +555,34 @@ def compute_dimension_score(record, cfg):
             v = 1.0 - v if not (isinstance(v, float) and np.isnan(v)) else v
         vals.append(v)
     base = _mean_ignore_nan(vals)
-
-    # 2) Weight(s) (normalize 1–6 → 0–1), default = 1.0 if all missing
-    wvals = [_norm16(_get(record, wk)) for wk in cfg["weight_keys"]]
-    w = _mean_ignore_nan(wvals)
-    if isinstance(w, float) and np.isnan(w):
-        w = 1.0
-
     if isinstance(base, float) and np.isnan(base):
-        return np.nan  # no data
+        return np.nan
 
-    return float(np.clip(base * w, 0.0, 1.0))
+    # 2) Compute boost (0..0.5) based on weight mode
+    boost = _weight_boost([_get(record, wk) for wk in cfg["weight_keys"]],
+                          cfg.get("weight_mode", "standard"))
 
-# --- Compute all five dimensions --------------------------------------------
+    # 3) One-sided additive bump; zero when boost==0.
+    #    base*(1-base) softly protects extremes (0 or 1) from huge jumps.
+    bump = k_bump * boost * base * (1.0 - base)
+    final = float(np.clip(base + bump, 0.0, 1.0))
+    return final
+
+# --- Compute and render bars (unchanged UI) ----------------------------------
 bars = []
 for name, cfg in DIM_BAR_CONFIG.items():
-    score01 = compute_dimension_score(record, cfg)
+    score01 = compute_dimension_score(record, cfg, k_bump=0.8)  # tune 0.6–0.9 if you like
     score100 = None if (isinstance(score01, float) and np.isnan(score01)) else int(round(score01 * 100))
-    bars.append({
-        "name": name,
-        "help": cfg["help"],
-        "score01": score01,
-        "score100": score100
-    })
+    bars.append({"name": name, "help": cfg["help"], "score01": score01, "score100": score100})
 
-# --- Styling + Render compact bars (homogeneous, black fill) -----------------
 from textwrap import dedent
-
 st.markdown(dedent("""
 <style>
   .dm-bars { margin-top: 22px; }
   .dm-bar-row { display:flex; align-items:center; gap:14px; margin:10px 0; }
   .dm-bar-label { width: 160px; font-weight: 700; font-size: 1rem; white-space: nowrap; }
-  .dm-bar-track {
-    flex: 1 1 auto; height: 14px; background:#EDEDED; border-radius: 999px; position: relative; overflow: hidden;
-  }
-  .dm-bar-fill {
-    height: 100%; background:#000; border-radius: 999px;
-    transition: width 600ms ease;
-  }
+  .dm-bar-track { flex:1 1 auto; height: 14px; background:#EDEDED; border-radius: 999px; position: relative; overflow: hidden; }
+  .dm-bar-fill { height: 100%; background:#000; border-radius: 999px; transition: width 600ms ease; }
   .dm-bar-val { width: 52px; text-align: right; font-variant-numeric: tabular-nums; }
   .dm-bar-help { color:#666; font-size: 0.85rem; margin: 2px 0 14px 0; }
   @media (max-width: 640px){
@@ -580,8 +595,7 @@ st.markdown("<div class='dm-bars'>", unsafe_allow_html=True)
 st.markdown("<div style='font-weight:800; font-size:1.1rem; margin-bottom:8px;'>Your mind at sleep onset</div>", unsafe_allow_html=True)
 
 for b in bars:
-    pct = b["score100"]
-    width = 0 if (pct is None) else max(0, min(100, pct))
+    pct = b["score100"]; width = 0 if (pct is None) else max(0, min(100, pct))
     st.markdown(dedent(f"""
     <div class="dm-bar-row">
       <div class="dm-bar-label">{b['name']}</div>
@@ -594,6 +608,8 @@ for b in bars:
     """), unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
+
+
 
 
 
