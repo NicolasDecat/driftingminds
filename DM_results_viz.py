@@ -665,70 +665,82 @@ MEDIAN_GREY = "#B0B0B0"
 ENVELOPE_GREY = "#E6E6E6"
 TEXT_BLACK = "#000000"
 
-def _gaussian_kernel(size=9, sigma=2.0):
+# --- Smooth helpers (strong smoothing for a clean "mountain") ----------------
+def _gaussian_kernel(size=101, sigma=12.0):
+    """
+    Large symmetric Gaussian kernel for gentle, cinematic smoothing.
+    """
     n = int(size)
-    if n % 2 == 0: n += 1
+    if n % 2 == 0:
+        n += 1
     m = n // 2
-    xs = np.arange(-m, m+1)
-    k = np.exp(-(xs**2)/(2*sigma**2))
-    k /= k.sum()
+    xs = np.arange(-m, m + 1)
+    k = np.exp(-(xs**2) / (2 * sigma**2))
+    k /= np.sum(k)
     return k
 
-def _smooth_counts(counts, sigma=2.0):
-    k = _gaussian_kernel(size=int(6*sigma)+1, sigma=sigma)
-    return np.convolve(counts, k, mode="same")
+def _smooth_counts(counts, sigma=12.0):
+    k = _gaussian_kernel(size=int(6 * sigma) + 1, sigma=sigma)
+    y = np.convolve(counts, k, mode="same")
+    # Normalize area (so all curves comparable height)
+    if np.nanmax(y) > 0:
+        y /= np.nanmax(y)
+    return y
 
 def plot_mountain(values_0_100, participant_score_0_100, title, subtitle=None,
                   width=6.0, height=1.35):
-    # x grid
-    x = np.linspace(0, 100, 201)              # smooth curve
-    bins = np.linspace(0, 100, 101)           # 1-point bins
+    # --- Create smooth density ------------------------------------------------
+    bins = np.linspace(0, 100, 201)
     hist, _ = np.histogram(values_0_100, bins=bins, density=True)
     xc = 0.5 * (bins[:-1] + bins[1:])
-    y = np.interp(x, xc, hist)
+    y = _smooth_counts(hist, sigma=12.0)  # <–– very smooth
+    x = xc
 
-    # smooth + normalize height to 1 for consistent visuals
-    y = _smooth_counts(y, sigma=2.0)
-    if np.nanmax(y) > 0:
-        y = y / np.nanmax(y)
-
-    # median
+    # Median and participant
     med = float(np.nanmedian(values_0_100)) if values_0_100.size else np.nan
+    p = None if participant_score_0_100 is None else np.clip(participant_score_0_100, 0, 100)
 
+    # --- Figure aesthetics ----------------------------------------------------
     fig = plt.figure(figsize=(width, height), dpi=144)
     ax = plt.gca()
 
-    # envelope
+    # Base envelope (light grey)
     ax.fill_between(x, 0, y, color=ENVELOPE_GREY, alpha=1.0, linewidth=0)
 
-    # fill up to participant
-    if participant_score_0_100 is not None and not np.isnan(participant_score_0_100):
-        p = np.clip(participant_score_0_100, 0, 100)
+    # Fill up to participant (purple)
+    if p is not None and not np.isnan(p):
         mask = x <= p
         ax.fill_between(x[mask], 0, y[mask], color=PURPLE, alpha=1.0, linewidth=0)
         ax.axvline(p, 0, 1, color=TEXT_BLACK, linewidth=1.2)
-        ax.text(p+1.2, 0.92, f"{int(round(p))}", va="top", ha="left", fontsize=9, color=TEXT_BLACK)
+        ax.text(p + 1.2, 0.90, f"{int(round(p))}", va="top", ha="left",
+                fontsize=9, color=TEXT_BLACK)
 
-    # median line
+    # Median line
     if not np.isnan(med):
         ax.axvline(med, 0, 1, color=MEDIAN_GREY, linewidth=1.0)
-        ax.text(med, 0.02, "median", va="bottom", ha="center", fontsize=8, color=MEDIAN_GREY)
+        ax.text(med, 0.05, "median", va="bottom", ha="center",
+                fontsize=8, color=MEDIAN_GREY)
 
-    # aesthetics
-    ax.set_xlim(0, 100); ax.set_ylim(0, 1.05)
-    ax.set_yticks([]); ax.set_xticks([0, 25, 50, 75, 100])
+    # Layout polish
+    ax.set_xlim(0, 100)
+    ax.set_ylim(0, 1.05)
+    ax.set_yticks([])
+    ax.set_xticks([0, 25, 50, 75, 100])
     ax.tick_params(axis="x", labelsize=9, colors="#555")
     for spine in ["top", "right", "left"]:
         ax.spines[spine].set_visible(False)
     ax.spines["bottom"].set_color("#DDD")
 
-    # titles
-    ax.text(0, 1.08, title, ha="left", va="bottom", fontsize=12, fontweight="bold", color=TEXT_BLACK)
+    # Titles
+    ax.text(0, 1.10, title, ha="left", va="bottom", fontsize=12,
+            fontweight="bold", color=TEXT_BLACK)
     if subtitle:
-        ax.text(0, 0.86, subtitle, ha="left", va="bottom", fontsize=9, color="#666")
+        ax.text(0, 0.90, subtitle, ha="left", va="bottom",
+                fontsize=9, color="#666")
 
-    plt.tight_layout(pad=0.6)
+    plt.tight_layout(pad=0.5)
     return fig
+
 
 # --- Render the five mountains ------------------------------------------------
 st.markdown("<div style='margin-top: 22px; font-weight:800; font-size:1.1rem;'>Your mind vs the crowd</div>", unsafe_allow_html=True)
