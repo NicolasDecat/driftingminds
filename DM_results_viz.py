@@ -635,9 +635,16 @@ st.markdown(dedent("""
     transition: width 600ms ease;
   }
   .dm2-median {
-    position: absolute; top: 50%; transform: translate(-50%, -50%);
-    width: 8px; height: 8px; background: #000000; /* BLACK dot */
-    border-radius: 50%; pointer-events: none;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background: #000000;  /* black dot */
+    border: 1.5px solid #FFFFFF; /* <-- white stroke for clarity */
+    border-radius: 50%;
+    pointer-events: none;
+    box-sizing: border-box;
   }
   .dm2-anchors {
     display:flex; justify-content:space-between;
