@@ -114,7 +114,7 @@ st.markdown(
     <div style="text-align:center; margin-bottom:2.5rem;">  <!-- more space -->
         <div style="font-size:2rem; font-weight:800;">Drifting Minds Study</div>
         <div style="font-size:1rem; margin-top:0.1rem;">
-            This is how my mind drifts into sleep
+            Which Drifting Mind are you?
         </div>
     </div>
     """,
@@ -636,7 +636,7 @@ st.markdown(dedent("""
   }
   .dm2-median {
     position: absolute;
-    top: 50%;
+    top: 50%;f
     transform: translate(-50%, -50%);
     width: 8px;
     height: 8px;
