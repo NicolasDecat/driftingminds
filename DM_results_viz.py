@@ -1009,41 +1009,6 @@ with col_left:
 
 
 
-# ---------- Trajectory plot ----------
-
-
-# Add vertical space below the horizontal bar
-st.markdown("<div style='height:32px;'></div>", unsafe_allow_html=True)
-
-import streamlit as st
-from PIL import Image
-import os
-
-# Retrieve participant's trajectory value
-traj_value = record.get("trajectories")  # expecting 1, 2, 3, or 4
-
-# Convert safely to int
-try:
-    traj_value = int(traj_value)
-except (TypeError, ValueError):
-    traj_value = None
-
-# Match image file path
-if traj_value in [1, 2, 3, 4]:
-    img_path = f"assets/trajectories-0{traj_value}.png"
-    if os.path.exists(img_path):
-        img = Image.open(img_path)
-        # Display image at half its container width
-        st.image(
-            img,
-            width=400,   # 👈 adjust this number if you want smaller/larger (e.g., 350 or 450)
-        )
-    else:
-        st.warning(f"Image not found: {img_path}")
-else:
-    st.info("No trajectory information available for this participant.")
-
-
 # ---------- Timeline plot ----------
 
 
