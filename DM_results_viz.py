@@ -654,7 +654,7 @@ st.markdown(dedent("""
 # --- Render horizontal bars with median dot & end labels ---------------------
 st.markdown("<div class='dm2-bars'>", unsafe_allow_html=True)
 
-min_fill = 4  # minimal % fill for aesthetic continuity (even when score=0)
+min_fill = 2  # minimal % fill for aesthetic continuity (even when score=0)
 
 for b in bars:
     name = b["name"]
