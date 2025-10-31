@@ -489,7 +489,7 @@ DIM_BAR_CONFIG = {
         "weight_keys": ["degreequest_immersiveness"],
         "invert_keys": [],
         "weight_mode": "standard",
-        "help": "Grounded in reality  ↔  Immserved in inner world",
+        "help": "Grounded in reality  ↔  Immersed in inner world",
     },
     "Spontaneity": {
         "freq_keys": ["freq_percept_imposed", "freq_spectator"],
@@ -654,13 +654,22 @@ st.markdown(dedent("""
 # --- Render horizontal bars with median dot & end labels ---------------------
 st.markdown("<div class='dm2-bars'>", unsafe_allow_html=True)
 
+min_fill = 4  # minimal % fill for aesthetic continuity (even when score=0)
+
 for b in bars:
     name = b["name"]
     help_txt = b["help"]  # expected "Left ↔ Right"
     score = b["score"]    # 0..100 or None
     median = pop_medians.get(name, None)  # 0..100 or None
 
-    width = 0 if (score is None or np.isnan(score)) else int(round(np.clip(score, 0, 100)))
+    # Prepare pieces
+    if score is None or np.isnan(score):
+        width = min_fill
+    else:
+        width = int(round(np.clip(score, 0, 100)))
+        if width < min_fill:
+            width = min_fill  # ensures at least small visible bar
+
     med_left = None if (median is None or np.isnan(median)) else float(np.clip(median, 0, 100))
 
     # Split anchors from help text
@@ -687,6 +696,7 @@ for b in bars:
     """), unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
+
 
 
 
