@@ -636,12 +636,12 @@ st.markdown(dedent("""
   }
   .dm2-median {
     position: absolute;
-    top: 50%;f
+    top: 50%;
     transform: translate(-50%, -50%);
     width: 8px;
     height: 8px;
-    background: #000000;  /* black dot */
-    border: 1.5px solid "#D9D9D9"; /* <-- white stroke for clarity */
+    background: #000000;        /* black dot */
+    border: 1.5px solid #FFFFFF;/* white stroke for clarity */
     border-radius: 50%;
     pointer-events: none;
     box-sizing: border-box;
