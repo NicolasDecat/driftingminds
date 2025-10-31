@@ -416,12 +416,6 @@ st.markdown(dedent(f"""
 
 
 
-
-
-
-
-
-
 # --- Helper for nice numeric formatting ---
 def _fmt(v, nd=3):
     if v is None:
@@ -469,6 +463,137 @@ with st.expander("computation BTS"):
     )
 
     st.caption("Notes: sleep_latency normalized with cap=60 min; baseline_anxiety normalized from 1–100 → 0–1.")
+
+
+
+#%% Five-Dimension Bars #######################################################
+###############################################################################
+
+# --- Config of dimensions: freq_* items + degreequest_* weights -------------
+DIM_BAR_CONFIG = {
+    "Perception": {
+        "freq_keys": ["freq_percept_intense", "freq_percept_precise", "freq_percept_real"],
+        "weight_keys": ["degreequest_vividness", "degreequest_distinctness"],
+        "invert_keys": [],  # none
+        "help": "I think  ↔  I see/hear",
+    },
+    "Bizarreness": {
+        "freq_keys": ["freq_think_bizarre", "freq_percept_bizarre", "freq_think_seq_bizarre"],
+        "weight_keys": ["degreequest_bizarreness"],
+        "invert_keys": [],
+        "help": "Ordinary  ↔  Bizarre",
+    },
+    "Immersion": {
+        "freq_keys": ["freq_absorbed", "freq_actor", "freq_percept_narrative"],
+        "weight_keys": ["degreequest_immersiveness"],
+        "invert_keys": [],
+        "help": "Grounded  ↔  Absorbed",
+    },
+    "Spontaneity": {
+        "freq_keys": ["freq_percept_imposed", "freq_spectator"],
+        "weight_keys": ["degreequest_spontaneity"],
+        "invert_keys": [],
+        "help": "Voluntary  ↔  Spontaneous",
+    },
+    "Emotion": {
+        # Higher should = more positive. Invert negatives.
+        "freq_keys": ["freq_positive", "freq_negative", "freq_ruminate"],
+        "weight_keys": ["degreequest_emotionality"],
+        "invert_keys": ["freq_negative", "freq_ruminate"],
+        "help": "Negative  ↔  Positive",
+    },
+}
+
+def _get(record, key, default=np.nan):
+    return record.get(key, default)
+
+def _norm16(x):
+    # Same as norm_1_6 but local alias
+    try:
+        v = float(x)
+    except:
+        return np.nan
+    if np.isnan(v): return np.nan
+    return np.clip((v - 1.0) / 5.0, 0.0, 1.0)
+
+def _mean_ignore_nan(arr):
+    arr = np.array([a for a in arr if not (isinstance(a, float) and np.isnan(a))], dtype=float)
+    return np.nan if arr.size == 0 else float(np.mean(arr))
+
+def compute_dimension_score(record, cfg):
+    # 1) Base from freq_* items (normalize 1–6 → 0–1, invert selected)
+    vals = []
+    for k in cfg["freq_keys"]:
+        v = _norm16(_get(record, k))
+        if k in cfg.get("invert_keys", []):
+            v = 1.0 - v if not (isinstance(v, float) and np.isnan(v)) else v
+        vals.append(v)
+    base = _mean_ignore_nan(vals)
+
+    # 2) Weight(s) (normalize 1–6 → 0–1), default = 1.0 if all missing
+    wvals = [_norm16(_get(record, wk)) for wk in cfg["weight_keys"]]
+    w = _mean_ignore_nan(wvals)
+    if isinstance(w, float) and np.isnan(w):
+        w = 1.0
+
+    if isinstance(base, float) and np.isnan(base):
+        return np.nan  # no data
+
+    return float(np.clip(base * w, 0.0, 1.0))
+
+# --- Compute all five dimensions --------------------------------------------
+bars = []
+for name, cfg in DIM_BAR_CONFIG.items():
+    score01 = compute_dimension_score(record, cfg)
+    score100 = None if (isinstance(score01, float) and np.isnan(score01)) else int(round(score01 * 100))
+    bars.append({
+        "name": name,
+        "help": cfg["help"],
+        "score01": score01,
+        "score100": score100
+    })
+
+# --- Styling + Render compact bars (homogeneous, black fill) -----------------
+from textwrap import dedent
+
+st.markdown(dedent("""
+<style>
+  .dm-bars { margin-top: 22px; }
+  .dm-bar-row { display:flex; align-items:center; gap:14px; margin:10px 0; }
+  .dm-bar-label { width: 160px; font-weight: 700; font-size: 1rem; white-space: nowrap; }
+  .dm-bar-track {
+    flex: 1 1 auto; height: 14px; background:#EDEDED; border-radius: 999px; position: relative; overflow: hidden;
+  }
+  .dm-bar-fill {
+    height: 100%; background:#000; border-radius: 999px;
+    transition: width 600ms ease;
+  }
+  .dm-bar-val { width: 52px; text-align: right; font-variant-numeric: tabular-nums; }
+  .dm-bar-help { color:#666; font-size: 0.85rem; margin: 2px 0 14px 0; }
+  @media (max-width: 640px){
+    .dm-bar-label { width: 120px; font-size: 0.95rem; }
+  }
+</style>
+"""), unsafe_allow_html=True)
+
+st.markdown("<div class='dm-bars'>", unsafe_allow_html=True)
+st.markdown("<div style='font-weight:800; font-size:1.1rem; margin-bottom:8px;'>Your mind at sleep onset</div>", unsafe_allow_html=True)
+
+for b in bars:
+    pct = b["score100"]
+    width = 0 if (pct is None) else max(0, min(100, pct))
+    st.markdown(dedent(f"""
+    <div class="dm-bar-row">
+      <div class="dm-bar-label">{b['name']}</div>
+      <div class="dm-bar-track" aria-label="{b['name']} score {pct if pct is not None else 'NA'}">
+        <div class="dm-bar-fill" style="width:{width}%;"></div>
+      </div>
+      <div class="dm-bar-val">{'NA' if pct is None else str(pct) + '%'}</div>
+    </div>
+    <div class="dm-bar-help">{b['help']}</div>
+    """), unsafe_allow_html=True)
+
+st.markdown("</div>", unsafe_allow_html=True)
 
 
 
