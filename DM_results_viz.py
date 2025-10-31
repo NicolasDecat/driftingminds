@@ -475,7 +475,7 @@ DIM_BAR_CONFIG = {
         "weight_keys": ["degreequest_vividness", "degreequest_distinctness"],
         "invert_keys": [],
         "weight_mode": "standard",   # standard = boost only if w>0.5
-        "help": "I think  ↔  I see/hear",
+        "help": "Thoughts  ↔  Imagery",
     },
     "Bizarreness": {
         "freq_keys": ["freq_think_bizarre", "freq_percept_bizarre", "freq_think_seq_bizarre"],
@@ -489,7 +489,7 @@ DIM_BAR_CONFIG = {
         "weight_keys": ["degreequest_immersiveness"],
         "invert_keys": [],
         "weight_mode": "standard",
-        "help": "Grounded  ↔  Absorbed",
+        "help": "Grounded in reality  ↔  Immserved in inner world",
     },
     "Spontaneity": {
         "freq_keys": ["freq_percept_imposed", "freq_spectator"],
