@@ -367,15 +367,20 @@ st.markdown(dedent("""
 </style>
 """), unsafe_allow_html=True)
 
+# Render ONLY ONCE (avoid duplicating the subtitle that already exists above)
+# If you want to KEEP the top subtitle inside the page title block,
+# do NOT render it again here. Just the profile line + description:
 
-# --- Profile header (two-line layout: “You are an” then profile name) --------
 st.markdown(dedent(f"""
 <div class="dm-prof-wrap">
-  <div class="dm-prof-lead">You are an</div>
-  <div class="dm-prof-key">{prof}</div>
+  <div class="dm-profline">
+    <span class="dm-prof-lead">You are an</span>
+    <span class="dm-prof-key">{prof}</span>
+  </div>
   <p class="dm-prof-desc">{prof_desc}</p>
 </div>
 """), unsafe_allow_html=True)
+
 
 
 
@@ -573,46 +578,47 @@ pop_medians = {
     for k, v in pop_dists.items()
 }
 
-
-# --- Styling (labels left, bars right; median+world label) -------------------
+# --- Styling (bars closer; % not bold) ---------------------------------------
 from textwrap import dedent
-import streamlit.components.v1 as components
-
 st.markdown(dedent("""
 <style>
-  .dm2-bars { margin-top: 12px; }
+  .dm2-bars { margin-top: 16px; }
   .dm2-row {
-    display:flex; align-items:center; gap:14px;
-    margin:10px 0;
+    display:flex; align-items:center; gap:10px;   /* tighter row gap */
+    margin:8px 0;
   }
 
-  /* Left column: dimension label (right-aligned so bar hugs it) */
+  /* Left block: label + % (narrower so the bar starts closer) */
   .dm2-left {
-    flex: 0 0 180px;               /* tweak width if needed */
-    text-align: right;
+    display:flex; align-items:baseline; gap:8px;  /* tighter label-% gap */
+    width: 188px;                                  /* ↓ from 260px */
+    flex: 0 0 188px;
+    margin-right: 0; padding-right: 0;            /* ensure no extra spacing */
   }
+
+  /* Bigger labels */
   .dm2-label {
     font-weight: 800;
-    font-size: 1.2rem;
+    font-size: 1.35rem;
     line-height: 1.05;
-    letter-spacing: 0.1px;
     white-space: nowrap;
+    letter-spacing: 0.1px;
   }
 
-  /* Middle: bar + anchors */
-  .dm2-wrap { 
-    flex: 1 1 auto; 
-    display:flex; 
-    flex-direction:column; 
-    gap:4px; 
+  /* % no longer bold */
+  .dm2-val {
+    font-weight: 400;             /* was 700 */
+    font-size: 1rem;
+    color: #333;
+    text-align: left;
+    min-width: 44px;
+    font-variant-numeric: tabular-nums;
   }
+
+  .dm2-wrap { flex: 1 1 auto; display:flex; flex-direction:column; gap:4px; }
   .dm2-track {
-    position: relative; 
-    width: 100%;
-    height: 14px;
-    background: #EDEDED; 
-    border-radius: 999px; 
-    overflow: visible;             /* show overlay labels above */
+    position: relative; width: 100%; height: 14px;
+    background: #EDEDED; border-radius: 999px; overflow: hidden;
   }
   .dm2-fill {
     height: 100%;
@@ -630,53 +636,63 @@ st.markdown(dedent("""
     border-radius: 50%;
     pointer-events: none; box-sizing: border-box;
   }
-  /* Tiny caption above the median dot (used for first row only: "world") */
-  .dm2-mediantag {
-    position: absolute;
-    bottom: calc(100% + 2px);
-    transform: translateX(-50%);
-    font-size: 0.72rem;
-    font-weight: 500;
-    color: #000000;
-    white-space: nowrap;
-    pointer-events: none;
-  }
-
   .dm2-anchors {
     display:flex; justify-content:space-between;
     font-size: 0.85rem; color:#666; margin-top: 0;
     line-height: 1;
   }
 
+  /* --- Profile header (subtitle / key / desc) ----------------------------- */
+  .dm-subtitle {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #444;
+    margin: 4px 0 6px 0;         /* ↓ smaller gap above/below subtitle */
+  }
+  .dm-profline {
+    display:flex; align-items:baseline; gap:6px;
+    margin: 2px 0 4px 0;         /* tighter line so gap after subtitle is small */
+  }
+  .dm-prof-lead { color:#000; font-weight: 600; }
+  .dm-prof-key  { color:#000; font-weight: 800; font-size: 1.25rem; }
+  .dm-prof-desc { color:#000; max-width: 680px; font-size: 1.05rem; line-height: 1.45; }
+
+  /* If any legacy rectangle styles linger, neutralize them */
+  .dm-prof-card, .dm-prof-box {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
   /* Mobile tweaks */
   @media (max-width: 640px){
-    .dm2-left { flex-basis: 150px; }
-    .dm2-label { font-size: 1.05rem; }
+    .dm2-left { width: 160px; flex-basis: 160px; }
+    .dm2-label { font-size: 1.15rem; }
+    .dm2-val { font-size: 0.95rem; }
+    .dm-prof-key  { font-size: 1.15rem; }
+    .dm-prof-desc { font-size: 1rem; }
   }
 </style>
 """), unsafe_allow_html=True)
 
-# --- Render (labels LEFT; bars RIGHT; "world" on first median) ---------------
+
+
+# --- Render (label + % on the left; bar in the middle) -----------------------
 st.markdown("<div class='dm2-bars'>", unsafe_allow_html=True)
 
 min_fill = 2  # minimal % fill for aesthetic continuity
 
-def _clamp_pct(p, lo=2.0, hi=98.0):
-    """Keep overlay tags away from extreme edges so they don't clip."""
-    try:
-        p = float(p)
-    except:
-        return lo
-    return max(lo, min(hi, p))
-
-for idx, b in enumerate(bars):
-    name = b["name"]               # "Vivid", "Bizarre", ...
+for b in bars:
+    name = b["name"]
     help_txt = b["help"]
-    score = b["score"]             # 0..100 or None
+    score = b["score"]    # 0..100 or None
     median = pop_medians.get(name, None)  # 0..100 or None
 
-    # bar fill width
-    if score is None or (isinstance(score, float) and np.isnan(score)):
+    # width for bar fill
+    if score is None or np.isnan(score):
         width = min_fill
         score_txt = "NA"
     else:
@@ -685,48 +701,35 @@ for idx, b in enumerate(bars):
             width = min_fill
         score_txt = f"{int(round(score))}%"
 
-    # median position
-    if median is None or (isinstance(median, float) and np.isnan(median)):
-        med_left = None
-        med_left_clamped = None
-    else:
-        med_left = float(np.clip(median, 0, 100))
-        med_left_clamped = _clamp_pct(med_left)
+    med_left = None if (median is None or np.isnan(median)) else float(np.clip(median, 0, 100))
 
-    # anchors
+    # split anchors
     if isinstance(help_txt, str) and "↔" in help_txt:
         left_anchor, right_anchor = [s.strip() for s in help_txt.split("↔", 1)]
     else:
         left_anchor, right_anchor = "0", "100"
 
-    # Build HTML snippets separately to avoid nested f-strings
-    median_html = "" if med_left is None else f"<div class='dm2-median' style='left:{med_left}%;'></div>"
-    mediantag_html = ""
-    if idx == 0 and med_left_clamped is not None:  # first row only
-        mediantag_html = f"<div class='dm2-mediantag' style='left:{med_left_clamped}%;'>world</div>"
-
-    row_html = (
-        "<div class='dm2-row'>"
-          "<div class='dm2-left'>"
-            f"<div class='dm2-label'>{name}</div>"
-          "</div>"
-          "<div class='dm2-wrap'>"
-            f"<div class='dm2-track' aria-label='{name} score {score_txt}'>"
-              f"<div class='dm2-fill' style='width:{width}%;'></div>"
-              f"{median_html}"
-              f"{mediantag_html}"
-            "</div>"
-            "<div class='dm2-anchors'>"
-              f"<span>{left_anchor}</span>"
-              f"<span>{right_anchor}</span>"
-            "</div>"
-          "</div>"
-        "</div>"
-    )
-
-    components.html(row_html, height=64, scrolling=False)
+    st.markdown(dedent(f"""
+    <div class="dm2-row">
+      <div class="dm2-left">
+        <div class="dm2-label">{name}</div>
+        <div class="dm2-val">{score_txt}</div>
+      </div>
+      <div class="dm2-wrap">
+        <div class="dm2-track" aria-label="{name} score {score_txt}">
+          <div class="dm2-fill" style="width:{width}%;"></div>
+          {"<div class='dm2-median' style='left:" + str(med_left) + "%;'></div>" if med_left is not None else ""}
+        </div>
+        <div class="dm2-anchors">
+          <span>{left_anchor}</span>
+          <span>{right_anchor}</span>
+        </div>
+      </div>
+    </div>
+    """), unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
+
 
 
 
