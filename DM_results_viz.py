@@ -573,14 +573,30 @@ pop_medians = {
     for k, v in pop_dists.items()
 }
 
-# --- Styling (right labels; overlays for median + score) ---------------------
+
+# --- Styling (labels left, bars right; median+world label) -------------------
 from textwrap import dedent
+import streamlit.components.v1 as components
+
 st.markdown(dedent("""
 <style>
-  .dm2-bars { margin-top: 16px; }
+  .dm2-bars { margin-top: 12px; }
   .dm2-row {
-    display:flex; align-items:center; gap:12px;
+    display:flex; align-items:center; gap:14px;
     margin:10px 0;
+  }
+
+  /* Left column: dimension label (right-aligned so bar hugs it) */
+  .dm2-left {
+    flex: 0 0 180px;               /* tweak width if needed */
+    text-align: right;
+  }
+  .dm2-label {
+    font-weight: 800;
+    font-size: 1.2rem;
+    line-height: 1.05;
+    letter-spacing: 0.1px;
+    white-space: nowrap;
   }
 
   /* Middle: bar + anchors */
@@ -590,14 +606,13 @@ st.markdown(dedent("""
     flex-direction:column; 
     gap:4px; 
   }
-
   .dm2-track {
     position: relative; 
-    width: 100%; 
+    width: 100%;
     height: 14px;
     background: #EDEDED; 
     border-radius: 999px; 
-    overflow: visible;             /* allow overlay labels to show above */
+    overflow: visible;             /* show overlay labels above */
   }
   .dm2-fill {
     height: 100%;
@@ -615,27 +630,14 @@ st.markdown(dedent("""
     border-radius: 50%;
     pointer-events: none; box-sizing: border-box;
   }
-
-  /* NEW: tiny caption above the median dot (e.g., "world" for Vivid) */
+  /* Tiny caption above the median dot (used for first row only: "world") */
   .dm2-mediantag {
     position: absolute;
-    bottom: calc(100% + 2px);      /* sits just above the track */
+    bottom: calc(100% + 2px);
     transform: translateX(-50%);
     font-size: 0.72rem;
     font-weight: 500;
     color: #000000;
-    white-space: nowrap;
-    pointer-events: none;
-  }
-
-  /* NEW: purple percentage above the participant bar end */
-  .dm2-scoretag {
-    position: absolute;
-    bottom: calc(100% + 2px);      /* sits just above the track */
-    transform: translateX(-50%);
-    font-size: 0.86rem;
-    font-weight: 400;              /* not bold as requested */
-    color: #7B61FF;                /* matches dark end of gradient */
     white-space: nowrap;
     pointer-events: none;
   }
@@ -646,43 +648,35 @@ st.markdown(dedent("""
     line-height: 1;
   }
 
-  /* Right block: dimension label on the RIGHT, right-aligned */
-  .dm2-right {
-    flex: 0 0 180px;               /* adjust width as needed */
-    text-align: right;
-  }
-  .dm2-label {
-    font-weight: 800;
-    font-size: 1.2rem;
-    line-height: 1.05;
-    letter-spacing: 0.1px;
-    white-space: nowrap;
-  }
-
   /* Mobile tweaks */
   @media (max-width: 640px){
-    .dm2-right { flex-basis: 150px; }
+    .dm2-left { flex-basis: 150px; }
     .dm2-label { font-size: 1.05rem; }
   }
 </style>
 """), unsafe_allow_html=True)
 
-
-
-
-# --- Render (label + % on the left; bar in the middle) -----------------------
+# --- Render (labels LEFT; bars RIGHT; "world" on first median) ---------------
 st.markdown("<div class='dm2-bars'>", unsafe_allow_html=True)
 
 min_fill = 2  # minimal % fill for aesthetic continuity
 
-for b in bars:
-    name = b["name"]
+def _clamp_pct(p, lo=2.0, hi=98.0):
+    """Keep overlay tags away from extreme edges so they don't clip."""
+    try:
+        p = float(p)
+    except:
+        return lo
+    return max(lo, min(hi, p))
+
+for idx, b in enumerate(bars):
+    name = b["name"]               # "Vivid", "Bizarre", ...
     help_txt = b["help"]
-    score = b["score"]    # 0..100 or None
+    score = b["score"]             # 0..100 or None
     median = pop_medians.get(name, None)  # 0..100 or None
 
-    # width for bar fill
-    if score is None or np.isnan(score):
+    # bar fill width
+    if score is None or (isinstance(score, float) and np.isnan(score)):
         width = min_fill
         score_txt = "NA"
     else:
@@ -691,35 +685,45 @@ for b in bars:
             width = min_fill
         score_txt = f"{int(round(score))}%"
 
-    med_left = None if (median is None or np.isnan(median)) else float(np.clip(median, 0, 100))
+    # median position
+    med_left = None if (median is None or (isinstance(median, float) and np.isnan(median))) else float(np.clip(median, 0, 100))
+    med_left_clamped = _clamp_pct(med_left) if med_left is not None else None
 
-    # split anchors
+    # anchors
     if isinstance(help_txt, str) and "↔" in help_txt:
         left_anchor, right_anchor = [s.strip() for s in help_txt.split("↔", 1)]
     else:
         left_anchor, right_anchor = "0", "100"
 
-    st.markdown(dedent(f"""
-    <div class="dm2-row">
-      <div class="dm2-left">
-        <div class="dm2-label">{name}</div>
-        <div class="dm2-val">{score_txt}</div>
-      </div>
-      <div class="dm2-wrap">
-        <div class="dm2-track" aria-label="{name} score {score_txt}">
-          <div class="dm2-fill" style="width:{width}%;"></div>
-          {"<div class='dm2-median' style='left:" + str(med_left) + "%;'></div>" if med_left is not None else ""}
-        </div>
-        <div class="dm2-anchors">
-          <span>{left_anchor}</span>
-          <span>{right_anchor}</span>
-        </div>
-      </div>
-    </div>
-    """), unsafe_allow_html=True)
+    # For the first dimension (Perception/Vivid), add "world" over the median dot
+    mediantag_html = ""
+    if idx == 0 and med_left_clamped is not None:
+        mediantag_html = f"<div class='dm2-mediantag' style='left:{med_left_clamped}%;'>world</div>"
+
+    # Build a single HTML string (no Markdown indentation to avoid code blocks)
+    row_html = (
+        "<div class='dm2-row'>"
+          "<div class='dm2-left'>"
+            f"<div class='dm2-label'>{name}</div>"
+          "</div>"
+          "<div class='dm2-wrap'>"
+            f"<div class='dm2-track' aria-label='{name} score {score_txt}'>"
+              f"<div class='dm2-fill' style='width:{width}%;'></div>"
+              f"{'' if med_left is None else f\"<div class='dm2-median' style='left:{med_left}%;'></div>\"}"
+              f"{mediantag_html}"
+            "</div>"
+            "<div class='dm2-anchors'>"
+              f"<span>{left_anchor}</span>"
+              f"<span>{right_anchor}</span>"
+            "</div>"
+          "</div>"
+        "</div>"
+    )
+
+    # Render as raw HTML (prevents Markdown from escaping)
+    components.html(row_html, height=64, scrolling=False)
 
 st.markdown("</div>", unsafe_allow_html=True)
-
 
 
 
