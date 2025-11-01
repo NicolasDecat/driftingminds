@@ -580,35 +580,45 @@ pop_medians = {
 from textwrap import dedent
 st.markdown(dedent("""
 <style>
+  /* ===============================
+     Drifting Minds — Bars Styling
+     =============================== */
+
   .dm2-bars { margin-top: 16px; }
   .dm2-row {
-    display:flex; align-items:center; gap:6px;   /* tighter gap between label and bar */
+    display:flex; align-items:center;
+    gap:6px;                 /* tighter gap between label and bar */
     margin:10px 0;
   }
 
-  /* Left: label only (tighter and narrower so the bar starts closer) */
+  /* Left: label only, kept narrow so bars start closer */
   .dm2-left {
-    display:flex; align-items:center; gap:6px;   /* tighter inside the label block */
-    width: 150px;                                 /* was 188px */
-    flex: 0 0 150px;
-    margin-right: 0; padding-right: 0;
+    display:flex; align-items:center;
+    gap:6px;
+    width: 168px;            /* ↓ narrower than before to reduce horizontal space */
+    flex: 0 0 168px;
   }
   .dm2-label {
     font-weight: 800;
-    font-size: 1.35rem;
+    font-size: 1.30rem;
     line-height: 1.05;
     white-space: nowrap;
     letter-spacing: 0.1px;
-    position: relative; top: -2px; /* tiny nudge up for optical alignment */
+    position: relative;
+    top: -3px;               /* tiny nudge up to align optically with the bar */
   }
 
   /* Middle: bar + overlays */
   .dm2-wrap {
-    flex: 1 1 auto; display:flex; flex-direction:column; gap:4px;
+    flex: 1 1 auto;
+    display:flex; flex-direction:column; gap:4px;
   }
   .dm2-track {
-    position: relative; width: 100%; height: 14px;
-    background: #EDEDED; border-radius: 999px; overflow: visible; /* show overlay labels */
+    position: relative;
+    width: 100%; height: 14px;
+    background: #EDEDED;
+    border-radius: 999px;
+    overflow: visible;       /* let overlay labels show outside the bar */
   }
   .dm2-fill {
     height: 100%;
@@ -618,50 +628,67 @@ st.markdown(dedent("""
   }
   .dm2-median {
     position: absolute;
-    top: 50%; transform: translate(-50%, -50%);
+    top: 50%;
+    transform: translate(-50%, -50%);
     width: 8px; height: 8px;
-    background: #000000; border: 1.5px solid #FFFFFF;
-    border-radius: 50%; pointer-events: none; box-sizing: border-box;
+    background: #000000;
+    border: 1.5px solid #FFFFFF;
+    border-radius: 50%;
+    pointer-events: none; box-sizing: border-box;
   }
 
-  /* Caption above median (e.g., "world") */
+  /* --- Median label ("world") ----------------------------------------- */
+  /* Default: ABOVE the bar */
   .dm2-mediantag {
     position: absolute;
-    bottom: calc(100% + 2px);
+    bottom: calc(100% + 2px);      /* sits just ABOVE the bar */
     transform: translateX(-50%);
-    font-size: 0.85rem; font-weight: 500; color: #000;
-    white-space: nowrap; pointer-events: none;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #000;
+    white-space: nowrap;
+    pointer-events: none;
+    line-height: 1.05;
   }
-  
-  
-  /* Inline % when we attach it next to 'world' */
-  .dm2-mediantag .score-inline {
-    margin-left: 6px;
-    font-weight: 500;
-    color: #7B61FF; /* dark gradient purple */
+  /* When overlap is detected in Python, add class "below" to place it BELOW */
+  .dm2-mediantag.below {
+    bottom: auto;
+    top: calc(100% + 2px);         /* sits just BELOW the bar */
   }
 
-  /* Purple % above the participant bar end (default placement) */
+  /* --- Purple % label at end of participant bar ----------------------- */
   .dm2-scoretag {
     position: absolute;
-    bottom: calc(100% + 2px);
+    bottom: calc(100% + 2px);      /* above by default */
     transform: translateX(-50%);
-    font-size: 0.86rem; font-weight: 400; color: #7B61FF;
-    white-space: nowrap; pointer-events: none;
+    font-size: 0.86rem;
+    font-weight: 500;
+    color: #7B61FF;                /* dark gradient purple */
+    white-space: nowrap;
+    pointer-events: none;
+    line-height: 1.05;
+  }
+  /* Optional: when you choose to place % below, add class "below" in Python */
+  .dm2-scoretag.below {
+    bottom: auto;
+    top: calc(100% + 2px);
   }
 
+  /* Anchors under the bar */
   .dm2-anchors {
     display:flex; justify-content:space-between;
-    font-size: 0.85rem; color:#666; margin-top: 0; line-height: 1;
+    font-size: 0.85rem; color:#666; margin-top: 0;
+    line-height: 1;
   }
 
   /* Mobile tweaks */
   @media (max-width: 640px){
-    .dm2-left { width: 140px; flex-basis: 140px; }
-    .dm2-label { font-size: 1.15rem; }
+    .dm2-left { width: 148px; flex-basis:148px; }
+    .dm2-label { font-size: 1.12rem; top:-2px; }
   }
 </style>
 """), unsafe_allow_html=True)
+
 
 
 # --- Small visual alignment fix for dimension labels -----------------
@@ -675,31 +702,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- Higher "world" tag + thin connector (used only on overlap for Perception/Vivid) ---
-st.markdown("""
-<style>
-  /* Raise the "world" tag a bit higher when needed */
-  .dm2-mediantag.high {
-    bottom: calc(100% + 18px);   /* default is +2px; this lifts it above the % */
-  }
 
-  /* Thin vertical connector from the bar to the elevated label */
-  .dm2-connector {
-    position: absolute;
-    /* start right above the bar */
-    bottom: calc(100% + 2px);
-    transform: translateX(-50%);
-    width: 0;
-    border-left: 1px solid #000; /* very thin vertical hairline */
-    height: 16px;                /* reach up towards the raised label */
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  /* Keep the tag above the line visually */
-  .dm2-mediantag { z-index: 2; }
-</style>
-""", unsafe_allow_html=True)
 
 
 
@@ -751,48 +754,30 @@ for idx, b in enumerate(bars):
 
     # Identify Perception/Vivid for 'world' label
     is_perception = (name.lower() in ("perception", "vivid"))
-    # When the median and participant end are very close, merge % into the 'world' label
-    overlap = (is_perception and (med_left_clamped is not None) and (score_txt != "NA")
-               and abs(width_clamped - med_left_clamped) <= 6.0)
 
-    # Build HTML snippets separately (no nested f-strings)
-    median_html = "" if med_left is None else f"<div class='dm2-median' style='left:{med_left}%;'></div>"
-    
-    # Detect proximity/overlap between participant bar end and median
-    # (tune 6.0 if you want the trigger to be more/less sensitive)
-    overlap = (
-        score_txt != "NA"
-        and (med_left_clamped is not None)
-        and abs(width_clamped - med_left_clamped) <= 6.0
-    )
-    
-    is_perception = (name.lower() in ("perception", "vivid"))
-    
     mediantag_html = ""
     scoretag_html = ""
-    connector_html = ""
     
     if is_perception and (med_left_clamped is not None):
-        if overlap:
-            # 1) Raise "world" higher to avoid colliding with the % above the bar end
-            mediantag_html = f"<div class='dm2-mediantag high' style='left:{med_left_clamped}%;'>world</div>"
-            # 2) Draw a thin vertical connector from the bar up to the raised label
-            connector_html = f"<div class='dm2-connector' style='left:{med_left_clamped}%;'></div>"
-            # 3) Keep the separate purple % at the bar end as usual
-            if score_txt != 'NA':
-                scoretag_html = f"<div class='dm2-scoretag' style='left:{width_clamped}%;'>{score_txt}</div>"
-        else:
-            # No overlap → normal placement, keep separate % label
-            mediantag_html = f"<div class='dm2-mediantag' style='left:{med_left_clamped}%;'>world</div>"
-            if score_txt != 'NA':
-                scoretag_html = f"<div class='dm2-scoretag' style='left:{width_clamped}%;'>{score_txt}</div>"
-    else:
-        # Other dimensions: only the purple % at bar end (if present)
-        if score_txt != 'NA':
-            scoretag_html = f"<div class='dm2-scoretag' style='left:{width_clamped}%;'>{score_txt}</div>"
+        # Determine if the participant score and median dot are close (overlap condition)
+        overlap = (
+            score_txt != "NA"
+            and abs(width_clamped - med_left_clamped) <= 6.0  # you can tweak this threshold
+        )
+    
+        # If overlap → place "world" below the median; otherwise above
+        put_world_below = overlap
+    
+        mediantag_class = "dm2-mediantag below" if put_world_below else "dm2-mediantag"
+        mediantag_html = f"<div class='{mediantag_class}' style='left:{med_left_clamped}%;'>world</div>"
+    
+    # Purple % label above the participant bar end (for all dimensions)
+    if score_txt != "NA":
+        scoretag_html = f"<div class='dm2-scoretag' style='left:{width_clamped}%;'>{score_txt}</div>"
     
         
-        
+            
+            
     
     
     row_html = (
