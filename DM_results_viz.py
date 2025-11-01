@@ -584,14 +584,15 @@ st.markdown(dedent("""
      Drifting Minds — Bars Styling
      =============================== */
 
-  .dm2-bars {
-    margin-top: 16px;
-    margin-left: 40px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;  /* 👈 aligns the whole block to the left */
-    width: 100%;
-  }
+    .dm2-bars {
+      margin-top: 16px;
+      margin-left: -28px;        /* 👈 shift the whole block left; tweak -20..-40px */
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      width: 100%;
+    }
+
 
   .dm2-row {
     display:flex; align-items:center;
