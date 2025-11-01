@@ -584,62 +584,67 @@ st.markdown(dedent("""
      Drifting Minds — Bars Styling
      =============================== */
 
-    .dm2-bars {
-      margin-top: 16px;
-      margin-left: -28px;        /* 👈 shift the whole block left; tweak -20..-40px */
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      width: 100%;
-    }
-
+  .dm2-bars {
+    margin-top: 16px;
+    /* Shift the whole block a bit left within Streamlit's centered container */
+    transform: translateX(-28px) !important;  /* tweak -20..-40px if desired */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    text-align: left;
+  }
 
   .dm2-row {
     display:flex; align-items:center;
-    gap:6px;                 /* tighter gap between label and bar */
+    gap:4px;                 /* tighter gap between label and bar */
     margin:10px 0;
+    justify-content: flex-start;
   }
 
-  /* Left: label only, kept narrow so bars start closer */
+  /* Left: label only, narrow so the bars start closer */
   .dm2-left {
     display:flex; align-items:center;
-    gap:6px;
-    width: 168px;            /* ↓ narrower than before to reduce horizontal space */
+    gap:4px;                 /* tighter than before */
+    width: 168px;            /* keep this narrow; adjust if you need longer labels */
     flex: 0 0 168px;
   }
+
   .dm2-label {
     font-weight: 800;
-    font-size: 1.15rem;
+    font-size: 1.10rem;      /* slightly smaller */
     line-height: 1.05;
     white-space: nowrap;
     letter-spacing: 0.1px;
     position: relative;
-    top: -3px;
-    text-align: right;      /* keep right alignment */
+    top: -3px;               /* vertical nudge for alignment with the bar */
+    text-align: right;       /* right-align all labels so their ends line up */
     width: 100%;
-    padding-right: 12px;    /* 👈 add space between label text and bar */
-}
-
-
+    padding-right: 6px;      /* 👈 reduced; brings bar closer to label */
+    margin: 0;               /* ensure no extra margin is added by browser */
+  }
 
   /* Middle: bar + overlays */
   .dm2-wrap {
     flex: 1 1 auto;
     display:flex; flex-direction:column; gap:4px;
   }
+
   .dm2-track {
     position: relative;
     width: 100%; height: 14px;
     background: #EDEDED;
     border-radius: 999px;
-    overflow: visible;       /* let overlay labels show outside the bar */
+    overflow: visible;       /* allow overlay labels outside the bar */
   }
+
   .dm2-fill {
     height: 100%;
     background: linear-gradient(90deg, #CBBEFF 0%, #A18BFF 60%, #7B61FF 100%);
     border-radius: 999px;
     transition: width 600ms ease;
   }
+
   .dm2-median {
     position: absolute;
     top: 50%;
@@ -651,11 +656,10 @@ st.markdown(dedent("""
     pointer-events: none; box-sizing: border-box;
   }
 
-  /* --- Median label ("world") ----------------------------------------- */
-  /* Default: ABOVE the bar */
+  /* Median label ("world") */
   .dm2-mediantag {
     position: absolute;
-    bottom: calc(100% + 2px);      /* sits just ABOVE the bar */
+    bottom: calc(100% + 2px);      /* default ABOVE the bar */
     transform: translateX(-50%);
     font-size: 0.82rem;
     font-weight: 600;
@@ -664,13 +668,12 @@ st.markdown(dedent("""
     pointer-events: none;
     line-height: 1.05;
   }
-  /* When overlap is detected in Python, add class "below" to place it BELOW */
   .dm2-mediantag.below {
     bottom: auto;
-    top: calc(100% + 2px);         /* sits just BELOW the bar */
+    top: calc(100% + 2px);         /* BELOW the bar when needed */
   }
 
-  /* --- Purple % label at end of participant bar ----------------------- */
+  /* Purple % label at end of participant bar */
   .dm2-scoretag {
     position: absolute;
     bottom: calc(100% + 2px);      /* above by default */
@@ -682,7 +685,6 @@ st.markdown(dedent("""
     pointer-events: none;
     line-height: 1.05;
   }
-  /* Optional: when you choose to place % below, add class "below" in Python */
   .dm2-scoretag.below {
     bottom: auto;
     top: calc(100% + 2px);
@@ -698,7 +700,7 @@ st.markdown(dedent("""
   /* Mobile tweaks */
   @media (max-width: 640px){
     .dm2-left { width: 148px; flex-basis:148px; }
-    .dm2-label { font-size: 1.12rem; top:-2px; }
+    .dm2-label { font-size: 1.05rem; top:-2px; padding-right: 6px; }
   }
 </style>
 """), unsafe_allow_html=True)
