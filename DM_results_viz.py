@@ -469,44 +469,46 @@ def _fmt(v, nd=3):
 #%% Five-Dimension Bars (One-sided amplification) #############################
 ###############################################################################
 
+# --- Rename the 5 dimensions (DROP-IN REPLACEMENT) ---------------------------
 DIM_BAR_CONFIG = {
-    "Perception": {
+    "Vivid": {
         "freq_keys": ["freq_percept_intense", "freq_percept_precise", "freq_percept_real"],
         "weight_keys": ["degreequest_vividness", "degreequest_distinctness"],
         "invert_keys": [],
-        "weight_mode": "standard",   # standard = boost only if w>0.5
-        "help": "Thoughts  ↔  Imagery",
+        "weight_mode": "standard",
+        "help": "Dull  ↔  Vivid",  # (was: Thoughts ↔ Imagery)
     },
-    "Bizarreness": {
+    "Bizarre": {
         "freq_keys": ["freq_think_bizarre", "freq_percept_bizarre", "freq_think_seq_bizarre"],
         "weight_keys": ["degreequest_bizarreness"],
         "invert_keys": [],
         "weight_mode": "standard",
         "help": "Ordinary  ↔  Bizarre",
     },
-    "Immersion": {
+    "Immersive": {
         "freq_keys": ["freq_absorbed", "freq_actor", "freq_percept_narrative"],
         "weight_keys": ["degreequest_immersiveness"],
         "invert_keys": [],
         "weight_mode": "standard",
         "help": "Grounded in reality  ↔  Immersed in inner world",
     },
-    "Spontaneity": {
+    "Spontaneous": {
         "freq_keys": ["freq_percept_imposed", "freq_spectator"],
         "weight_keys": ["degreequest_spontaneity"],
         "invert_keys": [],
         "weight_mode": "standard",
         "help": "Voluntary  ↔  Spontaneous",
     },
-    "Emotion": {
+    "Emotional": {
         # Base is "positivity": positives kept, negatives/rumination inverted.
         "freq_keys": ["freq_positive", "freq_negative", "freq_ruminate"],
         "weight_keys": ["degreequest_emotionality"],  # 1=very negative, 6=very positive (bipolar)
         "invert_keys": ["freq_negative", "freq_ruminate"],
-        "weight_mode": "emotion_bipolar",  # boost on strong (pos OR neg), neutral does nothing
+        "weight_mode": "emotion_bipolar",
         "help": "Negative  ↔  Positive",
     },
 }
+
 
 def _get(record, key, default=np.nan):
     return record.get(key, default)
@@ -607,21 +609,42 @@ pop_medians = {
     for k, v in pop_dists.items()
 }
 
-# --- Styling -----------------------------------------------------------------
+# --- Styling (labels bigger; % next to label) --------------------------------
 from textwrap import dedent
 st.markdown(dedent("""
 <style>
   .dm2-bars { margin-top: 16px; }
   .dm2-row {
-    display:flex; align-items:center; gap:10px;
-    margin:8px 0; /* tighter spacing */
+    display:flex; align-items:center; gap:14px;
+    margin:10px 0;
   }
-  .dm2-label, .dm2-val {
-    position: relative; top: -1px;  /* micro-nudge up for perfect alignment */
+
+  /* NEW: left block that groups Label + % side-by-side */
+  .dm2-left {
+    display:flex; align-items:baseline; gap:10px;
+    width: 260px;           /* room for long labels + % */
+    flex: 0 0 260px;
   }
+
+  /* Bigger, bolder labels */
   .dm2-label {
-    width: 160px; font-weight: 700; font-size: 1rem; white-space: nowrap;
+    font-weight: 800;
+    font-size: 1.35rem;     /* bigger */
+    line-height: 1.05;
+    white-space: nowrap;
+    letter-spacing: 0.1px;
   }
+
+  /* % sits next to the label */
+  .dm2-val {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #333;
+    text-align: left;
+    min-width: 44px;
+    font-variant-numeric: tabular-nums;
+  }
+
   .dm2-wrap { flex: 1 1 auto; display:flex; flex-direction:column; gap:4px; }
   .dm2-track {
     position: relative; width: 100%; height: 14px;
@@ -648,38 +671,44 @@ st.markdown(dedent("""
   }
   .dm2-anchors {
     display:flex; justify-content:space-between;
-    font-size: 0.85rem; color:#666; margin-top: 0; /* tighter */
-    line-height: 1;     /* compact baseline */
+    font-size: 0.85rem; color:#666; margin-top: 0;
+    line-height: 1;
   }
-  .dm2-val { width: 52px; text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* Mobile tweaks */
   @media (max-width: 640px){
-    .dm2-label { width: 120px; font-size: 0.95rem; }
+    .dm2-left { width: 200px; flex-basis: 200px; }
+    .dm2-label { font-size: 1.15rem; }
+    .dm2-val { font-size: 0.95rem; }
   }
 </style>
 """), unsafe_allow_html=True)
 
-# --- Render horizontal bars with median dot & end labels ---------------------
+
+# --- Render (label + % on the left; bar in the middle) -----------------------
 st.markdown("<div class='dm2-bars'>", unsafe_allow_html=True)
 
-min_fill = 2  # minimal % fill for aesthetic continuity (even when score=0)
+min_fill = 2  # minimal % fill for aesthetic continuity
 
 for b in bars:
     name = b["name"]
-    help_txt = b["help"]  # expected "Left ↔ Right"
+    help_txt = b["help"]
     score = b["score"]    # 0..100 or None
     median = pop_medians.get(name, None)  # 0..100 or None
 
-    # Prepare pieces
+    # width for bar fill
     if score is None or np.isnan(score):
         width = min_fill
+        score_txt = "NA"
     else:
         width = int(round(np.clip(score, 0, 100)))
         if width < min_fill:
-            width = min_fill  # ensures at least small visible bar
+            width = min_fill
+        score_txt = f"{int(round(score))}%"
 
     med_left = None if (median is None or np.isnan(median)) else float(np.clip(median, 0, 100))
 
-    # Split anchors from help text
+    # split anchors
     if isinstance(help_txt, str) and "↔" in help_txt:
         left_anchor, right_anchor = [s.strip() for s in help_txt.split("↔", 1)]
     else:
@@ -687,9 +716,12 @@ for b in bars:
 
     st.markdown(dedent(f"""
     <div class="dm2-row">
-      <div class="dm2-label">{name}</div>
+      <div class="dm2-left">
+        <div class="dm2-label">{name}</div>
+        <div class="dm2-val">{score_txt}</div>
+      </div>
       <div class="dm2-wrap">
-        <div class="dm2-track" aria-label="{name} score {width if score is not None else 'NA'}">
+        <div class="dm2-track" aria-label="{name} score {score_txt}">
           <div class="dm2-fill" style="width:{width}%;"></div>
           {"<div class='dm2-median' style='left:" + str(med_left) + "%;'></div>" if med_left is not None else ""}
         </div>
@@ -698,11 +730,11 @@ for b in bars:
           <span>{right_anchor}</span>
         </div>
       </div>
-      <div class="dm2-val">{'NA' if score is None or np.isnan(score) else str(int(round(score))) + '%'}</div>
     </div>
     """), unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
+
 
 
 
