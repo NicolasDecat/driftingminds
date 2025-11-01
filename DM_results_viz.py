@@ -686,8 +686,12 @@ for idx, b in enumerate(bars):
         score_txt = f"{int(round(score))}%"
 
     # median position
-    med_left = None if (median is None or (isinstance(median, float) and np.isnan(median))) else float(np.clip(median, 0, 100))
-    med_left_clamped = _clamp_pct(med_left) if med_left is not None else None
+    if median is None or (isinstance(median, float) and np.isnan(median)):
+        med_left = None
+        med_left_clamped = None
+    else:
+        med_left = float(np.clip(median, 0, 100))
+        med_left_clamped = _clamp_pct(med_left)
 
     # anchors
     if isinstance(help_txt, str) and "↔" in help_txt:
@@ -695,12 +699,12 @@ for idx, b in enumerate(bars):
     else:
         left_anchor, right_anchor = "0", "100"
 
-    # For the first dimension (Perception/Vivid), add "world" over the median dot
+    # Build HTML snippets separately to avoid nested f-strings
+    median_html = "" if med_left is None else f"<div class='dm2-median' style='left:{med_left}%;'></div>"
     mediantag_html = ""
-    if idx == 0 and med_left_clamped is not None:
+    if idx == 0 and med_left_clamped is not None:  # first row only
         mediantag_html = f"<div class='dm2-mediantag' style='left:{med_left_clamped}%;'>world</div>"
 
-    # Build a single HTML string (no Markdown indentation to avoid code blocks)
     row_html = (
         "<div class='dm2-row'>"
           "<div class='dm2-left'>"
@@ -709,7 +713,7 @@ for idx, b in enumerate(bars):
           "<div class='dm2-wrap'>"
             f"<div class='dm2-track' aria-label='{name} score {score_txt}'>"
               f"<div class='dm2-fill' style='width:{width}%;'></div>"
-              f"{'' if med_left is None else f\"<div class='dm2-median' style='left:{med_left}%;'></div>\"}"
+              f"{median_html}"
               f"{mediantag_html}"
             "</div>"
             "<div class='dm2-anchors'>"
@@ -720,7 +724,6 @@ for idx, b in enumerate(bars):
         "</div>"
     )
 
-    # Render as raw HTML (prevents Markdown from escaping)
     components.html(row_html, height=64, scrolling=False)
 
 st.markdown("</div>", unsafe_allow_html=True)
