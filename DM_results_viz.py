@@ -578,54 +578,88 @@ pop_medians = {
 
 # --- Styling (bars closer; % not bold) ---------------------------------------
 from textwrap import dedent
+st.markdown(dedent("""
+<style>
+  .dm2-bars { margin-top: 16px; }
+  .dm2-row {
+    display:flex; align-items:center; gap:10px;
+    margin:10px 0;
+  }
+
+  /* Left: label only (no inline %) */
+  .dm2-left {
+    display:flex; align-items:center; gap:8px;
+    width: 188px;
+    flex: 0 0 188px;
+  }
+  .dm2-label {
+    font-weight: 800;
+    font-size: 1.35rem;
+    line-height: 1.05;
+    white-space: nowrap;
+    letter-spacing: 0.1px;
+  }
+
+  /* Middle: bar + overlays */
+  .dm2-wrap {
+    flex: 1 1 auto; display:flex; flex-direction:column; gap:4px;
+  }
+  .dm2-track {
+    position: relative; width: 100%; height: 14px;
+    background: #EDEDED; border-radius: 999px; overflow: visible; /* allow overlay labels */
+  }
+  .dm2-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #CBBEFF 0%, #A18BFF 60%, #7B61FF 100%);
+    border-radius: 999px;
+    transition: width 600ms ease;
+  }
+  .dm2-median {
+    position: absolute;
+    top: 50%; transform: translate(-50%, -50%);
+    width: 8px; height: 8px;
+    background: #000000; border: 1.5px solid #FFFFFF;
+    border-radius: 50%; pointer-events: none; box-sizing: border-box;
+  }
+
+  /* NEW: tiny caption above median (e.g., "world") */
+  .dm2-mediantag {
+    position: absolute;
+    bottom: calc(100% + 2px);  /* just above the bar */
+    transform: translateX(-50%);
+    font-size: 0.72rem; font-weight: 500; color: #000;
+    white-space: nowrap; pointer-events: none;
+  }
+
+  /* NEW: purple % above the participant bar end */
+  .dm2-scoretag {
+    position: absolute;
+    bottom: calc(100% + 2px);  /* just above the bar */
+    transform: translateX(-50%);
+    font-size: 0.86rem; font-weight: 400; color: #7B61FF;  /* dark gradient purple */
+    white-space: nowrap; pointer-events: none;
+  }
+
+  .dm2-anchors {
+    display:flex; justify-content:space-between;
+    font-size: 0.85rem; color:#666; margin-top: 0; line-height: 1;
+  }
+
+  /* Mobile tweaks */
+  @media (max-width: 640px){
+    .dm2-left { width: 160px; flex-basis: 160px; }
+    .dm2-label { font-size: 1.15rem; }
+  }
+</style>
+"""), unsafe_allow_html=True)
+
+# --- Small visual alignment fix for dimension labels -----------------
 st.markdown("""
 <style>
-  /* Keep the row height equal to the bar height so centering is true */
-  .dm2-row {
-    align-items: center;              /* center label vs bar */
-  }
-
-  /* Wrap only around the track (bar); anchors won't affect height */
-  .dm2-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;              /* vertically center the track itself */
-    height: 14px;                     /* = .dm2-track height */
-    gap: 0;                           /* no vertical gap inside */
-  }
-
-  .dm2-track {
-    height: 14px;
-  }
-
-  /* Put anchors below the bar without contributing to row height */
-  .dm2-anchors {
-    position: absolute;
-    left: 0; right: 0;
-    top: calc(100% + 4px);            /* a small gap under the bar */
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.85rem;
-    line-height: 1;
-    color: #666;
-    pointer-events: none;
-  }
-
-  /* Make sure the label column vertically centers to the bar */
-  .dm2-left {
-    display: flex;
-    align-items: center;              /* center label vs bar */
-    height: 14px;                     /* match bar height */
-  }
-
-  /* Optional: slightly reduce label line-height to avoid optical drop */
+  /* Nudge dimension labels slightly upward for visual alignment with bars */
   .dm2-label {
-    line-height: 1;                   /* tighter vertical metrics */
-  }
-
-  /* Ensure the score/median tags still sit above the bar */
-  .dm2-mediantag, .dm2-scoretag {
-    bottom: calc(100% + 2px);
+    position: relative;
+    top: -3px;   /* adjust to -2px, -4px, etc. for best alignment */
   }
 </style>
 """, unsafe_allow_html=True)
