@@ -739,25 +739,53 @@ for idx, b in enumerate(bars):
     overlap = (is_perception and (med_left_clamped is not None) and (score_txt != "NA")
                and abs(width_clamped - med_left_clamped) <= 6.0)
 
-    # 'world' tag (with optional inline % if overlapping)
+    # Build HTML snippets separately (no nested f-strings)
+    median_html = "" if med_left is None else f"<div class='dm2-median' style='left:{med_left}%;'></div>"
+    
+    # Determine if we consider it an "overlap" between median and bar end
+    # (tune the 6.0 threshold if you want them to merge sooner/later)
+    overlap = (
+        score_txt != "NA"
+        and (med_left_clamped is not None)
+        and abs(width_clamped - med_left_clamped) <= 6.0
+    )
+    
+    # Perception/Vivid: place "world" above median, and manage % when overlapping
+    is_perception = (name.lower() in ("perception", "vivid"))
     mediantag_html = ""
+    scoretag_html = ""
+    
     if is_perception and (med_left_clamped is not None):
-        if overlap:
-            # attach % next to world to avoid collision
-            mediantag_html = (
-                f"<div class='dm2-mediantag' style='left:{med_left_clamped}%;'>"
-                f"world <span class='score-inline'>{score_txt}</span>"
-                f"</div>"
-            )
-            scoretag_html = ""  # don't render the separate % tag
+        if overlap and score_txt != "NA":
+            # If participant bar end is LEFT of median → show [%] BEFORE world
+            # Else (bar end is RIGHT of median) → show world THEN [%]
+            if width_clamped < med_left_clamped:
+                mediantag_html = (
+                    f"<div class='dm2-mediantag' style='left:{med_left_clamped}%;'>"
+                    f"<span class='score-inline before'>{score_txt}</span>world"
+                    f"</div>"
+                )
+            else:
+                mediantag_html = (
+                    f"<div class='dm2-mediantag' style='left:{med_left_clamped}%;'>"
+                    f"world<span class='score-inline after'>{score_txt}</span>"
+                    f"</div>"
+                )
+            # Suppress separate score tag to avoid overlap
+            scoretag_html = ""
         else:
+            # No overlap → keep them separate
             mediantag_html = f"<div class='dm2-mediantag' style='left:{med_left_clamped}%;'>world</div>"
-            scoretag_html = f"<div class='dm2-scoretag' style='left:{width_clamped}%;'>{score_txt}</div>" if score_txt != "NA" else ""
+            if score_txt != "NA":
+                scoretag_html = f"<div class='dm2-scoretag' style='left:{width_clamped}%;'>{score_txt}</div>"
     else:
-        # non-Perception bars: render regular % tag (if any)
-        mediantag_html = ""
-        scoretag_html = f"<div class='dm2-scoretag' style='left:{width_clamped}%;'>{score_txt}</div>" if score_txt != "NA" else ""
-
+        # Non-Perception bars: normal separate tags
+        if score_txt != "NA":
+            scoretag_html = f"<div class='dm2-scoretag' style='left:{width_clamped}%;'>{score_txt}</div>"
+    
+        
+    
+    
     row_html = (
         "<div class='dm2-row'>"
           "<div class='dm2-left'>"
