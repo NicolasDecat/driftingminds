@@ -600,11 +600,12 @@ st.markdown(dedent("""
   }
 
   .dm2-row {
-    display:flex; align-items:center;
-    gap:4px;                 /* tighter gap between label and bar */
-    margin:10px 0;
-    justify-content: flex-start;
-  }
+      display:flex; align-items:center;
+      gap:0px;               /* ⟵ was 4px: brings bars closer to labels */
+      margin:10px 0;
+      justify-content: flex-start;
+    }
+
 
   /* Left: label only, narrow so the bars start closer */
   .dm2-left {
