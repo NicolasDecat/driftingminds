@@ -671,7 +671,11 @@ st.markdown(dedent("""
 
 
 # --- Render (bar center; right-aligned labels; overlay tags) -----------------
-st.markdown("<div class='dm2-bars'>", unsafe_allow_html=True)
+import streamlit.components.v1 as components
+
+container_open = "<div class='dm2-bars'>"
+container_close = "</div>"
+st.markdown(container_open, unsafe_allow_html=True)
 
 min_fill = 2  # minimal % fill for aesthetic continuity
 
@@ -709,38 +713,39 @@ for i, b in enumerate(bars):
     else:
         left_anchor, right_anchor = "0", "100"
 
-    # Build overlay HTML snippets
-    # 1) Median label "world" only for the first dimension (Vivid) per your spec
+    # overlay snippets (no indentation; avoid Markdown code blocks entirely)
     mediantag_html = ""
     if name == "Vivid" and med_left_clamped is not None:
         mediantag_html = f"<div class='dm2-mediantag' style='left:{med_left_clamped}%;'>world</div>"
 
-    # 2) Purple score % above the end of the participant bar (for every dimension if available)
     scoretag_html = ""
     if score_txt is not None:
         scoretag_html = f"<div class='dm2-scoretag' style='left:{width_clamped}%;'>{score_txt}</div>"
 
-    st.markdown(dedent(f"""
-    <div class="dm2-row">
-      <div class="dm2-wrap">
-        <div class="dm2-track" aria-label="{name} score {score_txt if score_txt else 'NA'}">
-          <div class="dm2-fill" style="width:{width}%;"></div>
-          {"<div class='dm2-median' style='left:" + str(med_left) + "%;'></div>" if med_left is not None else ""}
-          {mediantag_html}
-          {scoretag_html}
-        </div>
-        <div class="dm2-anchors">
-          <span>{left_anchor}</span>
-          <span>{right_anchor}</span>
-        </div>
-      </div>
-      <div class="dm2-right">
-        <div class="dm2-label">{name}</div>
-      </div>
-    </div>
-    """), unsafe_allow_html=True)
+    row_html = (
+        "<div class='dm2-row'>"
+          "<div class='dm2-wrap'>"
+            f"<div class='dm2-track' aria-label='{name} score {score_txt if score_txt else 'NA'}'>"
+              f"<div class='dm2-fill' style='width:{width}%;'></div>"
+              f"{'' if med_left is None else f\"<div class='dm2-median' style='left:{med_left}%;'></div>\"}"
+              f"{mediantag_html}"
+              f"{scoretag_html}"
+            "</div>"
+            "<div class='dm2-anchors'>"
+              f"<span>{left_anchor}</span>"
+              f"<span>{right_anchor}</span>"
+            "</div>"
+          "</div>"
+          "<div class='dm2-right'>"
+            f"<div class='dm2-label'>{name}</div>"
+          "</div>"
+        "</div>"
+    )
 
-st.markdown("</div>", unsafe_allow_html=True)
+    # Render each row as raw HTML (no Markdown parsing → no code blocks)
+    components.html(row_html, height=64, scrolling=False)
+
+st.markdown(container_close, unsafe_allow_html=True)
 
 
 
