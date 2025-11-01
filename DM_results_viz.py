@@ -789,7 +789,6 @@ for idx, b in enumerate(bars):
             f"<div class='dm2-track' aria-label='{name} score {score_txt}'>"
               f"<div class='dm2-fill' style='width:{width}%;'></div>"
               f"{median_html}"
-              f"{connector_html}"
               f"{mediantag_html}"
               f"{scoretag_html}"
             "</div>"
