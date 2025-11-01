@@ -707,19 +707,6 @@ st.markdown(dedent("""
 
 
 
-# --- Small visual alignment fix for dimension labels -----------------
-st.markdown("""
-<style>
-  /* Nudge dimension labels slightly upward for visual alignment with bars */
-  .dm2-label {
-    position: relative;
-    top: -3px;   /* adjust to -2px, -4px, etc. for best alignment */
-  }
-</style>
-""", unsafe_allow_html=True)
-
-
-
 
 
 
