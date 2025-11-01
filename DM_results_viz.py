@@ -580,17 +580,23 @@ pop_medians = {
 from textwrap import dedent
 st.markdown(dedent("""
 <style>
+  /* ===============================
+     Drifting Minds — Bars Styling
+     =============================== */
+
   .dm2-bars { margin-top: 16px; }
   .dm2-row {
-    display:flex; align-items:center; gap:10px;
+    display:flex; align-items:center;
+    gap:6px;                 /* tighter gap between label and bar */
     margin:10px 0;
   }
 
-  /* Left: label only (kept tight so bars start close) */
+  /* Left: label only, kept narrow so bars start closer */
   .dm2-left {
-    display:flex; align-items:center; gap:8px;
-    width: 188px;           /* adjust if you still want bars even closer */
-    flex: 0 0 188px;
+    display:flex; align-items:center;
+    gap:6px;
+    width: 168px;            /* ↓ narrower than before to reduce horizontal space */
+    flex: 0 0 168px;
   }
   .dm2-label {
     font-weight: 800;
@@ -600,15 +606,22 @@ st.markdown(dedent("""
     letter-spacing: 0.1px;
     position: relative;
     top: -3px;              /* tiny nudge to align optically with bar midline */
-  }
+    text-align: right;      /* 👈 NEW: make labels right-aligned */
+    width: 100%;            /* 👈 ensure text alignment applies inside the container */
+}
+
 
   /* Middle: bar + overlays */
   .dm2-wrap {
-    flex: 1 1 auto; display:flex; flex-direction:column; gap:4px;
+    flex: 1 1 auto;
+    display:flex; flex-direction:column; gap:4px;
   }
   .dm2-track {
-    position: relative; width: 100%; height: 14px;
-    background: #EDEDED; border-radius: 999px; overflow: visible; /* allow overlay labels */
+    position: relative;
+    width: 100%; height: 14px;
+    background: #EDEDED;
+    border-radius: 999px;
+    overflow: visible;       /* let overlay labels show outside the bar */
   }
   .dm2-fill {
     height: 100%;
@@ -618,59 +631,65 @@ st.markdown(dedent("""
   }
   .dm2-median {
     position: absolute;
-    top: 50%; transform: translate(-50%, -50%);
+    top: 50%;
+    transform: translate(-50%, -50%);
     width: 8px; height: 8px;
-    background: #000000; border: 1.5px solid #FFFFFF;
-    border-radius: 50%; pointer-events: none; box-sizing: border-box;
-    z-index: 1;
+    background: #000000;
+    border: 1.5px solid #FFFFFF;
+    border-radius: 50%;
+    pointer-events: none; box-sizing: border-box;
+  }
+
+  /* --- Median label ("world") ----------------------------------------- */
+  /* Default: ABOVE the bar */
+  .dm2-mediantag {
+    position: absolute;
+    bottom: calc(100% + 2px);      /* sits just ABOVE the bar */
+    transform: translateX(-50%);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #000;
+    white-space: nowrap;
+    pointer-events: none;
+    line-height: 1.05;
+  }
+  /* When overlap is detected in Python, add class "below" to place it BELOW */
+  .dm2-mediantag.below {
+    bottom: auto;
+    top: calc(100% + 2px);         /* sits just BELOW the bar */
+  }
+
+  /* --- Purple % label at end of participant bar ----------------------- */
+  .dm2-scoretag {
+    position: absolute;
+    bottom: calc(100% + 2px);      /* above by default */
+    transform: translateX(-50%);
+    font-size: 0.86rem;
+    font-weight: 500;
+    color: #7B61FF;                /* dark gradient purple */
+    white-space: nowrap;
+    pointer-events: none;
+    line-height: 1.05;
+  }
+  /* Optional: when you choose to place % below, add class "below" in Python */
+  .dm2-scoretag.below {
+    bottom: auto;
+    top: calc(100% + 2px);
   }
 
   /* Anchors under the bar */
   .dm2-anchors {
     display:flex; justify-content:space-between;
-    font-size: 0.85rem; color:#666; margin-top: 0; line-height: 1;
-  }
-
-  /* "world" above median (default) */
-  .dm2-mediantag {
-    position: absolute;
-    bottom: calc(100% + 2px);    /* just above the bar */
-    transform: translateX(-50%);
-    font-size: 0.85rem;          /* match anchors for consistency */
-    font-weight: 500; color: #000;
-    white-space: nowrap; pointer-events: none;
-    z-index: 2;
-  }
-
-  /* When overlap → put "world" BELOW the median.
-     Align vertically with the anchors row for a clean baseline match. */
-  .dm2-mediantag.below {
-    bottom: auto;
-    top: calc(100% + 18px);      /* ~ aligns with anchors line under a 14px bar + 4px gap */
-    transform: translateX(-50%);
-    font-size: 0.85rem;          /* same as anchors */
-    font-weight: 500; color: #000;
-    white-space: nowrap; pointer-events: none;
-    z-index: 2;
-  }
-
-  /* Purple % above the participant bar end */
-  .dm2-scoretag {
-    position: absolute;
-    bottom: calc(100% + 2px);    /* above the bar */
-    transform: translateX(-50%);
-    font-size: 0.86rem; font-weight: 400; color: #7B61FF;  /* dark gradient purple */
-    white-space: nowrap; pointer-events: none;
-    z-index: 2;
+    font-size: 0.85rem; color:#666; margin-top: 0;
+    line-height: 1;
   }
 
   /* Mobile tweaks */
   @media (max-width: 640px){
-    .dm2-left { width: 160px; flex-basis: 160px; }
-    .dm2-label { font-size: 1.15rem; }
+    .dm2-left { width: 148px; flex-basis:148px; }
+    .dm2-label { font-size: 1.12rem; top:-2px; }
   }
 </style>
-
 """), unsafe_allow_html=True)
 
 
