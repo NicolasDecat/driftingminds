@@ -601,7 +601,7 @@ st.markdown(dedent("""
 
   .dm2-row {
       display:flex; align-items:center;
-      gap:0px;               /* ⟵ was 4px: brings bars closer to labels */
+      gap:-2px;               /* ⟵ was 4px: brings bars closer to labels */
       margin:10px 0;
       justify-content: flex-start;
     }
