@@ -586,6 +586,7 @@ st.markdown(dedent("""
 
   .dm2-bars {
     margin-top: 16px;
+    margin-left: 40px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;  /* 👈 aligns the whole block to the left */
