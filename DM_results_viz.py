@@ -111,7 +111,7 @@ if not record:
 
 st.markdown(
     """
-    <div style="text-align:center; margin-bottom:1.5rem;">  <!-- more space -->
+    <div style="text-align:center; margin-bottom:0.35rem;">  <!-- more space -->
         <div style="font-size:2rem; font-weight:800;">Drifting Minds Study</div>
         <div style="font-size:1rem; margin-top:0.1rem;">
             Which Drifting Mind are you?
@@ -331,87 +331,53 @@ prof_desc = _descriptions_ci.get(prof_key, "")
 
 from textwrap import dedent
 
-# --- CSS styling for profile box (black background, white text, centered vertically) ---
+# --- Profile header (no rectangle; black text; tight spacing) ----------------
+from textwrap import dedent
+
 st.markdown(dedent("""
 <style>
-  .dm-prof-wrap {
-    max-width: 100%;
-    margin: 0 auto;
+  /* subtitle sits just above the profile line with minimal gap */
+  .dm-subtitle { 
+    font-weight: 700; font-size: 1.05rem; color: #444; 
+    margin: 6px 0 4px 0;
+  }
+  /* "You are an ..." line, compact */
+  .dm-profline {
+    display:flex; align-items:baseline; gap:6px;
+    margin: 0 0 6px 0;   /* tight under subtitle */
+  }
+  .dm-prof-lead { color:#000; font-weight: 600; }
+  .dm-prof-key  { color:#000; font-weight: 800; font-size: 1.25rem; }
+  .dm-prof-desc { color:#000; max-width: 680px; font-size: 1.05rem; line-height: 1.45; margin: 0; }
+
+  /* remove any legacy box styling if still present */
+  .dm-prof-wrap, .dm-prof-frame, .dm-prof-card, .dm-prof-box {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 
-  .dm-prof-intro {
-    font-size: 1rem;
-    margin: 0 0 6px 0;
-    color: #000000;
-    text-align: left;
-  }
-
-  .dm-prof-frame {
-    display: flex;
-    align-items: center;            /* vertically center both blocks */
-    justify-content: flex-start;
-    gap: 28px;
-    border: 1px solid #000000;
-    background: #000000;            /* full black background */
-    border-radius: 8px;
-    padding: 16px 20px;
-    box-sizing: border-box;
-    width: 100%;
-    color: #FFFFFF;                 /* make all text white */
-  }
-
-  .dm-prof-name {
-    min-width: 160px;
-    flex: 0 0 auto;
-    text-align: left;
-  }
-
-  .dm-prof-name h2 {
-    font-size: 2rem;
-    margin: 0;
-    color: #FFFFFF;
-  }
-
-  .dm-prof-desc {
-    flex: 1 1 0;
-    max-width: 100%;
-    text-align: left;
-    display: flex;
-    align-items: center;           /* ensure the text is centered vertically */
-  }
-
-  .dm-prof-desc p {
-    font-size: 1.05rem;
-    margin: 0;
-    line-height: 1.45;
-    color: #FFFFFF;
-  }
-
-  /* Stack vertically on narrow screens */
   @media (max-width: 640px){
-    .dm-prof-frame {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
-    }
+    .dm-prof-key  { font-size: 1.15rem; }
+    .dm-prof-desc { font-size: 1rem; }
   }
 </style>
 """), unsafe_allow_html=True)
 
-# --- Render profile name + description in a black framed row ---
+
 st.markdown(dedent(f"""
 <div class="dm-prof-wrap">
-  <p class="dm-prof-intro">You are an...</p>
-  <div class="dm-prof-frame">
-    <div class="dm-prof-name">
-      <h2><strong>{prof}</strong></h2>
-    </div>
-    <div class="dm-prof-desc">
-      <p>{prof_desc}</p>
-    </div>
+  <div class="dm-profline">
+    <span class="dm-prof-lead">You are an</span>
+    <span class="dm-prof-key">{prof}</span>
   </div>
+  <p class="dm-prof-desc">{prof_desc}</p>
 </div>
 """), unsafe_allow_html=True)
+
 
 
 
