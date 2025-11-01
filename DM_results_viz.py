@@ -683,7 +683,7 @@ for idx, b in enumerate(bars):
         width = int(round(np.clip(score, 0, 100)))
         if width < min_fill:
             width = min_fill
-        score_txt = f"{int(round(score))}%"
+        score_txt = f"{int(round(score))}"
         width_clamped = _clamp_pct(width)
 
     # Median dot position (and clamped for the label)
