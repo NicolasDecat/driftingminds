@@ -41,22 +41,6 @@ REDCAP_API_URL = st.secrets.get("REDCAP_API_URL")
 REDCAP_API_TOKEN = st.secrets.get("REDCAP_API_TOKEN")
 
 
-# ---- Global layout override: left-align the main content container ----
-st.markdown("""
-<style>
-/* Make the main Streamlit content container left-aligned instead of centered */
-.block-container {
-  margin-left: 0 !important;
-  margin-right: auto !important;
-}
-/* Optionally trim the default left padding so content hugs the left more */
-[data-testid="stAppViewContainer"] .main .block-container {
-  padding-left: 0 !important;    /* try 0–16px to taste */
-}
-</style>
-""", unsafe_allow_html=True)
-
-
 
 #%% Retrieve Participant data #################################################
 ###############################################################################
@@ -601,7 +585,10 @@ st.markdown(dedent("""
      =============================== */
 
   /* NEW wrapper that shifts the whole bars section left */
-
+  .dm2-outer {
+    margin-left: -70px !important;  /* tweak -40..-80px to taste */
+    width: 100%;
+  }
 
   .dm2-bars {
     margin-top: 16px;
@@ -727,7 +714,7 @@ st.markdown(dedent("""
 
 
 # --- Render (labels LEFT; bars RIGHT; "world" on Perception/Vivid; purple % on bar end) ---
-st.markdown("<div class='dm2-bars'>", unsafe_allow_html=True)
+st.markdown("<div class='dm2-outer'><div class='dm2-bars'>", unsafe_allow_html=True)
 
 min_fill = 2  # minimal % fill for aesthetic continuity
 
@@ -820,7 +807,7 @@ for idx, b in enumerate(bars):
 
     st.markdown(row_html, unsafe_allow_html=True)
 
-st.markdown("</div>", unsafe_allow_html=True)
+st.markdown("</div></div>", unsafe_allow_html=True)
 
 
 
