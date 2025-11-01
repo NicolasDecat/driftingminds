@@ -589,6 +589,15 @@ st.markdown(dedent("""
     margin-left: -70px !important;  /* tweak -40..-80px to taste */
     width: 100%;
   }
+  
+  .dm2-row {
+  display: grid;
+  grid-template-columns: 160px 1fr;  /* label column | bar column */
+  column-gap: 8px;                   /* 👈 distance between label and bar */
+  align-items: center;
+  margin: 10px 0;
+}
+
 
   .dm2-bars {
     margin-top: 16px;
