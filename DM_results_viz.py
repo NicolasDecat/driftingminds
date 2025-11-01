@@ -616,15 +616,15 @@ st.markdown(dedent("""
 
   .dm2-label {
     font-weight: 800;
-    font-size: 1.10rem;      /* slightly smaller */
+    font-size: 1.10rem;
     line-height: 1.05;
     white-space: nowrap;
     letter-spacing: 0.1px;
     position: relative;
-    top: -3px;               /* vertical nudge */
-    text-align: right;       /* right-align all labels so their ends line up */
+    top: -3px;
+    text-align: right;     /* keep right alignment */
     width: 100%;
-    padding-right: 8px;      /* a touch more breathing room from the bar */
+    padding-right: 14px;   /* ⟵ was 8px: shifts label left a bit */
     margin: 0;
   }
 
