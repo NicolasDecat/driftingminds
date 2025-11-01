@@ -673,6 +673,19 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# --- Inline % styling when attached to "world" (Perception/Vivid) ---
+st.markdown("""
+<style>
+  .dm2-mediantag .score-inline {
+    color: #7B61FF;       /* same dark purple as the gradient end */
+    font-weight: 500;
+  }
+  .dm2-mediantag .score-inline.before { margin-right: 6px; }
+  .dm2-mediantag .score-inline.after  { margin-left:  6px; }
+</style>
+""", unsafe_allow_html=True)
+
+
 
 
 
