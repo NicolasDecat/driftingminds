@@ -431,38 +431,38 @@ def _fmt(v, nd=3):
         return str(v)
 
 # --- Toggle: computation outcomes (no highlights, no radar) ---
-with st.expander("computation BTS"):
-    # 1) Dimension scores (0–1)
-    dim_rows = []
-    for k in DIM_KEYS:
-        v = scores.get(k, np.nan)
-        dim_rows.append({
-            "Dimension": k,
-            "Score (0–1)": None if (v is None or (isinstance(v, float) and np.isnan(v))) else float(v),
-        })
-    dim_df = pd.DataFrame(dim_rows)
+# with st.expander("computation BTS"):
+#     # 1) Dimension scores (0–1)
+#     dim_rows = []
+#     for k in DIM_KEYS:
+#         v = scores.get(k, np.nan)
+#         dim_rows.append({
+#             "Dimension": k,
+#             "Score (0–1)": None if (v is None or (isinstance(v, float) and np.isnan(v))) else float(v),
+#         })
+#     dim_df = pd.DataFrame(dim_rows)
 
-    st.markdown("**Normalized dimension scores**")
-    st.dataframe(
-        dim_df,
-        hide_index=True,
-        use_container_width=True,
-    )
+#     st.markdown("**Normalized dimension scores**")
+#     st.dataframe(
+#         dim_df,
+#         hide_index=True,
+#         use_container_width=True,
+#     )
 
-    # 2) Prototype fit (distance; lower = closer)
-    vec = vector_from_scores(scores)
-    dists = [{"Profile": name, "Distance": _nanaware_distance(vec, proto)}
-             for name, proto in profiles.items()]
-    dist_df = pd.DataFrame(dists).sort_values("Distance")
+#     # 2) Prototype fit (distance; lower = closer)
+#     vec = vector_from_scores(scores)
+#     dists = [{"Profile": name, "Distance": _nanaware_distance(vec, proto)}
+#              for name, proto in profiles.items()]
+#     dist_df = pd.DataFrame(dists).sort_values("Distance")
 
-    st.markdown("**Prototype fit (lower = closer)**")
-    st.dataframe(
-        dist_df,
-        hide_index=True,
-        use_container_width=True,
-    )
+#     st.markdown("**Prototype fit (lower = closer)**")
+#     st.dataframe(
+#         dist_df,
+#         hide_index=True,
+#         use_container_width=True,
+#     )
 
-    st.caption("Notes: sleep_latency normalized with cap=60 min; baseline_anxiety normalized from 1–100 → 0–1.")
+#     st.caption("Notes: sleep_latency normalized with cap=60 min; baseline_anxiety normalized from 1–100 → 0–1.")
 
 
 
