@@ -111,7 +111,7 @@ if not record:
 
 st.markdown(
     """
-    <div style="text-align:center; margin-bottom:2.5rem;">  <!-- more space -->
+    <div style="text-align:center; margin-bottom:1.5rem;">  <!-- more space -->
         <div style="font-size:2rem; font-weight:800;">Drifting Minds Study</div>
         <div style="font-size:1rem; margin-top:0.1rem;">
             Which Drifting Mind are you?
@@ -401,7 +401,7 @@ st.markdown(dedent("""
 # --- Render profile name + description in a black framed row ---
 st.markdown(dedent(f"""
 <div class="dm-prof-wrap">
-  <p class="dm-prof-intro">Your profile is...</p>
+  <p class="dm-prof-intro">You are an...</p>
   <div class="dm-prof-frame">
     <div class="dm-prof-name">
       <h2><strong>{prof}</strong></h2>
