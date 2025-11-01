@@ -586,7 +586,7 @@ st.markdown(dedent("""
 
   /* NEW wrapper that shifts the whole bars section left */
   .dm2-outer {
-    margin-left: -56px !important;  /* tweak -40..-80px to taste */
+    margin-left: -70px !important;  /* tweak -40..-80px to taste */
     width: 100%;
   }
 
