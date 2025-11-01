@@ -599,12 +599,13 @@ st.markdown(dedent("""
     text-align: left;
   }
 
-  .dm2-row {
-      display:flex; align-items:center;
-      gap:-2px;               /* ⟵ was 4px: brings bars closer to labels */
-      margin:10px 0;
-      justify-content: flex-start;
-    }
+  .dm2-left {
+  display:flex; align-items:center;
+  gap:0px;
+  width: 160px;            /* pick one value and keep it consistent */
+  flex: 0 0 160px;         /* ⟵ match width exactly */
+}
+
 
 
   /* Left: label only, narrow so the bars start closer */
@@ -617,24 +618,29 @@ st.markdown(dedent("""
 
 
   .dm2-label {
-    font-weight: 800;
-    font-size: 1.10rem;
-    line-height: 1.05;
-    white-space: nowrap;
-    letter-spacing: 0.1px;
-    position: relative;
-    top: -3px;
-    text-align: right;     /* keep right alignment */
-    width: 100%;
-    padding-right:50px;   /* ⟵ was 8px: shifts label left a bit */
-    margin: 0;
-  }
+  font-weight: 800;
+  font-size: 1.10rem;
+  line-height: 1.05;
+  white-space: nowrap;
+  letter-spacing: 0.1px;
+  position: relative;
+  top: -3px;
+  text-align: right;
+  width: 100%;
+  padding-right: 40px;     /* ⟵ keep this as you asked */
+  margin: 0;
+}
+
 
   /* Middle: bar + overlays */
   .dm2-wrap {
-    flex: 1 1 auto;
-    display:flex; flex-direction:column; gap:4px;
-  }
+  flex: 1 1 auto;
+  display:flex; 
+  flex-direction:column; 
+  gap:4px;
+  margin-left: -12px;      /* ⟵ key trick: nudge bars left toward labels */
+}
+
 
   .dm2-track {
     position: relative;
