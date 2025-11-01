@@ -624,7 +624,7 @@ st.markdown(dedent("""
     top: -3px;
     text-align: right;     /* keep right alignment */
     width: 100%;
-    padding-right:40px;   /* ⟵ was 8px: shifts label left a bit */
+    padding-right:50px;   /* ⟵ was 8px: shifts label left a bit */
     margin: 0;
   }
 
