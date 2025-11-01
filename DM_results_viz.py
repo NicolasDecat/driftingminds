@@ -584,10 +584,14 @@ st.markdown(dedent("""
      Drifting Minds — Bars Styling
      =============================== */
 
+  /* NEW wrapper that shifts the whole bars section left */
+  .dm2-outer {
+    margin-left: -56px !important;  /* tweak -40..-80px to taste */
+    width: 100%;
+  }
+
   .dm2-bars {
     margin-top: 16px;
-    /* Shift the whole block a bit left within Streamlit's centered container */
-    transform: translateX(-28px) !important;  /* tweak -20..-40px if desired */
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -605,8 +609,8 @@ st.markdown(dedent("""
   /* Left: label only, narrow so the bars start closer */
   .dm2-left {
     display:flex; align-items:center;
-    gap:4px;                 /* tighter than before */
-    width: 168px;            /* keep this narrow; adjust if you need longer labels */
+    gap:4px;
+    width: 168px;            /* adjust if labels are long */
     flex: 0 0 168px;
   }
 
@@ -617,11 +621,11 @@ st.markdown(dedent("""
     white-space: nowrap;
     letter-spacing: 0.1px;
     position: relative;
-    top: -3px;               /* vertical nudge for alignment with the bar */
+    top: -3px;               /* vertical nudge */
     text-align: right;       /* right-align all labels so their ends line up */
     width: 100%;
-    padding-right: 6px;      /* 👈 reduced; brings bar closer to label */
-    margin: 0;               /* ensure no extra margin is added by browser */
+    padding-right: 8px;      /* a touch more breathing room from the bar */
+    margin: 0;
   }
 
   /* Middle: bar + overlays */
@@ -676,7 +680,7 @@ st.markdown(dedent("""
   /* Purple % label at end of participant bar */
   .dm2-scoretag {
     position: absolute;
-    bottom: calc(100% + 2px);      /* above by default */
+    bottom: calc(100% + 2px);
     transform: translateX(-50%);
     font-size: 0.86rem;
     font-weight: 500;
@@ -704,15 +708,13 @@ st.markdown(dedent("""
   }
 </style>
 """), unsafe_allow_html=True)
-
-
-
+    
 
 
 
 
 # --- Render (labels LEFT; bars RIGHT; "world" on Perception/Vivid; purple % on bar end) ---
-st.markdown("<div class='dm2-bars'>", unsafe_allow_html=True)
+st.markdown("<div class='dm2-outer'><div class='dm2-bars'>", unsafe_allow_html=True)
 
 min_fill = 2  # minimal % fill for aesthetic continuity
 
@@ -805,7 +807,7 @@ for idx, b in enumerate(bars):
 
     st.markdown(row_html, unsafe_allow_html=True)
 
-st.markdown("</div>", unsafe_allow_html=True)
+st.markdown("</div></div>", unsafe_allow_html=True)
 
 
 
