@@ -609,11 +609,12 @@ st.markdown(dedent("""
 
   /* Left: label only, narrow so the bars start closer */
   .dm2-left {
-    display:flex; align-items:center;
-    gap:4px;
-    width: 168px;            /* adjust if labels are long */
-    flex: 0 0 168px;
+  display:flex; align-items:center;
+  gap:0px;
+  width: 150px;          /* ⟵ was 168px: shifts bars a bit left */
+  flex: 0 0 160px;
   }
+
 
   .dm2-label {
     font-weight: 800;
