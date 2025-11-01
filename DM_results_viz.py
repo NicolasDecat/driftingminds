@@ -600,7 +600,7 @@ st.markdown(dedent("""
   }
   .dm2-label {
     font-weight: 800;
-    font-size: 1rem;
+    font-size: 1.15rem;
     line-height: 1.05;
     white-space: nowrap;
     letter-spacing: 0.1px;
