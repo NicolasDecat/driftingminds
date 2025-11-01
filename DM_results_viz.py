@@ -383,8 +383,6 @@ st.markdown(dedent(f"""
 
 
 
-
-
 # --- Helper for nice numeric formatting ---
 def _fmt(v, nd=3):
     if v is None:
@@ -584,19 +582,16 @@ st.markdown(dedent("""
 <style>
   .dm2-bars { margin-top: 16px; }
   .dm2-row {
-    display:flex; align-items:center; gap:10px;   /* tighter row gap */
-    margin:8px 0;
+    display:flex; align-items:center; gap:10px;
+    margin:10px 0;
   }
 
-  /* Left block: label + % (narrower so the bar starts closer) */
+  /* Left: label only (no inline %) */
   .dm2-left {
-    display:flex; align-items:baseline; gap:8px;  /* tighter label-% gap */
-    width: 188px;                                  /* ↓ from 260px */
+    display:flex; align-items:center; gap:8px;
+    width: 188px;
     flex: 0 0 188px;
-    margin-right: 0; padding-right: 0;            /* ensure no extra spacing */
   }
-
-  /* Bigger labels */
   .dm2-label {
     font-weight: 800;
     font-size: 1.35rem;
@@ -605,20 +600,13 @@ st.markdown(dedent("""
     letter-spacing: 0.1px;
   }
 
-  /* % no longer bold */
-  .dm2-val {
-    font-weight: 400;             /* was 700 */
-    font-size: 1rem;
-    color: #333;
-    text-align: left;
-    min-width: 44px;
-    font-variant-numeric: tabular-nums;
+  /* Middle: bar + overlays */
+  .dm2-wrap {
+    flex: 1 1 auto; display:flex; flex-direction:column; gap:4px;
   }
-
-  .dm2-wrap { flex: 1 1 auto; display:flex; flex-direction:column; gap:4px; }
   .dm2-track {
     position: relative; width: 100%; height: 14px;
-    background: #EDEDED; border-radius: 999px; overflow: hidden;
+    background: #EDEDED; border-radius: 999px; overflow: visible; /* allow overlay labels */
   }
   .dm2-fill {
     height: 100%;
@@ -628,107 +616,130 @@ st.markdown(dedent("""
   }
   .dm2-median {
     position: absolute;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    top: 50%; transform: translate(-50%, -50%);
     width: 8px; height: 8px;
-    background: #000000;
-    border: 1.5px solid #FFFFFF;
-    border-radius: 50%;
-    pointer-events: none; box-sizing: border-box;
+    background: #000000; border: 1.5px solid #FFFFFF;
+    border-radius: 50%; pointer-events: none; box-sizing: border-box;
   }
+
+  /* NEW: tiny caption above median (e.g., "world") */
+  .dm2-mediantag {
+    position: absolute;
+    bottom: calc(100% + 2px);  /* just above the bar */
+    transform: translateX(-50%);
+    font-size: 0.72rem; font-weight: 500; color: #000;
+    white-space: nowrap; pointer-events: none;
+  }
+
+  /* NEW: purple % above the participant bar end */
+  .dm2-scoretag {
+    position: absolute;
+    bottom: calc(100% + 2px);  /* just above the bar */
+    transform: translateX(-50%);
+    font-size: 0.86rem; font-weight: 400; color: #7B61FF;  /* dark gradient purple */
+    white-space: nowrap; pointer-events: none;
+  }
+
   .dm2-anchors {
     display:flex; justify-content:space-between;
-    font-size: 0.85rem; color:#666; margin-top: 0;
-    line-height: 1;
-  }
-
-  /* --- Profile header (subtitle / key / desc) ----------------------------- */
-  .dm-subtitle {
-    font-weight: 700;
-    font-size: 1.05rem;
-    color: #444;
-    margin: 4px 0 6px 0;         /* ↓ smaller gap above/below subtitle */
-  }
-  .dm-profline {
-    display:flex; align-items:baseline; gap:6px;
-    margin: 2px 0 4px 0;         /* tighter line so gap after subtitle is small */
-  }
-  .dm-prof-lead { color:#000; font-weight: 600; }
-  .dm-prof-key  { color:#000; font-weight: 800; font-size: 1.25rem; }
-  .dm-prof-desc { color:#000; max-width: 680px; font-size: 1.05rem; line-height: 1.45; }
-
-  /* If any legacy rectangle styles linger, neutralize them */
-  .dm-prof-card, .dm-prof-box {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    color: #000 !important;
-    padding: 0 !important;
-    margin: 0 !important;
+    font-size: 0.85rem; color:#666; margin-top: 0; line-height: 1;
   }
 
   /* Mobile tweaks */
   @media (max-width: 640px){
     .dm2-left { width: 160px; flex-basis: 160px; }
     .dm2-label { font-size: 1.15rem; }
-    .dm2-val { font-size: 0.95rem; }
-    .dm-prof-key  { font-size: 1.15rem; }
-    .dm-prof-desc { font-size: 1rem; }
   }
 </style>
 """), unsafe_allow_html=True)
 
 
 
-# --- Render (label + % on the left; bar in the middle) -----------------------
+
+# --- Render (labels LEFT; bars RIGHT; "world" on Perception/Vivid; purple % on bar end) ---
 st.markdown("<div class='dm2-bars'>", unsafe_allow_html=True)
 
 min_fill = 2  # minimal % fill for aesthetic continuity
 
-for b in bars:
-    name = b["name"]
+def _clamp_pct(p, lo=2.0, hi=98.0):
+    try:
+        p = float(p)
+    except:
+        return lo
+    return max(lo, min(hi, p))
+
+for idx, b in enumerate(bars):
+    name = b["name"]               # e.g., "Vivid", "Bizarre", ...
     help_txt = b["help"]
-    score = b["score"]    # 0..100 or None
+    score = b["score"]             # 0..100 or None
     median = pop_medians.get(name, None)  # 0..100 or None
 
-    # width for bar fill
-    if score is None or np.isnan(score):
+    # Participant bar width and display text
+    if score is None or (isinstance(score, float) and np.isnan(score)):
         width = min_fill
         score_txt = "NA"
+        width_clamped = _clamp_pct(width)
     else:
         width = int(round(np.clip(score, 0, 100)))
         if width < min_fill:
             width = min_fill
         score_txt = f"{int(round(score))}%"
+        width_clamped = _clamp_pct(width)
 
-    med_left = None if (median is None or np.isnan(median)) else float(np.clip(median, 0, 100))
+    # Median dot position (and clamped for the label)
+    if median is None or (isinstance(median, float) and np.isnan(median)):
+        med_left = None
+        med_left_clamped = None
+    else:
+        med_left = float(np.clip(median, 0, 100))
+        med_left_clamped = _clamp_pct(med_left)
 
-    # split anchors
+    # Anchors
     if isinstance(help_txt, str) and "↔" in help_txt:
         left_anchor, right_anchor = [s.strip() for s in help_txt.split("↔", 1)]
     else:
         left_anchor, right_anchor = "0", "100"
 
-    st.markdown(dedent(f"""
-    <div class="dm2-row">
-      <div class="dm2-left">
-        <div class="dm2-label">{name}</div>
-        <div class="dm2-val">{score_txt}</div>
-      </div>
-      <div class="dm2-wrap">
-        <div class="dm2-track" aria-label="{name} score {score_txt}">
-          <div class="dm2-fill" style="width:{width}%;"></div>
-          {"<div class='dm2-median' style='left:" + str(med_left) + "%;'></div>" if med_left is not None else ""}
-        </div>
-        <div class="dm2-anchors">
-          <span>{left_anchor}</span>
-          <span>{right_anchor}</span>
-        </div>
-      </div>
-    </div>
-    """), unsafe_allow_html=True)
+    # Build HTML snippets separately (no nested f-strings)
+    median_html = "" if med_left is None else f"<div class='dm2-median' style='left:{med_left}%;'></div>"
+
+    # "world" above the median for the Perception bar.
+    # In your config, Perception is the first bar and named "Vivid".
+    # Support either title just in case.
+    is_perception = (name.lower() in ("perception", "vivid"))
+    mediantag_html = ""
+    if is_perception and (med_left_clamped is not None):
+        mediantag_html = f"<div class='dm2-mediantag' style='left:{med_left_clamped}%;'>world</div>"
+
+    # Purple % label above bar end (only if we have a real %)
+    scoretag_html = ""
+    if score_txt != "NA":
+        scoretag_html = f"<div class='dm2-scoretag' style='left:{width_clamped}%;'>{score_txt}</div>"
+
+    row_html = (
+        "<div class='dm2-row'>"
+          "<div class='dm2-left'>"
+            f"<div class='dm2-label'>{name}</div>"
+          "</div>"
+          "<div class='dm2-wrap'>"
+            f"<div class='dm2-track' aria-label='{name} score {score_txt}'>"
+              f"<div class='dm2-fill' style='width:{width}%;'></div>"
+              f"{median_html}"
+              f"{mediantag_html}"
+              f"{scoretag_html}"
+            "</div>"
+            "<div class='dm2-anchors'>"
+              f"<span>{left_anchor}</span>"
+              f"<span>{right_anchor}</span>"
+            "</div>"
+          "</div>"
+        "</div>"
+    )
+
+    st.markdown(row_html, unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
+
 
 
 
