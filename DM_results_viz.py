@@ -632,6 +632,8 @@ st.markdown(dedent("""
     font-size: 0.85rem; font-weight: 500; color: #000;
     white-space: nowrap; pointer-events: none;
   }
+  
+  
   /* Inline % when we attach it next to 'world' */
   .dm2-mediantag .score-inline {
     margin-left: 6px;
@@ -673,15 +675,29 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- Inline % styling when attached to "world" (Perception/Vivid) ---
+# --- Higher "world" tag + thin connector (used only on overlap for Perception/Vivid) ---
 st.markdown("""
 <style>
-  .dm2-mediantag .score-inline {
-    color: #7B61FF;       /* same dark purple as the gradient end */
-    font-weight: 500;
+  /* Raise the "world" tag a bit higher when needed */
+  .dm2-mediantag.high {
+    bottom: calc(100% + 18px);   /* default is +2px; this lifts it above the % */
   }
-  .dm2-mediantag .score-inline.before { margin-right: 6px; }
-  .dm2-mediantag .score-inline.after  { margin-left:  6px; }
+
+  /* Thin vertical connector from the bar to the elevated label */
+  .dm2-connector {
+    position: absolute;
+    /* start right above the bar */
+    bottom: calc(100% + 2px);
+    transform: translateX(-50%);
+    width: 0;
+    border-left: 1px solid #000; /* very thin vertical hairline */
+    height: 16px;                /* reach up towards the raised label */
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Keep the tag above the line visually */
+  .dm2-mediantag { z-index: 2; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -742,47 +758,40 @@ for idx, b in enumerate(bars):
     # Build HTML snippets separately (no nested f-strings)
     median_html = "" if med_left is None else f"<div class='dm2-median' style='left:{med_left}%;'></div>"
     
-    # Determine if we consider it an "overlap" between median and bar end
-    # (tune the 6.0 threshold if you want them to merge sooner/later)
+    # Detect proximity/overlap between participant bar end and median
+    # (tune 6.0 if you want the trigger to be more/less sensitive)
     overlap = (
         score_txt != "NA"
         and (med_left_clamped is not None)
         and abs(width_clamped - med_left_clamped) <= 6.0
     )
     
-    # Perception/Vivid: place "world" above median, and manage % when overlapping
     is_perception = (name.lower() in ("perception", "vivid"))
+    
     mediantag_html = ""
     scoretag_html = ""
+    connector_html = ""
     
     if is_perception and (med_left_clamped is not None):
-        if overlap and score_txt != "NA":
-            # If participant bar end is LEFT of median → show [%] BEFORE world
-            # Else (bar end is RIGHT of median) → show world THEN [%]
-            if width_clamped < med_left_clamped:
-                mediantag_html = (
-                    f"<div class='dm2-mediantag' style='left:{med_left_clamped}%;'>"
-                    f"<span class='score-inline before'>{score_txt}</span>world"
-                    f"</div>"
-                )
-            else:
-                mediantag_html = (
-                    f"<div class='dm2-mediantag' style='left:{med_left_clamped}%;'>"
-                    f"world<span class='score-inline after'>{score_txt}</span>"
-                    f"</div>"
-                )
-            # Suppress separate score tag to avoid overlap
-            scoretag_html = ""
+        if overlap:
+            # 1) Raise "world" higher to avoid colliding with the % above the bar end
+            mediantag_html = f"<div class='dm2-mediantag high' style='left:{med_left_clamped}%;'>world</div>"
+            # 2) Draw a thin vertical connector from the bar up to the raised label
+            connector_html = f"<div class='dm2-connector' style='left:{med_left_clamped}%;'></div>"
+            # 3) Keep the separate purple % at the bar end as usual
+            if score_txt != 'NA':
+                scoretag_html = f"<div class='dm2-scoretag' style='left:{width_clamped}%;'>{score_txt}</div>"
         else:
-            # No overlap → keep them separate
+            # No overlap → normal placement, keep separate % label
             mediantag_html = f"<div class='dm2-mediantag' style='left:{med_left_clamped}%;'>world</div>"
-            if score_txt != "NA":
+            if score_txt != 'NA':
                 scoretag_html = f"<div class='dm2-scoretag' style='left:{width_clamped}%;'>{score_txt}</div>"
     else:
-        # Non-Perception bars: normal separate tags
-        if score_txt != "NA":
+        # Other dimensions: only the purple % at bar end (if present)
+        if score_txt != 'NA':
             scoretag_html = f"<div class='dm2-scoretag' style='left:{width_clamped}%;'>{score_txt}</div>"
     
+        
         
     
     
@@ -795,6 +804,7 @@ for idx, b in enumerate(bars):
             f"<div class='dm2-track' aria-label='{name} score {score_txt}'>"
               f"<div class='dm2-fill' style='width:{width}%;'></div>"
               f"{median_html}"
+              f"{connector_html}"
               f"{mediantag_html}"
               f"{scoretag_html}"
             "</div>"
