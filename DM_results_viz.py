@@ -582,15 +582,16 @@ st.markdown(dedent("""
 <style>
   .dm2-bars { margin-top: 16px; }
   .dm2-row {
-    display:flex; align-items:center; gap:10px;
+    display:flex; align-items:center; gap:6px;   /* tighter gap between label and bar */
     margin:10px 0;
   }
 
-  /* Left: label only (no inline %) */
+  /* Left: label only (tighter and narrower so the bar starts closer) */
   .dm2-left {
-    display:flex; align-items:center; gap:8px;
-    width: 188px;
-    flex: 0 0 188px;
+    display:flex; align-items:center; gap:6px;   /* tighter inside the label block */
+    width: 150px;                                 /* was 188px */
+    flex: 0 0 150px;
+    margin-right: 0; padding-right: 0;
   }
   .dm2-label {
     font-weight: 800;
@@ -598,6 +599,7 @@ st.markdown(dedent("""
     line-height: 1.05;
     white-space: nowrap;
     letter-spacing: 0.1px;
+    position: relative; top: -2px; /* tiny nudge up for optical alignment */
   }
 
   /* Middle: bar + overlays */
@@ -606,7 +608,7 @@ st.markdown(dedent("""
   }
   .dm2-track {
     position: relative; width: 100%; height: 14px;
-    background: #EDEDED; border-radius: 999px; overflow: visible; /* allow overlay labels */
+    background: #EDEDED; border-radius: 999px; overflow: visible; /* show overlay labels */
   }
   .dm2-fill {
     height: 100%;
@@ -622,21 +624,27 @@ st.markdown(dedent("""
     border-radius: 50%; pointer-events: none; box-sizing: border-box;
   }
 
-  /* NEW: tiny caption above median (e.g., "world") */
+  /* Caption above median (e.g., "world") */
   .dm2-mediantag {
     position: absolute;
-    bottom: calc(100% + 2px);  /* just above the bar */
+    bottom: calc(100% + 2px);
     transform: translateX(-50%);
-    font-size: 0.82rem; font-weight: 500; color: #000;
+    font-size: 0.85rem; font-weight: 500; color: #000;
     white-space: nowrap; pointer-events: none;
   }
+  /* Inline % when we attach it next to 'world' */
+  .dm2-mediantag .score-inline {
+    margin-left: 6px;
+    font-weight: 500;
+    color: #7B61FF; /* dark gradient purple */
+  }
 
-  /* NEW: purple % above the participant bar end */
+  /* Purple % above the participant bar end (default placement) */
   .dm2-scoretag {
     position: absolute;
-    bottom: calc(100% + 2px);  /* just above the bar */
+    bottom: calc(100% + 2px);
     transform: translateX(-50%);
-    font-size: 0.86rem; font-weight: 400; color: #7B61FF;  /* dark gradient purple */
+    font-size: 0.86rem; font-weight: 400; color: #7B61FF;
     white-space: nowrap; pointer-events: none;
   }
 
@@ -647,22 +655,12 @@ st.markdown(dedent("""
 
   /* Mobile tweaks */
   @media (max-width: 640px){
-    .dm2-left { width: 160px; flex-basis: 160px; }
+    .dm2-left { width: 140px; flex-basis: 140px; }
     .dm2-label { font-size: 1.15rem; }
   }
 </style>
 """), unsafe_allow_html=True)
 
-# --- Small visual alignment fix for dimension labels -----------------
-st.markdown("""
-<style>
-  /* Nudge dimension labels slightly upward for visual alignment with bars */
-  .dm2-label {
-    position: relative;
-    top: -3px;   /* adjust to -2px, -4px, etc. for best alignment */
-  }
-</style>
-""", unsafe_allow_html=True)
 
 
 
@@ -674,10 +672,8 @@ st.markdown("<div class='dm2-bars'>", unsafe_allow_html=True)
 min_fill = 2  # minimal % fill for aesthetic continuity
 
 def _clamp_pct(p, lo=2.0, hi=98.0):
-    try:
-        p = float(p)
-    except:
-        return lo
+    try: p = float(p)
+    except: return lo
     return max(lo, min(hi, p))
 
 for idx, b in enumerate(bars):
@@ -693,12 +689,11 @@ for idx, b in enumerate(bars):
         width_clamped = _clamp_pct(width)
     else:
         width = int(round(np.clip(score, 0, 100)))
-        if width < min_fill:
-            width = min_fill
+        width = max(width, min_fill)
         score_txt = f"{int(round(score))}%"
         width_clamped = _clamp_pct(width)
 
-    # Median dot position (and clamped for the label)
+    # Median dot position (and clamped for label positioning)
     if median is None or (isinstance(median, float) and np.isnan(median)):
         med_left = None
         med_left_clamped = None
@@ -712,21 +707,33 @@ for idx, b in enumerate(bars):
     else:
         left_anchor, right_anchor = "0", "100"
 
-    # Build HTML snippets separately (no nested f-strings)
+    # Build overlays
     median_html = "" if med_left is None else f"<div class='dm2-median' style='left:{med_left}%;'></div>"
 
-    # "world" above the median for the Perception bar.
-    # In your config, Perception is the first bar and named "Vivid".
-    # Support either title just in case.
+    # Identify Perception/Vivid for 'world' label
     is_perception = (name.lower() in ("perception", "vivid"))
+    # When the median and participant end are very close, merge % into the 'world' label
+    overlap = (is_perception and (med_left_clamped is not None) and (score_txt != "NA")
+               and abs(width_clamped - med_left_clamped) <= 6.0)
+
+    # 'world' tag (with optional inline % if overlapping)
     mediantag_html = ""
     if is_perception and (med_left_clamped is not None):
-        mediantag_html = f"<div class='dm2-mediantag' style='left:{med_left_clamped}%;'>world</div>"
-
-    # Purple % label above bar end (only if we have a real %)
-    scoretag_html = ""
-    if score_txt != "NA":
-        scoretag_html = f"<div class='dm2-scoretag' style='left:{width_clamped}%;'>{score_txt}</div>"
+        if overlap:
+            # attach % next to world to avoid collision
+            mediantag_html = (
+                f"<div class='dm2-mediantag' style='left:{med_left_clamped}%;'>"
+                f"world <span class='score-inline'>{score_txt}</span>"
+                f"</div>"
+            )
+            scoretag_html = ""  # don't render the separate % tag
+        else:
+            mediantag_html = f"<div class='dm2-mediantag' style='left:{med_left_clamped}%;'>world</div>"
+            scoretag_html = f"<div class='dm2-scoretag' style='left:{width_clamped}%;'>{score_txt}</div>" if score_txt != "NA" else ""
+    else:
+        # non-Perception bars: render regular % tag (if any)
+        mediantag_html = ""
+        scoretag_html = f"<div class='dm2-scoretag' style='left:{width_clamped}%;'>{score_txt}</div>" if score_txt != "NA" else ""
 
     row_html = (
         "<div class='dm2-row'>"
@@ -751,6 +758,7 @@ for idx, b in enumerate(bars):
     st.markdown(row_html, unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
+
 
 
 
