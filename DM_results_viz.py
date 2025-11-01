@@ -368,16 +368,14 @@ st.markdown(dedent("""
 """), unsafe_allow_html=True)
 
 
+# --- Profile header (two-line layout: “You are an” then profile name) --------
 st.markdown(dedent(f"""
 <div class="dm-prof-wrap">
-  <div class="dm-profline">
-    <span class="dm-prof-lead">You are an</span>
-    <span class="dm-prof-key">{prof}</span>
-  </div>
+  <div class="dm-prof-lead">You are an</div>
+  <div class="dm-prof-key">{prof}</div>
   <p class="dm-prof-desc">{prof_desc}</p>
 </div>
 """), unsafe_allow_html=True)
-
 
 
 
