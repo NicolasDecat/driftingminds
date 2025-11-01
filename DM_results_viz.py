@@ -609,35 +609,36 @@ pop_medians = {
     for k, v in pop_dists.items()
 }
 
-# --- Styling (labels bigger; % next to label) --------------------------------
+# --- Styling (bars closer; % not bold) ---------------------------------------
 from textwrap import dedent
 st.markdown(dedent("""
 <style>
   .dm2-bars { margin-top: 16px; }
   .dm2-row {
-    display:flex; align-items:center; gap:14px;
-    margin:10px 0;
+    display:flex; align-items:center; gap:10px;   /* tighter row gap */
+    margin:8px 0;
   }
 
-  /* NEW: left block that groups Label + % side-by-side */
+  /* Left block: label + % (narrower so the bar starts closer) */
   .dm2-left {
-    display:flex; align-items:baseline; gap:10px;
-    width: 260px;           /* room for long labels + % */
-    flex: 0 0 260px;
+    display:flex; align-items:baseline; gap:8px;  /* tighter label-% gap */
+    width: 188px;                                  /* ↓ from 260px */
+    flex: 0 0 188px;
+    margin-right: 0; padding-right: 0;            /* ensure no extra spacing */
   }
 
-  /* Bigger, bolder labels */
+  /* Bigger labels */
   .dm2-label {
     font-weight: 800;
-    font-size: 1.35rem;     /* bigger */
+    font-size: 1.35rem;
     line-height: 1.05;
     white-space: nowrap;
     letter-spacing: 0.1px;
   }
 
-  /* % sits next to the label */
+  /* % no longer bold */
   .dm2-val {
-    font-weight: 700;
+    font-weight: 400;             /* was 700 */
     font-size: 1rem;
     color: #333;
     text-align: left;
@@ -652,7 +653,6 @@ st.markdown(dedent("""
   }
   .dm2-fill {
     height: 100%;
-    /* light → dark purple gradient */
     background: linear-gradient(90deg, #CBBEFF 0%, #A18BFF 60%, #7B61FF 100%);
     border-radius: 999px;
     transition: width 600ms ease;
@@ -661,13 +661,11 @@ st.markdown(dedent("""
     position: absolute;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 8px;
-    height: 8px;
-    background: #000000;        /* black dot */
-    border: 1.5px solid #FFFFFF;/* white stroke for clarity */
+    width: 8px; height: 8px;
+    background: #000000;
+    border: 1.5px solid #FFFFFF;
     border-radius: 50%;
-    pointer-events: none;
-    box-sizing: border-box;
+    pointer-events: none; box-sizing: border-box;
   }
   .dm2-anchors {
     display:flex; justify-content:space-between;
@@ -675,14 +673,42 @@ st.markdown(dedent("""
     line-height: 1;
   }
 
+  /* --- Profile header (subtitle / key / desc) ----------------------------- */
+  .dm-subtitle {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #444;
+    margin: 4px 0 6px 0;         /* ↓ smaller gap above/below subtitle */
+  }
+  .dm-profline {
+    display:flex; align-items:baseline; gap:6px;
+    margin: 2px 0 4px 0;         /* tighter line so gap after subtitle is small */
+  }
+  .dm-prof-lead { color:#000; font-weight: 600; }
+  .dm-prof-key  { color:#000; font-weight: 800; font-size: 1.25rem; }
+  .dm-prof-desc { color:#000; max-width: 680px; font-size: 1.05rem; line-height: 1.45; }
+
+  /* If any legacy rectangle styles linger, neutralize them */
+  .dm-prof-card, .dm-prof-box {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
   /* Mobile tweaks */
   @media (max-width: 640px){
-    .dm2-left { width: 200px; flex-basis: 200px; }
+    .dm2-left { width: 160px; flex-basis: 160px; }
     .dm2-label { font-size: 1.15rem; }
     .dm2-val { font-size: 0.95rem; }
+    .dm-prof-key  { font-size: 1.15rem; }
+    .dm-prof-desc { font-size: 1rem; }
   }
 </style>
 """), unsafe_allow_html=True)
+
 
 
 # --- Render (label + % on the left; bar in the middle) -----------------------
