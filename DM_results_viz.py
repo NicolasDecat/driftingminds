@@ -605,10 +605,12 @@ st.markdown(dedent("""
     white-space: nowrap;
     letter-spacing: 0.1px;
     position: relative;
-    top: -3px;              /* tiny nudge to align optically with bar midline */
-    text-align: right;      /* 👈 NEW: make labels right-aligned */
-    width: 100%;            /* 👈 ensure text alignment applies inside the container */
+    top: -3px;
+    text-align: right;      /* keep right alignment */
+    width: 100%;
+    padding-right: 12px;    /* 👈 add space between label text and bar */
 }
+
 
 
   /* Middle: bar + overlays */
