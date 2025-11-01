@@ -457,7 +457,7 @@ DIM_BAR_CONFIG = {
         "weight_keys": ["degreequest_immersiveness"],
         "invert_keys": [],
         "weight_mode": "standard",
-        "help": "Unengaging  ↔  Immersive",
+        "help": "External-oriented  ↔  Immersive",
     },
     "Spontaneous": {
         "freq_keys": ["freq_percept_imposed", "freq_spectator"],
