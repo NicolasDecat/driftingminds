@@ -627,7 +627,7 @@ st.markdown(dedent("""
     position: absolute;
     bottom: calc(100% + 2px);  /* just above the bar */
     transform: translateX(-50%);
-    font-size: 0.72rem; font-weight: 500; color: #000;
+    font-size: 0.92rem; font-weight: 500; color: #000;
     white-space: nowrap; pointer-events: none;
   }
 
