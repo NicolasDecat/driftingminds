@@ -342,7 +342,7 @@ st.markdown("""
   }
 
   .dm-key {
-    font-weight: 800;
+    font-weight: 400;
     font-size: clamp(28px, 5vw, 60px);
     line-height: 1.05;
     margin: 0 0 10px 0;
