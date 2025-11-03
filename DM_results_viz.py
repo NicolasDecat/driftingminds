@@ -364,27 +364,69 @@ st.markdown("""
 
 
 # --- Center the whole block, then create a 2-col layout: [icon | text] ------
-outer_l, outer_mid, outer_r = st.columns([1, 8, 1])
-with outer_mid:
-    # Slight top spacing because your title sits above
-    st.markdown("<div class='dm-center' style='margin-top:0.25rem;'></div>", unsafe_allow_html=True)
+import base64
 
-    # Inner columns: icon left, text right. Adjust ratios to taste.
-    col_icon, col_text = st.columns([2, 5], vertical_alignment="center")
+def _data_uri(path: str) -> str:
+    mime = "image/svg+xml" if path.lower().endswith(".svg") else "image/png"
+    with open(path, "rb") as f:
+        b64 = base64.b64encode(f.read()).decode()
+    return f"data:{mime};base64,{b64}"
 
-    with col_icon:
-        if has_icon:
-            st.image(icon_path, use_container_width=True)
-        else:
-            # Optional: keep vertical rhythm when icon missing
-            st.empty()
+# One-time CSS for a fixed, non-stacking row that scales nicely
+st.markdown("""
+<style>
+  :root { --dm-max: 820px; }
+  .dm-center { max-width: var(--dm-max); margin: 0 auto; }
 
-    with col_text:
-        st.markdown(dedent(f"""
-        <p class="dm-lead">You drift into sleep like a</p>
-        <div class="dm-key">{prof}</div>
-        <p class="dm-desc">{prof_desc or "&nbsp;"}</p>
-        """), unsafe_allow_html=True)
+  /* Title */
+  .dm-title { font-size: 3rem; font-weight: 200; margin: 0.2rem 0 2rem 0; text-align:center; }
+
+  /* Non-stacking row: stays side-by-side on all widths */
+  .dm-row {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    justify-content: center;     /* keeps it visually centered inside dm-center */
+  }
+
+  /* Icon stays fixed-width; text takes the rest */
+  .dm-icon { width: 140px; height: auto; flex: 0 0 auto; }
+  .dm-text { flex: 1 1 0; min-width: 0; }
+
+  /* Your existing text styles (left-aligned inside the text block) */
+  .dm-lead { font-weight: 400; font-size: 1rem; color: #666; margin: 0 0 8px 0; letter-spacing: 0.3px; font-style: italic; text-align: left; }
+  .dm-key  { font-weight: 600; font-size: clamp(28px, 5vw, 60px); line-height: 1.05; margin: 0 0 10px 0; color: #7A5CFA; text-align: left; }
+  .dm-desc { color: #111; font-size: 1.05rem; line-height: 1.55; margin: 0; max-width: 680px; font-weight: 400; text-align: left; }
+
+  /* On very narrow screens, gently scale icon down but keep row side-by-side */
+  @media (max-width: 420px){
+    .dm-icon { width: 110px; }
+    .dm-row  { gap: 0.9rem; }
+  }
+</style>
+""", unsafe_allow_html=True)
+
+# Title (centered and same container as the row)
+st.markdown("""
+<div class="dm-center">
+  <div class="dm-title">DRIFTING MINDS STUDY</div>
+</div>
+""", unsafe_allow_html=True)
+
+# Pictogram + text (side-by-side on all devices)
+icon_src = _data_uri(icon_path) if has_icon else ""
+st.markdown(f"""
+<div class="dm-center">
+  <div class="dm-row">
+    {'<img class="dm-icon" src="'+icon_src+'" alt="profile icon"/>' if has_icon else ''}
+    <div class="dm-text">
+      <p class="dm-lead">You drift into sleep like a</p>
+      <div class="dm-key">{prof}</div>
+      <p class="dm-desc">{prof_desc or "&nbsp;"}</p>
+    </div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
 
 
 
