@@ -375,7 +375,7 @@ with outer_mid:
     with col_icon:
         if has_icon:
             # Tweak width to match your visual rhythm (try 84–120)
-            st.image(icon_path, width=200)
+            st.image(icon_path, width=400)
         else:
             # Optional: keep vertical rhythm when icon missing
             st.empty()
