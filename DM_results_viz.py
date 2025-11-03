@@ -95,7 +95,8 @@ header[data-testid="stHeader"]::before { content: none; }
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;    /* small gap between pictogram and text block */
+  gap: 0.5rem;          /* small gap between pictogram and text block */
+  margin-bottom: 2.25rem;  /* ⟵ add this for extra space before bars */
 }
 
 /* Icon slightly shifted right (keeps close to right-shifted text) */
