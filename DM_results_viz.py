@@ -110,7 +110,7 @@ if not record:
 st.markdown(
     """
     <div style="text-align:center; margin-bottom:0.35rem;">  <!-- more space -->
-        <div style="font-size:4rem; font-weight:200;">DRIFTING MINDS STUDY</div>
+        <div style="font-size:3rem; font-weight:200;">DRIFTING MINDS STUDY</div>
         <div style="font-size:1rem; margin-top:0.1rem;">
     </div>
     """,
@@ -327,73 +327,33 @@ prof_desc = _descriptions_ci.get(prof_key, "")
 
 from textwrap import dedent
 
-# --- Profile header (centered, small lead, big title, centered desc) ---------
-from textwrap import dedent
-
-# Fallback if description is missing
-if not prof_desc:
-    prof_desc = " "
-
-st.markdown(dedent("""
+# ---- Shared center & typography --------------------------------------------
+st.markdown("""
 <style>
-  .dm-prof-wrap {
-    text-align: center;
-    margin: 8px auto 10px auto;
-    max-width: 820px;          /* keeps line lengths pleasant */
-  }
-  /* Lead line (small) */
-  .dm-prof-lead {
-    font-weight: 600;
-    font-size: 0.95rem;
-    color: #444;
-    margin: 0 0 6px 0;
-    letter-spacing: 0.2px;
-  }
-  /* Profile name (very big) */
-  .dm-prof-key {
-    font-weight: 900;
-    /* responsive size: min 28px, prefers 48px, max 64px */
-    font-size: clamp(28px, 5vw, 64px);
-    line-height: 1.05;
-    margin: 0 0 8px 0;
-    color: #000;
-  }
-  /* Description (normal size) */
-  .dm-prof-desc {
-    color: #111;
-    font-size: 1.05rem;
-    line-height: 1.55;
-    margin: 0 auto;
-    max-width: 680px;
+  :root { --dm-max: 820px; }
+
+  .dm-center { 
+    max-width: var(--dm-max); 
+    margin: 0 auto; 
+    text-align: center; 
   }
 
-  @media (max-width: 640px){
-    .dm-prof-lead { font-size: 0.9rem; }
-    .dm-prof-desc { font-size: 1rem; }
-  }
-</style>
-"""), unsafe_allow_html=True)
-
-st.markdown(dedent("""
-<style>
-  .dm-prof-wrap {
-    text-align: center;
-    margin: 10px auto 14px auto;
-    max-width: 820px;
+  .dm-title {
+    font-size: 3rem; 
+    font-weight: 200; 
+    margin: 0.2rem 0 0.35rem 0;
   }
 
-  /* Lead line — now softer and lighter */
-  .dm-prof-lead {
-    font-weight: 400;          /* lighter */
+  .dm-lead {
+    font-weight: 400;
     font-size: 1rem;
-    color: #666;               /* softer gray */
+    color: #666;
     margin: 0 0 8px 0;
     letter-spacing: 0.3px;
-    font-style: italic;        /* gives it a dreamy touch */
+    font-style: italic;
   }
 
-  /* Profile name — big and clean */
-  .dm-prof-key {
+  .dm-key {
     font-weight: 800;
     font-size: clamp(28px, 5vw, 60px);
     line-height: 1.05;
@@ -401,30 +361,33 @@ st.markdown(dedent("""
     color: #000;
   }
 
-  /* Description — normal weight, centered */
-  .dm-prof-desc {
+  .dm-desc {
     color: #111;
     font-size: 1.05rem;
     line-height: 1.55;
     margin: 0 auto;
-    max-width: 680px;
+    max-width: 680px; /* readable line length */
     font-weight: 400;
   }
-
-  @media (max-width: 640px){
-    .dm-prof-lead { font-size: 0.95rem; }
-    .dm-prof-desc { font-size: 1rem; }
-  }
 </style>
-"""), unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
-st.markdown(dedent(f"""
-<div class="dm-prof-wrap" role="group" aria-label="Sleep-onset profile">
-  <p class="dm-prof-lead">You drift into sleep like a</p>
-  <h1 class="dm-prof-key">{prof}</h1>
-  <p class="dm-prof-desc">{prof_desc}</p>
+# ---- Title (fixed closing tag + shared container) --------------------------
+st.markdown("""
+<div class="dm-center" style="margin-bottom:0.5rem;">
+  <div class="dm-title">DRIFTING MINDS STUDY</div>
 </div>
-"""), unsafe_allow_html=True)
+""", unsafe_allow_html=True)
+
+# ---- Profile (shares the same center container) ----------------------------
+st.markdown(f"""
+<div class="dm-center" role="group" aria-label="Sleep-onset profile">
+  <p class="dm-lead">You drift into sleep like a</p>
+  <div class="dm-key">{prof}</div>
+  <p class="dm-desc">{prof_desc or "&nbsp;"}</p>
+</div>
+""", unsafe_allow_html=True)
+
 
 
 
