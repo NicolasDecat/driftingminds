@@ -329,55 +329,61 @@ prof_desc = _descriptions_ci.get(prof_key, "")
 
 from textwrap import dedent
 
-# --- Profile header (no rectangle; black text; tight spacing) ----------------
+# --- Profile header (centered, small lead, big title, centered desc) ---------
 from textwrap import dedent
+
+# Fallback if description is missing
+if not prof_desc:
+    prof_desc = " "
 
 st.markdown(dedent("""
 <style>
-  /* subtitle sits just above the profile line with minimal gap */
-  .dm-subtitle { 
-    font-weight: 700; font-size: 1.05rem; color: #444; 
-    margin: 6px 0 4px 0;
+  .dm-prof-wrap {
+    text-align: center;
+    margin: 8px auto 10px auto;
+    max-width: 820px;          /* keeps line lengths pleasant */
   }
-  /* "You are an ..." line, compact */
-  .dm-profline {
-    display:flex; align-items:baseline; gap:6px;
-    margin: 0 0 6px 0;   /* tight under subtitle */
+  /* Lead line (small) */
+  .dm-prof-lead {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #444;
+    margin: 0 0 6px 0;
+    letter-spacing: 0.2px;
   }
-  .dm-prof-lead { color:#000; font-weight: 600; }
-  .dm-prof-key  { color:#000; font-weight: 800; font-size: 1.25rem; }
-  .dm-prof-desc { color:#000; max-width: 680px; font-size: 1.05rem; line-height: 1.45; margin: 0; }
-
-  /* remove any legacy box styling if still present */
-  .dm-prof-wrap, .dm-prof-frame, .dm-prof-card, .dm-prof-box {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    color: #000 !important;
-    padding: 0 !important;
-    margin: 0 !important;
+  /* Profile name (very big) */
+  .dm-prof-key {
+    font-weight: 900;
+    /* responsive size: min 28px, prefers 48px, max 64px */
+    font-size: clamp(28px, 5vw, 64px);
+    line-height: 1.05;
+    margin: 0 0 8px 0;
+    color: #000;
+  }
+  /* Description (normal size) */
+  .dm-prof-desc {
+    color: #111;
+    font-size: 1.05rem;
+    line-height: 1.55;
+    margin: 0 auto;
+    max-width: 680px;
   }
 
   @media (max-width: 640px){
-    .dm-prof-key  { font-size: 1.15rem; }
+    .dm-prof-lead { font-size: 0.9rem; }
     .dm-prof-desc { font-size: 1rem; }
   }
 </style>
 """), unsafe_allow_html=True)
 
-# Render ONLY ONCE (avoid duplicating the subtitle that already exists above)
-# If you want to KEEP the top subtitle inside the page title block,
-# do NOT render it again here. Just the profile line + description:
-
 st.markdown(dedent(f"""
-<div class="dm-prof-wrap">
-  <div class="dm-profline">
-    <span class="dm-prof-lead">You are an</span>
-    <span class="dm-prof-key">{prof}</span>
-  </div>
+<div class="dm-prof-wrap" role="group" aria-label="Sleep-onset profile">
+  <p class="dm-prof-lead">Your mind drifts into sleep like a...</p>
+  <h1 class="dm-prof-key">{prof}</h1>
   <p class="dm-prof-desc">{prof_desc}</p>
 </div>
 """), unsafe_allow_html=True)
+
 
 
 
@@ -394,40 +400,6 @@ def _fmt(v, nd=3):
         return f"{float(v):.{nd}f}"
     except Exception:
         return str(v)
-
-# --- Toggle: computation outcomes (no highlights, no radar) ---
-# with st.expander("computation BTS"):
-#     # 1) Dimension scores (0–1)
-#     dim_rows = []
-#     for k in DIM_KEYS:
-#         v = scores.get(k, np.nan)
-#         dim_rows.append({
-#             "Dimension": k,
-#             "Score (0–1)": None if (v is None or (isinstance(v, float) and np.isnan(v))) else float(v),
-#         })
-#     dim_df = pd.DataFrame(dim_rows)
-
-#     st.markdown("**Normalized dimension scores**")
-#     st.dataframe(
-#         dim_df,
-#         hide_index=True,
-#         use_container_width=True,
-#     )
-
-#     # 2) Prototype fit (distance; lower = closer)
-#     vec = vector_from_scores(scores)
-#     dists = [{"Profile": name, "Distance": _nanaware_distance(vec, proto)}
-#              for name, proto in profiles.items()]
-#     dist_df = pd.DataFrame(dists).sort_values("Distance")
-
-#     st.markdown("**Prototype fit (lower = closer)**")
-#     st.dataframe(
-#         dist_df,
-#         hide_index=True,
-#         use_container_width=True,
-#     )
-
-#     st.caption("Notes: sleep_latency normalized with cap=60 min; baseline_anxiety normalized from 1–100 → 0–1.")
 
 
 
