@@ -313,6 +313,9 @@ _descriptions_ci = {k.lower(): v for k, v in descriptions.items()}
 prof_key = str(prof).strip().lower()
 prof_desc = _descriptions_ci.get(prof_key, "")
 
+
+
+
 from textwrap import dedent
 
 # ---- Shared center & typography --------------------------------------------
@@ -377,6 +380,60 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 
+import os
+from textwrap import dedent
+
+# --- Map profile -> pictogram file in assets/ -------------------------------
+ICON_MAP = {
+    "Early Dreamer":     "seahorse.png",
+    "Letting Go":        "otter.png",
+    "Pragmatic Thinker": "ant.png",
+    "Ruminator":         "cow.png",
+    "Quiet Mind":        "sloth.png",
+}
+
+icon_file = ICON_MAP.get(str(prof), None)
+icon_path = f"assets/{icon_file}" if icon_file else None
+has_icon = bool(icon_path and os.path.exists(icon_path))
+
+# --- Ensure shared CSS exists (dm-center, dm-lead, dm-key, dm-desc) ----------
+# If you already injected these styles earlier, you can skip this block.
+st.markdown(dedent("""
+<style>
+  :root { --dm-max: 820px; }
+  .dm-center { max-width: var(--dm-max); margin: 0 auto; }
+  .dm-lead { font-weight: 400; font-size: 1rem; color: #666;
+             margin: 0 0 8px 0; letter-spacing: 0.3px; font-style: italic; text-align: left; }
+  .dm-key  { font-weight: 600; font-size: clamp(28px, 5vw, 60px); line-height: 1.05;
+             margin: 0 0 10px 0; color: #7A5CFA; text-align: left; }  /* purple for profile name */
+  .dm-desc { color: #111; font-size: 1.05rem; line-height: 1.55; margin: 0;
+             max-width: 680px; font-weight: 400; text-align: left; }
+</style>
+"""), unsafe_allow_html=True)
+
+# --- Center the whole block, then create a 2-col layout: [icon | text] ------
+outer_l, outer_mid, outer_r = st.columns([1, 8, 1])
+with outer_mid:
+    # Slight top spacing because your title sits above
+    st.markdown("<div class='dm-center' style='margin-top:0.25rem;'></div>", unsafe_allow_html=True)
+
+    # Inner columns: icon left, text right. Adjust ratios to taste.
+    col_icon, col_text = st.columns([1, 4], vertical_alignment="center")
+
+    with col_icon:
+        if has_icon:
+            # Tweak width to match your visual rhythm (try 84–120)
+            st.image(icon_path, width=100)
+        else:
+            # Optional: keep vertical rhythm when icon missing
+            st.empty()
+
+    with col_text:
+        st.markdown(dedent(f"""
+        <p class="dm-lead">You drift into sleep like a</p>
+        <div class="dm-key">{prof}</div>
+        <p class="dm-desc">{prof_desc or "&nbsp;"}</p>
+        """), unsafe_allow_html=True)
 
 
 
