@@ -320,11 +320,11 @@ from textwrap import dedent
 
 # --- Map profile -> pictogram file in assets/ -------------------------------
 ICON_MAP = {
-    "Early Dreamer":     "seahorse.png",
-    "Letting Go":        "otter.png",
-    "Pragmatic Thinker": "ant.png",
-    "Ruminator":         "cow.png",
-    "Quiet Mind":        "sloth.png",
+    "Early Dreamer":     "seahorse.svg",
+    "Letting Go":        "otter.svg",
+    "Pragmatic Thinker": "ant.svg",
+    "Ruminator":         "cow.svg",
+    "Quiet Mind":        "sloth.svg",
 }
 
 icon_file = ICON_MAP.get(str(prof), None)
