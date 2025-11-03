@@ -77,6 +77,21 @@ def fetch_by_record_id(record_id: str):
 #%% Prepare vizualisation #####################################################
 ###############################################################################
 
+# Kill Streamlit's top padding across versions
+st.markdown("""
+<style>
+/* Main content container (covers recent & older Streamlit layouts) */
+section.main > div.block-container { padding-top: 0 !important; }
+div.block-container { padding-top: 0 !important; }
+[data-testid="stAppViewContainer"] > .main > div { padding-top: 0 !important; }
+[data-testid="stAppViewContainer"] { padding-top: 0 !important; }
+
+/* Optional: collapse the default header space */
+header[data-testid="stHeader"] { height: 0px; background: transparent; }
+header[data-testid="stHeader"]::before { content: none; }
+</style>
+""", unsafe_allow_html=True)
+
 
 # ---------- Prepare computation ----------
 
