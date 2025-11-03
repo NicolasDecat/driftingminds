@@ -89,12 +89,6 @@ def safe_float(x):
 
 # ---------- App Layout ----------
 
-# Image symbols
-col1, col2, col3 = st.columns([1,2,1])
-with col2:
-    st.image("assets/symbols.png", width=200)
-
-
 # Read query params (?id=123)
 qp = st.query_params
 record_id = qp.get("id")  
