@@ -362,19 +362,20 @@ st.markdown("""
 
 # ---- Title (fixed closing tag + shared container) --------------------------
 st.markdown("""
-<div class="dm-center" style="margin-bottom:0.5rem;">
+<div class="dm-center" style="margin-bottom:2rem;">   <!-- increased spacing -->
   <div class="dm-title">DRIFTING MINDS STUDY</div>
 </div>
 """, unsafe_allow_html=True)
 
 # ---- Profile (shares the same center container) ----------------------------
 st.markdown(f"""
-<div class="dm-center" role="group" aria-label="Sleep-onset profile">
+<div class="dm-center" role="group" aria-label="Sleep-onset profile" style="margin-top:0.5rem;">
   <p class="dm-lead">You drift into sleep like a</p>
   <div class="dm-key">{prof}</div>
   <p class="dm-desc">{prof_desc or "&nbsp;"}</p>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
