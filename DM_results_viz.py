@@ -104,18 +104,6 @@ if not record:
 # Show raw responses as toggle list
 # with st.expander("Raw responses"):
 #     st.json(record)
-    
-# --- Titles ---
-
-st.markdown(
-    """
-    <div style="text-align:center; margin-bottom:0.35rem;">  <!-- more space -->
-        <div style="font-size:3rem; font-weight:200;">DRIFTING MINDS STUDY</div>
-        <div style="font-size:1rem; margin-top:0.1rem;">
-    </div>
-    """,
-    unsafe_allow_html=True
-)
 
 
 
