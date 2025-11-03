@@ -376,30 +376,34 @@ st.markdown("""
 
   /* Row stays centered horizontally */
     .dm-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;   /* small space between icon and text */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;  /* small space between pictogram and text */
     }
     
-    /* Icon follows the text shift (moved together to the right) */
+    /* Move ONLY the pictogram slightly further right */
     .dm-icon {
       width: 140px;
       height: auto;
       flex: 0 0 auto;
-      transform: translateX(5rem);   /* move icon right */
+      transform: translateX(6rem);   /* shifted more right (was 5rem) */
     }
     
-    /* Text block shifted further right */
+    /* Text stays where it is */
     .dm-text {
       flex: 1 1 0;
       min-width: 0;
-      padding-left: 6rem;            /* strong rightward shift */
+      padding-left: 6rem;   /* unchanged */
     }
     
     @media (min-width: 640px) {
-      .dm-icon { transform: translateX(7rem); }  /* even more on desktop */
-      .dm-text { padding-left: 8rem; }           /* match the icon shift */
+      .dm-icon {
+        transform: translateX(8rem);  /* extra shift on desktop */
+      }
+      .dm-text {
+        padding-left: 8rem;  /* unchanged; keeps text position stable */
+      }
     }
 
   /* Your existing text styles (left-aligned inside the text block) */
