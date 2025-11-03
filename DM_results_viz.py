@@ -370,12 +370,11 @@ with outer_mid:
     st.markdown("<div class='dm-center' style='margin-top:0.25rem;'></div>", unsafe_allow_html=True)
 
     # Inner columns: icon left, text right. Adjust ratios to taste.
-    col_icon, col_text = st.columns([1, 4], vertical_alignment="center")
+    col_icon, col_text = st.columns([2, 5], vertical_alignment="center")
 
     with col_icon:
         if has_icon:
-            # Tweak width to match your visual rhythm (try 84–120)
-            st.image(icon_path, width=400)
+            st.image(icon_path, use_container_width=True)
         else:
             # Optional: keep vertical rhythm when icon missing
             st.empty()
