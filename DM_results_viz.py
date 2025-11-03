@@ -374,37 +374,32 @@ st.markdown("""
   /* Title */
   .dm-title { font-size: 3rem; font-weight: 200; margin: 0.2rem 0 2rem 0; text-align:center; }
 
-  .dm-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;              /* tighter spacing between icon and text */
+  /* Row stays centered horizontally */
+    .dm-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;   /* small space between icon and text */
     }
     
-    @media (min-width: 640px){
-      .dm-row { gap: 1rem; }     /* slightly more space on desktop */
-    }
-    
-    /* ✅ Nudge icon toward the text (right) without moving the text */
+    /* Icon follows the text shift (moved together to the right) */
     .dm-icon {
       width: 140px;
       height: auto;
       flex: 0 0 auto;
-      transform: translateX(1rem);       /* move icon right */
+      transform: translateX(5rem);   /* move icon right */
     }
     
-    @media (min-width: 640px){
-      .dm-icon { transform: translateX(1.5rem); }  /* a bit more on desktop */
-    }
-    
-    /* Keep your stronger right shift for the text */
+    /* Text block shifted further right */
     .dm-text {
       flex: 1 1 0;
       min-width: 0;
-      padding-left: 3.75rem;     /* mobile */
+      padding-left: 6rem;            /* strong rightward shift */
     }
-    @media (min-width: 640px){
-      .dm-text { padding-left: 5.5rem; } /* desktop */
+    
+    @media (min-width: 640px) {
+      .dm-icon { transform: translateX(7rem); }  /* even more on desktop */
+      .dm-text { padding-left: 8rem; }           /* match the icon shift */
     }
 
   /* Your existing text styles (left-aligned inside the text block) */
