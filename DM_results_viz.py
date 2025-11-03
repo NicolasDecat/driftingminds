@@ -340,11 +340,11 @@ st.markdown(dedent("""
 
   /* Title style */
   .dm-title {
-    font-size: 3rem;
-    font-weight: 200;
-    margin: 0.2rem 0 2rem 0;   /* bottom spacing before the lead/profile */
-    text-align: center;
-  }
+  font-size: 3rem;
+  font-weight: 200;
+  margin: 0 0 1.25rem 0;  /* reduced space below, no space above */
+  text-align: center;
+}
 
   .dm-lead { font-weight: 400; font-size: 1rem; color: #666;
              margin: 0 0 8px 0; letter-spacing: 0.3px; font-style: italic; text-align: left; }
@@ -352,6 +352,13 @@ st.markdown(dedent("""
              margin: 0 0 10px 0; color: #7A5CFA; text-align: left; }
   .dm-desc { color: #111; font-size: 1.05rem; line-height: 1.55; margin: 0;
              max-width: 680px; font-weight: 400; text-align: left; }
+  
+  /* Pull the page content higher — remove Streamlit's default top padding */
+main > div:first-child {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
 </style>
 """), unsafe_allow_html=True)
 
