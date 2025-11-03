@@ -110,10 +110,8 @@ if not record:
 st.markdown(
     """
     <div style="text-align:center; margin-bottom:0.35rem;">  <!-- more space -->
-        <div style="font-size:1.4rem; font-weight:800;">Drifting Minds Study</div>
+        <div style="font-size:1.4rem; font-weight:200;">DRIFTING MINDS STUDY</div>
         <div style="font-size:1rem; margin-top:0.1rem;">
-            Which Drifting Mind are you?
-        </div>
     </div>
     """,
     unsafe_allow_html=True
