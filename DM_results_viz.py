@@ -89,7 +89,8 @@ def safe_float(x):
 
 # ---------- App Layout ----------
 
-# Symbols photo
+# Image symbols
+st.image("assets/symbols.png", width=200) 
 st.markdown(
     """
     <div style='text-align: center;'>
@@ -98,7 +99,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
 
 # Read query params (?id=123)
 qp = st.query_params
