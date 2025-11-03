@@ -277,9 +277,9 @@ def vector_from_scores(scores, dim_keys=DIM_KEYS):
 # ---------- 3) Prototype profiles (aligned to DIM_KEYS order) ---------------------
 # Order = ["vividness","spontaneity","bizarreness","immersion","emotion_pos","sleep_latency","baseline_anxiety"]
 profiles = {
-    "Early Dreamer":     [0.90, 0.30, 0.90, 0.80, 0.50, 0.50, 0.50],
-    "Letting Go":        [0.70, 0.30, 0.50, 0.60, 0.50, 0.60, 0.50],
-    "Pragmatic Thinker": [0.20, 0.10, 0.10, 0.30, 0.50, 0.50, 0.50],
+    "Dreamweaver":     [0.90, 0.30, 0.90, 0.80, 0.50, 0.50, 0.50],
+    "Freewheeler":        [0.70, 0.30, 0.50, 0.60, 0.50, 0.60, 0.50],
+    "Strategist": [0.20, 0.10, 0.10, 0.30, 0.50, 0.50, 0.50],
     "Ruminator":         [0.20, 0.10, 0.10, 0.10, 0.20, 0.90, 0.90],
     "Quiet Mind":        [0.20, 0.20, 0.20, 0.20, 0.50, 0.50, 0.50],
 }
@@ -316,9 +316,9 @@ prof, scores = assign_profile_from_record(record)
 
 # --- Profile descriptions (as before) ---
 descriptions = {
-    "Early Dreamer": "You tend to drift into sleep through vivid, sensory experiences; colors, sounds, or mini-dreams.",
-    "Letting Go": "You start by thinking intentionally, but gradually surrender to spontaneous imagery.",
-    "Pragmatic Thinker": "You stay in control. Analytical or practical thoughts until you switch off.",
+    "Dreamweaver": "You tend to drift into sleep through vivid, sensory experiences; colors, sounds, or mini-dreams.",
+    "Freewheeler": "You start by thinking intentionally, but gradually surrender to spontaneous imagery.",
+    "Strategist": "You stay in control. Analytical or practical thoughts until you switch off.",
     "Ruminator": "You tend to replay or analyze things in bed, with longer sleep latency and emotional tension.",
     "Quiet Mind": "You fall asleep effortlessly, with little mental content.",
 }
@@ -335,9 +335,9 @@ from textwrap import dedent
 
 # --- Map profile -> pictogram file in assets/ -------------------------------
 ICON_MAP = {
-    "Early Dreamer":     "seahorse.svg",
-    "Letting Go":        "otter.svg",
-    "Pragmatic Thinker": "ant.svg",
+    "Dreamweaver":     "seahorse.svg",
+    "Freewheeler":        "otter.svg",
+    "Strategist": "ant.svg",
     "Ruminator":         "cow.svg",
     "Quiet Mind":        "sloth.svg",
 }
