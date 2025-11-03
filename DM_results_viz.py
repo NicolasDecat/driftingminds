@@ -379,7 +379,14 @@ st.markdown("""
     display: flex;
     align-items: center;
     gap: 1.25rem;
-    justify-content: center;     /* keeps it visually centered inside dm-center */
+    justify-content: flex-start;     /* align content to the left of the flex box */
+    margin-left: 4rem;               /* 👈 shifts the whole row right */
+  }
+
+  @media (min-width: 640px) {
+    .dm-row {
+      margin-left: 6rem;             /* 👈 more pronounced shift on desktop */
+    }
   }
 
   /* Icon stays fixed-width; text takes the rest */
