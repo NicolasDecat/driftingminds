@@ -346,7 +346,7 @@ st.markdown("""
     font-size: clamp(28px, 5vw, 60px);
     line-height: 1.05;
     margin: 0 0 10px 0;
-    color: #000;
+    color: #7A5CFA;
   }
 
   .dm-desc {
