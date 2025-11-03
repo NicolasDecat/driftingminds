@@ -110,7 +110,7 @@ if not record:
 st.markdown(
     """
     <div style="text-align:center; margin-bottom:0.35rem;">  <!-- more space -->
-        <div style="font-size:1.4rem; font-weight:200;">DRIFTING MINDS STUDY</div>
+        <div style="font-size:4rem; font-weight:200;">DRIFTING MINDS STUDY</div>
         <div style="font-size:1rem; margin-top:0.1rem;">
     </div>
     """,
@@ -420,7 +420,7 @@ st.markdown(dedent("""
 
 st.markdown(dedent(f"""
 <div class="dm-prof-wrap" role="group" aria-label="Sleep-onset profile">
-  <p class="dm-prof-lead">You drift into sleep like a...</p>
+  <p class="dm-prof-lead">You drift into sleep like a</p>
   <h1 class="dm-prof-key">{prof}</h1>
   <p class="dm-prof-desc">{prof_desc}</p>
 </div>
