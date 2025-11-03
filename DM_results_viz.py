@@ -374,13 +374,58 @@ st.markdown(dedent("""
 </style>
 """), unsafe_allow_html=True)
 
+st.markdown(dedent("""
+<style>
+  .dm-prof-wrap {
+    text-align: center;
+    margin: 10px auto 14px auto;
+    max-width: 820px;
+  }
+
+  /* Lead line — now softer and lighter */
+  .dm-prof-lead {
+    font-weight: 400;          /* lighter */
+    font-size: 1rem;
+    color: #666;               /* softer gray */
+    margin: 0 0 8px 0;
+    letter-spacing: 0.3px;
+    font-style: italic;        /* gives it a dreamy touch */
+  }
+
+  /* Profile name — big and clean */
+  .dm-prof-key {
+    font-weight: 800;
+    font-size: clamp(28px, 5vw, 60px);
+    line-height: 1.05;
+    margin: 0 0 10px 0;
+    color: #000;
+  }
+
+  /* Description — normal weight, centered */
+  .dm-prof-desc {
+    color: #111;
+    font-size: 1.05rem;
+    line-height: 1.55;
+    margin: 0 auto;
+    max-width: 680px;
+    font-weight: 400;
+  }
+
+  @media (max-width: 640px){
+    .dm-prof-lead { font-size: 0.95rem; }
+    .dm-prof-desc { font-size: 1rem; }
+  }
+</style>
+"""), unsafe_allow_html=True)
+
 st.markdown(dedent(f"""
 <div class="dm-prof-wrap" role="group" aria-label="Sleep-onset profile">
-  <p class="dm-prof-lead">Your mind drifts into sleep like a...</p>
+  <p class="dm-prof-lead">You drift into sleep like a...</p>
   <h1 class="dm-prof-key">{prof}</h1>
   <p class="dm-prof-desc">{prof_desc}</p>
 </div>
 """), unsafe_allow_html=True)
+
 
 
 
