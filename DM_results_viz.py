@@ -35,35 +35,6 @@ PURPLE_NAME = "#7A5CFA"  # profile name
 CAP_MIN = 60.0           # sleep latency cap (minutes)
 ASSETS_CSV = os.path.join("assets", "N1000_comparative_viz_ready.csv")
 
-# ---- Profile dictionary (single source of truth) -----------------------------
-# Order = ["vividness","spontaneity","bizarreness","immersion","emotion_pos","sleep_latency","baseline_anxiety"]
-PROFILES = {
-    "Dreamweaver": {
-        "prototype":   [0.90, 0.30, 0.90, 0.80, 0.50, 0.50, 0.50],
-        "description": "You tend to drift into sleep through vivid, sensory experiences; colors, sounds, or mini-dreams.",
-        "icon":        "seahorse.svg",
-    },
-    "Freewheeler": {
-        "prototype":   [0.70, 0.30, 0.50, 0.60, 0.50, 0.60, 0.50],
-        "description": "You start by thinking intentionally, but gradually surrender to spontaneous imagery.",
-        "icon":        "otter.svg",
-    },
-    "Strategist": {
-        "prototype":   [0.20, 0.10, 0.10, 0.30, 0.50, 0.50, 0.50],
-        "description": "You stay in control. Analytical or practical thoughts until you switch off.",
-        "icon":        "ant.svg",
-    },
-    "Ruminator": {
-        "prototype":   [0.20, 0.10, 0.10, 0.10, 0.20, 0.90, 0.90],
-        "description": "You tend to replay or analyze things in bed, with longer sleep latency and emotional tension.",
-        "icon":        "cow.svg",
-    },
-    "Quiet Mind": {
-        "prototype":   [0.20, 0.20, 0.20, 0.20, 0.50, 0.50, 0.50],
-        "description": "You fall asleep effortlessly, with little mental content.",
-        "icon":        "sloth.svg",
-    },
-}
 
 # ==============
 # CSS (single block; exact same visual result)
@@ -96,7 +67,7 @@ header[data-testid="stHeader"]::before { content: none; }
   align-items: center;
   justify-content: center;
   gap: 0.5rem;          /* small gap between pictogram and text block */
-  margin-bottom: 1.25rem;  /* ⟵ add this for extra space before bars */
+  margin-bottom: .25rem;  /* ⟵ add this for extra space before bars */
 }
 
 /* Icon slightly shifted right (keeps close to right-shifted text) */
@@ -352,6 +323,96 @@ def norm_latency_auto(x, cap_minutes=CAP_MIN):
     if np.isnan(mins): return np.nan
     return np.clip(mins / cap_minutes, 0.0, 1.0)
 
+
+# ---- Profile dictionary (single source of truth) -----------------------------
+# All profiles below use their own 'features'. Each feature is a target in [0..1].
+# You can mix 'dim' (composite DIMENSIONS) and 'var' (raw fields + normalizer).
+
+PROFILES = {
+    # --- Examples you asked for ------------------------------------------------
+    "Fast Sleeper": {
+        "features": [
+            {"type": "dim", "key": "sleep_latency", "target": 0.00, "weight": 1.2},  # very short latency
+            {"type": "var", "key": ["degreequest_sleepiness"], "norm": norm_1_6,
+             "norm_kwargs": {}, "target": 1.00, "weight": 1.0},                      # very sleepy
+        ],
+        "description": "You fall asleep quickly, especially when you already feel sleepy.",
+        "icon": "cheetah.svg",
+    },
+
+    "Creative": {
+        "features": [
+            {"type": "var", "key": ["freq_creat"], "norm": norm_1_6,
+             "norm_kwargs": {}, "target": 0.95, "weight": 1.1},
+            {"type": "var", "key": ["creativity_trait"], "norm": norm_1_6,
+             "norm_kwargs": {}, "target": 0.95, "weight": 1.0},
+        ],
+        "description": "Ideas spark at the edge of sleep — you drift off with creativity alive.",
+        "icon": "firefly.svg",
+    },
+
+    # --- Converted versions of your previous profiles -------------------------
+    "Dreamweaver": {
+        "features": [
+            {"type": "dim", "key": "vividness",    "target": 0.90, "weight": 1.2},
+            {"type": "dim", "key": "bizarreness",  "target": 0.85, "weight": 1.0},
+            {"type": "dim", "key": "immersion",    "target": 0.80, "weight": 1.0},
+            {"type": "dim", "key": "emotion_pos",  "target": 0.50, "weight": 0.5},
+            {"type": "dim", "key": "sleep_latency","target": 0.50, "weight": 0.3},  # neutral
+        ],
+        "description": "You drift into vivid, sensory mini-dreams as you fall asleep.",
+        "icon": "seahorse.svg",
+    },
+
+    "Freewheeler": {
+        "features": [
+            {"type": "dim", "key": "vividness",    "target": 0.70, "weight": 0.8},
+            {"type": "dim", "key": "immersion",    "target": 0.60, "weight": 0.8},
+            {"type": "dim", "key": "bizarreness",  "target": 0.50, "weight": 0.6},
+            {"type": "dim", "key": "spontaneity",  "target": 0.70, "weight": 1.2},
+        ],
+        "description": "You start intentional, then let go into spontaneous imagery.",
+        "icon": "otter.svg",
+    },
+
+    "Strategist": {
+        "features": [
+            {"type": "dim", "key": "spontaneity",  "target": 0.10, "weight": 1.0},  # low spontaneity = controlled
+            {"type": "dim", "key": "vividness",    "target": 0.20, "weight": 0.8},
+            {"type": "dim", "key": "immersion",    "target": 0.30, "weight": 0.6},
+            {"type": "dim", "key": "bizarreness",  "target": 0.10, "weight": 0.8},
+        ],
+        "description": "You stay in control with practical or analytical thoughts until lights out.",
+        "icon": "ant.svg",
+    },
+
+    "Ruminator": {
+        "features": [
+            {"type": "dim", "key": "baseline_anxiety","target": 0.90, "weight": 1.2},
+            {"type": "dim", "key": "sleep_latency",   "target": 0.90, "weight": 1.0},  # long latency
+            {"type": "dim", "key": "immersion",       "target": 0.10, "weight": 0.4},  # not immersive imagery
+            {"type": "dim", "key": "emotion_pos",     "target": 0.20, "weight": 0.6},  # lower positive affect
+        ],
+        "description": "You replay or analyze the day, with longer latency and tension.",
+        "icon": "cow.svg",
+    },
+
+    "Quiet Mind": {
+        "features": [
+            {"type": "dim", "key": "vividness",    "target": 0.20, "weight": 0.9},
+            {"type": "dim", "key": "bizarreness",  "target": 0.20, "weight": 0.8},
+            {"type": "dim", "key": "immersion",    "target": 0.20, "weight": 0.8},
+            {"type": "dim", "key": "sleep_latency","target": 0.40, "weight": 0.5},  # fairly short
+        ],
+        "description": "You fall asleep with little mental content — soft, quiet onset.",
+        "icon": "sloth.svg",
+    },
+}
+
+
+
+
+
 # ==============
 # Dimensions & composite scores
 # ==============
@@ -418,14 +479,69 @@ def _nanaware_distance(a, b):
     diff = a[mask] - b[mask]
     return np.sqrt(np.sum(diff * diff))
 
+def _feature_value_from_record(record, scores, feat):
+    """
+    Return a normalized value in [0..1] (or np.nan) for a feature spec.
+    """
+    ftype = feat.get("type")
+    if ftype == "dim":
+        return scores.get(feat["key"], np.nan)
+
+    if ftype == "var":
+        raw = _get_first(record, feat["key"] if isinstance(feat["key"], (list, tuple)) else [feat["key"]])
+        norm_fn = feat.get("norm")
+        kwargs = feat.get("norm_kwargs", {}) or {}
+        if norm_fn is None:
+            v = _to_float(raw)
+            if np.isnan(v): return np.nan
+            return np.clip(v, 0.0, 1.0)
+        try:
+            return norm_fn(raw, **kwargs)
+        except TypeError:
+            return norm_fn(raw)
+
+    return np.nan
+
+
+def _weighted_nanaware_distance(values, targets, weights):
+    """
+    Weighted Euclidean distance on available entries only.
+    """
+    a = np.asarray(values, float)
+    b = np.asarray(targets, float)
+    w = np.asarray(weights, float)
+    mask = ~(np.isnan(a) | np.isnan(b))
+    if not np.any(mask):
+        return np.inf
+    d = a[mask] - b[mask]
+    return np.sqrt(np.sum(w[mask] * d * d))
+
+
 def assign_profile_from_record(record):
+    """
+    1) Compute composite DIMENSIONS once (used by feature type 'dim').
+    2) For each profile, compute a weighted distance using only its features.
+    3) Return the best profile + the composite scores for plotting.
+    """
     scores = composite_scores_from_record(record)
-    vec = vector_from_scores(scores)
+
     best_name, best_dist = None, np.inf
     for name, cfg in PROFILES.items():
-        d = _nanaware_distance(vec, cfg["prototype"])
+        feats = cfg.get("features", [])
+        if not feats:
+            continue  # profiles must define features
+
+        vals, targs, wts = [], [], []
+        for f in feats:
+            v   = _feature_value_from_record(record, scores, f)
+            tgt = float(f.get("target", np.nan))
+            wt  = float(f.get("weight", 1.0))
+            vals.append(v); targs.append(tgt); wts.append(wt)
+
+        d = _weighted_nanaware_distance(vals, targs, wts)
         if d < best_dist:
             best_name, best_dist = name, d
+
     return best_name, scores
 
 # ==============
