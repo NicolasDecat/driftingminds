@@ -355,13 +355,6 @@ st.markdown(dedent("""
 </style>
 """), unsafe_allow_html=True)
 
-# ---- Re-add centered title --------------------------------------------------
-st.markdown("""
-<div class="dm-center">
-  <div class="dm-title">DRIFTING MINDS STUDY</div>
-</div>
-""", unsafe_allow_html=True)
-
 
 # --- Center the whole block, then create a 2-col layout: [icon | text] ------
 import base64
