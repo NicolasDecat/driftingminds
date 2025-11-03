@@ -374,35 +374,38 @@ st.markdown("""
   /* Title */
   .dm-title { font-size: 3rem; font-weight: 200; margin: 0.2rem 0 2rem 0; text-align:center; }
 
-  /* Non-stacking row: stays side-by-side on all widths */
   .dm-row {
-    display: flex;
-    align-items: center;
-    gap: 1.25rem;
-    justify-content: flex-start;     /* align content to the left of the flex box */
-    margin-left: 4rem;               /* 👈 shifts the whole row right */
-  }
-
-  @media (min-width: 640px) {
-    .dm-row {
-      margin-left: 6rem;             /* 👈 more pronounced shift on desktop */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;              /* tighter spacing between icon and text */
     }
-  }
-
-  /* Icon stays fixed-width; text takes the rest */
-  .dm-icon { width: 140px; height: auto; flex: 0 0 auto; }
-  /* Text block shifted a bit to the right for optical balance */
-    .dm-text {
-    flex: 1 1 0;
-    min-width: 0;
-    padding-left: 3.75rem;     /* significantly more space (was 0.75rem) */
-  }
-
-  @media (min-width: 640px) {
-    .dm-text {
-      padding-left: 5.5rem;  /* even more generous spacing on desktop */
+    
+    @media (min-width: 640px){
+      .dm-row { gap: 1rem; }     /* slightly more space on desktop */
     }
-  }
+    
+    /* ✅ Nudge icon toward the text (right) without moving the text */
+    .dm-icon {
+      width: 140px;
+      height: auto;
+      flex: 0 0 auto;
+      transform: translateX(1rem);       /* move icon right */
+    }
+    
+    @media (min-width: 640px){
+      .dm-icon { transform: translateX(1.5rem); }  /* a bit more on desktop */
+    }
+    
+    /* Keep your stronger right shift for the text */
+    .dm-text {
+      flex: 1 1 0;
+      min-width: 0;
+      padding-left: 3.75rem;     /* mobile */
+    }
+    @media (min-width: 640px){
+      .dm-text { padding-left: 5.5rem; } /* desktop */
+    }
 
   /* Your existing text styles (left-aligned inside the text block) */
   .dm-lead { font-weight: 400; font-size: 1rem; color: #666; margin: 0 0 8px 0; letter-spacing: 0.3px; font-style: italic; text-align: left; }
