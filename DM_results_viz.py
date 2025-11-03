@@ -386,17 +386,16 @@ st.markdown("""
   .dm-icon { width: 140px; height: auto; flex: 0 0 auto; }
   /* Text block shifted a bit to the right for optical balance */
     .dm-text {
-      flex: 1 1 0;
-      min-width: 0;
-      padding-left: 0.75rem;   /* 👈 small rightward offset */
-    }
-    
-    @media (min-width: 640px) {
-      .dm-text {
-        padding-left: 1.5rem;  /* 👈 slightly more on larger screens */
-      }
-    }
+    flex: 1 1 0;
+    min-width: 0;
+    padding-left: 3rem;     /* significantly more space (was 0.75rem) */
+  }
 
+  @media (min-width: 640px) {
+    .dm-text {
+      padding-left: 4.5rem;  /* even more generous spacing on desktop */
+    }
+  }
 
   /* Your existing text styles (left-aligned inside the text block) */
   .dm-lead { font-weight: 400; font-size: 1rem; color: #666; margin: 0 0 8px 0; letter-spacing: 0.3px; font-style: italic; text-align: left; }
