@@ -337,7 +337,7 @@ PROFILES = {
              "norm_kwargs": {}, "target": 1.00, "weight": 1.0},                      # very sleepy
         ],
         "description": "You fall asleep quickly, especially when you already feel sleepy.",
-        "icon": "cheetah.svg",
+        "icon": "bear.svg",
     },
 
     "Creative": {
@@ -348,7 +348,7 @@ PROFILES = {
              "norm_kwargs": {}, "target": 0.95, "weight": 1.0},
         ],
         "description": "Ideas spark at the edge of sleep — you drift off with creativity alive.",
-        "icon": "firefly.svg",
+        "icon": "octopus.svg",
     },
 
     # --- Converted versions of your previous profiles -------------------------
