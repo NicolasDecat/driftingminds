@@ -388,12 +388,12 @@ st.markdown("""
     .dm-text {
     flex: 1 1 0;
     min-width: 0;
-    padding-left: 3rem;     /* significantly more space (was 0.75rem) */
+    padding-left: 3.75rem;     /* significantly more space (was 0.75rem) */
   }
 
   @media (min-width: 640px) {
     .dm-text {
-      padding-left: 4.5rem;  /* even more generous spacing on desktop */
+      padding-left: 5.5rem;  /* even more generous spacing on desktop */
     }
   }
 
