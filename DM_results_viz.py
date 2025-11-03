@@ -314,6 +314,7 @@ prof_key = str(prof).strip().lower()
 prof_desc = _descriptions_ci.get(prof_key, "")
 
 
+
 import os
 from textwrap import dedent
 
@@ -336,14 +337,31 @@ st.markdown(dedent("""
 <style>
   :root { --dm-max: 820px; }
   .dm-center { max-width: var(--dm-max); margin: 0 auto; }
+
+  /* Title style */
+  .dm-title {
+    font-size: 3rem;
+    font-weight: 200;
+    margin: 0.2rem 0 2rem 0;   /* bottom spacing before the lead/profile */
+    text-align: center;
+  }
+
   .dm-lead { font-weight: 400; font-size: 1rem; color: #666;
              margin: 0 0 8px 0; letter-spacing: 0.3px; font-style: italic; text-align: left; }
   .dm-key  { font-weight: 600; font-size: clamp(28px, 5vw, 60px); line-height: 1.05;
-             margin: 0 0 10px 0; color: #7A5CFA; text-align: left; }  /* purple for profile name */
+             margin: 0 0 10px 0; color: #7A5CFA; text-align: left; }
   .dm-desc { color: #111; font-size: 1.05rem; line-height: 1.55; margin: 0;
              max-width: 680px; font-weight: 400; text-align: left; }
 </style>
 """), unsafe_allow_html=True)
+
+# ---- Re-add centered title --------------------------------------------------
+st.markdown("""
+<div class="dm-center">
+  <div class="dm-title">DRIFTING MINDS STUDY</div>
+</div>
+""", unsafe_allow_html=True)
+
 
 # --- Center the whole block, then create a 2-col layout: [icon | text] ------
 outer_l, outer_mid, outer_r = st.columns([1, 8, 1])
