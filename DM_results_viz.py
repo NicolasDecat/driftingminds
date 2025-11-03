@@ -89,7 +89,16 @@ def safe_float(x):
 
 # ---------- App Layout ----------
 
-st.image("assets/symbols.png", width=300) 
+# Symbols photo
+st.markdown(
+    """
+    <div style='text-align: center;'>
+        <img src='assets/symbols.png' width='200'>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 
 # Read query params (?id=123)
 qp = st.query_params
@@ -112,7 +121,7 @@ if not record:
 st.markdown(
     """
     <div style="text-align:center; margin-bottom:0.35rem;">  <!-- more space -->
-        <div style="font-size:1rem; font-weight:800;">Drifting Minds Study</div>
+        <div style="font-size:1.4rem; font-weight:800;">Drifting Minds Study</div>
         <div style="font-size:1rem; margin-top:0.1rem;">
             Which Drifting Mind are you?
         </div>
