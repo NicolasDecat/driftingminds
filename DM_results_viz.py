@@ -90,15 +90,10 @@ def safe_float(x):
 # ---------- App Layout ----------
 
 # Image symbols
-st.image("assets/symbols.png", width=200) 
-st.markdown(
-    """
-    <div style='text-align: center;'>
-        <img src='assets/symbols.png' width='200'>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+col1, col2, col3 = st.columns([1,2,1])
+with col2:
+    st.image("assets/symbols.png", width=200)
+
 
 # Read query params (?id=123)
 qp = st.query_params
