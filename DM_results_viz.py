@@ -329,85 +329,106 @@ def norm_latency_auto(x, cap_minutes=CAP_MIN):
 # You can mix 'dim' (composite DIMENSIONS) and 'var' (raw fields + normalizer).
 
 PROFILES = {
-    # --- Examples you asked for ------------------------------------------------
+
+    # =====================================================================
+    # Fast Sleeper
+    # =====================================================================
     "Fast Sleeper": {
         "features": [
-            {"type": "dim", "key": "sleep_latency", "target": 0.00, "weight": 1.2},  # very short latency
+            {"type": "dim", "key": "sleep_latency",         "target": 0.00, "weight": 1.2},  # very short latency
             {"type": "var", "key": ["degreequest_sleepiness"], "norm": norm_1_6,
-             "norm_kwargs": {}, "target": 1.00, "weight": 1.0},                      # very sleepy
+             "norm_kwargs": {}, "target": 1.00, "weight": 1.0},                             # very sleepy
         ],
         "description": "You fall asleep quickly, especially when you already feel sleepy.",
-        "icon": "bear.svg",
+        "icon":        "bear.svg",
     },
 
+    # =====================================================================
+    # Creative
+    # =====================================================================
     "Creative": {
         "features": [
-            {"type": "var", "key": ["freq_creat"], "norm": norm_1_6,
+            {"type": "var", "key": ["freq_creat"],          "norm": norm_1_6,
              "norm_kwargs": {}, "target": 0.95, "weight": 1.1},
-            {"type": "var", "key": ["creativity_trait"], "norm": norm_1_6,
+            {"type": "var", "key": ["creativity_trait"],    "norm": norm_1_6,
              "norm_kwargs": {}, "target": 0.95, "weight": 1.0},
         ],
         "description": "Ideas spark at the edge of sleep — you drift off with creativity alive.",
-        "icon": "octopus.svg",
+        "icon":        "octopus.svg",
     },
 
-    # --- Converted versions of your previous profiles -------------------------
+    # =====================================================================
+    # Dreamweaver
+    # =====================================================================
     "Dreamweaver": {
         "features": [
-            {"type": "dim", "key": "vividness",    "target": 0.90, "weight": 1.2},
-            {"type": "dim", "key": "bizarreness",  "target": 0.85, "weight": 1.0},
-            {"type": "dim", "key": "immersion",    "target": 0.80, "weight": 1.0},
-            {"type": "dim", "key": "emotion_pos",  "target": 0.50, "weight": 0.5},
-            {"type": "dim", "key": "sleep_latency","target": 0.50, "weight": 0.3},  # neutral
+            {"type": "dim", "key": "vividness",             "target": 0.90, "weight": 1.2},
+            {"type": "dim", "key": "bizarreness",           "target": 0.85, "weight": 1.0},
+            {"type": "dim", "key": "immersion",             "target": 0.80, "weight": 1.0},
+            {"type": "dim", "key": "emotion_pos",           "target": 0.50, "weight": 0.5},
+            {"type": "dim", "key": "sleep_latency",         "target": 0.50, "weight": 0.3},  # neutral
         ],
         "description": "You drift into vivid, sensory mini-dreams as you fall asleep.",
-        "icon": "seahorse.svg",
+        "icon":        "seahorse.svg",
     },
 
+    # =====================================================================
+    # Freewheeler
+    # =====================================================================
     "Freewheeler": {
         "features": [
-            {"type": "dim", "key": "vividness",    "target": 0.70, "weight": 0.8},
-            {"type": "dim", "key": "immersion",    "target": 0.60, "weight": 0.8},
-            {"type": "dim", "key": "bizarreness",  "target": 0.50, "weight": 0.6},
-            {"type": "dim", "key": "spontaneity",  "target": 0.70, "weight": 1.2},
+            {"type": "dim", "key": "vividness",             "target": 0.70, "weight": 0.8},
+            {"type": "dim", "key": "immersion",             "target": 0.60, "weight": 0.8},
+            {"type": "dim", "key": "bizarreness",           "target": 0.50, "weight": 0.6},
+            {"type": "dim", "key": "spontaneity",           "target": 0.70, "weight": 1.2},
         ],
         "description": "You start intentional, then let go into spontaneous imagery.",
-        "icon": "otter.svg",
+        "icon":        "otter.svg",
     },
 
+    # =====================================================================
+    # Strategist
+    # =====================================================================
     "Strategist": {
         "features": [
-            {"type": "dim", "key": "spontaneity",  "target": 0.10, "weight": 1.0},  # low spontaneity = controlled
-            {"type": "dim", "key": "vividness",    "target": 0.20, "weight": 0.8},
-            {"type": "dim", "key": "immersion",    "target": 0.30, "weight": 0.6},
-            {"type": "dim", "key": "bizarreness",  "target": 0.10, "weight": 0.8},
+            {"type": "dim", "key": "spontaneity",           "target": 0.10, "weight": 1.0},  # low spontaneity = controlled
+            {"type": "dim", "key": "vividness",             "target": 0.20, "weight": 0.8},
+            {"type": "dim", "key": "immersion",             "target": 0.30, "weight": 0.6},
+            {"type": "dim", "key": "bizarreness",           "target": 0.10, "weight": 0.8},
         ],
         "description": "You stay in control with practical or analytical thoughts until lights out.",
-        "icon": "ant.svg",
+        "icon":        "ant.svg",
     },
 
+    # =====================================================================
+    # Ruminator
+    # =====================================================================
     "Ruminator": {
         "features": [
-            {"type": "dim", "key": "baseline_anxiety","target": 0.90, "weight": 1.2},
-            {"type": "dim", "key": "sleep_latency",   "target": 0.90, "weight": 1.0},  # long latency
-            {"type": "dim", "key": "immersion",       "target": 0.10, "weight": 0.4},  # not immersive imagery
-            {"type": "dim", "key": "emotion_pos",     "target": 0.20, "weight": 0.6},  # lower positive affect
+            {"type": "dim", "key": "baseline_anxiety",      "target": 0.90, "weight": 1.2},
+            {"type": "dim", "key": "sleep_latency",         "target": 0.90, "weight": 1.0},  # long latency
+            {"type": "dim", "key": "immersion",             "target": 0.10, "weight": 0.4},  # not immersive imagery
+            {"type": "dim", "key": "emotion_pos",           "target": 0.20, "weight": 0.6},  # lower positive affect
         ],
         "description": "You replay or analyze the day, with longer latency and tension.",
-        "icon": "cow.svg",
+        "icon":        "cow.svg",
     },
 
+    # =====================================================================
+    # Quiet Mind
+    # =====================================================================
     "Quiet Mind": {
         "features": [
-            {"type": "dim", "key": "vividness",    "target": 0.20, "weight": 0.9},
-            {"type": "dim", "key": "bizarreness",  "target": 0.20, "weight": 0.8},
-            {"type": "dim", "key": "immersion",    "target": 0.20, "weight": 0.8},
-            {"type": "dim", "key": "sleep_latency","target": 0.40, "weight": 0.5},  # fairly short
+            {"type": "dim", "key": "vividness",             "target": 0.20, "weight": 0.9},
+            {"type": "dim", "key": "bizarreness",           "target": 0.20, "weight": 0.8},
+            {"type": "dim", "key": "immersion",             "target": 0.20, "weight": 0.8},
+            {"type": "dim", "key": "sleep_latency",         "target": 0.40, "weight": 0.5},  # fairly short
         ],
         "description": "You fall asleep with little mental content — soft, quiet onset.",
-        "icon": "sloth.svg",
+        "icon":        "sloth.svg",
     },
 }
+
 
 
 
