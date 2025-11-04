@@ -349,9 +349,9 @@ PROFILES = {
     # =====================================================================
     "The Switch-Off": {
         "features": [
-            {"type": "var", "key": ["sleep_latency"],                   "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.00, "weight": 1.2},
+            {"type": "var", "key": ["sleep_latency"],                   "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.00, "weight": 1.3},
             {"type": "var", "key": ["degreequest_sleepiness"],          "norm": norm_1_6, "norm_kwargs": {}, "target": 1.00, "weight": 1.0},
-            {"type": "var", "key": ["trajectories"],                    "norm": norm_1_4, "norm_kwargs": {}, "target": 0.33, "weight": 1.3},
+            {"type": "var", "key": ["trajectories"],                    "norm": norm_1_4, "norm_kwargs": {}, "target": 0.33, "weight": 1.0},
         ],
         "description": "You fall asleep quickly, especially when you already feel sleepy.",
         "icon": "bear.svg",
