@@ -335,7 +335,7 @@ PROFILES = {
     # =====================================================================
     "Fast Sleeper": {
         "features": [
-            {"type": "var", "key": ["sleep_latency_min"], "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.00, "weight": 1.2},
+            {"type": "var", "key": ["sleep_latency"], "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.00, "weight": 1.2},
             {"type": "var", "key": ["degreequest_sleepiness"], "norm": norm_1_6, "norm_kwargs": {}, "target": 1.00, "weight": 1.0},
         ],
         "description": "You fall asleep quickly, especially when you already feel sleepy.",
@@ -441,67 +441,12 @@ def _get_first(record, keys):
         return np.nan
     return record.get(keys, np.nan)
 
-DIMENSIONS = {
-    "vividness": [
-        ("freq_percept_real",      norm_1_6,   1.0, {}),
-        ("freq_percept_intense",   norm_1_6,   1.0, {}),
-    ],
-    "spontaneity": [
-        ("freq_think_nocontrol",   norm_1_6,   1.0, {}),
-    ],
-    "bizarreness": [
-        ("freq_percept_bizarre",   norm_1_6,   1.0, {}),
-    ],
-    "immersion": [
-        ("freq_absorbed",          norm_1_6,   1.0, {}),
-    ],
-    "emotion_pos": [
-        ("freq_positive",          norm_1_6,   1.0, {}),
-    ],
-    "sleep_latency": [
-        (["sleep_latency_min","sleep_latency","sleep_latency_minutes",
-          "latency_minutes","sleep_onset_latency"], norm_latency_auto, 1.0, {"cap_minutes": CAP_MIN}),
-    ],
-    "baseline_anxiety": [
-        (["anxiety"], norm_1_100, 1.0, {}),
-    ],
-}
-DIM_KEYS = list(DIMENSIONS.keys())
-
-def composite_scores_from_record(record, dimensions=DIMENSIONS):
-    out = {}
-    for dim, items in dimensions.items():
-        vals, wts = [], []
-        for item in items:
-            field_keys, norm_fn, wt, *rest = item
-            kwargs = rest[0] if rest else {}
-            raw = _get_first(record, field_keys)
-            try:
-                v = norm_fn(raw, **kwargs) if kwargs else norm_fn(raw)
-            except TypeError:
-                v = norm_fn(raw)
-            if not np.isnan(v):
-                vals.append(v * wt); wts.append(wt)
-        out[dim] = (np.sum(vals) / np.sum(wts)) if wts else np.nan
-    return out
-
-def vector_from_scores(scores, dim_keys=DIM_KEYS):
-    return np.array([scores.get(k, np.nan) for k in dim_keys], dtype=float)
-
-def _nanaware_distance(a, b):
-    a = np.array(a, dtype=float); b = np.array(b, dtype=float)
-    mask = ~(np.isnan(a) | np.isnan(b))
-    if not np.any(mask): return np.inf
-    diff = a[mask] - b[mask]
-    return np.sqrt(np.sum(diff * diff))
 
 def _feature_value_from_record(record, scores, feat):
     """
     Return a normalized value in [0..1] (or np.nan) for a feature spec.
     """
     ftype = feat.get("type")
-    if ftype == "dim":
-        return scores.get(feat["key"], np.nan)
 
     if ftype == "var":
         raw = _get_first(record, feat["key"] if isinstance(feat["key"], (list, tuple)) else [feat["key"]])
