@@ -55,7 +55,7 @@ header[data-testid="stHeader"]::before { content: none; }
 
 /* Title */
 .dm-title {
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: 200;
   margin: 0 0 1.25rem 0;  /* tightened below, zero above */
   text-align: center;
