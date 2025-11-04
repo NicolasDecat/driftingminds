@@ -364,7 +364,7 @@ PROFILES = {
             {"type": "var", "key": ["freq_percept_bizarre"], "norm": norm_1_6, "norm_kwargs": {}, "target": 0.85, "weight": 1.0},
             {"type": "var", "key": ["freq_absorbed"], "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.0},
             {"type": "var", "key": ["freq_positive"], "norm": norm_1_6, "norm_kwargs": {}, "target": 0.50, "weight": 0.5},
-            {"type": "var", "key": ["sleep_latency_min"], "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.50, "weight": 0.3},
+            {"type": "var", "key": ["sleep_latency"], "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.50, "weight": 0.3},
         ],
         "description": "You drift into vivid, sensory mini-dreams as you fall asleep.",
         "icon": "seahorse.svg",
@@ -401,8 +401,7 @@ PROFILES = {
     "Ruminator": {
         "features": [
             {"type": "var", "key": ["anxiety"],                                     "norm": norm_1_100,      "norm_kwargs": {},                      "target": 0.90, "weight": 1.2},  # baseline_anxiety
-            {"type": "var", "key": ["sleep_latency_min","sleep_latency","sleep_latency_minutes","latency_minutes","sleep_onset_latency"],
-                               "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN},                                                    "target": 0.90, "weight": 1.0},  # sleep_latency (long)
+            {"type": "var", "key": ["sleep_latency"],                               "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN},                                                    "target": 0.90, "weight": 1.0},  # sleep_latency (long)
             {"type": "var", "key": ["freq_absorbed"],                               "norm": norm_1_6,        "norm_kwargs": {},                      "target": 0.10, "weight": 0.4},  # immersion (low)
             {"type": "var", "key": ["freq_positive"],                               "norm": norm_1_6,        "norm_kwargs": {},                      "target": 0.20, "weight": 0.6},  # positive affect (low)
         ],
@@ -418,8 +417,7 @@ PROFILES = {
             {"type": "var", "key": ["freq_percept_real", "freq_percept_intense"],   "norm": norm_1_6,        "norm_kwargs": {}, "target": 0.20, "weight": 0.9},  # vividness (low)
             {"type": "var", "key": ["freq_percept_bizarre"],                        "norm": norm_1_6,        "norm_kwargs": {}, "target": 0.20, "weight": 0.8},  # bizarreness (low)
             {"type": "var", "key": ["freq_absorbed"],                               "norm": norm_1_6,        "norm_kwargs": {}, "target": 0.20, "weight": 0.8},  # immersion (low)
-            {"type": "var", "key": ["sleep_latency_min","sleep_latency","sleep_latency_minutes","latency_minutes","sleep_onset_latency"],
-                               "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN},               "target": 0.40, "weight": 0.5},  # fairly short
+            {"type": "var", "key": ["sleep_latency"],                               "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN},               "target": 0.40, "weight": 0.5},  # fairly short
         ],
         "description": "You fall asleep with little mental content — soft, quiet onset.",
         "icon": "sloth.svg",
