@@ -356,8 +356,10 @@ PROFILES = {
     # =====================================================================
     "Creative": {
         "features": [
-            {"type": "var", "key": ["freq_creat"],                      "norm": norm_1_6,"norm_kwargs": {}, "target": 0.95, "weight": 1.3},
-            {"type": "var", "key": ["creativity_trait"],                "norm": norm_1_6,"norm_kwargs": {}, "target": 0.95, "weight": 1.0},
+            {"type": "var","key": ["freq_creat"],    "norm": norm_1_6, "norm_kwargs": {}, "target": 0.95, "weight": 1.3,
+            "or_if_any": [ { "key": ["anytime_17"], "op": "eq", "value": 1}]
+            },
+           {"type": "var", "key": ["creativity_trait"],                "norm": norm_1_6,"norm_kwargs": {}, "target": 0.95, "weight": 1.0},
         ],
         "description": "Ideas spark at the edge of sleep — you drift off with creativity alive.",
         "icon":        "octopus.svg",
@@ -553,21 +555,42 @@ def _conditions_met(record, feat: dict) -> bool:
 
     return True
 
+def _shortcircuit_or_value(record, feat):
+    """
+    If any/all OR-conditions are met, return an override value for the feature.
+    Returns None if no OR condition fires.
+    Supported keys on the feature:
+      - or_if_any: [cond, ...]   # OR over these conditions
+      - or_if_all: [cond, ...]   # AND over these conditions
+      - or_value: float          # value to return if fired (defaults to feature['target'])
+    """
+    # OR (any)
+    any_list = feat.get("or_if_any") or []
+    if any_list and any(_eval_condition(record, c) for c in any_list):
+        return float(feat.get("or_value", feat.get("target", 1.0)))
+
+    # OR (all) – i.e., fire if ALL are true
+    all_list = feat.get("or_if_all") or []
+    if all_list and all(_eval_condition(record, c) for c in all_list):
+        return float(feat.get("or_value", feat.get("target", 1.0)))
+
+    return None
 
 
 def _feature_value_from_record(record, scores_unused, feat):
-    """
-    Return a normalized value in [0..1] (or np.nan) for a feature spec.
-    Only 'var' features are supported now.
-    """
     if feat.get("type") != "var":
         return np.nan
-    
+
     if not _conditions_met(record, feat):
         return np.nan
 
+    # --- NEW: short-circuit OR that *provides a value* even if the main var is low/missing
+    sc = _shortcircuit_or_value(record, feat)
+    if sc is not None:
+        return np.clip(sc, 0.0, 1.0)
+
+    # normal path (uses the declared variable)
     keys = feat["key"] if isinstance(feat["key"], (list, tuple)) else [feat["key"]]
-    # your _get_first already treats empty/"NA" as missing
     raw = _get_first(record, keys)
 
     norm_fn = feat.get("norm")
