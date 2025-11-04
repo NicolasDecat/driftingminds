@@ -335,12 +335,11 @@ PROFILES = {
     # =====================================================================
     "Fast Sleeper": {
         "features": [
-            {"type": "dim", "key": "sleep_latency",         "target": 0.00, "weight": 1.2},  # very short latency
-            {"type": "var", "key": ["degreequest_sleepiness"], "norm": norm_1_6,
-             "norm_kwargs": {}, "target": 1.00, "weight": 1.0},                             # very sleepy
+            {"type": "var", "key": ["sleep_latency_min"], "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.00, "weight": 1.2},
+            {"type": "var", "key": ["degreequest_sleepiness"], "norm": norm_1_6, "norm_kwargs": {}, "target": 1.00, "weight": 1.0},
         ],
         "description": "You fall asleep quickly, especially when you already feel sleepy.",
-        "icon":        "bear.svg",
+        "icon": "bear.svg",
     },
 
     # =====================================================================
@@ -348,8 +347,7 @@ PROFILES = {
     # =====================================================================
     "Creative": {
         "features": [
-            {"type": "var", "key": ["freq_creat"],          "norm": norm_1_6,
-             "norm_kwargs": {}, "target": 0.95, "weight": 1.1},
+            {"type": "var", "key": ["freq_creat"],          "norm": norm_1_6,"norm_kwargs": {}, "target": 0.95, "weight": 1.1},
             {"type": "var", "key": ["creativity_trait"],    "norm": norm_1_6,
              "norm_kwargs": {}, "target": 0.95, "weight": 1.0},
         ],
@@ -362,70 +360,67 @@ PROFILES = {
     # =====================================================================
     "Dreamweaver": {
         "features": [
-            {"type": "dim", "key": "vividness",             "target": 0.90, "weight": 1.2},
-            {"type": "dim", "key": "bizarreness",           "target": 0.85, "weight": 1.0},
-            {"type": "dim", "key": "immersion",             "target": 0.80, "weight": 1.0},
-            {"type": "dim", "key": "emotion_pos",           "target": 0.50, "weight": 0.5},
-            {"type": "dim", "key": "sleep_latency",         "target": 0.50, "weight": 0.3},  # neutral
+            {"type": "var", "key": ["freq_percept_real", "freq_percept_intense"], "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1.2},
+            {"type": "var", "key": ["freq_percept_bizarre"], "norm": norm_1_6, "norm_kwargs": {}, "target": 0.85, "weight": 1.0},
+            {"type": "var", "key": ["freq_absorbed"], "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.0},
+            {"type": "var", "key": ["freq_positive"], "norm": norm_1_6, "norm_kwargs": {}, "target": 0.50, "weight": 0.5},
+            {"type": "var", "key": ["sleep_latency"], "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.50, "weight": 0.3},
         ],
         "description": "You drift into vivid, sensory mini-dreams as you fall asleep.",
-        "icon":        "seahorse.svg",
+        "icon": "seahorse.svg",
     },
 
-    # =====================================================================
-    # Freewheeler
-    # =====================================================================
     "Freewheeler": {
-        "features": [
-            {"type": "dim", "key": "vividness",             "target": 0.70, "weight": 0.8},
-            {"type": "dim", "key": "immersion",             "target": 0.60, "weight": 0.8},
-            {"type": "dim", "key": "bizarreness",           "target": 0.50, "weight": 0.6},
-            {"type": "dim", "key": "spontaneity",           "target": 0.70, "weight": 1.2},
-        ],
-        "description": "You start intentional, then let go into spontaneous imagery.",
-        "icon":        "otter.svg",
+    "features": [
+        {"type": "var", "key": ["freq_percept_real", "freq_percept_intense"],  "norm": norm_1_6, "norm_kwargs": {}, "target": 0.70, "weight": 0.8},  # vividness
+        {"type": "var", "key": ["freq_absorbed"],                              "norm": norm_1_6, "norm_kwargs": {}, "target": 0.60, "weight": 0.8},  # immersion
+        {"type": "var", "key": ["freq_percept_bizarre"],                       "norm": norm_1_6, "norm_kwargs": {}, "target": 0.50, "weight": 0.6},  # bizarreness
+        {"type": "var", "key": ["freq_think_nocontrol"],                       "norm": norm_1_6, "norm_kwargs": {}, "target": 0.70, "weight": 1.2},  # spontaneity
+    ],
+    "description": "You start intentional, then let go into spontaneous imagery.",
+    "icon": "otter.svg",
     },
-
+    
     # =====================================================================
     # Strategist
     # =====================================================================
     "Strategist": {
         "features": [
-            {"type": "dim", "key": "spontaneity",           "target": 0.10, "weight": 1.0},  # low spontaneity = controlled
-            {"type": "dim", "key": "vividness",             "target": 0.20, "weight": 0.8},
-            {"type": "dim", "key": "immersion",             "target": 0.30, "weight": 0.6},
-            {"type": "dim", "key": "bizarreness",           "target": 0.10, "weight": 0.8},
+            {"type": "var", "key": ["freq_think_nocontrol"],                       "norm": norm_1_6,        "norm_kwargs": {}, "target": 0.10, "weight": 1.0},  # spontaneity (low)
+            {"type": "var", "key": ["freq_percept_real", "freq_percept_intense"],  "norm": norm_1_6,        "norm_kwargs": {}, "target": 0.20, "weight": 0.8},  # vividness (low)
+            {"type": "var", "key": ["freq_absorbed"],                              "norm": norm_1_6,        "norm_kwargs": {}, "target": 0.30, "weight": 0.6},  # immersion (low)
+            {"type": "var", "key": ["freq_percept_bizarre"],                       "norm": norm_1_6,        "norm_kwargs": {}, "target": 0.10, "weight": 0.8},  # bizarreness (low)
         ],
         "description": "You stay in control with practical or analytical thoughts until lights out.",
-        "icon":        "ant.svg",
+        "icon": "ant.svg",
     },
-
+    
     # =====================================================================
     # Ruminator
     # =====================================================================
     "Ruminator": {
         "features": [
-            {"type": "dim", "key": "baseline_anxiety",      "target": 0.90, "weight": 1.2},
-            {"type": "dim", "key": "sleep_latency",         "target": 0.90, "weight": 1.0},  # long latency
-            {"type": "dim", "key": "immersion",             "target": 0.10, "weight": 0.4},  # not immersive imagery
-            {"type": "dim", "key": "emotion_pos",           "target": 0.20, "weight": 0.6},  # lower positive affect
+            {"type": "var", "key": ["anxiety"],                                     "norm": norm_1_100,      "norm_kwargs": {},                      "target": 0.90, "weight": 1.2},  # baseline_anxiety
+            {"type": "var", "key": ["sleep_latency"],                               "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.90, "weight": 1.0},  # sleep_latency (long)
+            {"type": "var", "key": ["freq_absorbed"],                               "norm": norm_1_6,        "norm_kwargs": {},                      "target": 0.10, "weight": 0.4},  # immersion (low)
+            {"type": "var", "key": ["freq_positive"],                               "norm": norm_1_6,        "norm_kwargs": {},                      "target": 0.20, "weight": 0.6},  # positive affect (low)
         ],
         "description": "You replay or analyze the day, with longer latency and tension.",
-        "icon":        "cow.svg",
+        "icon": "cow.svg",
     },
-
+    
     # =====================================================================
     # Quiet Mind
     # =====================================================================
     "Quiet Mind": {
         "features": [
-            {"type": "dim", "key": "vividness",             "target": 0.20, "weight": 0.9},
-            {"type": "dim", "key": "bizarreness",           "target": 0.20, "weight": 0.8},
-            {"type": "dim", "key": "immersion",             "target": 0.20, "weight": 0.8},
-            {"type": "dim", "key": "sleep_latency",         "target": 0.40, "weight": 0.5},  # fairly short
+            {"type": "var", "key": ["freq_percept_real", "freq_percept_intense"],   "norm": norm_1_6,        "norm_kwargs": {}, "target": 0.20, "weight": 0.9},  # vividness (low)
+            {"type": "var", "key": ["freq_percept_bizarre"],                        "norm": norm_1_6,        "norm_kwargs": {}, "target": 0.20, "weight": 0.8},  # bizarreness (low)
+            {"type": "var", "key": ["freq_absorbed"],                               "norm": norm_1_6,        "norm_kwargs": {}, "target": 0.20, "weight": 0.8},  # immersion (low)
+            {"type": "var", "key": ["sleep_latency"],                               "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.40, "weight": 0.5},  # fairly short
         ],
         "description": "You fall asleep with little mental content — soft, quiet onset.",
-        "icon":        "sloth.svg",
+        "icon": "sloth.svg",
     },
 }
 
@@ -446,52 +441,7 @@ def _get_first(record, keys):
         return np.nan
     return record.get(keys, np.nan)
 
-DIMENSIONS = {
-    "vividness": [
-        ("freq_percept_real",      norm_1_6,   1.0, {}),
-        ("freq_percept_intense",   norm_1_6,   1.0, {}),
-    ],
-    "spontaneity": [
-        ("freq_think_nocontrol",   norm_1_6,   1.0, {}),
-    ],
-    "bizarreness": [
-        ("freq_percept_bizarre",   norm_1_6,   1.0, {}),
-    ],
-    "immersion": [
-        ("freq_absorbed",          norm_1_6,   1.0, {}),
-    ],
-    "emotion_pos": [
-        ("freq_positive",          norm_1_6,   1.0, {}),
-    ],
-    "sleep_latency": [
-        (["sleep_latency_min","sleep_latency","sleep_latency_minutes",
-          "latency_minutes","sleep_onset_latency"], norm_latency_auto, 1.0, {"cap_minutes": CAP_MIN}),
-    ],
-    "baseline_anxiety": [
-        (["anxiety"], norm_1_100, 1.0, {}),
-    ],
-}
-DIM_KEYS = list(DIMENSIONS.keys())
 
-def composite_scores_from_record(record, dimensions=DIMENSIONS):
-    out = {}
-    for dim, items in dimensions.items():
-        vals, wts = [], []
-        for item in items:
-            field_keys, norm_fn, wt, *rest = item
-            kwargs = rest[0] if rest else {}
-            raw = _get_first(record, field_keys)
-            try:
-                v = norm_fn(raw, **kwargs) if kwargs else norm_fn(raw)
-            except TypeError:
-                v = norm_fn(raw)
-            if not np.isnan(v):
-                vals.append(v * wt); wts.append(wt)
-        out[dim] = (np.sum(vals) / np.sum(wts)) if wts else np.nan
-    return out
-
-def vector_from_scores(scores, dim_keys=DIM_KEYS):
-    return np.array([scores.get(k, np.nan) for k in dim_keys], dtype=float)
 
 def _nanaware_distance(a, b):
     a = np.array(a, dtype=float); b = np.array(b, dtype=float)
@@ -500,28 +450,28 @@ def _nanaware_distance(a, b):
     diff = a[mask] - b[mask]
     return np.sqrt(np.sum(diff * diff))
 
-def _feature_value_from_record(record, scores, feat):
+def _feature_value_from_record(record, scores_unused, feat):
     """
     Return a normalized value in [0..1] (or np.nan) for a feature spec.
+    Only 'var' features are supported now.
     """
     ftype = feat.get("type")
-    if ftype == "dim":
-        return scores.get(feat["key"], np.nan)
+    if ftype != "var":
+        return np.nan  # or raise ValueError("Only 'var' features are supported")
 
-    if ftype == "var":
-        raw = _get_first(record, feat["key"] if isinstance(feat["key"], (list, tuple)) else [feat["key"]])
-        norm_fn = feat.get("norm")
-        kwargs = feat.get("norm_kwargs", {}) or {}
-        if norm_fn is None:
-            v = _to_float(raw)
-            if np.isnan(v): return np.nan
-            return np.clip(v, 0.0, 1.0)
-        try:
-            return norm_fn(raw, **kwargs)
-        except TypeError:
-            return norm_fn(raw)
+    raw = _get_first(record, feat["key"] if isinstance(feat["key"], (list, tuple)) else [feat["key"]])
+    norm_fn = feat.get("norm")
+    kwargs = feat.get("norm_kwargs", {}) or {}
 
-    return np.nan
+    if norm_fn is None:
+        v = _to_float(raw)
+        if np.isnan(v): return np.nan
+        return np.clip(v, 0.0, 1.0)
+    try:
+        return norm_fn(raw, **kwargs)
+    except TypeError:
+        return norm_fn(raw)
+
 
 
 def _weighted_nanaware_distance(values, targets, weights):
@@ -540,17 +490,16 @@ def _weighted_nanaware_distance(values, targets, weights):
 
 def assign_profile_from_record(record):
     """
-    1) Compute composite DIMENSIONS once (used by feature type 'dim').
-    2) For each profile, compute a weighted distance using only its features.
-    3) Return the best profile + the composite scores for plotting.
+    For each profile, compute a weighted distance using only its 'var' features.
+    Returns (best_profile_name, {}).
     """
-    scores = composite_scores_from_record(record)
+    scores = {}  # kept for backward-compat; no dimensions anymore
 
     best_name, best_dist = None, np.inf
     for name, cfg in PROFILES.items():
         feats = cfg.get("features", [])
         if not feats:
-            continue  # profiles must define features
+            continue
 
         vals, targs, wts = [], [], []
         for f in feats:
@@ -563,7 +512,8 @@ def assign_profile_from_record(record):
         if d < best_dist:
             best_name, best_dist = name, d
 
-    return best_name, scores
+    return best_name, scores  # scores={}
+
 
 # ==============
 # Title + Profile header (icon + text)
