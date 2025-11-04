@@ -226,6 +226,27 @@ header[data-testid="stHeader"]::before { content: none; }
     margin: 0 auto !important;      /* keep centered */
 }
 
+/* Scale down entire page on narrow screens to keep the exact layout without wrapping */
+@media (max-width: 900px) {
+  .dm-center, .dm-fixed {
+    transform: scale(0.90);           /* tweak 0.85–0.95 as you like */
+    transform-origin: top left;
+    width: calc(1100px / 0.90);       /* counter the scale to keep layout bounds */
+  }
+  /* Make sure parent can scroll vertically enough for the scaled content */
+  .block-container { overflow: visible !important; }
+  .dm-row { flex-wrap: nowrap !important; }
+}
+
+@media (max-width: 420px) {
+  /* keep same look: avoid shrinking/spacing changes that cause wrapping */
+  .dm-icon { width: 140px; }     /* keep desktop size */
+  .dm-row  { gap: 0.5rem; }      /* keep desktop gap */
+  .dm-row { flex-wrap: nowrap; }
+
+}
+
+
 </style>
 """, unsafe_allow_html=True)
 
