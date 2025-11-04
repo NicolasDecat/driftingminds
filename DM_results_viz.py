@@ -217,6 +217,15 @@ header[data-testid="stHeader"]::before { content: none; }
   .dm2-left { width: 148px; flex-basis:148px; }
   .dm2-label { font-size: 1.05rem; top:-2px; padding-right: 6px; }
 }
+
+/* Reduce default left/right padding for main content */
+.block-container {
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+    max-width: 1100px !important;   /* optional: widen usable area */
+    margin: 0 auto !important;      /* keep centered */
+}
+
 </style>
 """, unsafe_allow_html=True)
 
