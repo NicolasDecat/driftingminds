@@ -433,58 +433,90 @@ PROFILES = {
 # Dimensions & composite scores
 # ==============
 def _get_first(record, keys):
-    """Return the first present, non-empty, non-NA value for any of the candidate keys."""
-    # flatten accidental [[...]]
-    if isinstance(keys, (list, tuple)) and len(keys) == 1 and isinstance(keys[0], (list, tuple)):
-        keys = keys[0]
-
-    def _has_value(v):
-        if v is None:
-            return False
-        if isinstance(v, str):
-            s = v.strip().lower()
-            if s in {"", "na", "n/a", "none", "nan"}:
-                return False
-        # treat float('nan') as missing
-        try:
-            f = float(v)
-            if np.isnan(f):
-                return False
-        except Exception:
-            pass
-        return True
-
+    """Return the first present, non-empty value for any of the candidate keys."""
     if isinstance(keys, (list, tuple)):
         for k in keys:
-            if k in record and _has_value(record[k]):
+            if k in record and record[k] not in (None, "", "NA"):
                 return record[k]
         return np.nan
     return record.get(keys, np.nan)
 
+DIMENSIONS = {
+    "vividness": [
+        ("freq_percept_real",      norm_1_6,   1.0, {}),
+        ("freq_percept_intense",   norm_1_6,   1.0, {}),
+    ],
+    "spontaneity": [
+        ("freq_think_nocontrol",   norm_1_6,   1.0, {}),
+    ],
+    "bizarreness": [
+        ("freq_percept_bizarre",   norm_1_6,   1.0, {}),
+    ],
+    "immersion": [
+        ("freq_absorbed",          norm_1_6,   1.0, {}),
+    ],
+    "emotion_pos": [
+        ("freq_positive",          norm_1_6,   1.0, {}),
+    ],
+    "sleep_latency": [
+        (["sleep_latency_min","sleep_latency","sleep_latency_minutes",
+          "latency_minutes","sleep_onset_latency"], norm_latency_auto, 1.0, {"cap_minutes": CAP_MIN}),
+    ],
+    "baseline_anxiety": [
+        (["anxiety"], norm_1_100, 1.0, {}),
+    ],
+}
+DIM_KEYS = list(DIMENSIONS.keys())
 
-def _feature_value_from_record(record, scores_unused, feat):
+def composite_scores_from_record(record, dimensions=DIMENSIONS):
+    out = {}
+    for dim, items in dimensions.items():
+        vals, wts = [], []
+        for item in items:
+            field_keys, norm_fn, wt, *rest = item
+            kwargs = rest[0] if rest else {}
+            raw = _get_first(record, field_keys)
+            try:
+                v = norm_fn(raw, **kwargs) if kwargs else norm_fn(raw)
+            except TypeError:
+                v = norm_fn(raw)
+            if not np.isnan(v):
+                vals.append(v * wt); wts.append(wt)
+        out[dim] = (np.sum(vals) / np.sum(wts)) if wts else np.nan
+    return out
+
+def vector_from_scores(scores, dim_keys=DIM_KEYS):
+    return np.array([scores.get(k, np.nan) for k in dim_keys], dtype=float)
+
+def _nanaware_distance(a, b):
+    a = np.array(a, dtype=float); b = np.array(b, dtype=float)
+    mask = ~(np.isnan(a) | np.isnan(b))
+    if not np.any(mask): return np.inf
+    diff = a[mask] - b[mask]
+    return np.sqrt(np.sum(diff * diff))
+
+def _feature_value_from_record(record, scores, feat):
     """
     Return a normalized value in [0..1] (or np.nan) for a feature spec.
-    Only 'var' features are supported now.
     """
-    if feat.get("type") != "var":
-        return np.nan
+    ftype = feat.get("type")
+    if ftype == "dim":
+        return scores.get(feat["key"], np.nan)
 
-    keys = feat["key"] if isinstance(feat["key"], (list, tuple)) else [feat["key"]]
-    raw = _get_first(record, keys)
+    if ftype == "var":
+        raw = _get_first(record, feat["key"] if isinstance(feat["key"], (list, tuple)) else [feat["key"]])
+        norm_fn = feat.get("norm")
+        kwargs = feat.get("norm_kwargs", {}) or {}
+        if norm_fn is None:
+            v = _to_float(raw)
+            if np.isnan(v): return np.nan
+            return np.clip(v, 0.0, 1.0)
+        try:
+            return norm_fn(raw, **kwargs)
+        except TypeError:
+            return norm_fn(raw)
 
-    norm_fn = feat.get("norm")
-    kwargs = feat.get("norm_kwargs", {}) or {}
-
-    if norm_fn is None:
-        v = _to_float(raw)
-        if np.isnan(v): return np.nan
-        return np.clip(v, 0.0, 1.0)
-    try:
-        return norm_fn(raw, **kwargs)
-    except TypeError:
-        return norm_fn(raw)
-
+    return np.nan
 
 
 def _weighted_nanaware_distance(values, targets, weights):
@@ -503,16 +535,17 @@ def _weighted_nanaware_distance(values, targets, weights):
 
 def assign_profile_from_record(record):
     """
-    For each profile, compute a weighted distance using only its 'var' features.
-    Returns (best_profile_name, {}).
+    1) Compute composite DIMENSIONS once (used by feature type 'dim').
+    2) For each profile, compute a weighted distance using only its features.
+    3) Return the best profile + the composite scores for plotting.
     """
-    scores = {}  # no dimension composites anymore
+    scores = composite_scores_from_record(record)
 
     best_name, best_dist = None, np.inf
     for name, cfg in PROFILES.items():
         feats = cfg.get("features", [])
         if not feats:
-            continue
+            continue  # profiles must define features
 
         vals, targs, wts = [], [], []
         for f in feats:
@@ -525,8 +558,7 @@ def assign_profile_from_record(record):
         if d < best_dist:
             best_name, best_dist = name, d
 
-    return best_name, scores  # scores={}
-
+    return best_name, scores
 
 # ==============
 # Title + Profile header (icon + text)
