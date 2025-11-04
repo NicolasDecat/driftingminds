@@ -335,7 +335,7 @@ PROFILES = {
     # =====================================================================
     "Fast Sleeper": {
         "features": [
-            {"type": "var", "key": ["sleep_latency_min"], "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.00, "weight": 1.2},
+            {"type": "var", "key": ["sleep_latency"], "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.00, "weight": 1.2},
             {"type": "var", "key": ["degreequest_sleepiness"], "norm": norm_1_6, "norm_kwargs": {}, "target": 1.00, "weight": 1.0},
         ],
         "description": "You fall asleep quickly, especially when you already feel sleepy.",
