@@ -220,8 +220,8 @@ header[data-testid="stHeader"]::before { content: none; }
 
 /* Reduce default left/right padding for main content */
 .block-container {
-    padding-left: 2rem !important;
-    padding-right: 2rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
     max-width: 1100px !important;   /* optional: widen usable area */
     margin: 0 auto !important;      /* keep centered */
 }
