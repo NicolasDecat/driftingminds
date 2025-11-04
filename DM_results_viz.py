@@ -737,7 +737,6 @@ st.markdown("</div></div>", unsafe_allow_html=True)
 # Comparative visualisation (Latency KDE + Duration histogram)
 # ==============
 # LEFT: Latency (KDE)
-# LEFT: Latency (KDE)
 col_left, col_right = st.columns([1, 1], gap="small")
 
 from scipy.stats import gaussian_kde  # ensure this import exists
@@ -796,11 +795,17 @@ with col_left:
 
                         # KDE area + outline
                         ax.fill_between(xs, ys, color="#e6e6e6", linewidth=0)
-                        ax.plot(xs, ys, linewidth=1.0, color="#4d4d4d")
 
-                        # Participant marker
+                        # Participant marker (thin line + purple dot)
                         ax.axvline(part_display, lw=0.8, color="#222222")
-                        ax.scatter([part_display], [kde(part_display)], s=20, zorder=3, color="#222222")
+                        ax.scatter(
+                            [part_display],
+                            [kde(part_display)],
+                            s=28,
+                            zorder=3,
+                            color=PURPLE_HEX,   # uses same purple as duration bar
+                            edgecolors="none"   # removes any stroke
+                        )
 
                         # Title & labels
                         ax.set_title(f"{rounded_raw} minutes to fall asleep", fontsize=10, pad=6, color="#222222")
