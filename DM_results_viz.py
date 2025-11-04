@@ -344,8 +344,8 @@ PROFILES = {
     # =====================================================================
     "Fast Sleeper": {
         "features": [
-            {"type": "var", "key": ["sleep_latency"], "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.00, "weight": 1.2},
-            {"type": "var", "key": ["degreequest_sleepiness"], "norm": norm_1_6, "norm_kwargs": {}, "target": 1.00, "weight": 1.0},
+            {"type": "var", "key": ["sleep_latency"],                   "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.00, "weight": 1.2},
+            {"type": "var", "key": ["degreequest_sleepiness"],          "norm": norm_1_6, "norm_kwargs": {}, "target": 1.00, "weight": 1.0},
         ],
         "description": "You fall asleep quickly, especially when you already feel sleepy.",
         "icon": "bear.svg",
@@ -356,9 +356,8 @@ PROFILES = {
     # =====================================================================
     "Creative": {
         "features": [
-            {"type": "var", "key": ["freq_creat"],          "norm": norm_1_6,"norm_kwargs": {}, "target": 0.95, "weight": 1.1},
-            {"type": "var", "key": ["creativity_trait"],    "norm": norm_1_6,
-             "norm_kwargs": {}, "target": 0.95, "weight": 1.0},
+            {"type": "var", "key": ["freq_creat"],                      "norm": norm_1_6,"norm_kwargs": {}, "target": 0.95, "weight": 1.1},
+            {"type": "var", "key": ["creativity_trait"],                "norm": norm_1_6,"norm_kwargs": {}, "target": 0.95, "weight": 1.0},
         ],
         "description": "Ideas spark at the edge of sleep — you drift off with creativity alive.",
         "icon":        "octopus.svg",
@@ -369,11 +368,12 @@ PROFILES = {
     # =====================================================================
     "Dreamweaver": {
         "features": [
-            {"type": "var", "key": ["freq_percept_real", "freq_percept_intense"], "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1.2},
-            {"type": "var", "key": ["freq_percept_bizarre"], "norm": norm_1_6, "norm_kwargs": {}, "target": 0.85, "weight": 1.0},
-            {"type": "var", "key": ["freq_absorbed"], "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.0},
-            {"type": "var", "key": ["freq_positive"], "norm": norm_1_6, "norm_kwargs": {}, "target": 0.50, "weight": 0.5},
-            {"type": "var", "key": ["sleep_latency"], "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.50, "weight": 0.3},
+            {"type": "var", "key": ["freq_percept_real"],               "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1.2},
+            {"type": "var", "key": ["freq_percept_intense"],            "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1.2},
+            {"type": "var", "key": ["freq_percept_bizarre"],            "norm": norm_1_6, "norm_kwargs": {}, "target": 0.85, "weight": 1.0},
+            {"type": "var", "key": ["freq_absorbed"],                   "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.0},
+            {"type": "var", "key": ["freq_positive"],                   "norm": norm_1_6, "norm_kwargs": {}, "target": 0.50, "weight": 0.5},
+            {"type": "var", "key": ["sleep_latency"],                   "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.50, "weight": 0.3},
         ],
         "description": "You drift into vivid, sensory mini-dreams as you fall asleep.",
         "icon": "seahorse.svg",
@@ -381,10 +381,11 @@ PROFILES = {
 
     "Freewheeler": {
     "features": [
-        {"type": "var", "key": ["freq_percept_real", "freq_percept_intense"], "norm": norm_1_6, "norm_kwargs": {}, "target": 0.70, "weight": 0.8},  # vividness
-        {"type": "var", "key": ["freq_absorbed"],                              "norm": norm_1_6, "norm_kwargs": {}, "target": 0.60, "weight": 0.8},  # immersion
-        {"type": "var", "key": ["freq_percept_bizarre"],                       "norm": norm_1_6, "norm_kwargs": {}, "target": 0.50, "weight": 0.6},  # bizarreness
-        {"type": "var", "key": ["freq_think_nocontrol"],                       "norm": norm_1_6, "norm_kwargs": {}, "target": 0.70, "weight": 1.2},  # spontaneity
+        {"type": "var", "key": ["freq_percept_real"],                   "norm": norm_1_6, "norm_kwargs": {}, "target": 0.70, "weight": 0.8},  
+        {"type": "var", "key": ["freq_percept_intense"] ,               "norm": norm_1_6, "norm_kwargs": {}, "target": 0.70, "weight": 0.8},  
+        {"type": "var", "key": ["freq_absorbed"],                       "norm": norm_1_6, "norm_kwargs": {}, "target": 0.60, "weight": 0.8},  
+        {"type": "var", "key": ["freq_percept_bizarre"],                "norm": norm_1_6, "norm_kwargs": {}, "target": 0.50, "weight": 0.6},  
+        {"type": "var", "key": ["freq_think_nocontrol"],                "norm": norm_1_6, "norm_kwargs": {}, "target": 0.70, "weight": 1.2},  
     ],
     "description": "You start intentional, then let go into spontaneous imagery.",
     "icon": "otter.svg",
@@ -395,10 +396,11 @@ PROFILES = {
     # =====================================================================
     "Strategist": {
         "features": [
-            {"type": "var", "key": ["freq_think_nocontrol"],                       "norm": norm_1_6,        "norm_kwargs": {}, "target": 0.10, "weight": 1.0},  # spontaneity (low)
-            {"type": "var", "key": ["freq_percept_real", "freq_percept_intense"],  "norm": norm_1_6,        "norm_kwargs": {}, "target": 0.20, "weight": 0.8},  # vividness (low)
-            {"type": "var", "key": ["freq_absorbed"],                              "norm": norm_1_6,        "norm_kwargs": {}, "target": 0.30, "weight": 0.6},  # immersion (low)
-            {"type": "var", "key": ["freq_percept_bizarre"],                       "norm": norm_1_6,        "norm_kwargs": {}, "target": 0.10, "weight": 0.8},  # bizarreness (low)
+            {"type": "var", "key": ["freq_think_nocontrol"],            "norm": norm_1_6, "norm_kwargs": {}, "target": 0.10, "weight": 1.0},  
+            {"type": "var", "key": ["freq_percept_real"],               "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 0.8},  
+            {"type": "var", "key": ["freq_percept_intense"],            "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 0.8},  
+            {"type": "var", "key": ["freq_absorbed"],                   "norm": norm_1_6, "norm_kwargs": {}, "target": 0.30, "weight": 0.6},  
+            {"type": "var", "key": ["freq_percept_bizarre"],            "norm": norm_1_6, "norm_kwargs": {}, "target": 0.10, "weight": 0.8},  
         ],
         "description": "You stay in control with practical or analytical thoughts until lights out.",
         "icon": "ant.svg",
@@ -409,10 +411,10 @@ PROFILES = {
     # =====================================================================
     "Ruminator": {
         "features": [
-            {"type": "var", "key": ["anxiety"],                                     "norm": norm_1_100,      "norm_kwargs": {},                      "target": 0.90, "weight": 1.2},  # baseline_anxiety
-            {"type": "var", "key": ["sleep_latency"],                               "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN},                                                    "target": 0.90, "weight": 1.0},  # sleep_latency (long)
-            {"type": "var", "key": ["freq_absorbed"],                               "norm": norm_1_6,        "norm_kwargs": {},                      "target": 0.10, "weight": 0.4},  # immersion (low)
-            {"type": "var", "key": ["freq_positive"],                               "norm": norm_1_6,        "norm_kwargs": {},                      "target": 0.20, "weight": 0.6},  # positive affect (low)
+            {"type": "var", "key": ["anxiety"],                         "norm": norm_1_100, "norm_kwargs": {}, "target": 0.90, "weight": 1.2},  
+            {"type": "var", "key": ["sleep_latency"],                   "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.90, "weight": 1.0},
+            {"type": "var", "key": ["freq_absorbed"],                   "norm": norm_1_6,   "norm_kwargs": {}, "target": 0.10, "weight": 0.4},  
+            {"type": "var", "key": ["freq_positive"],                   "norm": norm_1_6,   "norm_kwargs": {}, "target": 0.20, "weight": 0.6},  
         ],
         "description": "You replay or analyze the day, with longer latency and tension.",
         "icon": "cow.svg",
@@ -423,17 +425,16 @@ PROFILES = {
     # =====================================================================
     "Quiet Mind": {
         "features": [
-            {"type": "var", "key": ["freq_percept_real", "freq_percept_intense"],   "norm": norm_1_6,        "norm_kwargs": {}, "target": 0.20, "weight": 0.9},  # vividness (low)
-            {"type": "var", "key": ["freq_percept_bizarre"],                        "norm": norm_1_6,        "norm_kwargs": {}, "target": 0.20, "weight": 0.8},  # bizarreness (low)
-            {"type": "var", "key": ["freq_absorbed"],                               "norm": norm_1_6,        "norm_kwargs": {}, "target": 0.20, "weight": 0.8},  # immersion (low)
-            {"type": "var", "key": ["sleep_latency"],                               "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN},               "target": 0.40, "weight": 0.5},  # fairly short
+            {"type": "var", "key": ["freq_percept_real"],               "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 0.9},  
+            {"type": "var", "key": ["freq_percept_intense"],            "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 0.9},  
+            {"type": "var", "key": ["freq_percept_bizarre"],            "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 0.8},  
+            {"type": "var", "key": ["freq_absorbed"],                   "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 0.8},  
+            {"type": "var", "key": ["sleep_latency"],                   "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.40, "weight": 0.5}, 
         ],
         "description": "You fall asleep with little mental content — soft, quiet onset.",
         "icon": "sloth.svg",
     },
 }
-
-
 
 
 
