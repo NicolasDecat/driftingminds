@@ -766,23 +766,39 @@ with col_left:
             kde = gaussian_kde(samples, bw_method="scott")
             xs = np.linspace(0, CAP_MIN, 400); ys = kde(xs)
 
-            fig, ax = plt.subplots(figsize=(2.2, 2.4))
-            fig.patch.set_alpha(0); ax.set_facecolor("none")
-            ax.fill_between(xs, ys, linewidth=0)
-            ax.plot(xs, ys, linewidth=1)
-            ax.axvline(part_display, lw=0.5)
-            ax.scatter([part_display], [kde(part_display)], s=20, zorder=3)
-            ax.set_title(f"{rounded_raw} minutes to fall asleep", fontsize=10, pad=6)
-            ax.set_xlabel("Time (min)", fontsize=9); ax.set_ylabel("Population", fontsize=9)
-            ax.set_yticks([]); ax.set_yticklabels([])
-            xticks = np.linspace(0, CAP_MIN, 7)
-            ax.set_xticks(xticks)
-            xlabels = [str(int(t)) if t < CAP_MIN else "60+" for t in xticks]
-            ax.set_xticklabels(xlabels)
-            ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
-            ax.tick_params(axis="x", labelsize=8); ax.tick_params(axis="y", length=0)
-            plt.tight_layout()
-            st.pyplot(fig, use_container_width=False)
+            from matplotlib.ticker import MaxNLocator
+
+            with plt.rc_context({
+                # lines & axes
+                "axes.facecolor": "none",
+                "axes.edgecolor": "#000000",
+                "axes.linewidth": 0.8,
+                "xtick.color": "#333333",
+                "ytick.color": "#333333",
+                "xtick.major.width": 0.8,
+                "ytick.major.width": 0.8,
+                "font.size": 9,
+            }):
+                fig, ax = plt.subplots(figsize=(2.2, 2.4))
+                fig.patch.set_alpha(0.0)               # transparent fig bg
+                ax.set_facecolor("none")               # transparent axes bg
+            
+                # KDE area (light grey) + outline (darker thin line)
+                ax.fill_between(xs, ys, color="#e6e6e6", linewidth=0)
+                ax.plot(xs, ys, linewidth=1.0, color="#4d4d4d")
+            
+                # Participant marker (thin vertical + dot)
+                ax.axvline(part_display, lw=0.8, color="#222222")
+                ax.scatter([part_display], [kde(part_display)], s=20, zorder=3, color="#222222")
+            
+                # Title & labels
+                ax.set_title(f"{rounded_raw} minutes to fall asleep", fontsize=10, pad=6, color="#222222")
+                ax.set_xlabel("Time (min)", fontsize=9, color="#333333")
+                ax.set_ylabel("Population", fontsize=9, color="#333333")
+            
+                # Ticks / spines
+                ax.yaxis.set_major_locator(MaxNLocator(nbins=3, prune="both"))
+
 
 
 # RIGHT: Duration (histogram)
