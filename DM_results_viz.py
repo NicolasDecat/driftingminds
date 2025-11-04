@@ -737,68 +737,93 @@ st.markdown("</div></div>", unsafe_allow_html=True)
 # Comparative visualisation (Latency KDE + Duration histogram)
 # ==============
 # LEFT: Latency (KDE)
+# LEFT: Latency (KDE)
 col_left, col_right = st.columns([1, 1], gap="small")
+
+from scipy.stats import gaussian_kde  # ensure this import exists
 
 with col_left:
     if pop_data is None or pop_data.empty:
         st.info("Population data unavailable.")
     else:
-        lat_col = [c for c in pop_data.columns if "sleep_latency" in c.lower()][0]
-        raw = pd.to_numeric(pop_data[lat_col], errors="coerce").dropna()
-        samples = np.clip(raw.values * CAP_MIN if raw.max() <= 1.5 else raw.values, 0, CAP_MIN)
-
-        raw_sl = _get_first(record, ["sleep_latency"])
-        sl_norm = norm_latency_auto(raw_sl, cap_minutes=CAP_MIN)
-        if np.isnan(sl_norm):
-            st.info("No sleep-latency value available for this participant.")
+        # find a sleep_latency-like column in population
+        lat_cols = [c for c in pop_data.columns if "sleep_latency" in c.lower()]
+        if not lat_cols:
+            st.info("No sleep latency column in population data.")
         else:
-            sl_raw = _get_first(record, ["sleep_latency"])
-            try:
-                part_raw_minutes = float(sl_raw)   # minutes if REDCap stores minutes
-            except Exception:
-                part_raw_minutes = np.nan
+            lat_col = lat_cols[0]
+            raw = pd.to_numeric(pop_data[lat_col], errors="coerce").dropna()
+            if raw.empty:
+                st.info("No valid population sleep-latency values.")
+            else:
+                # minutes: if population stored 0..1, scale by CAP_MIN; else keep as minutes
+                samples = np.clip(raw.values * CAP_MIN if raw.max() <= 1.5 else raw.values, 0, CAP_MIN)
 
-            # ⬇️ Dedented from the except: block — always runs now
-            part_display = sl_norm * CAP_MIN if sl_norm <= 1.5 else sl_norm
-            part_display = float(np.clip(part_display, 0, CAP_MIN))
-            rounded_raw = int(round(part_raw_minutes)) if not np.isnan(part_raw_minutes) else int(round(part_display))
+                # participant value
+                raw_sl = _get_first(record, ["sleep_latency"])
+                sl_norm = norm_latency_auto(raw_sl, cap_minutes=CAP_MIN)
+                if np.isnan(sl_norm):
+                    st.info("No sleep-latency value available for this participant.")
+                else:
+                    # minutes to display (cap to 60)
+                    try:
+                        part_raw_minutes = float(str(raw_sl).strip())
+                    except Exception:
+                        part_raw_minutes = np.nan
+                    part_display = sl_norm * CAP_MIN if sl_norm <= 1.5 else float(sl_norm)
+                    part_display = float(np.clip(part_display, 0, CAP_MIN))
+                    rounded_raw = int(round(part_raw_minutes)) if np.isfinite(part_raw_minutes) else int(round(part_display))
 
-            kde = gaussian_kde(samples, bw_method="scott")
-            xs = np.linspace(0, CAP_MIN, 400); ys = kde(xs)
+                    # KDE
+                    kde = gaussian_kde(samples, bw_method="scott")
+                    xs = np.linspace(0, CAP_MIN, 400)
+                    ys = kde(xs)
 
-            from matplotlib.ticker import MaxNLocator
+                    from matplotlib.ticker import MaxNLocator
+                    with plt.rc_context({
+                        "axes.facecolor": "none",
+                        "axes.edgecolor": "#000000",
+                        "axes.linewidth": 0.8,
+                        "xtick.color": "#333333",
+                        "ytick.color": "#333333",
+                        "xtick.major.width": 0.8,
+                        "ytick.major.width": 0.8,
+                        "font.size": 9,
+                    }):
+                        fig, ax = plt.subplots(figsize=(2.2, 2.4))
+                        fig.patch.set_alpha(0.0)
+                        ax.set_facecolor("none")
 
-            with plt.rc_context({
-                # lines & axes
-                "axes.facecolor": "none",
-                "axes.edgecolor": "#000000",
-                "axes.linewidth": 0.8,
-                "xtick.color": "#333333",
-                "ytick.color": "#333333",
-                "xtick.major.width": 0.8,
-                "ytick.major.width": 0.8,
-                "font.size": 9,
-            }):
-                fig, ax = plt.subplots(figsize=(2.2, 2.4))
-                fig.patch.set_alpha(0.0)               # transparent fig bg
-                ax.set_facecolor("none")               # transparent axes bg
-            
-                # KDE area (light grey) + outline (darker thin line)
-                ax.fill_between(xs, ys, color="#e6e6e6", linewidth=0)
-                ax.plot(xs, ys, linewidth=1.0, color="#4d4d4d")
-            
-                # Participant marker (thin vertical + dot)
-                ax.axvline(part_display, lw=0.8, color="#222222")
-                ax.scatter([part_display], [kde(part_display)], s=20, zorder=3, color="#222222")
-            
-                # Title & labels
-                ax.set_title(f"{rounded_raw} minutes to fall asleep", fontsize=10, pad=6, color="#222222")
-                ax.set_xlabel("Time (min)", fontsize=9, color="#333333")
-                ax.set_ylabel("Population", fontsize=9, color="#333333")
-            
-                # Ticks / spines
-                ax.yaxis.set_major_locator(MaxNLocator(nbins=3, prune="both"))
+                        # KDE area + outline
+                        ax.fill_between(xs, ys, color="#e6e6e6", linewidth=0)
+                        ax.plot(xs, ys, linewidth=1.0, color="#4d4d4d")
 
+                        # Participant marker
+                        ax.axvline(part_display, lw=0.8, color="#222222")
+                        ax.scatter([part_display], [kde(part_display)], s=20, zorder=3, color="#222222")
+
+                        # Title & labels
+                        ax.set_title(f"{rounded_raw} minutes to fall asleep", fontsize=10, pad=6, color="#222222")
+                        ax.set_xlabel("Time (min)", fontsize=9, color="#333333")
+                        ax.set_ylabel("Population", fontsize=9, color="#333333")
+
+                        # Ticks / spines
+                        ax.yaxis.set_major_locator(MaxNLocator(nbins=3, prune="both"))
+                        ax.set_yticks([])  # minimalist look
+
+                        xticks = np.linspace(0, CAP_MIN, 7)
+                        ax.set_xticks(xticks)
+                        xlabels = [str(int(t)) if t < CAP_MIN else "60+" for t in xticks]
+                        ax.set_xticklabels(xlabels)
+
+                        for side in ("top", "right"):
+                            ax.spines[side].set_visible(False)
+
+                        ax.tick_params(axis="x", labelsize=8)
+                        ax.tick_params(axis="y", length=0)
+
+                        plt.tight_layout()
+                        st.pyplot(fig, use_container_width=False)
 
 
 # RIGHT: Duration (histogram)
