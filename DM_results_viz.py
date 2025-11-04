@@ -759,6 +759,26 @@ with col_left:
             part_raw_minutes = np.nan
 
 
+            with col_left:
+    if pop_data is None or pop_data.empty:
+        st.info("Population data unavailable.")
+    else:
+        lat_col = [c for c in pop_data.columns if "sleep_latency" in c.lower()][0]
+        raw = pd.to_numeric(pop_data[lat_col], errors="coerce").dropna()
+        samples = np.clip(raw.values * CAP_MIN if raw.max() <= 1.5 else raw.values, 0, CAP_MIN)
+
+        raw_sl = _get_first(record, ["sleep_latency"])
+        sl_norm = norm_latency_auto(raw_sl, cap_minutes=CAP_MIN)
+        if np.isnan(sl_norm):
+            st.info("No sleep-latency value available for this participant.")
+        else:
+            sl_raw = _get_first(record, ["sleep_latency"])
+            try:
+                part_raw_minutes = float(sl_raw)   # minutes if REDCap stores minutes
+            except Exception:
+                part_raw_minutes = np.nan
+
+            # ⬇️ Dedented from the except: block — always runs now
             part_display = sl_norm * CAP_MIN if sl_norm <= 1.5 else sl_norm
             part_display = float(np.clip(part_display, 0, CAP_MIN))
             rounded_raw = int(round(part_raw_minutes)) if not np.isnan(part_raw_minutes) else int(round(part_display))
@@ -768,10 +788,10 @@ with col_left:
 
             fig, ax = plt.subplots(figsize=(2.2, 2.4))
             fig.patch.set_alpha(0); ax.set_facecolor("none")
-            ax.fill_between(xs, ys, color="#D9D9D9", alpha=0.8, linewidth=0)
-            ax.plot(xs, ys, color="#BBBBBB", linewidth=1)
-            ax.axvline(part_display, color=PURPLE_HEX, lw=0.5)
-            ax.scatter([part_display], [kde(part_display)], color=PURPLE_HEX, s=20, zorder=3)
+            ax.fill_between(xs, ys, linewidth=0)
+            ax.plot(xs, ys, linewidth=1)
+            ax.axvline(part_display, lw=0.5)
+            ax.scatter([part_display], [kde(part_display)], s=20, zorder=3)
             ax.set_title(f"{rounded_raw} minutes to fall asleep", fontsize=10, pad=6)
             ax.set_xlabel("Time (min)", fontsize=9); ax.set_ylabel("Population", fontsize=9)
             ax.set_yticks([]); ax.set_yticklabels([])
@@ -783,6 +803,7 @@ with col_left:
             ax.tick_params(axis="x", labelsize=8); ax.tick_params(axis="y", length=0)
             plt.tight_layout()
             st.pyplot(fig, use_container_width=False)
+
 
 # RIGHT: Duration (histogram)
 with col_right:
