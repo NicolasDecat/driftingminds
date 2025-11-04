@@ -747,16 +747,17 @@ with col_left:
         raw = pd.to_numeric(pop_data[lat_col], errors="coerce").dropna()
         samples = np.clip(raw.values * CAP_MIN if raw.max() <= 1.5 else raw.values, 0, CAP_MIN)
 
-        sl_norm = scores.get("sleep_latency", np.nan)
+        raw_sl = _get_first(record, ["sleep_latency"])
+        sl_norm = norm_latency_auto(raw_sl, cap_minutes=CAP_MIN)
         if np.isnan(sl_norm):
             st.info("No sleep-latency value available for this participant.")
         else:
-            sl_raw = _get_first(record, [
-                "sleep_latency_min", "sleep_latency", "sleep_latency_minutes",
-                "latency_minutes", "sleep_onset_latency"
-            ])
-            try: part_raw_minutes = float(sl_raw)
-            except Exception: part_raw_minutes = np.nan
+            sl_raw = _get_first(record, ["sleep_latency"])
+        try:
+            part_raw_minutes = float(sl_raw)  # if your REDCap stores minutes
+        except Exception:
+            part_raw_minutes = np.nan
+
 
             part_display = sl_norm * CAP_MIN if sl_norm <= 1.5 else sl_norm
             part_display = float(np.clip(part_display, 0, CAP_MIN))
