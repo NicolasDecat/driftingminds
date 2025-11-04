@@ -368,9 +368,7 @@ PROFILES = {
     # =====================================================================
     "Dreamweaver": {
     "features": [
-        {"type": "var","key": ["freq_percept_real"],"norm": norm_1_6, "norm_kwargs": {},"target": 0.90, "weight": 1.2,
-         "only_if": {"key": ["timequest_percept_real"],"norm": norm_1_100,"norm_kwargs": {},"op": "between","bounds": [0.51, 1.00]}
-        },
+        {"type": "var","key": ["freq_percept_real"],      "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1.2},
         {"type": "var", "key": ["freq_percept_intense"],  "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1.2},
         {"type": "var", "key": ["freq_percept_bizarre"],  "norm": norm_1_6, "norm_kwargs": {}, "target": 0.85, "weight": 1.0},
         {"type": "var", "key": ["freq_absorbed"],         "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.0},
@@ -458,12 +456,12 @@ PROFILES = {
     # =====================================================================
     "Archivist": {
     "features": [
-        {"type": "var", "key": ["freq_replay"],  "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1.3},
-        {"type": "var","key": ["freq_think_ordinary"],"norm": norm_1_6, "norm_kwargs": {},"target": 0.90, "weight": 1,
-         "only_if": {"key": ["timequest_think_ordinary"],"norm": norm_1_100,"norm_kwargs": {},"op": "between","bounds": [0, 0.50]}
+        {"type": "var", "key": ["freq_replay"],                "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1.3},
+        {"type": "var","key": ["freq_think_ordinary"],         "norm": norm_1_6, "norm_kwargs": {},"target": 0.90, "weight": 1,
+         "only_if": {"key": ["timequest_think_ordinary"],      "norm": norm_1_100,"norm_kwargs": {},"op": "between","bounds": [0, 0.50]}
         },
-        {"type": "var","key": ["freq_think_seq_ordinary"],"norm": norm_1_6, "norm_kwargs": {},"target": 0.90, "weight": 1,
-         "only_if": {"key": ["timequest_think_seq_ordinary"],"norm": norm_1_100,"norm_kwargs": {},"op": "between","bounds": [0, 0.50]}
+        {"type": "var","key": ["freq_think_seq_ordinary"],     "norm": norm_1_6, "norm_kwargs": {},"target": 0.90, "weight": 1,
+         "only_if": {"key": ["timequest_think_seq_ordinary"],  "norm": norm_1_100,"norm_kwargs": {},"op": "between","bounds": [0, 0.50]}
         },
     ],
     "description": "You drift into vivid, sensory mini-dreams as you fall asleep.",
