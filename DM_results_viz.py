@@ -367,16 +367,19 @@ PROFILES = {
     # Dreamweaver
     # =====================================================================
     "Dreamweaver": {
-        "features": [
-            {"type": "var", "key": ["freq_percept_real"],               "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1.2},
-            {"type": "var", "key": ["freq_percept_intense"],            "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1.2},
-            {"type": "var", "key": ["freq_percept_bizarre"],            "norm": norm_1_6, "norm_kwargs": {}, "target": 0.85, "weight": 1.0},
-            {"type": "var", "key": ["freq_absorbed"],                   "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.0},
-            {"type": "var", "key": ["freq_positive"],                   "norm": norm_1_6, "norm_kwargs": {}, "target": 0.50, "weight": 0.5},
-            {"type": "var", "key": ["sleep_latency"],                   "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.50, "weight": 0.3},
-        ],
-        "description": "You drift into vivid, sensory mini-dreams as you fall asleep.",
-        "icon": "seahorse.svg",
+    "features": [
+        {
+            "type": "var","key": ["freq_percept_real"],"norm": norm_1_6, "norm_kwargs": {},"target": 0.90, "weight": 1.2,
+            "only_if": {"key": ["timequest_percept_real"],"norm": norm_1_100,"norm_kwargs": {},"op": "between","bounds": [0.51, 1.00]}
+        },
+        {"type": "var", "key": ["freq_percept_intense"],  "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1.2},
+        {"type": "var", "key": ["freq_percept_bizarre"],  "norm": norm_1_6, "norm_kwargs": {}, "target": 0.85, "weight": 1.0},
+        {"type": "var", "key": ["freq_absorbed"],         "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.0},
+        {"type": "var", "key": ["freq_positive"],         "norm": norm_1_6, "norm_kwargs": {}, "target": 0.50, "weight": 0.5},
+        {"type": "var", "key": ["sleep_latency"],         "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.50, "weight": 0.3},
+    ],
+    "description": "You drift into vivid, sensory mini-dreams as you fall asleep.",
+    "icon": "seahorse.svg",
     },
 
     "Freewheeler": {
@@ -451,6 +454,76 @@ def _get_first(record, keys):
         return np.nan
     return record.get(keys, np.nan)
 
+# === Conditional helpers ======================================================
+def _eval_condition(record, cond: dict) -> bool:
+    """
+    Evaluate a single condition against the record.
+    cond supports:
+      - key: str | [str,...]
+      - norm: callable (optional)
+      - norm_kwargs: dict (optional)
+      - op: "between" | "gte" | "lte" | "gt" | "lt" | "eq" | "in"  (default: "between")
+      - bounds: [lo, hi]  (for op="between", inclusive)
+      - value: float       (for gte/lte/gt/lt/eq)
+      - values: list       (for op="in")
+    Values are compared on the normalized scale if 'norm' is provided,
+    otherwise raw floats are used.
+    """
+    keys = cond.get("key")
+    keys = keys if isinstance(keys, (list, tuple)) else [keys]
+    raw = _get_first(record, keys)
+
+    norm_fn = cond.get("norm")
+    kwargs = cond.get("norm_kwargs", {}) or {}
+
+    # Compute comparable value v (normalized if norm given, else raw float)
+    if norm_fn is None:
+        v = _to_float(raw)
+    else:
+        try:
+            v = norm_fn(raw, **kwargs)
+        except TypeError:
+            v = norm_fn(raw)
+
+    if v is None:
+        return False
+    try:
+        if np.isnan(v):
+            return False
+    except Exception:
+        pass
+
+    op = (cond.get("op") or "between").lower()
+    if op == "between":
+        lo, hi = cond.get("bounds", [0.0, 1.0])
+        return (float(v) >= float(lo)) and (float(v) <= float(hi))
+    if op == "gte": return float(v) >= float(cond["value"])
+    if op == "lte": return float(v) <= float(cond["value"])
+    if op == "gt":  return float(v) >  float(cond["value"])
+    if op == "lt":  return float(v) <  float(cond["value"])
+    if op == "eq":  return abs(float(v) - float(cond["value"])) < 1e-9
+    if op == "in":
+        return float(v) in set(float(x) for x in cond.get("values", []))
+    return False
+
+
+def _conditions_met(record, feat: dict) -> bool:
+    """Support three shapes: only_if (single), only_if_all (AND), only_if_any (OR)."""
+    if "only_if" in feat and not _eval_condition(record, feat["only_if"]):
+        return False
+
+    for c in feat.get("only_if_all", []) or []:
+        if not _eval_condition(record, c):
+            return False
+
+    any_list = feat.get("only_if_any")
+    if any_list:
+        if not any(_eval_condition(record, c) for c in any_list):
+            return False
+
+    return True
+
+
 
 def _feature_value_from_record(record, scores_unused, feat):
     """
@@ -458,6 +531,9 @@ def _feature_value_from_record(record, scores_unused, feat):
     Only 'var' features are supported now.
     """
     if feat.get("type") != "var":
+        return np.nan
+    
+    if not _conditions_met(record, feat):
         return np.nan
 
     keys = feat["key"] if isinstance(feat["key"], (list, tuple)) else [feat["key"]]
