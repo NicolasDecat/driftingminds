@@ -442,32 +442,32 @@ def _get_first(record, keys):
     return record.get(keys, np.nan)
 
 
-def _feature_value_from_record(record, scores, feat):
+def _feature_value_from_record(record, scores_unused, feat):
     """
     Return a normalized value in [0..1] (or np.nan) for a feature spec.
+    Only 'var' features are supported now.
     """
-    ftype = feat.get("type")
+    if feat.get("type") != "var":
+        return np.nan
 
-    if ftype == "var":
-        raw = _get_first(record, feat["key"] if isinstance(feat["key"], (list, tuple)) else [feat["key"]])
-        norm_fn = feat.get("norm")
-        kwargs = feat.get("norm_kwargs", {}) or {}
-        if norm_fn is None:
-            v = _to_float(raw)
-            if np.isnan(v): return np.nan
-            return np.clip(v, 0.0, 1.0)
-        try:
-            return norm_fn(raw, **kwargs)
-        except TypeError:
-            return norm_fn(raw)
+    keys = feat["key"] if isinstance(feat["key"], (list, tuple)) else [feat["key"]]
+    # your _get_first already treats empty/"NA" as missing
+    raw = _get_first(record, keys)
 
-    return np.nan
+    norm_fn = feat.get("norm")
+    kwargs = feat.get("norm_kwargs", {}) or {}
+
+    if norm_fn is None:
+        v = _to_float(raw)
+        if np.isnan(v): return np.nan
+        return np.clip(v, 0.0, 1.0)
+    try:
+        return norm_fn(raw, **kwargs)
+    except TypeError:
+        return norm_fn(raw)
 
 
 def _weighted_nanaware_distance(values, targets, weights):
-    """
-    Weighted Euclidean distance on available entries only.
-    """
     a = np.asarray(values, float)
     b = np.asarray(targets, float)
     w = np.asarray(weights, float)
@@ -480,17 +480,16 @@ def _weighted_nanaware_distance(values, targets, weights):
 
 def assign_profile_from_record(record):
     """
-    1) Compute composite DIMENSIONS once (used by feature type 'dim').
-    2) For each profile, compute a weighted distance using only its features.
-    3) Return the best profile + the composite scores for plotting.
+    For each profile, compute a weighted distance using only 'var' features.
+    Returns (best_profile_name, {}).
     """
-    scores = composite_scores_from_record(record)
-
+    scores = {}  # kept for compatibility with caller
     best_name, best_dist = None, np.inf
+
     for name, cfg in PROFILES.items():
         feats = cfg.get("features", [])
         if not feats:
-            continue  # profiles must define features
+            continue
 
         vals, targs, wts = [], [], []
         for f in feats:
@@ -504,6 +503,7 @@ def assign_profile_from_record(record):
             best_name, best_dist = name, d
 
     return best_name, scores
+
 
 # ==============
 # Title + Profile header (icon + text)
