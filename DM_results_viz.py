@@ -276,6 +276,11 @@ def _to_float(x):
         return float(x)
     except:
         return np.nan
+    
+def norm_1_4(x):
+    x = _to_float(x)
+    if np.isnan(x): return np.nan
+    return np.clip((x - 1.0) / 3.0, 0.0, 1.0)    
 
 def norm_1_6(x):
     x = _to_float(x)
@@ -340,12 +345,13 @@ def norm_latency_auto(x, cap_minutes=CAP_MIN):
 PROFILES = {
 
     # =====================================================================
-    # Fast Sleeper
+    # Switch-Off
     # =====================================================================
-    "Fast Sleeper": {
+    "The Switch-Off": {
         "features": [
             {"type": "var", "key": ["sleep_latency"],                   "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.00, "weight": 1.2},
             {"type": "var", "key": ["degreequest_sleepiness"],          "norm": norm_1_6, "norm_kwargs": {}, "target": 1.00, "weight": 1.0},
+            {"type": "var", "key": ["trajectories"],                    "norm": norm_1_4, "norm_kwargs": {}, "target": 0.33, "weight": 1.3},
         ],
         "description": "You fall asleep quickly, especially when you already feel sleepy.",
         "icon": "bear.svg",
