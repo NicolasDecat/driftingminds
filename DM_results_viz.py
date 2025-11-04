@@ -431,13 +431,34 @@ PROFILES = {
 # Dimensions & composite scores
 # ==============
 def _get_first(record, keys):
-    """Return the first present, non-empty value for any of the candidate keys."""
+    """Return the first present, non-empty/non-NA value for any of the candidate keys."""
+    # Handle accidental list-of-list like [SLEEP_LAT_KEYS]
+    if isinstance(keys, (list, tuple)) and len(keys) == 1 and isinstance(keys[0], (list, tuple)):
+        keys = keys[0]
+
+    def _has_value(v):
+        if v is None:
+            return False
+        if isinstance(v, str):
+            s = v.strip().lower()
+            if s in {"", "na", "n/a", "none", "nan"}:
+                return False
+        # If it's a number-like string "nan", float() -> np.nan; treat as missing
+        try:
+            f = float(v)
+            if np.isnan(f):
+                return False
+        except Exception:
+            pass
+        return True
+
     if isinstance(keys, (list, tuple)):
         for k in keys:
-            if k in record and record[k] not in (None, "", "NA"):
+            if k in record and _has_value(record[k]):
                 return record[k]
         return np.nan
     return record.get(keys, np.nan)
+
 
 
 
@@ -485,6 +506,10 @@ def _weighted_nanaware_distance(values, targets, weights):
     d = a[mask] - b[mask]
     return np.sqrt(np.sum(w[mask] * d * d))
 
+def _debug_latency(record):
+    present = {k: record.get(k, "<absent>") for k in SLEEP_LAT_KEYS if k in record}
+    st.write("Latency keys present:", present)
+    
 
 def assign_profile_from_record(record):
     """
@@ -531,6 +556,8 @@ st.markdown("""
 
 # Assign profile + get text/icon
 prof_name, scores = assign_profile_from_record(record)
+# DEBUG: inspect latency inputs for this participant
+_debug_latency(record)
 prof_cfg = PROFILES.get(prof_name, {})
 prof_desc = prof_cfg.get("description", "")
 icon_file = prof_cfg.get("icon")
