@@ -1537,4 +1537,19 @@ if pop_data is not None:
 
 
 
+# Check normalization outputs for Switch-Off variables
+def check_switch_off_norms(df):
+    rows = []
+    for _, row in df.iterrows():
+        rec = row.to_dict()
+        val_lat = norm_latency_auto(rec.get("sleep_latency"), cap_minutes=60)
+        val_traj = norm_eq(rec.get("trajectories"), 2)
+        rows.append((val_lat, val_traj))
+    arr = np.array(rows, float)
+    valid = np.sum(~np.isnan(arr), axis=0)
+    print(f"Valid latency norms: {valid[0]}, Valid traj norms: {valid[1]}")
+    print(f"Latency norms (min,mean,max): {np.nanmin(arr[:,0]):.3f}, {np.nanmean(arr[:,0]):.3f}, {np.nanmax(arr[:,0]):.3f}")
+    print(f"Traj norms unique: {np.unique(arr[:,1], return_counts=True)}")
+
+check_switch_off_norms(pop_data)
 
