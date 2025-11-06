@@ -1211,10 +1211,10 @@ with c3:
 
 
 # ==============
-# "Your sleep" — Latency · Duration · Chronotype & Dream recall (final alignment)
+# "Your sleep" — Latency · Duration · Chronotype & Dream recall (final polish)
 # ==============
 
-# --- Centered title with adjusted gap so "Your sleep" stays one line ----------
+# --- Centered title with balanced gap so "Your sleep" stays one line ----------
 st.markdown(
     """
     <div class="dm-center" style="max-width:1020px; margin:28px auto 16px;">
@@ -1236,7 +1236,7 @@ col_left, col_mid, col_right = st.columns(3, gap="small")
 from scipy.stats import gaussian_kde
 
 # =============================================================================
-# LEFT: Sleep latency KDE
+# LEFT: Sleep latency KDE (shorter vertical line)
 # =============================================================================
 with col_left:
     if pop_data is None or pop_data.empty:
@@ -1282,16 +1282,14 @@ with col_left:
                         fig.patch.set_alpha(0.0)
                         ax.set_facecolor("none")
 
-                        # KDE area + outline
+                        # KDE area
                         ax.fill_between(xs, ys, color="#e6e6e6", linewidth=0)
 
-                        # Participant marker (thin line + purple dot)
-                        ax.axvline(part_display, lw=0.8, color="#222222")
-                        ax.scatter(
-                            [part_display],
-                            [kde(part_display)],
-                            s=28, zorder=3, color=PURPLE_HEX, edgecolors="none"
-                        )
+                        # Participant marker (shorter vertical line capped to dist height)
+                        y_part = float(kde(part_display))
+                        ax.vlines(part_display, 0, y_part, lw=0.8, color="#222222")
+                        ax.scatter([part_display], [y_part], s=28, zorder=3,
+                                   color=PURPLE_HEX, edgecolors="none")
 
                         # Title & labels
                         ax.set_title(f"You fall asleep in {rounded_raw} minutes", fontsize=10, pad=6, color="#222222")
@@ -1312,7 +1310,7 @@ with col_left:
                         st.pyplot(fig, use_container_width=False)
 
 # =============================================================================
-# MIDDLE: Sleep duration histogram (slightly taller to align baseline)
+# MIDDLE: Sleep duration histogram (taller for alignment)
 # =============================================================================
 with col_mid:
     if pop_data is None or pop_data.empty:
@@ -1367,7 +1365,7 @@ with col_mid:
                 highlight_idx = np.clip(highlight_idx, 0, len(counts) - 1)
 
                 # Slightly taller figure for baseline alignment
-                fig, ax = plt.subplots(figsize=(2.2, 2.55))
+                fig, ax = plt.subplots(figsize=(2.2, 2.6))
                 fig.patch.set_alpha(0)
                 ax.set_facecolor("none")
                 ax.bar(centers, counts, width=edges[1]-edges[0],
@@ -1395,7 +1393,7 @@ with col_mid:
                 st.pyplot(fig, use_container_width=False)
 
 # =============================================================================
-# RIGHT: Chronotype + Dream recall (card)
+# RIGHT: Chronotype + Dream recall (further down)
 # =============================================================================
 with col_right:
     raw_chrono = record.get("chronotype", None)
@@ -1427,8 +1425,8 @@ with col_right:
     chrono_txt = CHRONO_LBL.get(chronotype_val, "—")
     recall_txt = DREAMRECALL_LBL.get(dreamrec_val, "—")
 
-    # Spacer to align with baseline of plots
-    st.markdown("<div style='height:32px;'></div>", unsafe_allow_html=True)
+    # Larger spacer to push text down to align visually with histogram baselines
+    st.markdown("<div style='height:58px;'></div>", unsafe_allow_html=True)
     st.markdown(
         f"""
         <div class="dm-center" style="max-width:320px; margin:0 auto;">
