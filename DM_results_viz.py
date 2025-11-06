@@ -386,7 +386,7 @@ PROFILES = {
         },
     ],
     "description": "Your mind drifts into imagined stories; vivid, intentional scenarios that feel like daydreams easing you into sleep.",
-    "icon": "dolhpin.svg",
+    "icon": "dolphin.svg",
     },
     
     # =====================================================================
