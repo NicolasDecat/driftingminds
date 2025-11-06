@@ -277,6 +277,16 @@ def _to_float(x):
     except:
         return np.nan
     
+def norm_bool(x): # For binary 0 / 1
+    try:
+        return 1.0 if float(x) >= 0.5 else 0.0
+    except:
+        return np.nan
+    
+def norm_eq(x, value):  # For trajectories
+    if x is None or (isinstance(x, float) and np.isnan(x)): return np.nan
+    return 1.0 if str(x) == str(value) else 0.0
+    
 def norm_1_4(x):
     x = _to_float(x)
     if np.isnan(x): return np.nan
@@ -368,7 +378,7 @@ PROFILES = {
         "features": [
             {"type": "var", "key": ["sleep_latency"],                   "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.00, "weight": 2},
             {"type": "var", "key": ["degreequest_sleepiness"],          "norm": norm_1_6, "norm_kwargs": {}, "target": 1.00, "weight": 0.8},
-            {"type": "var", "key": ["trajectories"],                    "norm": norm_1_4, "norm_kwargs": {}, "target": 0.33, "weight": 1.0},
+            {"type":"var","key":["trajectories"],                       "norm": norm_eq, "norm_kwargs": {"value": 2}, "target": 1.0, "weight": 1.0}
         ],
         "description": "You fall asleep quickly, especially when you already feel sleepy.",
         "icon": "bear.svg",
@@ -380,7 +390,7 @@ PROFILES = {
     # =====================================================================
     "Fantasizer": {
     "features": [
-        {"type": "var","key": ["freq_scenario"],      "norm": norm_1_6, "norm_kwargs": {}, "target": 1, "weight": 1.3},       
+        {"type": "var","key": ["freq_scenario"],       "norm": norm_1_6, "norm_kwargs": {}, "target": 1, "weight": 1.3},       
         {"type": "var","key": ["freq_positive"],       "norm": norm_1_6, "norm_kwargs": {},"target": 0.90, "weight": 0.8,
          "only_if": {"key": ["timequest_positive "],   "norm": norm_1_100,"norm_kwargs": {},"op": "between","bounds": [0, 0.50]}
         },
@@ -526,7 +536,7 @@ PROFILES = {
     # =====================================================================
     "Sentinelle": {
         "features": [
-            {"type": "var", "key": ["freq_hear_env"],              "norm": norm_1_6, "norm_kwargs": {}, "target": 1, "weight": 1.3},  
+            {"type": "var", "key": ["anytime_17"], "norm": norm_bool, "norm_kwargs": {},"target": 1,"weight": 1.0},
             {"type": "var", "key": ["sleep_latency"],              "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.4, "weight": 0.8},
 
         
