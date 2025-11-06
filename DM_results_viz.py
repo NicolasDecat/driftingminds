@@ -474,11 +474,10 @@ PROFILES = {
     # =====================================================================
     "Freewheeler": {
     "features": [
-        {"type": "var", "key": ["freq_think_nocontrol"],      "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1.1},  
+        {"type": "var", "key": ["freq_think_nocontrol"],      "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.1},  
         {"type": "var", "key": ["freq_think_bizarre"],        "norm": norm_1_6, "norm_kwargs": {}, "target": 0.70, "weight": 0.8},  
         {"type": "var", "key": ["freq_think_seq_bizarre"],    "norm": norm_1_6, "norm_kwargs": {}, "target": 0.70, "weight": 0.8},  
-        {"type": "var", "key": ["freq_percept_imposed"] ,     "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1},  
-        {"type": "var", "key": ["degreequest_spontaneity"] ,  "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1},  
+        {"type": "var", "key": ["degreequest_spontaneity"] ,  "norm": norm_1_6, "norm_kwargs": {}, "target": 0.70, "weight": 1},  
         {"type": "var", "key": ["degreequest_bizarreness"] ,  "norm": norm_1_6, "norm_kwargs": {}, "target": 0.70, "weight": 0.8},  
     ],
     "description": "You start intentional, then let go into spontaneous imagery.",
