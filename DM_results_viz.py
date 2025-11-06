@@ -1063,24 +1063,24 @@ st.markdown("</div></div>", unsafe_allow_html=True)
 
 
 # ==============
-# "You" — Imagery · Creativity · Anxiety (aligned + centered title line)
+# "You" — Imagery · Creativity · Anxiety (fixed alignment, anxiety 1–100, black rule)
 # ==============
 
-# --- Centered title with full-width line that skips the word ---------------
+# --- Centered title with a black rule that skips the word --------------------
 st.markdown(
     """
-    <div style="max-width:100%; margin:18px 0 6px 0;">
-      <div style="display:flex; align-items:center; gap:12px;">
-        <div style="height:1px; background:rgba(255,255,255,0.18); flex:1;"></div>
-        <div style="flex:0; font-weight:600; font-size:1.05rem; letter-spacing:0.2px; text-align:center; min-width:80px;">You</div>
-        <div style="height:1px; background:rgba(255,255,255,0.18); flex:1;"></div>
+    <div class="dm-center" style="max-width:820px; margin:18px auto 10px;">
+      <div style="display:flex; align-items:center; gap:14px;">
+        <div style="height:1px; background:#000; flex:1;"></div>
+        <div style="flex:0; font-weight:700; font-size:1.25rem; letter-spacing:0.2px;">You</div>
+        <div style="height:1px; background:#000; flex:1;"></div>
       </div>
     </div>
     """,
     unsafe_allow_html=True
 )
 
-# --- Color: match your app's purple exactly if available (used only in Matplotlib)
+# --- Use the same purple as the rest of the app if available -----------------
 _HL = None
 for name in ["PURPLE_HEX", "DM_PURPLE", "SLEEP_COLOR", "COLOR_PURPLE", "ACCENT_PURPLE"]:
     if name in globals():
@@ -1092,32 +1092,32 @@ if not _HL:
 def _hex_to_rgb_tuple(h):
     h = h.lstrip("#")
     return tuple(int(h[i:i+2], 16)/255.0 for i in (0, 2, 4))
-
 HL_RGB = _hex_to_rgb_tuple(_HL)
 
-# --- Helpers ---------------------------------------------------------------
+# --- Helpers -----------------------------------------------------------------
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from scipy.stats import truncnorm
 
 def _mini_hist(ax, counts, edges, highlight_idx, title, *, bar_width_factor=0.95):
-    # fixed axes rect so all three share the same baseline position
-    ax.set_position([0.12, 0.23, 0.76, 0.67])  # [left, bottom, width, height] in figure coords
+    # IDENTICAL axes rectangle for perfect baseline alignment across all 3 plots
+    ax.set_position([0.12, 0.23, 0.76, 0.67])  # left, bottom, width, height
 
     centers = 0.5 * (edges[:-1] + edges[1:])
     base_w  = (edges[1] - edges[0])
     width   = base_w * bar_width_factor
 
-    # background bars (grey)
+    # population bars (grey)
     ax.bar(centers, counts, width=width, color="#D9D9D9", edgecolor="white", align="center")
-    # highlighted bin (purple)
+    # participant bin (purple)
     if 0 <= highlight_idx < len(counts):
         ax.bar(centers[highlight_idx], counts[highlight_idx], width=width,
                color=HL_RGB, edgecolor="white", align="center")
 
     ax.set_title(title, fontsize=10, pad=6)
 
-    # X baseline + "low/high" labels, no numeric ticks
+    # X baseline + "low/high" labels; no numeric ticks
     ax.set_xlabel("")
     ax.set_xticks([])
     ax.spines["bottom"].set_visible(True)
@@ -1129,6 +1129,7 @@ def _mini_hist(ax, counts, edges, highlight_idx, title, *, bar_width_factor=0.95
     ax.spines["left"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.spines["top"].set_visible(False)
+    ax.margins(y=0)
 
 def _col_values(df, colname):
     if df is None or df.empty or (colname not in df.columns):
@@ -1141,10 +1142,11 @@ def _participant_value(rec, key):
     except Exception:
         return np.nan
 
-# --- Precompute counts/edges (so we can align baselines without changing shapes)
-# 1) VVIQ imagery — SAME distribution as before, starting at 30
+# --- Precompute distributions (keeps shapes; only aligns axes placement) -----
+
+# 1) Imagery (VVIQ): unchanged distribution, starts at 30 (as you asked earlier)
 try:
-    vviq_score  # computed upstream
+    vviq_score  # if computed upstream, reuse it
 except NameError:
     VVIQ_FIELDS = [
         "quest_a1","quest_a2","quest_a3","quest_a4",
@@ -1155,30 +1157,29 @@ except NameError:
     vviq_vals  = [float(record.get(k, np.nan)) if pd.notna(record.get(k, np.nan)) else np.nan for k in VVIQ_FIELDS]
     vviq_score = sum(v for v in vviq_vals if np.isfinite(v))
 
-from scipy.stats import truncnorm
 N = 8000; mu, sigma = 61.0, 9.2; low, high = 30, 80
 a, b = (low - mu) / sigma, (high - mu) / sigma
 vviq_samples = truncnorm.rvs(a, b, loc=mu, scale=sigma, size=N, random_state=42)
-vviq_edges   = np.linspace(low, high, 26)          # same binning as before (within [30,80])
+vviq_edges   = np.linspace(low, high, 26)  # same spacing as before within [30,80]
 vviq_counts, vviq_edges = np.histogram(vviq_samples, bins=vviq_edges, density=True)
 vviq_hidx    = int(np.clip(np.digitize(vviq_score, vviq_edges) - 1, 0, len(vviq_counts)-1))
 
-# 2) Creativity (1–6)
+# 2) Creativity: 1–6 discrete
 cre_vals  = _col_values(pop_data, "creativity_trait")
 cre_edges = np.arange(0.5, 6.5 + 1.0, 1.0)
 cre_counts, cre_edges = np.histogram(cre_vals, bins=cre_edges, density=True) if cre_vals.size else (np.array([]), cre_edges)
 cre_part  = _participant_value(record, "creativity_trait")
 cre_hidx  = int(np.clip(np.digitize(cre_part, cre_edges) - 1, 0, len(cre_counts)-1)) if cre_counts.size else 0
 
-# 3) Anxiety (1–6)
+# 3) Anxiety: **1–100 with denser bins** (5-point bins)
 anx_vals  = _col_values(pop_data, "anxiety")
-anx_edges = np.arange(0.5, 6.5 + 1.0, 1.0)
+anx_edges = np.arange(0.5, 100.5 + 5, 5)  # 1..100, 5-pt bins
 anx_counts, anx_edges = np.histogram(anx_vals, bins=anx_edges, density=True) if anx_vals.size else (np.array([]), anx_edges)
 anx_part  = _participant_value(record, "anxiety")
 anx_hidx  = int(np.clip(np.digitize(anx_part, anx_edges) - 1, 0, len(anx_counts)-1)) if anx_counts.size else 0
 
-# --- Columns (equal heights); we align baselines via the fixed axes rectangle above
-c1, c2, c3 = st.columns([1, 1, 1], gap="small")
+# --- Draw side-by-side (identical figure sizes + identical axes rectangles) ---
+c1, c2, c3 = st.columns(3, gap="small")
 
 with c1:
     fig, ax = plt.subplots(figsize=(2.4, 2.6))
@@ -1193,7 +1194,7 @@ with c2:
     else:
         fig, ax = plt.subplots(figsize=(2.4, 2.6))
         fig.patch.set_alpha(0); ax.set_facecolor("none")
-        # Bars closer together (same visual gap as Anxiety): width ~ full bin
+        # Make bars “closer together” (same bar width factor as Anxiety so the gap matches visually)
         _mini_hist(ax, cre_counts, cre_edges, cre_hidx, "Your level of creativity",
                    bar_width_factor=0.95)
         st.pyplot(fig, use_container_width=False)
@@ -1207,6 +1208,7 @@ with c3:
         _mini_hist(ax, anx_counts, anx_edges, anx_hidx, "Your level of anxiety",
                    bar_width_factor=0.95)
         st.pyplot(fig, use_container_width=False)
+
 
 
 
