@@ -1066,19 +1066,20 @@ st.markdown("</div></div>", unsafe_allow_html=True)
 # "You" — Imagery · Creativity · Anxiety (final alignment + clean title line)
 # ==============
 
-# --- Centered title with wide black rule that skips the word -----------------
+# --- Centered title for "You" (thinner black line) -----------------
 st.markdown(
     """
-    <div class="dm-center" style="max-width:960px; margin:26px auto 14px;">
-      <div style="display:flex; align-items:center; gap:32px;">
-        <div style="height:2px; background:#000; flex:1;"></div>
-        <div style="flex:0; font-weight:700; font-size:1.35rem; letter-spacing:0.2px;">You</div>
-        <div style="height:2px; background:#000; flex:1;"></div>
+    <div class="dm-center" style="max-width:960px; margin:18px auto 10px;">
+      <div style="display:flex; align-items:center; gap:18px;">
+        <div style="height:1px; background:#000; flex:1;"></div>
+        <div style="flex:0; font-weight:600; font-size:1.35rem; letter-spacing:0.2px;">You</div>
+        <div style="height:1px; background:#000; flex:1;"></div>
       </div>
     </div>
     """,
     unsafe_allow_html=True
 )
+
 
 # --- Color setup -------------------------------------------------------------
 _HL = None
@@ -1112,7 +1113,7 @@ def _mini_hist(ax, counts, edges, highlight_idx, title, bar_width_factor=0.95):
                color=HL_RGB, edgecolor="white", align="center")
 
     # title
-    ax.set_title(title, fontsize=10, pad=8)
+    ax.set_title(title, fontsize=8, pad=6, color="#222222")
 
     # x-axis baseline and labels
     ax.spines["bottom"].set_visible(True)
@@ -1214,21 +1215,22 @@ with c3:
 # "Your sleep" — Latency · Duration · Chronotype & Dream recall (final visual alignment)
 # ==============
 
-# --- Centered title (balanced gap, one-line) ---------------------------------
+# --- Centered title for "Your sleep" (thinner black line, one line text) -----
 st.markdown(
     """
     <div class="dm-center" style="max-width:1020px; margin:28px auto 16px;">
       <div style="display:flex; align-items:center; gap:44px;">
-        <div style="height:2px; background:#000; flex:1;"></div>
+        <div style="height:1px; background:#000; flex:1;"></div>
         <div style="flex:0; font-weight:700; font-size:1.35rem; letter-spacing:0.2px; white-space:nowrap;">
           Your sleep
         </div>
-        <div style="height:2px; background:#000; flex:1;"></div>
+        <div style="height:1px; background:#000; flex:1;"></div>
       </div>
     </div>
     """,
     unsafe_allow_html=True
 )
+
 
 # --- Three-column layout -----------------------------------------------------
 col_left, col_mid, col_right = st.columns(3, gap="small")
@@ -1292,7 +1294,7 @@ with col_left:
                                    color=PURPLE_HEX, edgecolors="none")
 
                         # Titles & labels
-                        ax.set_title(f"You fall asleep in {rounded_raw} minutes", fontsize=10, pad=6, color="#222222")
+                        ax.set_title(f"You fall asleep in {rounded_raw} minutes", fontsize=8, pad=6, color="#222222")
                         ax.set_xlabel("minutes", fontsize=9, color="#333333")
 
                         # Remove y-axis
@@ -1373,7 +1375,7 @@ with col_mid:
                 ax.bar(centers[highlight_idx], counts[highlight_idx],
                        width=edges[1]-edges[0], color=PURPLE_HEX,
                        edgecolor="white", align="center")
-                ax.set_title(title_str, fontsize=10, pad=6)
+                ax.set_title(title_str, fontsize=8, pad=6, color="#222222")
                 ax.set_xlabel("hours", fontsize=9)
 
                 # Remove y-axis
@@ -1529,7 +1531,7 @@ with col_left:
                         )
 
                         # Title & labels
-                        ax.set_title(f"{rounded_raw} minutes to fall asleep", fontsize=10, pad=6, color="#222222")
+                        ax.set_title(f"{rounded_raw} minutes to fall asleep", fontsize=8, pad=6, color="#222222")
                         ax.set_xlabel("Time (min)", fontsize=9, color="#333333")
                         ax.set_ylabel("Population", fontsize=9, color="#333333")
 
@@ -1612,7 +1614,7 @@ with col_right:
                 ax.bar(centers[highlight_idx], counts[highlight_idx],
                        width=edges[1]-edges[0], color=PURPLE_HEX, edgecolor="white",
                        align="center", label="Your duration")
-                ax.set_title(title_str, fontsize=10, pad=6)
+                ax.set_title(title_str, fontsize=8, pad=6, color="#222222")
                 ax.set_xlabel("Time (h)", fontsize=9); ax.set_ylabel("Population", fontsize=9)
                 ax.set_yticks([]); ax.set_yticklabels([])
                 ticks = np.arange(1, 13, 1); ax.set_xticks(ticks)
