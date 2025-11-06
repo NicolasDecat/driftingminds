@@ -1548,5 +1548,239 @@ else:
     st.caption("Heuristic checks: aim for no empty categories and avoid overly dominant ones (>30%).")
 
 
+# ==============
+# Dreamweaver — Diagnostics Panel (Streamlit)
+# ==============
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import streamlit as st
+
+# --- Config (same fields you used) -------------------------------------------
+DREAMWEAVER_CFG = {
+    "features": [
+        {"key": "freq_percept_intense",   "target": 0.90, "weight": 1.0, "norm": "1_6"},
+        {"key": "freq_percept_narrative", "target": 0.90, "weight": 1.0, "norm": "1_6"},
+        {"key": "freq_percept_imposed",   "target": 0.90, "weight": 1.0, "norm": "1_6"},
+        {"key": "freq_absorbed",          "target": 0.80, "weight": 1.0, "norm": "1_6"},
+        {"key": "degreequest_vividness",  "target": 0.80, "weight": 0.8, "norm": "1_6"},
+        {"key": "degreequest_bizarreness","target": 0.80, "weight": 0.8, "norm": "1_6"},
+    ],
+    "description": "You drift into vivid, sensory mini-dreams as you fall asleep.",
+    "icon": "seahorse.svg",
+}
+
+# --- Styling tokens (keep consistent with the rest of DM) --------------------
+DM_PURPLE = "#6F45FF"
+DM_GREY   = "#A7A7A7"
+DM_BLACK  = "#0C0C0C"
+
+# --- Helpers -----------------------------------------------------------------
+def _norm_1_6(x):
+    try:
+        x = float(x)
+    except Exception:
+        return np.nan
+    if np.isnan(x):
+        return np.nan
+    return (x - 1.0) / 5.0  # 1..6 -> 0..1
+
+def _apply_norm(x, kind):
+    if kind == "1_6":
+        return _norm_1_6(x)
+    return np.nan
+
+def _dreamweaver_score(row: pd.Series, cfg=DREAMWEAVER_CFG):
+    vals, wts, tgts = [], [], []
+    for f in cfg["features"]:
+        v = _apply_norm(row.get(f["key"], np.nan), f["norm"])
+        if np.isnan(v):
+            continue
+        # similarity-to-target (1 = perfect match)
+        sim = 1.0 - abs(v - f["target"])
+        vals.append(sim * f["weight"])
+        wts.append(f["weight"])
+        tgts.append(f["target"])
+    if not wts:
+        return np.nan
+    return np.sum(vals) / np.sum(wts)
+
+def _participant_series_from_record(record: dict, cfg=DREAMWEAVER_CFG):
+    """Build a Series with the needed fields from your 'record' dict."""
+    data = {}
+    for f in cfg["features"]:
+        k = f["key"]
+        data[k] = record.get(k, np.nan)
+    return pd.Series(data)
+
+# --- Panel -------------------------------------------------------------------
+with st.container():
+    st.markdown(
+        f"""
+        <div class="dm-center" style="max-width:820px; margin:0 auto;">
+          <h3 style="font-weight:300; margin:0 0 0.5rem 0; text-align:center;">
+            <span style="display:inline-flex; align-items:center; gap:0.5rem;">
+              <img src="assets/{DREAMWEAVER_CFG['icon']}" style="width:28px; height:28px; opacity:0.9;">
+              Dreamweaver — Diagnostics
+            </span>
+          </h3>
+          <p style="text-align:center; color:{DM_GREY}; margin-top:0;">
+            {DREAMWEAVER_CFG["description"]}
+          </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # Controls (what fraction passes your current bar?)
+    colA, colB, colC = st.columns([1,1,1], gap="small")
+    with colA:
+        assign_threshold = st.slider(
+            "Assignment threshold", min_value=0.60, max_value=0.90, step=0.01, value=0.75,
+            help="Profile is assigned when the composite score ≥ this threshold."
+        )
+    with colB:
+        slack = st.slider(
+            "Per-variable tolerance (slack)", 0.00, 0.10, 0.02, 0.01,
+            help="Counts a variable as 'near target' if its normalized value is within this distance of the target."
+        )
+    with colC:
+        show_hists = st.toggle("Show per-variable histograms", value=True)
+
+    # --- Compute population scores ------------------------------------------
+    if pop_data is None or pop_data.empty:
+        st.warning("Population data not available.")
+    else:
+        df = pop_data.copy()
+        # keep only necessary columns if you like:
+        needed_cols = [f["key"] for f in DREAMWEAVER_CFG["features"] if f["key"] in df.columns]
+        # Compute normalized columns & pass flags
+        for f in DREAMWEAVER_CFG["features"]:
+            k = f["key"]
+            nk = f"{k}__norm"
+            if k in df.columns:
+                df[nk] = df[k].apply(lambda x: _apply_norm(x, f["norm"]))
+                df[f"{k}__near_target"] = (df[nk] - f["target"]).abs() <= slack
+            else:
+                df[nk] = np.nan
+                df[f"{k}__near_target"] = False
+
+        df["dreamweaver_score"] = df.apply(_dreamweaver_score, axis=1)
+
+        # Population KPIs
+        pct_assign = float(np.nanmean(df["dreamweaver_score"] >= assign_threshold)) * 100.0
+        med = float(np.nanmedian(df["dreamweaver_score"]))
+        q1  = float(np.nanpercentile(df["dreamweaver_score"].dropna(), 25)) if df["dreamweaver_score"].notna().any() else np.nan
+        q3  = float(np.nanpercentile(df["dreamweaver_score"].dropna(), 75)) if df["dreamweaver_score"].notna().any() else np.nan
+
+        k1, k2, k3 = st.columns([1,1,1], gap="small")
+        k1.metric("Dreamweaver in population", f"{pct_assign:0.1f}%")
+        k2.metric("Median composite", f"{med:0.2f}")
+        k3.metric("IQR (25–75%)", f"{q1:0.2f} – {q3:0.2f}")
+
+        # Bottlenecks: which variables block most people?
+        rows = []
+        for f in DREAMWEAVER_CFG["features"]:
+            k = f["key"]
+            near_rate = float(np.nanmean(df[f"{k}__near_target"])) * 100.0
+            pop_mean  = float(np.nanmean(df[f"{k}__norm"])) if df[f"{k}__norm"].notna().any() else np.nan
+            rows.append({
+                "variable": k,
+                "target": f["target"],
+                "near_target_%": near_rate,
+                "pop_mean_norm": pop_mean,
+                "weight": f["weight"]
+            })
+        bottlenecks = pd.DataFrame(rows).sort_values("near_target_%")
+
+        st.markdown("<div class='dm-center' style='max-width:820px; margin:0 auto;'>", unsafe_allow_html=True)
+        st.subheader("Where does it fail for most people?")
+        st.caption("Lower bars = tighter bottlenecks. Aim: raise near-target rates without losing construct validity.")
+
+        # Horizontal bar (near-target %)
+        fig, ax = plt.subplots(figsize=(6, 3.8))
+        y = bottlenecks["variable"]
+        x = bottlenecks["near_target_%"]
+        ax.barh(y, x)
+        ax.set_xlabel("Near-target rate (%)")
+        ax.set_xlim(0, 100)
+        ax.axvline(50, color=DM_GREY, lw=1, ls="--", alpha=0.5)
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.tick_params(axis='y', labelsize=9)
+        for i, v in enumerate(x):
+            ax.text(v + 1, i, f"{v:0.1f}%", va="center", fontsize=9)
+        st.pyplot(fig, use_container_width=True)
+
+        # Participant overlay (if record is present) + per-variable histograms
+        st.subheader("Per-variable distributions")
+        st.caption("Population distributions (normalized 0‒1). Vertical line = target; dot = participant (if available).")
+
+        # Build participant series (optional)
+        p_series = _participant_series_from_record(record, DREAMWEAVER_CFG) if "record" in locals() else None
+
+        if show_hists:
+            for f in DREAMWEAVER_CFG["features"]:
+                k = f["key"]; tgt = f["target"]
+                nk = f"{k}__norm"
+                raw = df[nk].dropna().values
+                if raw.size == 0:
+                    continue
+
+                fig, ax = plt.subplots(figsize=(6, 2.5))
+                ax.hist(raw, bins=20)
+                ax.axvline(tgt, color=DM_PURPLE, lw=2, ls="-", alpha=0.9, label="Target")
+                # participant dot
+                if p_series is not None and pd.notna(p_series.get(k, np.nan)):
+                    pv = _apply_norm(p_series[k], "1_6")
+                    if not np.isnan(pv):
+                        ax.scatter([pv], [0], s=80, marker="o", zorder=5, label="Participant")
+                ax.set_xlim(0, 1)
+                ax.set_title(k, fontsize=11, pad=6)
+                ax.spines["top"].set_visible(False)
+                ax.spines["right"].set_visible(False)
+                ax.legend(frameon=False, fontsize=9)
+                st.pyplot(fig, use_container_width=True)
+
+        # Composite distribution with threshold
+        st.subheader("Composite score distribution")
+        st.caption("How many pass your assignment threshold?")
+        valid = df["dreamweaver_score"].dropna().values
+        if valid.size:
+            fig, ax = plt.subplots(figsize=(6, 3.2))
+            ax.hist(valid, bins=24)
+            ax.axvline(assign_threshold, color=DM_PURPLE, lw=2, ls="-", label="Assignment threshold")
+            ax.set_xlim(0, 1)
+            ax.set_xlabel("Composite")
+            ax.set_ylabel("Count")
+            ax.spines["top"].set_visible(False)
+            ax.spines["right"].set_visible(False)
+            ax.legend(frameon=False, fontsize=9)
+            st.pyplot(fig, use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        # Short textual diagnosis (top 3 bottlenecks)
+        top3 = bottlenecks.head(3)
+        bullets = "\n".join(
+            [
+                f"- **{r.variable}**: only **{r['near_target_%']:.1f}%** near the target "
+                f"(pop. mean={r['pop_mean_norm']:.2f}, target={r['target']:.2f}, weight={r['weight']})"
+                for _, r in top3.iterrows()
+            ]
+        )
+        st.markdown(
+            f"""
+            <div class="dm-center" style="max-width:820px; margin:0 auto; border:1px solid #222; border-radius:14px; padding:14px 16px; background:#0d0d0d;">
+              <p style="color:#fff; margin:0 0 6px 0; font-weight:600;">Quick diagnosis</p>
+              <div style="color:#ddd; font-size:0.95rem;">
+                The lowest near-target variables are likely throttling Dreamweaver frequency in the population:
+                <br><br>
+                {bullets}
+              </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
 
