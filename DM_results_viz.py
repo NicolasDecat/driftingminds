@@ -1061,6 +1061,136 @@ for b in bars:
 
 st.markdown("</div></div>", unsafe_allow_html=True)
 
+
+# ==============
+# "You" — Imagery · Creativity · Anxiety (three compact histos)
+# ==============
+
+st.markdown("<div style='height:18px;'></div>", unsafe_allow_html=True)
+st.subheader("You")
+
+def _mini_hist(ax, counts, edges, highlight_idx, title, xlabel):
+    centers = 0.5 * (edges[:-1] + edges[1:])
+    width   = edges[1] - edges[0]
+    ax.bar(centers, counts, width=width, color="#D9D9D9", edgecolor="white", align="center")
+    ax.bar(centers[highlight_idx], counts[highlight_idx], width=width,
+           color=PURPLE_HEX, edgecolor="white", align="center")
+    ax.set_title(title, fontsize=10, pad=6)
+    ax.set_xlabel(xlabel, fontsize=9)
+    ax.set_ylabel("Population", fontsize=9)
+    ax.set_yticks([]); ax.set_yticklabels([])
+    ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
+    ax.tick_params(axis="x", labelsize=8); ax.tick_params(axis="y", length=0)
+
+def _prep_bins(values: np.ndarray):
+    """Pick sensible bins: discrete 1–6 if appropriate, else 0–100 by 10s, else auto."""
+    values = values[np.isfinite(values)]
+    if values.size == 0:
+        return None, None
+    vmin, vmax = float(np.nanmin(values)), float(np.nanmax(values))
+    # Discrete 1..6
+    if 1.0 <= vmin <= 6.0 and vmax <= 6.0 and np.unique(values).size <= 6:
+        edges = np.arange(0.5, 6.5 + 1.0, 1.0)
+        return edges, "Score (1–6)"
+    # Percent/0..100
+    if 0.0 <= vmin and vmax <= 100.0:
+        edges = np.arange(-0.5, 100.5 + 10.0, 10.0)
+        return edges, "Score (0–100)"
+    # Fallback
+    edges = np.linspace(vmin, vmax, 16)
+    return edges, "Score"
+
+def _col_values(df, colname):
+    if df is None or df.empty or (colname not in df.columns):
+        return np.array([])
+    return pd.to_numeric(df[colname], errors="coerce").to_numpy()
+
+def _participant_value(rec, key):
+    try:
+        return float(str(rec.get(key, np.nan)).strip())
+    except Exception:
+        return np.nan
+
+c1, c2, c3 = st.columns(3, gap="small")
+
+# --- 1) Imagery (VVIQ) — compact version
+with c1:
+    # reuse vviq_score if already computed above; otherwise compute quickly here
+    try:
+        vviq_score  # exists from previous block
+    except NameError:
+        VVIQ_FIELDS = [
+            "quest_a1","quest_a2","quest_a3","quest_a4",
+            "quest_b1","quest_b2","quest_b3","quest_b4",
+            "quest_c1","quest_c2","quest_c3","quest_c4",
+            "quest_d1","quest_d2","quest_d3","quest_d4"
+        ]
+        vviq_vals  = [float(record.get(k, np.nan)) if pd.notna(record.get(k, np.nan)) else np.nan for k in VVIQ_FIELDS]
+        vviq_score = sum(v for v in vviq_vals if np.isfinite(v))
+    # synthetic normative distribution (same params as your big plot)
+    from scipy.stats import truncnorm
+    N = 8000; mu, sigma = 61.0, 9.2; low, high = 16, 80
+    a, b = (low - mu) / sigma, (high - mu) / sigma
+    vviq_samples = truncnorm.rvs(a, b, loc=mu, scale=sigma, size=N, random_state=42)
+
+    bins = np.linspace(low, high, 33)
+    counts, edges = np.histogram(vviq_samples, bins=bins, density=True)
+    hidx = np.digitize(vviq_score, edges) - 1
+    hidx = np.clip(hidx, 0, len(counts)-1)
+
+    fig, ax = plt.subplots(figsize=(2.4, 2.5))
+    fig.patch.set_alpha(0); ax.set_facecolor("none")
+    _mini_hist(ax, counts, edges, hidx, "Imagery (VVIQ)", "Score")
+    st.pyplot(fig, use_container_width=False)
+
+# --- 2) Creativity
+with c2:
+    colname = "creativity"
+    vals = _col_values(pop_data, colname)
+    if vals.size == 0:
+        st.info("Population data for creativity unavailable.")
+    else:
+        edges, xlabel = _prep_bins(vals)
+        counts, _ = np.histogram(vals, bins=edges, density=True)
+        part_val = _participant_value(record, colname)
+        if not np.isfinite(part_val):  # try alt keys if needed
+            part_val = _participant_value(record, "creativity_trait")
+        hidx = np.digitize(part_val, edges) - 1
+        hidx = int(np.clip(hidx, 0, len(counts)-1))
+
+        fig, ax = plt.subplots(figsize=(2.4, 2.5))
+        fig.patch.set_alpha(0); ax.set_facecolor("none")
+        _mini_hist(ax, counts, edges, hidx, "Creativity", xlabel)
+        # tidy x ticks for discrete 1..6
+        if np.allclose(np.diff(edges), 1.0) and edges.min() <= 1 and edges.max() >= 6.5:
+            ax.set_xticks(np.arange(1, 7, 1)); ax.set_xticklabels([str(i) for i in range(1, 7)])
+        st.pyplot(fig, use_container_width=False)
+
+# --- 3) Anxiety
+with c3:
+    colname = "anxiety"
+    vals = _col_values(pop_data, colname)
+    if vals.size == 0:
+        st.info("Population data for anxiety unavailable.")
+    else:
+        edges, xlabel = _prep_bins(vals)
+        counts, _ = np.histogram(vals, bins=edges, density=True)
+        part_val = _participant_value(record, colname)
+        hidx = np.digitize(part_val, edges) - 1
+        hidx = int(np.clip(hidx, 0, len(counts)-1))
+
+        fig, ax = plt.subplots(figsize=(2.4, 2.5))
+        fig.patch.set_alpha(0); ax.set_facecolor("none")
+        _mini_hist(ax, counts, edges, hidx, "Anxiety", xlabel)
+        # tidy x ticks for discrete 1..6
+        if np.allclose(np.diff(edges), 1.0) and edges.min() <= 1 and edges.max() >= 6.5:
+            ax.set_xticks(np.arange(1, 7, 1)); ax.set_xticklabels([str(i) for i in range(1, 7)])
+        st.pyplot(fig, use_container_width=False)
+
+
+
+
+
 # ==============
 # Comparative visualisation (Latency KDE + Duration histogram)
 # ==============
@@ -1544,241 +1674,5 @@ else:
     dist_show = dist_df.sort_values("percent", ascending=False, ignore_index=True)
     st.dataframe(dist_show, use_container_width=True)
     st.caption("Heuristic checks: aim for no empty categories and avoid overly dominant ones (>30%).")
-
-
-# ==============
-# Dreamweaver — Diagnostics Panel (Streamlit)
-# ==============
-
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import streamlit as st
-
-# --- Config (same fields you used) -------------------------------------------
-DREAMWEAVER_CFG = {
-    "features": [
-        {"key": "freq_percept_intense",   "target": 0.90, "weight": 1.0, "norm": "1_6"},
-        {"key": "freq_percept_narrative", "target": 0.90, "weight": 1.0, "norm": "1_6"},
-        {"key": "freq_percept_imposed",   "target": 0.90, "weight": 1.0, "norm": "1_6"},
-        {"key": "freq_absorbed",          "target": 0.80, "weight": 1.0, "norm": "1_6"},
-        {"key": "degreequest_vividness",  "target": 0.80, "weight": 0.8, "norm": "1_6"},
-        {"key": "degreequest_bizarreness","target": 0.80, "weight": 0.8, "norm": "1_6"},
-    ],
-    "description": "You drift into vivid, sensory mini-dreams as you fall asleep.",
-    "icon": "seahorse.svg",
-}
-
-# --- Styling tokens (keep consistent with the rest of DM) --------------------
-DM_PURPLE = "#6F45FF"
-DM_GREY   = "#A7A7A7"
-DM_BLACK  = "#0C0C0C"
-
-# --- Helpers -----------------------------------------------------------------
-def _norm_1_6(x):
-    try:
-        x = float(x)
-    except Exception:
-        return np.nan
-    if np.isnan(x):
-        return np.nan
-    return (x - 1.0) / 5.0  # 1..6 -> 0..1
-
-def _apply_norm(x, kind):
-    if kind == "1_6":
-        return _norm_1_6(x)
-    return np.nan
-
-def _dreamweaver_score(row: pd.Series, cfg=DREAMWEAVER_CFG):
-    vals, wts, tgts = [], [], []
-    for f in cfg["features"]:
-        v = _apply_norm(row.get(f["key"], np.nan), f["norm"])
-        if np.isnan(v):
-            continue
-        # similarity-to-target (1 = perfect match)
-        sim = 1.0 - abs(v - f["target"])
-        vals.append(sim * f["weight"])
-        wts.append(f["weight"])
-        tgts.append(f["target"])
-    if not wts:
-        return np.nan
-    return np.sum(vals) / np.sum(wts)
-
-def _participant_series_from_record(record: dict, cfg=DREAMWEAVER_CFG):
-    """Build a Series with the needed fields from your 'record' dict."""
-    data = {}
-    for f in cfg["features"]:
-        k = f["key"]
-        data[k] = record.get(k, np.nan)
-    return pd.Series(data)
-
-# --- Panel -------------------------------------------------------------------
-with st.container():
-    st.markdown(
-        f"""
-        <div class="dm-center" style="max-width:820px; margin:0 auto;">
-          <h3 style="font-weight:300; margin:0 0 0.5rem 0; text-align:center;">
-            <span style="display:inline-flex; align-items:center; gap:0.5rem;">
-              <img src="assets/{DREAMWEAVER_CFG['icon']}" style="width:28px; height:28px; opacity:0.9;">
-              Dreamweaver — Diagnostics
-            </span>
-          </h3>
-          <p style="text-align:center; color:{DM_GREY}; margin-top:0;">
-            {DREAMWEAVER_CFG["description"]}
-          </p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    # Controls (what fraction passes your current bar?)
-    colA, colB, colC = st.columns([1,1,1], gap="small")
-    with colA:
-        assign_threshold = st.slider(
-            "Assignment threshold", min_value=0.60, max_value=0.90, step=0.01, value=0.75,
-            help="Profile is assigned when the composite score ≥ this threshold."
-        )
-    with colB:
-        slack = st.slider(
-            "Per-variable tolerance (slack)", 0.00, 0.10, 0.02, 0.01,
-            help="Counts a variable as 'near target' if its normalized value is within this distance of the target."
-        )
-    with colC:
-        show_hists = st.toggle("Show per-variable histograms", value=True)
-
-    # --- Compute population scores ------------------------------------------
-    if pop_data is None or pop_data.empty:
-        st.warning("Population data not available.")
-    else:
-        df = pop_data.copy()
-        # keep only necessary columns if you like:
-        needed_cols = [f["key"] for f in DREAMWEAVER_CFG["features"] if f["key"] in df.columns]
-        # Compute normalized columns & pass flags
-        for f in DREAMWEAVER_CFG["features"]:
-            k = f["key"]
-            nk = f"{k}__norm"
-            if k in df.columns:
-                df[nk] = df[k].apply(lambda x: _apply_norm(x, f["norm"]))
-                df[f"{k}__near_target"] = (df[nk] - f["target"]).abs() <= slack
-            else:
-                df[nk] = np.nan
-                df[f"{k}__near_target"] = False
-
-        df["dreamweaver_score"] = df.apply(_dreamweaver_score, axis=1)
-
-        # Population KPIs
-        pct_assign = float(np.nanmean(df["dreamweaver_score"] >= assign_threshold)) * 100.0
-        med = float(np.nanmedian(df["dreamweaver_score"]))
-        q1  = float(np.nanpercentile(df["dreamweaver_score"].dropna(), 25)) if df["dreamweaver_score"].notna().any() else np.nan
-        q3  = float(np.nanpercentile(df["dreamweaver_score"].dropna(), 75)) if df["dreamweaver_score"].notna().any() else np.nan
-
-        k1, k2, k3 = st.columns([1,1,1], gap="small")
-        k1.metric("Dreamweaver in population", f"{pct_assign:0.1f}%")
-        k2.metric("Median composite", f"{med:0.2f}")
-        k3.metric("IQR (25–75%)", f"{q1:0.2f} – {q3:0.2f}")
-
-        # Bottlenecks: which variables block most people?
-        rows = []
-        for f in DREAMWEAVER_CFG["features"]:
-            k = f["key"]
-            near_rate = float(np.nanmean(df[f"{k}__near_target"])) * 100.0
-            pop_mean  = float(np.nanmean(df[f"{k}__norm"])) if df[f"{k}__norm"].notna().any() else np.nan
-            rows.append({
-                "variable": k,
-                "target": f["target"],
-                "near_target_%": near_rate,
-                "pop_mean_norm": pop_mean,
-                "weight": f["weight"]
-            })
-        bottlenecks = pd.DataFrame(rows).sort_values("near_target_%")
-
-        st.markdown("<div class='dm-center' style='max-width:820px; margin:0 auto;'>", unsafe_allow_html=True)
-        st.subheader("Where does it fail for most people?")
-        st.caption("Lower bars = tighter bottlenecks. Aim: raise near-target rates without losing construct validity.")
-
-        # Horizontal bar (near-target %)
-        fig, ax = plt.subplots(figsize=(6, 3.8))
-        y = bottlenecks["variable"]
-        x = bottlenecks["near_target_%"]
-        ax.barh(y, x)
-        ax.set_xlabel("Near-target rate (%)")
-        ax.set_xlim(0, 100)
-        ax.axvline(50, color=DM_GREY, lw=1, ls="--", alpha=0.5)
-        ax.spines["top"].set_visible(False)
-        ax.spines["right"].set_visible(False)
-        ax.tick_params(axis='y', labelsize=9)
-        for i, v in enumerate(x):
-            ax.text(v + 1, i, f"{v:0.1f}%", va="center", fontsize=9)
-        st.pyplot(fig, use_container_width=True)
-
-        # Participant overlay (if record is present) + per-variable histograms
-        st.subheader("Per-variable distributions")
-        st.caption("Population distributions (normalized 0‒1). Vertical line = target; dot = participant (if available).")
-
-        # Build participant series (optional)
-        p_series = _participant_series_from_record(record, DREAMWEAVER_CFG) if "record" in locals() else None
-
-        if show_hists:
-            for f in DREAMWEAVER_CFG["features"]:
-                k = f["key"]; tgt = f["target"]
-                nk = f"{k}__norm"
-                raw = df[nk].dropna().values
-                if raw.size == 0:
-                    continue
-
-                fig, ax = plt.subplots(figsize=(6, 2.5))
-                ax.hist(raw, bins=20)
-                ax.axvline(tgt, color=DM_PURPLE, lw=2, ls="-", alpha=0.9, label="Target")
-                # participant dot
-                if p_series is not None and pd.notna(p_series.get(k, np.nan)):
-                    pv = _apply_norm(p_series[k], "1_6")
-                    if not np.isnan(pv):
-                        ax.scatter([pv], [0], s=80, marker="o", zorder=5, label="Participant")
-                ax.set_xlim(0, 1)
-                ax.set_title(k, fontsize=11, pad=6)
-                ax.spines["top"].set_visible(False)
-                ax.spines["right"].set_visible(False)
-                ax.legend(frameon=False, fontsize=9)
-                st.pyplot(fig, use_container_width=True)
-
-        # Composite distribution with threshold
-        st.subheader("Composite score distribution")
-        st.caption("How many pass your assignment threshold?")
-        valid = df["dreamweaver_score"].dropna().values
-        if valid.size:
-            fig, ax = plt.subplots(figsize=(6, 3.2))
-            ax.hist(valid, bins=24)
-            ax.axvline(assign_threshold, color=DM_PURPLE, lw=2, ls="-", label="Assignment threshold")
-            ax.set_xlim(0, 1)
-            ax.set_xlabel("Composite")
-            ax.set_ylabel("Count")
-            ax.spines["top"].set_visible(False)
-            ax.spines["right"].set_visible(False)
-            ax.legend(frameon=False, fontsize=9)
-            st.pyplot(fig, use_container_width=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-
-        # Short textual diagnosis (top 3 bottlenecks)
-        top3 = bottlenecks.head(3)
-        bullets = "\n".join(
-            [
-                f"- **{r.variable}**: only **{r['near_target_%']:.1f}%** near the target "
-                f"(pop. mean={r['pop_mean_norm']:.2f}, target={r['target']:.2f}, weight={r['weight']})"
-                for _, r in top3.iterrows()
-            ]
-        )
-        st.markdown(
-            f"""
-            <div class="dm-center" style="max-width:820px; margin:0 auto; border:1px solid #222; border-radius:14px; padding:14px 16px; background:#0d0d0d;">
-              <p style="color:#fff; margin:0 0 6px 0; font-weight:600;">Quick diagnosis</p>
-              <div style="color:#ddd; font-size:0.95rem;">
-                The lowest near-target variables are likely throttling Dreamweaver frequency in the population:
-                <br><br>
-                {bullets}
-              </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
 
 
