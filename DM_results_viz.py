@@ -1063,74 +1063,72 @@ st.markdown("</div></div>", unsafe_allow_html=True)
 
 
 # ==============
-# "You" — Imagery · Creativity · Anxiety (aligned axes, narrow middle, centered title with line)
+# "You" — Imagery · Creativity · Anxiety (aligned + centered title line)
 # ==============
 
-# --- Centered title with full-width line that "skips" the word ----------------
+# --- Centered title with full-width line that skips the word ---------------
 st.markdown(
     """
-    <div class="dm-center" style="max-width:820px; margin:18px auto 0;">
+    <div style="max-width:100%; margin:18px 0 6px 0;">
       <div style="display:flex; align-items:center; gap:12px;">
-        <div style="height:1px; background:rgba(255,255,255,0.15); flex:1;"></div>
-        <div style="font-weight:600; font-size:1.05rem; letter-spacing:0.2px;">You</div>
-        <div style="height:1px; background:rgba(255,255,255,0.15); flex:1;"></div>
+        <div style="height:1px; background:rgba(255,255,255,0.18); flex:1;"></div>
+        <div style="flex:0; font-weight:600; font-size:1.05rem; letter-spacing:0.2px; text-align:center; min-width:80px;">You</div>
+        <div style="height:1px; background:rgba(255,255,255,0.18); flex:1;"></div>
       </div>
     </div>
     """,
     unsafe_allow_html=True
 )
 
-# --- Color: match existing app purple exactly if available --------------------
-# Try common global names first; fallback to Tailwind violet-600 (#7C3AED)
+# --- Color: match your app's purple exactly if available (used only in Matplotlib)
 _HL = None
-for name in ["SLEEP_COLOR", "DM_PURPLE", "PURPLE_HEX", "COLOR_PURPLE", "ACCENT_PURPLE"]:
+for name in ["PURPLE_HEX", "DM_PURPLE", "SLEEP_COLOR", "COLOR_PURPLE", "ACCENT_PURPLE"]:
     if name in globals():
         _HL = globals()[name]
         break
 if not _HL:
-    _HL = "#7C3AED"  # fallback
+    _HL = "#6F45FF"  # fallback
 
-# Convert to RGB tuple for Matplotlib (prevents accidental printing)
 def _hex_to_rgb_tuple(h):
     h = h.lstrip("#")
     return tuple(int(h[i:i+2], 16)/255.0 for i in (0, 2, 4))
 
 HL_RGB = _hex_to_rgb_tuple(_HL)
 
-# --- Helpers -----------------------------------------------------------------
+# --- Helpers ---------------------------------------------------------------
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def _mini_hist(ax, counts, edges, highlight_idx, title, *,
-               show_y=False, width_factor=1.0, title_pad=6):
+def _mini_hist(ax, counts, edges, highlight_idx, title, *, bar_width_factor=0.95):
+    # fixed axes rect so all three share the same baseline position
+    ax.set_position([0.12, 0.23, 0.76, 0.67])  # [left, bottom, width, height] in figure coords
+
     centers = 0.5 * (edges[:-1] + edges[1:])
     base_w  = (edges[1] - edges[0])
-    width   = base_w * width_factor
+    width   = base_w * bar_width_factor
 
-    # background bars
+    # background bars (grey)
     ax.bar(centers, counts, width=width, color="#D9D9D9", edgecolor="white", align="center")
-    # highlighted bin
+    # highlighted bin (purple)
     if 0 <= highlight_idx < len(counts):
         ax.bar(centers[highlight_idx], counts[highlight_idx], width=width,
                color=HL_RGB, edgecolor="white", align="center")
 
-    # Title
-    ax.set_title(title, fontsize=10, pad=title_pad)
+    ax.set_title(title, fontsize=10, pad=6)
 
-    # X axis: keep baseline only, replace ticks by LOW/HIGH
+    # X baseline + "low/high" labels, no numeric ticks
     ax.set_xlabel("")
     ax.set_xticks([])
     ax.spines["bottom"].set_visible(True)
-    ax.text(0.0, -0.10, "low",  transform=ax.transAxes, ha="left",  va="top", fontsize=9)
-    ax.text(1.0, -0.10, "high", transform=ax.transAxes, ha="right", va="top", fontsize=9)
+    ax.text(0.0, -0.14, "low",  transform=ax.transAxes, ha="left",  va="top", fontsize=9)
+    ax.text(1.0, -0.14, "high", transform=ax.transAxes, ha="right", va="top", fontsize=9)
 
-    # Y axis entirely off (per request)
+    # No Y visuals
     ax.get_yaxis().set_visible(False)
     ax.spines["left"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.spines["top"].set_visible(False)
-    ax.margins(y=0)
 
 def _col_values(df, colname):
     if df is None or df.empty or (colname not in df.columns):
@@ -1143,77 +1141,61 @@ def _participant_value(rec, key):
     except Exception:
         return np.nan
 
-# Slightly narrower middle column so creativity looks tighter
-c1, c2, c3 = st.columns([1.05, 0.85, 1.05], gap="small")
+# --- Precompute counts/edges (so we can align baselines without changing shapes)
+# 1) VVIQ imagery — SAME distribution as before, starting at 30
+try:
+    vviq_score  # computed upstream
+except NameError:
+    VVIQ_FIELDS = [
+        "quest_a1","quest_a2","quest_a3","quest_a4",
+        "quest_b1","quest_b2","quest_b3","quest_b4",
+        "quest_c1","quest_c2","quest_c3","quest_c4",
+        "quest_d1","quest_d2","quest_d3","quest_d4"
+    ]
+    vviq_vals  = [float(record.get(k, np.nan)) if pd.notna(record.get(k, np.nan)) else np.nan for k in VVIQ_FIELDS]
+    vviq_score = sum(v for v in vviq_vals if np.isfinite(v))
 
-# --- 1) VVIQ imagery (start at 30) ------------------------------------------
-with c1:
-    try:
-        vviq_score  # computed upstream if available
-    except NameError:
-        VVIQ_FIELDS = [
-            "quest_a1","quest_a2","quest_a3","quest_a4",
-            "quest_b1","quest_b2","quest_b3","quest_b4",
-            "quest_c1","quest_c2","quest_c3","quest_c4",
-            "quest_d1","quest_d2","quest_d3","quest_d4"
-        ]
-        vviq_vals  = [float(record.get(k, np.nan)) if pd.notna(record.get(k, np.nan)) else np.nan for k in VVIQ_FIELDS]
-        vviq_score = sum(v for v in vviq_vals if np.isfinite(v))
+from scipy.stats import truncnorm
+N = 8000; mu, sigma = 61.0, 9.2; low, high = 30, 80
+a, b = (low - mu) / sigma, (high - mu) / sigma
+vviq_samples = truncnorm.rvs(a, b, loc=mu, scale=sigma, size=N, random_state=42)
+vviq_edges   = np.linspace(low, high, 26)          # same binning as before (within [30,80])
+vviq_counts, vviq_edges = np.histogram(vviq_samples, bins=vviq_edges, density=True)
+vviq_hidx    = int(np.clip(np.digitize(vviq_score, vviq_edges) - 1, 0, len(vviq_counts)-1))
 
-    from scipy.stats import truncnorm
-    N = 8000; mu, sigma = 61.0, 9.2; low, high = 30, 80
-    a, b = (low - mu) / sigma, (high - mu) / sigma
-    vviq_samples = truncnorm.rvs(a, b, loc=mu, scale=sigma, size=N, random_state=42)
-
-    vviq_edges = np.linspace(low, high, 26)
-    vviq_counts, vviq_edges = np.histogram(vviq_samples, bins=vviq_edges, density=True)
-    vviq_hidx = int(np.clip(np.digitize(vviq_score, vviq_edges) - 1, 0, len(vviq_counts)-1))
-
-# --- 2) Creativity (1–6) & 3) Anxiety (1–6 preferred) -> compute counts first
-cre_edges = np.arange(0.5, 6.5 + 1.0, 1.0)  # discrete bins 1..6
-anx_edges = cre_edges
-
-cre_vals = _col_values(pop_data, "creativity_trait")
-anx_vals = _col_values(pop_data, "anxiety")
-
+# 2) Creativity (1–6)
+cre_vals  = _col_values(pop_data, "creativity_trait")
+cre_edges = np.arange(0.5, 6.5 + 1.0, 1.0)
 cre_counts, cre_edges = np.histogram(cre_vals, bins=cre_edges, density=True) if cre_vals.size else (np.array([]), cre_edges)
+cre_part  = _participant_value(record, "creativity_trait")
+cre_hidx  = int(np.clip(np.digitize(cre_part, cre_edges) - 1, 0, len(cre_counts)-1)) if cre_counts.size else 0
+
+# 3) Anxiety (1–6)
+anx_vals  = _col_values(pop_data, "anxiety")
+anx_edges = np.arange(0.5, 6.5 + 1.0, 1.0)
 anx_counts, anx_edges = np.histogram(anx_vals, bins=anx_edges, density=True) if anx_vals.size else (np.array([]), anx_edges)
+anx_part  = _participant_value(record, "anxiety")
+anx_hidx  = int(np.clip(np.digitize(anx_part, anx_edges) - 1, 0, len(anx_counts)-1)) if anx_counts.size else 0
 
-cre_part = _participant_value(record, "creativity_trait")
-anx_part = _participant_value(record, "anxiety")
+# --- Columns (equal heights); we align baselines via the fixed axes rectangle above
+c1, c2, c3 = st.columns([1, 1, 1], gap="small")
 
-cre_hidx = int(np.clip(np.digitize(cre_part, cre_edges) - 1, 0, len(cre_counts)-1)) if cre_counts.size else 0
-anx_hidx = int(np.clip(np.digitize(anx_part, anx_edges) - 1, 0, len(anx_counts)-1)) if anx_counts.size else 0
-
-# --- Align x-axes visually by sharing a common y-limit across all three ------
-# (Even though y is hidden, this keeps the bottoms/baselines aligned.)
-ymax = 0.0
-for arr in [vviq_counts, cre_counts, anx_counts]:
-    if arr.size:
-        ymax = max(ymax, float(arr.max()))
-if ymax == 0.0:
-    ymax = 1.0  # safe default
-
-# --- Draw the three mini-hist plots -----------------------------------------
-# Consistent figure height; creativity gets narrower bars via width_factor < 1.0
 with c1:
     fig, ax = plt.subplots(figsize=(2.4, 2.6))
     fig.patch.set_alpha(0); ax.set_facecolor("none")
     _mini_hist(ax, vviq_counts, vviq_edges, vviq_hidx, "Your visual imagery at wake",
-               width_factor=1.0, title_pad=6)
-    ax.set_ylim(0, ymax)
+               bar_width_factor=0.95)
     st.pyplot(fig, use_container_width=False)
 
 with c2:
     if not cre_counts.size:
         st.info("Population data for creativity unavailable.")
     else:
-        fig, ax = plt.subplots(figsize=(2.2, 2.6))  # slightly narrower figure
+        fig, ax = plt.subplots(figsize=(2.4, 2.6))
         fig.patch.set_alpha(0); ax.set_facecolor("none")
-        # narrower bars: width_factor=0.65
+        # Bars closer together (same visual gap as Anxiety): width ~ full bin
         _mini_hist(ax, cre_counts, cre_edges, cre_hidx, "Your level of creativity",
-                   width_factor=0.65, title_pad=6)
-        ax.set_ylim(0, ymax)
+                   bar_width_factor=0.95)
         st.pyplot(fig, use_container_width=False)
 
 with c3:
@@ -1223,8 +1205,7 @@ with c3:
         fig, ax = plt.subplots(figsize=(2.4, 2.6))
         fig.patch.set_alpha(0); ax.set_facecolor("none")
         _mini_hist(ax, anx_counts, anx_edges, anx_hidx, "Your level of anxiety",
-                   width_factor=1.0, title_pad=6)
-        ax.set_ylim(0, ymax)
+                   bar_width_factor=0.95)
         st.pyplot(fig, use_container_width=False)
 
 
