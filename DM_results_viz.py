@@ -401,9 +401,9 @@ PROFILES = {
     # =====================================================================
     "The Switch-Off": {
         "features": [
-            {"type": "var", "key": ["sleep_latency"],                   "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.10, "weight": 1.2,  "hit_op": "lte"},
+            {"type": "var", "key": ["sleep_latency"],                   "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.05, "weight": 1.2,  "hit_op": "lte"},
             {"type": "var", "key": ["degreequest_sleepiness"],          "norm": norm_1_6, "norm_kwargs": {}, "target": 0.60, "weight": 0.8},
-            {"type":"var","key":["trajectories"],                       "norm": norm_eq, "norm_kwargs": {"value": 2}, "target": 1.0, "weight": 1.0}
+            {"type":"var","key":["trajectories"],                       "norm": norm_eq, "norm_kwargs": {"value": 2}, "target": 1.0, "weight": 1.2}
         ],
         "description": "You fall asleep quickly, especially when you already feel sleepy.",
         "icon": "bear.svg",
@@ -1548,81 +1548,5 @@ else:
     st.caption("Heuristic checks: aim for no empty categories and avoid overly dominant ones (>30%).")
 
 
-
-# --- Quick diagnostics for Switch-Off features -----------------------------
-if pop_data is not None:
-    st.subheader("Diagnostics: Switch-Off input features")
-
-    # Sleep latency
-    if "sleep_latency" in pop_data.columns:
-        vals = pd.to_numeric(pop_data["sleep_latency"], errors="coerce")
-        st.write(f"N valid latencies: {vals.notna().sum()}  "
-                 f"| mean = {vals.mean():.1f} min  "
-                 f"| median = {vals.median():.1f} min  "
-                 f"| min = {vals.min():.1f} | max = {vals.max():.1f}")
-        st.bar_chart(vals.dropna(), height=100)
-
-    # Trajectories
-    if "trajectories" in pop_data.columns:
-        st.write("Trajectory value counts:")
-        st.write(pop_data["trajectories"].value_counts(dropna=False))
-
-
-
-# --- Switch-Off overlap + hit diagnostics ------------------------------------
-CAP = 60  # your CAP_MIN
-
-def latency_norm(x):
-    try:
-        x = float(x)
-    except:
-        return np.nan
-    return min(max(x / CAP, 0.0), 1.0)
-
-def traj_eq2(x):
-    if x is None or (isinstance(x, float) and np.isnan(x)): return np.nan
-    return 1.0 if str(x).strip() == "2" else 0.0
-
-df = pop_data.copy()
-
-# Normalized columns
-df["_lat_n"] = df["sleep_latency"].map(latency_norm)
-df["_traj2"] = df["trajectories"].map(traj_eq2)
-
-# Fast band and intersection with trajectory=2
-df["_fast_hit"] = (df["_lat_n"] <= 0.15/0.98)  # same slack as your hit_op lte
-df["_traj_hit"] = (df["_traj2"] >= 0.98)      # same slack as gte to 1.0
-
-fast_rate = df["_fast_hit"].mean() * 100
-traj2_rate = df["_traj_hit"].mean() * 100
-both_rate = (df["_fast_hit"] & df["_traj_hit"]).mean() * 100
-
-st.markdown(f"""
-**Switch-Off diagnostics**  
-• Fast (≤ 0.15 with 2% slack): **{fast_rate:.1f}%**  
-• Trajectory == 2: **{traj2_rate:.1f}%**  
-• **Both** (fast **AND** traj=2): **{both_rate:.1f}%**
-""")
-
-# Optional: show contingency
-ct = pd.crosstab(df["_fast_hit"], df["_traj_hit"], dropna=False)
-st.write("Fast × Traj2 contingency:")
-st.dataframe(ct)
-
-# Sanity: how many participants get 2/2 hits with your exact _feature_hit?
-def so_hits(row):
-    rec = row.to_dict()
-    # emulate your feature values
-    v_lat  = latency_norm(rec.get("sleep_latency"))
-    v_traj = traj_eq2(rec.get("trajectories"))
-    # emulate _feature_hit with hit_op for latency
-    tol = 0.98
-    lat_hit  = int(v_lat  <= (0.15 / tol)) if not (v_lat is None or np.isnan(v_lat)) else 0
-    traj_hit = int(v_traj >= (1.0 * tol))  if not (v_traj is None or np.isnan(v_traj)) else 0
-    return lat_hit + traj_hit
-
-df["_so_hits"] = df.apply(so_hits, axis=1)
-st.write("Hits distribution (0..2):", df["_so_hits"].value_counts().sort_index())
-st.write(f"Share with 2/2 hits: {(df['_so_hits']==2).mean()*100:.2f}%")
 
 
