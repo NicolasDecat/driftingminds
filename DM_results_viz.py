@@ -1145,7 +1145,7 @@ with c1:
 
 # --- 2) Creativity
 with c2:
-    colname = "creativity"
+    colname = "creativity_trait"
     vals = _col_values(pop_data, colname)
     if vals.size == 0:
         st.info("Population data for creativity unavailable.")
