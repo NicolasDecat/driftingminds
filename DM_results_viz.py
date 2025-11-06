@@ -438,7 +438,6 @@ PROFILES = {
     "Creative": {
         "features": [
             {"type": "var","key": ["freq_creat"],           "norm": norm_1_6, "norm_kwargs": {}, "target": 0.95, "weight": 1},
-           {"type": "var", "key": ["creativity_trait"],     "norm": norm_1_6,"norm_kwargs": {}, "target": 0.95, "weight": 0.6},
         ],
         "description": "Ideas spark at the edge of sleep — you drift off with creativity alive.",
         "icon":        "octopus.svg",
@@ -726,6 +725,38 @@ def _weighted_nanaware_distance(values, targets, weights):
     d = a[mask] - b[mask]
     return np.sqrt(np.sum(w[mask] * d * d))
 
+# --- AND-ish coherence helpers --------------------------------------
+def _passes_only_if(rec, cond):
+    if not cond:
+        return True
+    v = _get_first(rec, cond["key"])
+    n = cond["norm"](v, **cond.get("norm_kwargs", {})) if cond.get("norm") else v
+    if n is None or (isinstance(n, float) and np.isnan(n)):
+        return False
+    op = cond.get("op", "between")
+    if op == "between":
+        lo, hi = cond["bounds"]
+        return (float(n) >= lo) and (float(n) <= hi)
+    if op == "eq":
+        return float(n) == float(cond["value"])
+    return False
+
+def _feature_hit(rec, f, value, tol=0.98):
+    """
+    value = normalized feature value already returned by _feature_value_from_record
+    Returns 1 if 'target' met (softly), 0 if not, None if ineligible due to only_if.
+    """
+    if not _passes_only_if(rec, f.get("only_if")):
+        return None
+    tgt = float(f.get("target", np.nan))
+    try:
+        if value is None or (isinstance(value, float) and np.isnan(value)):
+            return 0
+        return 1 if float(value) >= (tgt * tol) else 0
+    except:
+        return 0
+
+
 
 def assign_profile_from_record(record):
     """
@@ -735,23 +766,54 @@ def assign_profile_from_record(record):
     scores = {}  # kept for compatibility with caller
     best_name, best_dist = None, np.inf
 
+    # AND-ish knobs:
+    K_RATIO = 0.6   # need ~60% of eligible criteria to be met
+    GAMMA   = 1.5   # >1 increases penalty steepness
+
     for name, cfg in PROFILES.items():
         feats = cfg.get("features", [])
         if not feats:
             continue
 
         vals, targs, wts = [], [], []
+
+        # --- collect values AND count how many criteria are hit simultaneously
+        hits, eligible = 0, 0
+        tmp_vals = []  # keep raw values to evaluate hits
         for f in feats:
-            v   = _feature_value_from_record(record, scores, f)
+            v   = _feature_value_from_record(record, scores, f)  # already normalized by your code
             tgt = float(f.get("target", np.nan))
             wt  = float(f.get("weight", 1.0))
+            tmp_vals.append((f, v))
             vals.append(v); targs.append(tgt); wts.append(wt)
 
+        # compute hit count (respecting only_if)
+        for f, v in tmp_vals:
+            h = _feature_hit(record, f, v)
+            if h is None:
+                continue           # not eligible due to only_if
+            eligible += 1
+            hits     += h
+
+        # --- raw distance
         d = _weighted_nanaware_distance(vals, targs, wts)
+
+        # --- AND-ish penalty: if not enough criteria are met, inflate distance
+        if eligible > 0:
+            K = max(1, int(np.ceil(K_RATIO * eligible)))
+            if hits < K:
+                # penalty grows as hits fall short of K
+                shortfall = max(K - hits, 0)
+                # multiplicative inflation; e.g., misses double/triple distance depending on GAMMA
+                penalty = ((K / max(hits, 1)) ** GAMMA)  # if hits=0, uses 1 to avoid div/0
+                d *= penalty
+
+        # keep best
         if d < best_dist:
             best_name, best_dist = name, d
 
     return best_name, scores
+
 
 
 # ==============
