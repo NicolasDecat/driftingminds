@@ -378,7 +378,7 @@ PROFILES = {
     # =====================================================================
     "The Switch-Off": {
         "features": [
-            {"type": "var", "key": ["sleep_latency"],                   "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.15, "weight": 1.2},
+            {"type": "var", "key": ["sleep_latency"],                   "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.15, "weight": 1.2,  "hit_op": "lte"},
             # {"type": "var", "key": ["degreequest_sleepiness"],          "norm": norm_1_6, "norm_kwargs": {}, "target": 0.60, "weight": 0.8},
             {"type":"var","key":["trajectories"],                       "norm": norm_eq, "norm_kwargs": {"value": 2}, "target": 1.0, "weight": 1.0}
         ],
@@ -731,8 +731,10 @@ def _passes_only_if(rec, cond):
 
 def _feature_hit(rec, f, value, tol=0.98):
     """
-    value = normalized feature value already returned by _feature_value_from_record
-    Returns 1 if 'target' met (softly), 0 if not, None if ineligible due to only_if.
+    Returns 1 if feature 'hits' its target, 0 if not, None if ineligible.
+    hit_op:
+      - "gte" (default): value >= target * tol
+      - "lte":           value <= target / tol
     """
     if not _passes_only_if(rec, f.get("only_if")):
         return None
@@ -740,9 +742,15 @@ def _feature_hit(rec, f, value, tol=0.98):
     try:
         if value is None or (isinstance(value, float) and np.isnan(value)):
             return 0
-        return 1 if float(value) >= (tgt * tol) else 0
+        op = f.get("hit_op", "gte").lower()
+        v = float(value)
+        if op == "lte":
+            return 1 if v <= (tgt / tol) else 0
+        else:  # "gte"
+            return 1 if v >= (tgt * tol) else 0
     except:
         return 0
+
 
 
 
