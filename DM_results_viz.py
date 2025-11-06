@@ -1063,40 +1063,74 @@ st.markdown("</div></div>", unsafe_allow_html=True)
 
 
 # ==============
-# "You" — Imagery · Creativity · Anxiety (no-hex, no-y-axis)
+# "You" — Imagery · Creativity · Anxiety (aligned axes, narrow middle, centered title with line)
 # ==============
 
-st.markdown("<div style='height:18px;'></div>", unsafe_allow_html=True)
-st.subheader("You")
+# --- Centered title with full-width line that "skips" the word ----------------
+st.markdown(
+    """
+    <div class="dm-center" style="max-width:820px; margin:18px auto 0;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div style="height:1px; background:rgba(255,255,255,0.15); flex:1;"></div>
+        <div style="font-weight:600; font-size:1.05rem; letter-spacing:0.2px;">You</div>
+        <div style="height:1px; background:rgba(255,255,255,0.15); flex:1;"></div>
+      </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
-# DM purple as RGB tuple (no hex string to leak into the page)
-DM_PURPLE_RGB = (111/255.0, 69/255.0, 255/255.0)  # ≈ #6F45FF
+# --- Color: match existing app purple exactly if available --------------------
+# Try common global names first; fallback to Tailwind violet-600 (#7C3AED)
+_HL = None
+for name in ["SLEEP_COLOR", "DM_PURPLE", "PURPLE_HEX", "COLOR_PURPLE", "ACCENT_PURPLE"]:
+    if name in globals():
+        _HL = globals()[name]
+        break
+if not _HL:
+    _HL = "#7C3AED"  # fallback
 
-def _mini_hist(ax, counts, edges, highlight_idx, title):
+# Convert to RGB tuple for Matplotlib (prevents accidental printing)
+def _hex_to_rgb_tuple(h):
+    h = h.lstrip("#")
+    return tuple(int(h[i:i+2], 16)/255.0 for i in (0, 2, 4))
+
+HL_RGB = _hex_to_rgb_tuple(_HL)
+
+# --- Helpers -----------------------------------------------------------------
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+def _mini_hist(ax, counts, edges, highlight_idx, title, *,
+               show_y=False, width_factor=1.0, title_pad=6):
     centers = 0.5 * (edges[:-1] + edges[1:])
-    width   = edges[1] - edges[0]
+    base_w  = (edges[1] - edges[0])
+    width   = base_w * width_factor
 
-    # Population bars (grey) + participant bin (purple)
+    # background bars
     ax.bar(centers, counts, width=width, color="#D9D9D9", edgecolor="white", align="center")
+    # highlighted bin
     if 0 <= highlight_idx < len(counts):
         ax.bar(centers[highlight_idx], counts[highlight_idx], width=width,
-               color=DM_PURPLE_RGB, edgecolor="white", align="center")
+               color=HL_RGB, edgecolor="white", align="center")
 
     # Title
-    ax.set_title(title, fontsize=10, pad=6)
+    ax.set_title(title, fontsize=10, pad=title_pad)
 
-    # Remove all Y visuals
-    ax.get_yaxis().set_visible(False)
-    ax.spines["left"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    ax.spines["top"].set_visible(False)
-
-    # Keep only the X baseline; replace numeric ticks with LOW/HIGH labels
+    # X axis: keep baseline only, replace ticks by LOW/HIGH
     ax.set_xlabel("")
     ax.set_xticks([])
     ax.spines["bottom"].set_visible(True)
     ax.text(0.0, -0.10, "low",  transform=ax.transAxes, ha="left",  va="top", fontsize=9)
     ax.text(1.0, -0.10, "high", transform=ax.transAxes, ha="right", va="top", fontsize=9)
+
+    # Y axis entirely off (per request)
+    ax.get_yaxis().set_visible(False)
+    ax.spines["left"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["top"].set_visible(False)
+    ax.margins(y=0)
 
 def _col_values(df, colname):
     if df is None or df.empty or (colname not in df.columns):
@@ -1109,12 +1143,13 @@ def _participant_value(rec, key):
     except Exception:
         return np.nan
 
-c1, c2, c3 = st.columns(3, gap="small")
+# Slightly narrower middle column so creativity looks tighter
+c1, c2, c3 = st.columns([1.05, 0.85, 1.05], gap="small")
 
-# --- 1) Visual imagery (VVIQ) — start at 30
+# --- 1) VVIQ imagery (start at 30) ------------------------------------------
 with c1:
     try:
-        vviq_score  # computed upstream
+        vviq_score  # computed upstream if available
     except NameError:
         VVIQ_FIELDS = [
             "quest_a1","quest_a2","quest_a3","quest_a4",
@@ -1130,48 +1165,66 @@ with c1:
     a, b = (low - mu) / sigma, (high - mu) / sigma
     vviq_samples = truncnorm.rvs(a, b, loc=mu, scale=sigma, size=N, random_state=42)
 
-    bins = np.linspace(low, high, 26)
-    counts, edges = np.histogram(vviq_samples, bins=bins, density=True)
-    hidx = int(np.clip(np.digitize(vviq_score, edges) - 1, 0, len(counts)-1))
+    vviq_edges = np.linspace(low, high, 26)
+    vviq_counts, vviq_edges = np.histogram(vviq_samples, bins=vviq_edges, density=True)
+    vviq_hidx = int(np.clip(np.digitize(vviq_score, vviq_edges) - 1, 0, len(vviq_counts)-1))
 
+# --- 2) Creativity (1–6) & 3) Anxiety (1–6 preferred) -> compute counts first
+cre_edges = np.arange(0.5, 6.5 + 1.0, 1.0)  # discrete bins 1..6
+anx_edges = cre_edges
+
+cre_vals = _col_values(pop_data, "creativity_trait")
+anx_vals = _col_values(pop_data, "anxiety")
+
+cre_counts, cre_edges = np.histogram(cre_vals, bins=cre_edges, density=True) if cre_vals.size else (np.array([]), cre_edges)
+anx_counts, anx_edges = np.histogram(anx_vals, bins=anx_edges, density=True) if anx_vals.size else (np.array([]), anx_edges)
+
+cre_part = _participant_value(record, "creativity_trait")
+anx_part = _participant_value(record, "anxiety")
+
+cre_hidx = int(np.clip(np.digitize(cre_part, cre_edges) - 1, 0, len(cre_counts)-1)) if cre_counts.size else 0
+anx_hidx = int(np.clip(np.digitize(anx_part, anx_edges) - 1, 0, len(anx_counts)-1)) if anx_counts.size else 0
+
+# --- Align x-axes visually by sharing a common y-limit across all three ------
+# (Even though y is hidden, this keeps the bottoms/baselines aligned.)
+ymax = 0.0
+for arr in [vviq_counts, cre_counts, anx_counts]:
+    if arr.size:
+        ymax = max(ymax, float(arr.max()))
+if ymax == 0.0:
+    ymax = 1.0  # safe default
+
+# --- Draw the three mini-hist plots -----------------------------------------
+# Consistent figure height; creativity gets narrower bars via width_factor < 1.0
+with c1:
     fig, ax = plt.subplots(figsize=(2.4, 2.6))
     fig.patch.set_alpha(0); ax.set_facecolor("none")
-    _mini_hist(ax, counts, edges, hidx, "Your visual imagery at wake")
+    _mini_hist(ax, vviq_counts, vviq_edges, vviq_hidx, "Your visual imagery at wake",
+               width_factor=1.0, title_pad=6)
+    ax.set_ylim(0, ymax)
     st.pyplot(fig, use_container_width=False)
 
-# --- 2) Creativity — 1..6 discrete (creativity_trait)
 with c2:
-    colname = "creativity_trait"
-    vals = _col_values(pop_data, colname)
-    if vals.size == 0:
+    if not cre_counts.size:
         st.info("Population data for creativity unavailable.")
     else:
-        edges = np.arange(0.5, 6.5 + 1.0, 1.0)  # 1..6 bins
-        counts, _ = np.histogram(vals, bins=edges, density=True)
-        part_val = _participant_value(record, colname)
-        hidx = int(np.clip(np.digitize(part_val, edges) - 1, 0, len(counts)-1))
-
-        fig, ax = plt.subplots(figsize=(2.4, 2.6))
+        fig, ax = plt.subplots(figsize=(2.2, 2.6))  # slightly narrower figure
         fig.patch.set_alpha(0); ax.set_facecolor("none")
-        _mini_hist(ax, counts, edges, hidx, "Your level of creativity")
+        # narrower bars: width_factor=0.65
+        _mini_hist(ax, cre_counts, cre_edges, cre_hidx, "Your level of creativity",
+                   width_factor=0.65, title_pad=6)
+        ax.set_ylim(0, ymax)
         st.pyplot(fig, use_container_width=False)
 
-# --- 3) Anxiety — assume 1..6 (auto-fallback otherwise)
 with c3:
-    colname = "anxiety"
-    vals = _col_values(pop_data, colname)
-    if vals.size == 0:
+    if not anx_counts.size:
         st.info("Population data for anxiety unavailable.")
     else:
-        vmin, vmax = np.nanmin(vals), np.nanmax(vals)
-        edges = np.arange(0.5, 6.5 + 1.0, 1.0) if (1 <= vmin <= 6 and vmax <= 6) else np.linspace(vmin, vmax, 16)
-        counts, _ = np.histogram(vals, bins=edges, density=True)
-        part_val = _participant_value(record, colname)
-        hidx = int(np.clip(np.digitize(part_val, edges) - 1, 0, len(counts)-1))
-
         fig, ax = plt.subplots(figsize=(2.4, 2.6))
         fig.patch.set_alpha(0); ax.set_facecolor("none")
-        _mini_hist(ax, counts, edges, hidx, "Your level of anxiety")
+        _mini_hist(ax, anx_counts, anx_edges, anx_hidx, "Your level of anxiety",
+                   width_factor=1.0, title_pad=6)
+        ax.set_ylim(0, ymax)
         st.pyplot(fig, use_container_width=False)
 
 
