@@ -359,12 +359,13 @@ PROFILES = {
     # =====================================================================
     "Dreamweaver": {
     "features": [
-        {"type": "var","key": ["freq_percept_real"],      "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1.2},
-        {"type": "var", "key": ["freq_percept_intense"],  "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1.2},
-        {"type": "var", "key": ["freq_percept_bizarre"],  "norm": norm_1_6, "norm_kwargs": {}, "target": 0.85, "weight": 1.0},
-        {"type": "var", "key": ["freq_absorbed"],         "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.0},
-        {"type": "var", "key": ["freq_positive"],         "norm": norm_1_6, "norm_kwargs": {}, "target": 0.50, "weight": 0.5},
-        {"type": "var", "key": ["sleep_latency"],         "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.50, "weight": 0.3},
+        {"type": "var", "key": ["freq_percept_intense"],     "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1},
+        {"type": "var", "key": ["freq_percept_narrative"],   "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1},
+        {"type": "var", "key": ["freq_percept_imposed"],     "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1},
+        {"type": "var", "key": ["freq_absorbed"],            "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.0},
+        {"type": "var", "key": ["degreequest_vividness"] ,   "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 0.8},  
+        {"type": "var", "key": ["degreequest_bizarreness"] , "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 0.8},  
+    
     ],
     "description": "You drift into vivid, sensory mini-dreams as you fall asleep.",
     "icon": "seahorse.svg",
@@ -376,8 +377,8 @@ PROFILES = {
     # =====================================================================
     "The Switch-Off": {
         "features": [
-            {"type": "var", "key": ["sleep_latency"],                   "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.00, "weight": 2},
-            {"type": "var", "key": ["degreequest_sleepiness"],          "norm": norm_1_6, "norm_kwargs": {}, "target": 1.00, "weight": 0.8},
+            {"type": "var", "key": ["sleep_latency"],                   "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.10, "weight": 1.2},
+            {"type": "var", "key": ["degreequest_sleepiness"],          "norm": norm_1_6, "norm_kwargs": {}, "target": 0.70, "weight": 0.8},
             {"type":"var","key":["trajectories"],                       "norm": norm_eq, "norm_kwargs": {"value": 2}, "target": 1.0, "weight": 1.0}
         ],
         "description": "You fall asleep quickly, especially when you already feel sleepy.",
@@ -390,9 +391,9 @@ PROFILES = {
     # =====================================================================
     "Fantasizer": {
     "features": [
-        {"type": "var","key": ["freq_scenario"],       "norm": norm_1_6, "norm_kwargs": {}, "target": 1, "weight": 1.3},       
-        {"type": "var","key": ["freq_positive"],       "norm": norm_1_6, "norm_kwargs": {},"target": 0.90, "weight": 0.8,
-         "only_if": {"key": ["timequest_positive"],   "norm": norm_1_100,"norm_kwargs": {},"op": "between","bounds": [0, 0.50]}
+        {"type": "var","key": ["freq_scenario"],       "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.3},       
+        {"type": "var","key": ["freq_positive"],       "norm": norm_1_6, "norm_kwargs": {},"target": 0.70, "weight": 0.8,
+         "only_if": {"key": ["timequest_positive"],    "norm": norm_1_100,"norm_kwargs": {},"op": "between","bounds": [0, 0.50]}
         },
     ],
     "description": "Your mind drifts into imagined stories; vivid, intentional scenarios that feel like daydreams easing you into sleep.",
@@ -421,7 +422,7 @@ PROFILES = {
     # =====================================================================
     "Ruminator": {
         "features": [
-            {"type": "var", "key": ["freq_ruminate"],                   "norm": norm_1_6,   "norm_kwargs": {}, "target": 1, "weight": 1.3},  
+            {"type": "var", "key": ["freq_ruminate"],                   "norm": norm_1_6,   "norm_kwargs": {}, "target": 0.80, "weight": 1.3},  
             {"type": "var", "key": ["freq_negative"],                   "norm": norm_1_6,   "norm_kwargs": {}, "target": 0.70, "weight": 0.80},  
             {"type": "var", "key": ["anxiety"],                         "norm": norm_1_100, "norm_kwargs": {}, "target": 0.70, "weight": 0.80},  
             {"type": "var", "key": ["sleep_latency"],                   "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.90, "weight": 1.1},
@@ -452,9 +453,7 @@ PROFILES = {
         {"type": "var", "key": ["freq_think_nocontrol"],      "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1.1},  
         {"type": "var", "key": ["freq_think_bizarre"],        "norm": norm_1_6, "norm_kwargs": {}, "target": 0.70, "weight": 0.8},  
         {"type": "var", "key": ["freq_think_seq_bizarre"],    "norm": norm_1_6, "norm_kwargs": {}, "target": 0.70, "weight": 0.8},  
-        {"type": "var", "key": ["freq_percept_intense"] ,     "norm": norm_1_6, "norm_kwargs": {}, "target": 0.30, "weight": 0.8},  
         {"type": "var", "key": ["freq_percept_imposed"] ,     "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1},  
-        {"type": "var", "key": ["degreequest_vividness"] ,    "norm": norm_1_6, "norm_kwargs": {}, "target": 0.30, "weight": 0.8},  
         {"type": "var", "key": ["degreequest_spontaneity"] ,  "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1},  
         {"type": "var", "key": ["degreequest_bizarreness"] ,  "norm": norm_1_6, "norm_kwargs": {}, "target": 0.70, "weight": 0.8},  
     ],
@@ -467,16 +466,9 @@ PROFILES = {
     # =====================================================================
     "Quiet Mind": {
         "features": [
-            {"type": "var", "key": ["sleep_latency"],              "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.50, "weight": 0.80}, 
-            {"type": "var", "key": ["freq_absorbed"],              "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 0.80},  
-            {"type": "var", "key": ["freq_think_bizarre"],         "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 0.80},  
-            {"type": "var", "key": ["freq_percept_intense"],       "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 0.80},  
-            {"type": "var", "key": ["freq_percept_narrative"],     "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 0.90},  
-            {"type": "var", "key": ["freq_percept_bizarre"],       "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 0.80},  
-            {"type": "var", "key": ["freq_emo_neutral"],           "norm": norm_1_6, "norm_kwargs": {}, "target": 0.70, "weight": 0.80},  
-            {"type": "var", "key": ["freq_percept_imposed"],       "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 0.80},  
             {"type": "var", "key": ["degreequest_vividness"],      "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 0.80},  
             {"type": "var", "key": ["degreequest_distinctness"],   "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 0.80},  
+            {"type": "var", "key": ["degreequest_immersiveness"],  "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 0.80},  
             {"type": "var", "key": ["degreequest_bizarreness"],    "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 0.80},  
             {"type": "var", "key": ["degreequest_emotionality"],   "norm": norm_1_6, "norm_kwargs": {}, "target": 0.50, "weight": 0.80},  
         ],
@@ -517,12 +509,9 @@ PROFILES = {
     # =====================================================================
     "Strategist": {
         "features": [
-            {"type": "var", "key": ["freq_planning"],              "norm": norm_1_6, "norm_kwargs": {}, "target": 1, "weight": 1.2},  
+            {"type": "var", "key": ["freq_planning"],              "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1.2},  
             {"type": "var", "key": ["freq_think_ordinary"],        "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.0},  
-            {"type": "var", "key": ["freq_percept_ordinary"],      "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.0},  
-            {"type": "var", "key": ["freq_think_seq_ordinary"],    "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.0},  
-            {"type": "var", "key": ["degreequest_bizarreness"],    "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 0.8},  
-            {"type": "var", "key": ["degreequest_spontaneity"],    "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 1.0},  
+            {"type": "var", "key": ["freq_think_seq_ordinary"],      "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.0},  
         ],
         "description": "You stay in control with practical or analytical thoughts until lights out.",
         "icon": "ant.svg",
@@ -534,8 +523,8 @@ PROFILES = {
     "Sentinelle": {
         "features": [
             {"type": "var", "key": ["anytime_24"],                   "norm": norm_bool, "norm_kwargs": {},"target": 1,"weight": 1.3},
-            {"type": "var", "key": ["sleep_latency"],                "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.4, "weight": 0.8},
-            {"type": "var", "key": ["degreequest_immersiveness"],    "norm": norm_1_6, "norm_kwargs": {}, "target": 0.1, "weight": 1.0},  
+            {"type": "var", "key": ["sleep_latency"],                "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.4, "weight": 0.3},
+            {"type": "var", "key": ["degreequest_immersiveness"],    "norm": norm_1_6, "norm_kwargs": {}, "target": 0.2, "weight": 0.3},  
 
         
         ],
@@ -548,10 +537,9 @@ PROFILES = {
     # =====================================================================
     "Fragmented Mind": {
         "features": [
-            {"type": "var", "key": ["freq_percept_fleeting"],      "norm": norm_1_6, "norm_kwargs": {}, "target": 1, "weight": 1.2},  
-            {"type": "var", "key": ["freq_percept_continuous"],    "norm": norm_1_6, "norm_kwargs": {}, "target": 0.2, "weight": 1.0},  
+            {"type": "var", "key": ["freq_percept_fleeting"],      "norm": norm_1_6, "norm_kwargs": {}, "target": 0.8, "weight": 1.2},  
             {"type": "var", "key": ["freq_think_seq_bizarre"],     "norm": norm_1_6, "norm_kwargs": {}, "target": 0.8, "weight": 1.0},  
-            {"type": "var", "key": ["degreequest_fleetingness"],   "norm": norm_1_6, "norm_kwargs": {}, "target": 1, "weight": 1.2},  
+            {"type": "var", "key": ["degreequest_fleetingness"],   "norm": norm_1_6, "norm_kwargs": {}, "target": 0.8, "weight": 1.2},  
          
         ],
         "description": "Your mind breaks into fleeting fragments. Flashes of images, words, or sensations that appear and vanish before taking shape.",
@@ -563,13 +551,11 @@ PROFILES = {
     # =====================================================================
     "Pragmatic": {
         "features": [
-            {"type": "var", "key": ["freq_think_ordinary"],      "norm": norm_1_6, "norm_kwargs": {}, "target": 1, "weight": 1},  
-            {"type": "var", "key": ["freq_think_bizarre"],       "norm": norm_1_6, "norm_kwargs": {}, "target": 0.1, "weight": 1},  
-            {"type": "var", "key": ["freq_percept_bizarre"],     "norm": norm_1_6, "norm_kwargs": {}, "target": 0.1, "weight": 1},  
-            {"type": "var", "key": ["freq_think_nocontrol"],     "norm": norm_1_6, "norm_kwargs": {}, "target": 0.1, "weight": 1},  
-            {"type": "var", "key": ["freq_think_seq_bizarre"],   "norm": norm_1_6, "norm_kwargs": {}, "target": 0.1, "weight": 1},  
-            {"type": "var", "key": ["freq_think_seq_ordinary"],  "norm": norm_1_6, "norm_kwargs": {}, "target": 1, "weight": 1},  
-            {"type": "var", "key": ["degreequest_bizarreness"],  "norm": norm_1_6, "norm_kwargs": {}, "target": 0.1, "weight": 1.2},  
+            {"type": "var", "key": ["freq_think_ordinary"],      "norm": norm_1_6, "norm_kwargs": {}, "target": 0.8, "weight": 1},  
+            {"type": "var", "key": ["freq_think_bizarre"],       "norm": norm_1_6, "norm_kwargs": {}, "target": 0.2, "weight": 1},  
+            {"type": "var", "key": ["freq_think_nocontrol"],     "norm": norm_1_6, "norm_kwargs": {}, "target": 0.2, "weight": 1},  
+            {"type": "var", "key": ["freq_think_seq_bizarre"],  "norm": norm_1_6, "norm_kwargs": {}, "target": 0.2, "weight": 1},  
+            {"type": "var", "key": ["degreequest_bizarreness"],  "norm": norm_1_6, "norm_kwargs": {}, "target": 0.2, "weight": 1.2},  
 
         ],
         "description": "Your thoughts stay clear and practical — grounded in everyday logic rather than drifting into the strange or dreamlike.",
