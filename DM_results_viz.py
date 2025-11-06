@@ -1546,19 +1546,60 @@ if pop_data is not None:
 
 
 
-# Check normalization outputs for Switch-Off variables
-def check_switch_off_norms(df):
-    rows = []
-    for _, row in df.iterrows():
-        rec = row.to_dict()
-        val_lat = norm_latency_auto(rec.get("sleep_latency"), cap_minutes=60)
-        val_traj = norm_eq(rec.get("trajectories"), 2)
-        rows.append((val_lat, val_traj))
-    arr = np.array(rows, float)
-    valid = np.sum(~np.isnan(arr), axis=0)
-    print(f"Valid latency norms: {valid[0]}, Valid traj norms: {valid[1]}")
-    print(f"Latency norms (min,mean,max): {np.nanmin(arr[:,0]):.3f}, {np.nanmean(arr[:,0]):.3f}, {np.nanmax(arr[:,0]):.3f}")
-    print(f"Traj norms unique: {np.unique(arr[:,1], return_counts=True)}")
+# --- Switch-Off overlap + hit diagnostics ------------------------------------
+CAP = 60  # your CAP_MIN
 
-check_switch_off_norms(pop_data) 
+def latency_norm(x):
+    try:
+        x = float(x)
+    except:
+        return np.nan
+    return min(max(x / CAP, 0.0), 1.0)
+
+def traj_eq2(x):
+    if x is None or (isinstance(x, float) and np.isnan(x)): return np.nan
+    return 1.0 if str(x).strip() == "2" else 0.0
+
+df = pop_data.copy()
+
+# Normalized columns
+df["_lat_n"] = df["sleep_latency"].map(latency_norm)
+df["_traj2"] = df["trajectories"].map(traj_eq2)
+
+# Fast band and intersection with trajectory=2
+df["_fast_hit"] = (df["_lat_n"] <= 0.15/0.98)  # same slack as your hit_op lte
+df["_traj_hit"] = (df["_traj2"] >= 0.98)      # same slack as gte to 1.0
+
+fast_rate = df["_fast_hit"].mean() * 100
+traj2_rate = df["_traj_hit"].mean() * 100
+both_rate = (df["_fast_hit"] & df["_traj_hit"]).mean() * 100
+
+st.markdown(f"""
+**Switch-Off diagnostics**  
+• Fast (≤ 0.15 with 2% slack): **{fast_rate:.1f}%**  
+• Trajectory == 2: **{traj2_rate:.1f}%**  
+• **Both** (fast **AND** traj=2): **{both_rate:.1f}%**
+""")
+
+# Optional: show contingency
+ct = pd.crosstab(df["_fast_hit"], df["_traj_hit"], dropna=False)
+st.write("Fast × Traj2 contingency:")
+st.dataframe(ct)
+
+# Sanity: how many participants get 2/2 hits with your exact _feature_hit?
+def so_hits(row):
+    rec = row.to_dict()
+    # emulate your feature values
+    v_lat  = latency_norm(rec.get("sleep_latency"))
+    v_traj = traj_eq2(rec.get("trajectories"))
+    # emulate _feature_hit with hit_op for latency
+    tol = 0.98
+    lat_hit  = int(v_lat  <= (0.15 / tol)) if not (v_lat is None or np.isnan(v_lat)) else 0
+    traj_hit = int(v_traj >= (1.0 * tol))  if not (v_traj is None or np.isnan(v_traj)) else 0
+    return lat_hit + traj_hit
+
+df["_so_hits"] = df.apply(so_hits, axis=1)
+st.write("Hits distribution (0..2):", df["_so_hits"].value_counts().sort_index())
+st.write(f"Share with 2/2 hits: {(df['_so_hits']==2).mean()*100:.2f}%")
+
 
