@@ -1069,8 +1069,10 @@ st.markdown("</div></div>", unsafe_allow_html=True)
 st.markdown("<div style='height:18px;'></div>", unsafe_allow_html=True)
 st.subheader("You")
 
-
-PURPLE_HEX = "#6F45FF"  
+try:
+    PURPLE_HEX
+except NameError:
+    PURPLE_HEX = "#6F45FF"  # DM purple (only used inside Matplotlib, not printed)
 
 def _mini_hist(ax, counts, edges, highlight_idx, title):
     centers = 0.5 * (edges[:-1] + edges[1:])
