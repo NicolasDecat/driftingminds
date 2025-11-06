@@ -1063,16 +1063,16 @@ st.markdown("</div></div>", unsafe_allow_html=True)
 
 
 # ==============
-# "You" — Imagery · Creativity · Anxiety (perfect alignment + improved section rule)
+# "You" — Imagery · Creativity · Anxiety (longer rule + perfect x-axis alignment)
 # ==============
 
-# --- Centered title with wider black rule that skips the word -----------------
+# --- Centered title with *longer* black rule that skips the word -------------
 st.markdown(
     """
-    <div class="dm-center" style="max-width:820px; margin:22px auto 12px;">
-      <div style="display:flex; align-items:center; gap:18px;">
+    <div class="dm-center" style="max-width:960px; margin:26px auto 14px;">
+      <div style="display:flex; align-items:center; gap:32px;">   /* wider gap = longer rule */
         <div style="height:2px; background:#000; flex:1;"></div>
-        <div style="flex:0; font-weight:700; font-size:1.35rem; letter-spacing:0.2px; text-transform:none;">You</div>
+        <div style="flex:0; font-weight:700; font-size:1.35rem; letter-spacing:0.2px;">You</div>
         <div style="height:2px; background:#000; flex:1;"></div>
       </div>
     </div>
@@ -1080,7 +1080,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- Color setup (same purple as your later plots) ----------------------------
+# --- Color setup -------------------------------------------------------------
 _HL = None
 for name in ["PURPLE_HEX", "DM_PURPLE", "SLEEP_COLOR", "COLOR_PURPLE", "ACCENT_PURPLE"]:
     if name in globals():
@@ -1094,7 +1094,7 @@ def _hex_to_rgb_tuple(h):
     return tuple(int(h[i:i+2], 16)/255.0 for i in (0, 2, 4))
 HL_RGB = _hex_to_rgb_tuple(_HL)
 
-# --- Helpers ------------------------------------------------------------------
+# --- Helpers -----------------------------------------------------------------
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -1104,30 +1104,30 @@ def _mini_hist(ax, counts, edges, highlight_idx, title, bar_width_factor=0.95):
     centers = 0.5 * (edges[:-1] + edges[1:])
     width   = (edges[1] - edges[0]) * bar_width_factor
 
-    # Grey bars + purple participant bin
+    # bars
     ax.bar(centers, counts, width=width, color="#D9D9D9", edgecolor="white", align="center")
     if 0 <= highlight_idx < len(counts):
         ax.bar(centers[highlight_idx], counts[highlight_idx], width=width,
                color=HL_RGB, edgecolor="white", align="center")
 
-    # Titles
+    # title
     ax.set_title(title, fontsize=10, pad=8)
 
-    # X axis baseline + close “low/high” labels
+    # x-axis + closer “low/high” labels
     ax.spines["bottom"].set_visible(True)
     ax.set_xlabel("")
     ax.set_xticks([])
-    ax.text(0.0, -0.06, "low", transform=ax.transAxes, ha="left", va="top", fontsize=9)
-    ax.text(1.0, -0.06, "high", transform=ax.transAxes, ha="right", va="top", fontsize=9)
+    ax.text(0.0, -0.05, "low",  transform=ax.transAxes, ha="left",  va="top", fontsize=9)
+    ax.text(1.0, -0.05, "high", transform=ax.transAxes, ha="right", va="top", fontsize=9)
 
-    # Hide all Y visuals
-    for spine in ["left", "right", "top"]:
-        ax.spines[spine].set_visible(False)
+    # remove y
+    for s in ["left", "right", "top"]:
+        ax.spines[s].set_visible(False)
     ax.get_yaxis().set_visible(False)
     ax.margins(y=0)
 
-    # Compact margins for consistent vertical placement
-    plt.subplots_adjust(top=0.85, bottom=0.25)
+    # consistent margins
+    plt.subplots_adjust(top=0.83, bottom=0.24)
 
 def _col_values(df, colname):
     if df is None or df.empty or (colname not in df.columns):
@@ -1140,8 +1140,9 @@ def _participant_value(rec, key):
     except Exception:
         return np.nan
 
-# --- Distributions ------------------------------------------------------------
-# 1) Imagery (VVIQ)
+# --- Data prep ---------------------------------------------------------------
+
+# 1) Imagery (VVIQ) – same distribution, starts at 30
 try:
     vviq_score
 except NameError:
@@ -1161,28 +1162,29 @@ vviq_edges   = np.linspace(low, high, 26)
 vviq_counts, _ = np.histogram(vviq_samples, bins=vviq_edges, density=True)
 vviq_hidx = int(np.clip(np.digitize(vviq_score, vviq_edges) - 1, 0, len(vviq_counts)-1))
 
-# 2) Creativity (1–6)
+# 2) Creativity 1–6
 cre_vals  = _col_values(pop_data, "creativity_trait")
 cre_edges = np.arange(0.5, 6.5 + 1.0, 1.0)
 cre_counts, _ = np.histogram(cre_vals, bins=cre_edges, density=True) if cre_vals.size else (np.array([]), cre_edges)
 cre_part  = _participant_value(record, "creativity_trait")
 cre_hidx  = int(np.clip(np.digitize(cre_part, cre_edges) - 1, 0, len(cre_counts)-1)) if cre_counts.size else 0
 
-# 3) Anxiety (1–100, 5-point bins)
+# 3) Anxiety 1–100 with 5-pt bins
 anx_vals  = _col_values(pop_data, "anxiety")
 anx_edges = np.arange(0.5, 100.5 + 5, 5)
 anx_counts, _ = np.histogram(anx_vals, bins=anx_edges, density=True) if anx_vals.size else (np.array([]), anx_edges)
 anx_part  = _participant_value(record, "anxiety")
 anx_hidx  = int(np.clip(np.digitize(anx_part, anx_edges) - 1, 0, len(anx_counts)-1)) if anx_counts.size else 0
 
-# --- Plot side by side with consistent figure heights ------------------------
+# --- Display side-by-side ----------------------------------------------------
+# Imagery plot slightly taller → pushes x-axis lower to align with others
+FIGSIZE_IMAGERY   = (2.4, 2.9)   # taller
+FIGSIZE_STANDARD  = (2.4, 2.6)
+
 c1, c2, c3 = st.columns(3, gap="small")
 
-# Same figure height across all
-FIGSIZE = (2.4, 2.6)
-
 with c1:
-    fig, ax = plt.subplots(figsize=FIGSIZE)
+    fig, ax = plt.subplots(figsize=FIGSIZE_IMAGERY)
     fig.patch.set_alpha(0); ax.set_facecolor("none")
     _mini_hist(ax, vviq_counts, vviq_edges, vviq_hidx, "Your visual imagery at wake")
     st.pyplot(fig, use_container_width=False)
@@ -1191,7 +1193,7 @@ with c2:
     if not cre_counts.size:
         st.info("Population data for creativity unavailable.")
     else:
-        fig, ax = plt.subplots(figsize=FIGSIZE)
+        fig, ax = plt.subplots(figsize=FIGSIZE_STANDARD)
         fig.patch.set_alpha(0); ax.set_facecolor("none")
         _mini_hist(ax, cre_counts, cre_edges, cre_hidx, "Your level of creativity")
         st.pyplot(fig, use_container_width=False)
@@ -1200,11 +1202,10 @@ with c3:
     if not anx_counts.size:
         st.info("Population data for anxiety unavailable.")
     else:
-        fig, ax = plt.subplots(figsize=FIGSIZE)
+        fig, ax = plt.subplots(figsize=FIGSIZE_STANDARD)
         fig.patch.set_alpha(0); ax.set_facecolor("none")
         _mini_hist(ax, anx_counts, anx_edges, anx_hidx, "Your level of anxiety")
         st.pyplot(fig, use_container_width=False)
-
 
 
 
