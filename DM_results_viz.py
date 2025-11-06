@@ -1211,14 +1211,14 @@ with c3:
 
 
 # ==============
-# "Your sleep" — Latency · Duration · Chronotype & Dream recall (final refinement)
+# "Your sleep" — Latency · Duration · Chronotype & Dream recall (final alignment)
 # ==============
 
-# --- Centered title with wider gap so "Your sleep" stays on one line ----------
+# --- Centered title with adjusted gap so "Your sleep" stays one line ----------
 st.markdown(
     """
-    <div class="dm-center" style="max-width:1040px; margin:28px auto 16px;">
-      <div style="display:flex; align-items:center; gap:60px;">  <!-- wider hole around text -->
+    <div class="dm-center" style="max-width:1020px; margin:28px auto 16px;">
+      <div style="display:flex; align-items:center; gap:44px;">
         <div style="height:2px; background:#000; flex:1;"></div>
         <div style="flex:0; font-weight:700; font-size:1.35rem; letter-spacing:0.2px; white-space:nowrap;">
           Your sleep
@@ -1295,9 +1295,9 @@ with col_left:
 
                         # Title & labels
                         ax.set_title(f"You fall asleep in {rounded_raw} minutes", fontsize=10, pad=6, color="#222222")
-                        ax.set_xlabel("Time (min)", fontsize=9, color="#333333")
+                        ax.set_xlabel("minutes", fontsize=9, color="#333333")
 
-                        # Remove y-axis for minimalist look
+                        # Remove y-axis
                         ax.set_ylabel("")
                         ax.get_yaxis().set_visible(False)
                         for side in ("left", "right", "top"):
@@ -1312,7 +1312,7 @@ with col_left:
                         st.pyplot(fig, use_container_width=False)
 
 # =============================================================================
-# MIDDLE: Sleep duration histogram
+# MIDDLE: Sleep duration histogram (slightly taller to align baseline)
 # =============================================================================
 with col_mid:
     if pop_data is None or pop_data.empty:
@@ -1366,17 +1366,19 @@ with col_mid:
                 highlight_idx = np.digitize(part_hours_plot, edges) - 1
                 highlight_idx = np.clip(highlight_idx, 0, len(counts) - 1)
 
-                fig, ax = plt.subplots(figsize=(2.2, 2.4))
-                fig.patch.set_alpha(0); ax.set_facecolor("none")
+                # Slightly taller figure for baseline alignment
+                fig, ax = plt.subplots(figsize=(2.2, 2.55))
+                fig.patch.set_alpha(0)
+                ax.set_facecolor("none")
                 ax.bar(centers, counts, width=edges[1]-edges[0],
                        color="#D9D9D9", edgecolor="white", align="center")
                 ax.bar(centers[highlight_idx], counts[highlight_idx],
                        width=edges[1]-edges[0], color=PURPLE_HEX,
                        edgecolor="white", align="center")
                 ax.set_title(title_str, fontsize=10, pad=6)
-                ax.set_xlabel("Time (h)", fontsize=9)
+                ax.set_xlabel("hours", fontsize=9)
 
-                # Remove y-axis for minimalist look
+                # Remove y-axis
                 ax.set_ylabel("")
                 ax.get_yaxis().set_visible(False)
                 for side in ("left", "right", "top"):
