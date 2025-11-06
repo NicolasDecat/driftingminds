@@ -391,7 +391,7 @@ PROFILES = {
     # =====================================================================
     "Fantasizer": {
     "features": [
-        {"type": "var","key": ["freq_scenario"],       "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.3,
+        {"type": "var","key": ["freq_scenario"],       "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1,
          "only_if": {"key": ["anytime_20"],            "norm": norm_bool, "norm_kwargs": {},"op": "eq","value": 1},
          },         
         {"type": "var","key": ["freq_positive"],       "norm": norm_1_6, "norm_kwargs": {},"target": 0.70, "weight": 0.8,
