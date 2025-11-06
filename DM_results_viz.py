@@ -536,13 +536,29 @@ PROFILES = {
     # =====================================================================
     "Sentinelle": {
         "features": [
-            {"type": "var", "key": ["anytime_17"], "norm": norm_bool, "norm_kwargs": {},"target": 1,"weight": 1.0},
-            {"type": "var", "key": ["sleep_latency"],              "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.4, "weight": 0.8},
+            {"type": "var", "key": ["anytime_17"],                   "norm": norm_bool, "norm_kwargs": {},"target": 1,"weight": 1.3},
+            {"type": "var", "key": ["sleep_latency"],                "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.4, "weight": 0.8},
+            {"type": "var", "key": ["degreequest_immersiveness"],    "norm": norm_1_6, "norm_kwargs": {}, "target": 0.1, "weight": 1.0},  
 
         
         ],
-        "description": "You stay in control with practical or analytical thoughts until lights out.",
+        "description": "Your mind stays quiet but your ears stay on. Ambient sounds remain present as you drift off slowly, like a sentinel keeping watch.",
         "icon": "merkaat.svg",
+    },
+    
+    # =====================================================================
+    # Fragmented Mind
+    # =====================================================================
+    "Fragmented Mind": {
+        "features": [
+            {"type": "var", "key": ["freq_percept_fleeting"],      "norm": norm_1_6, "norm_kwargs": {}, "target": 1, "weight": 1.2},  
+            {"type": "var", "key": ["freq_percept_continuous"],    "norm": norm_1_6, "norm_kwargs": {}, "target": 0.2, "weight": 1.0},  
+            {"type": "var", "key": ["freq_think_seq_bizarre"],     "norm": norm_1_6, "norm_kwargs": {}, "target": 0.8, "weight": 1.0},  
+            {"type": "var", "key": ["degreequest_fleeting"],       "norm": norm_1_6, "norm_kwargs": {}, "target": 1, "weight": 1.2},  
+         
+        ],
+        "description": "Your mind breaks into fleeting fragments. Flashes of images, words, or sensations that appear and vanish before taking shape.",
+        "icon": "hummingbird.svg",
     },
     
 
