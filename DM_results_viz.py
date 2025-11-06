@@ -283,10 +283,33 @@ def norm_bool(x): # For binary 0 / 1
     except:
         return np.nan
     
+import re
 def norm_eq(x, value):
-    if x is None or (isinstance(x, float) and np.isnan(x)):
+    """
+    Returns 1.0 if x equals `value` (tolerant to floats/strings/newlines),
+    else 0.0; NaN -> NaN.
+    """
+    if x is None:
         return np.nan
-    return 1.0 if str(x).strip() == str(value) else 0.0
+    # pull first numeric token if present
+    if isinstance(x, str):
+        s = x.strip()
+        if s == "" or s.lower() == "nan":
+            return np.nan
+        m = re.search(r'[-+]?\d+(\.\d+)?', s)
+        if m:
+            try:
+                return 1.0 if float(m.group(0)) == float(value) else 0.0
+            except:
+                return 0.0
+        # no number found: fallback to exact string compare
+        return 1.0 if s == str(value) else 0.0
+    # numeric path
+    try:
+        return 1.0 if float(x) == float(value) else 0.0
+    except:
+        return np.nan
+
     
 def norm_1_4(x):
     x = _to_float(x)
