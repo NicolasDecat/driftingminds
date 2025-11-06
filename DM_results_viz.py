@@ -1063,16 +1063,14 @@ st.markdown("</div></div>", unsafe_allow_html=True)
 
 
 # ==============
-# "You" — Imagery · Creativity · Anxiety (final tweaks)
+# "You" — Imagery · Creativity · Anxiety (no-hex, no-y-axis)
 # ==============
 
 st.markdown("<div style='height:18px;'></div>", unsafe_allow_html=True)
 st.subheader("You")
 
-try:
-    PURPLE_HEX
-except NameError:
-    PURPLE_HEX = "#6F45FF"  # DM purple (only used inside Matplotlib, not printed)
+# DM purple as RGB tuple (no hex string to leak into the page)
+DM_PURPLE_RGB = (111/255.0, 69/255.0, 255/255.0)  # ≈ #6F45FF
 
 def _mini_hist(ax, counts, edges, highlight_idx, title):
     centers = 0.5 * (edges[:-1] + edges[1:])
@@ -1082,7 +1080,7 @@ def _mini_hist(ax, counts, edges, highlight_idx, title):
     ax.bar(centers, counts, width=width, color="#D9D9D9", edgecolor="white", align="center")
     if 0 <= highlight_idx < len(counts):
         ax.bar(centers[highlight_idx], counts[highlight_idx], width=width,
-               color=PURPLE_HEX, edgecolor="white", align="center")
+               color=DM_PURPLE_RGB, edgecolor="white", align="center")
 
     # Title
     ax.set_title(title, fontsize=10, pad=6)
@@ -1097,7 +1095,7 @@ def _mini_hist(ax, counts, edges, highlight_idx, title):
     ax.set_xlabel("")
     ax.set_xticks([])
     ax.spines["bottom"].set_visible(True)
-    ax.text(0.0, -0.10, "low", transform=ax.transAxes, ha="left", va="top", fontsize=9)
+    ax.text(0.0, -0.10, "low",  transform=ax.transAxes, ha="left",  va="top", fontsize=9)
     ax.text(1.0, -0.10, "high", transform=ax.transAxes, ha="right", va="top", fontsize=9)
 
 def _col_values(df, colname):
@@ -1128,11 +1126,11 @@ with c1:
         vviq_score = sum(v for v in vviq_vals if np.isfinite(v))
 
     from scipy.stats import truncnorm
-    N = 8000; mu, sigma = 61.0, 9.2; low, high = 30, 80   # starts at 30 now
+    N = 8000; mu, sigma = 61.0, 9.2; low, high = 30, 80
     a, b = (low - mu) / sigma, (high - mu) / sigma
     vviq_samples = truncnorm.rvs(a, b, loc=mu, scale=sigma, size=N, random_state=42)
 
-    bins = np.linspace(low, high, 26)  # ~2-pt bins within [30,80]
+    bins = np.linspace(low, high, 26)
     counts, edges = np.histogram(vviq_samples, bins=bins, density=True)
     hidx = int(np.clip(np.digitize(vviq_score, edges) - 1, 0, len(counts)-1))
 
@@ -1158,7 +1156,7 @@ with c2:
         _mini_hist(ax, counts, edges, hidx, "Your level of creativity")
         st.pyplot(fig, use_container_width=False)
 
-# --- 3) Anxiety — assume 1..6 (auto-fallback if not)
+# --- 3) Anxiety — assume 1..6 (auto-fallback otherwise)
 with c3:
     colname = "anxiety"
     vals = _col_values(pop_data, colname)
@@ -1175,6 +1173,7 @@ with c3:
         fig.patch.set_alpha(0); ax.set_facecolor("none")
         _mini_hist(ax, counts, edges, hidx, "Your level of anxiety")
         st.pyplot(fig, use_container_width=False)
+
 
 
 
