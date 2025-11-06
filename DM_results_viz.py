@@ -1517,6 +1517,23 @@ else:
 
 
 
+# --- Quick diagnostics for Switch-Off features -----------------------------
+if pop_data is not None:
+    st.subheader("Diagnostics: Switch-Off input features")
+
+    # Sleep latency
+    if "sleep_latency" in pop_data.columns:
+        vals = pd.to_numeric(pop_data["sleep_latency"], errors="coerce")
+        st.write(f"N valid latencies: {vals.notna().sum()}  "
+                 f"| mean = {vals.mean():.1f} min  "
+                 f"| median = {vals.median():.1f} min  "
+                 f"| min = {vals.min():.1f} | max = {vals.max():.1f}")
+        st.bar_chart(vals.dropna(), height=100)
+
+    # Trajectories
+    if "trajectories" in pop_data.columns:
+        st.write("Trajectory value counts:")
+        st.write(pop_data["trajectories"].value_counts(dropna=False))
 
 
 
