@@ -1211,16 +1211,18 @@ with c3:
 
 
 # ==============
-# "Your sleep" — Latency · Duration · Chronotype & Dream recall
+# "Your sleep" — Latency · Duration · Chronotype & Dream recall (final refinement)
 # ==============
 
-# --- Centered title with wide black rule that skips the word -----------------
+# --- Centered title with wider gap so "Your sleep" stays on one line ----------
 st.markdown(
     """
-    <div class="dm-center" style="max-width:960px; margin:28px auto 16px;">
-      <div style="display:flex; align-items:center; gap:32px;">
+    <div class="dm-center" style="max-width:1040px; margin:28px auto 16px;">
+      <div style="display:flex; align-items:center; gap:60px;">  <!-- wider hole around text -->
         <div style="height:2px; background:#000; flex:1;"></div>
-        <div style="flex:0; font-weight:700; font-size:1.35rem; letter-spacing:0.2px;">Your sleep</div>
+        <div style="flex:0; font-weight:700; font-size:1.35rem; letter-spacing:0.2px; white-space:nowrap;">
+          Your sleep
+        </div>
         <div style="height:2px; background:#000; flex:1;"></div>
       </div>
     </div>
@@ -1291,8 +1293,8 @@ with col_left:
                             s=28, zorder=3, color=PURPLE_HEX, edgecolors="none"
                         )
 
-                        # Titles and labels
-                        ax.set_title(f"{rounded_raw} minutes to fall asleep", fontsize=10, pad=6, color="#222222")
+                        # Title & labels
+                        ax.set_title(f"You fall asleep in {rounded_raw} minutes", fontsize=10, pad=6, color="#222222")
                         ax.set_xlabel("Time (min)", fontsize=9, color="#333333")
 
                         # Remove y-axis for minimalist look
@@ -1349,13 +1351,13 @@ with col_mid:
                 try:
                     if dur_raw_str.endswith("+"):
                         part_hours_plot = float(dur_raw_str[:-1])
-                        title_str = f"{dur_raw_str} hours of sleep"
+                        title_str = f"You sleep {dur_raw_str} hours on average"
                     else:
                         part_hours_plot = float(dur_raw_str)
-                        title_str = f"{int(round(part_hours_plot))} hours of sleep"
+                        title_str = f"You sleep {int(round(part_hours_plot))} hours on average"
                 except:
                     part_hours_plot = float(np.nanmedian(samples_h))
-                    title_str = "Sleep duration"
+                    title_str = "Your sleep duration"
 
                 part_hours_plot = float(np.clip(part_hours_plot, 1.0, 12.0))
                 edges = np.arange(0.5, 12.5 + 1.0, 1.0)
@@ -1423,7 +1425,7 @@ with col_right:
     chrono_txt = CHRONO_LBL.get(chronotype_val, "—")
     recall_txt = DREAMRECALL_LBL.get(dreamrec_val, "—")
 
-    # Card with vertical offset so it's aligned with the baseline of plots
+    # Spacer to align with baseline of plots
     st.markdown("<div style='height:32px;'></div>", unsafe_allow_html=True)
     st.markdown(
         f"""
