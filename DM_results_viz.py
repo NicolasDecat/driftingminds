@@ -1310,7 +1310,7 @@ with col_left:
                         st.pyplot(fig, use_container_width=False)
 
 # =============================================================================
-# MIDDLE: Sleep duration histogram (shorter to match latency x-axis level)
+# MIDDLE: Sleep duration histogram (perfectly aligned baseline)
 # =============================================================================
 with col_mid:
     if pop_data is None or pop_data.empty:
@@ -1364,8 +1364,8 @@ with col_mid:
                 highlight_idx = np.digitize(part_hours_plot, edges) - 1
                 highlight_idx = np.clip(highlight_idx, 0, len(counts) - 1)
 
-                # Slightly shorter figure (perfect x-axis alignment with latency)
-                fig, ax = plt.subplots(figsize=(2.2, 2.45))
+                # ✅ Slightly adjusted figure height (2.52) for perfect x-axis alignment
+                fig, ax = plt.subplots(figsize=(2.2, 2.52))
                 fig.patch.set_alpha(0)
                 ax.set_facecolor("none")
                 ax.bar(centers, counts, width=edges[1]-edges[0],
@@ -1391,6 +1391,7 @@ with col_mid:
                 ax.tick_params(axis="x", labelsize=8)
                 plt.tight_layout()
                 st.pyplot(fig, use_container_width=False)
+
 
 # =============================================================================
 # RIGHT: Chronotype + Dream recall (pushed further down)
