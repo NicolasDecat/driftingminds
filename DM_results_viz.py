@@ -1062,48 +1062,11 @@ for b in bars:
 st.markdown("</div></div>", unsafe_allow_html=True)
 
 
+# ==============
+# "You" — Imagery · Creativity · Anxiety (final alignment + clean title line)
+# ==============
 
-
-
-# =============================================================================
-# CONSTANTS & HELPERS (self-contained for these sections)
-# =============================================================================
-try:
-    PURPLE_HEX
-except NameError:
-    PURPLE_HEX = "#6F45FF"   # DM purple fallback
-
-# Fixed axes rectangles (left, bottom, width, height) in figure coords
-AX_POS_MINI  = [0.14, 0.24, 0.78, 0.68]   # "You" mini histos
-AX_POS_SLEEP = [0.14, 0.24, 0.78, 0.68]   # "Your sleep" plots
-
-def _hist_data(df: pd.DataFrame, key: str, bins, record: dict):
-    """Population histogram + participant bin index. Returns (counts, edges, hidx)."""
-    if df is None or df.empty or (key not in df.columns):
-        return np.array([]), np.array([]), -1
-    raw = pd.to_numeric(df[key], errors="coerce").dropna()
-    if raw.empty:
-        return np.array([]), np.array([]), -1
-    counts, edges = np.histogram(raw, bins=bins, density=True)
-
-    # participant value
-    val = record.get(key, np.nan)
-    try:
-        val = float(val)
-    except Exception:
-        val = np.nan
-    if np.isnan(val):
-        hidx = -1
-    else:
-        hidx = np.digitize(val, edges) - 1
-        hidx = int(np.clip(hidx, 0, len(counts) - 1))
-    return counts, edges, hidx
-
-# =============================================================================
-# "You" — Imagery · Creativity · Anxiety  (stable layout)
-# =============================================================================
-
-# --- Section divider (thin 1px line) -----------------------------------------
+# --- Centered title for "You" (thinner black line) -----------------
 st.markdown(
     """
     <div class="dm-center" style="max-width:960px; margin:18px auto 10px;">
@@ -1117,256 +1080,134 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- Compute population histos + participant bin for the 3 vars --------------
-# Adjust keys if your column names differ
-vviq_counts, vviq_edges, vviq_hidx = _hist_data(pop_data, "vviq_total",       bins=np.arange(30, 80+5, 5), record=record)
-cre_counts,  cre_edges,  cre_hidx  = _hist_data(pop_data, "creativity_trait",  bins=np.arange(0.5, 6.5+1.0, 1.0), record=record)
-anx_counts,  anx_edges,  anx_hidx  = _hist_data(pop_data, "anxiety",           bins=np.arange(0, 100+5, 5),       record=record)
+
+# --- Color setup -------------------------------------------------------------
+_HL = None
+for name in ["PURPLE_HEX", "DM_PURPLE", "SLEEP_COLOR", "COLOR_PURPLE", "ACCENT_PURPLE"]:
+    if name in globals():
+        _HL = globals()[name]
+        break
+if not _HL:
+    _HL = "#6F45FF"
+
+def _hex_to_rgb_tuple(h):
+    h = h.lstrip("#")
+    return tuple(int(h[i:i+2], 16)/255.0 for i in (0, 2, 4))
+HL_RGB = _hex_to_rgb_tuple(_HL)
+
+# --- Helpers -----------------------------------------------------------------
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.stats import truncnorm
+
+def _mini_hist(ax, counts, edges, highlight_idx, title, bar_width_factor=0.95):
+    centers = 0.5 * (edges[:-1] + edges[1:])
+    width   = (edges[1] - edges[0]) * bar_width_factor
+
+    # population bars
+    ax.bar(centers, counts, width=width, color="#D9D9D9", edgecolor="white", align="center")
+    # participant bin
+    if 0 <= highlight_idx < len(counts):
+        ax.bar(centers[highlight_idx], counts[highlight_idx], width=width,
+               color=HL_RGB, edgecolor="white", align="center")
+
+    # title
+    ax.set_title(title, fontsize=8, pad=6, color="#222222")
+
+    # x-axis baseline and labels
+    ax.spines["bottom"].set_visible(True)
+    ax.set_xlabel("")
+    ax.set_xticks([])
+    ax.text(0.0, -0.05, "low",  transform=ax.transAxes, ha="left",  va="top", fontsize=9)
+    ax.text(1.0, -0.05, "high", transform=ax.transAxes, ha="right", va="top", fontsize=9)
+
+    # remove y
+    for s in ["left", "right", "top"]:
+        ax.spines[s].set_visible(False)
+    ax.get_yaxis().set_visible(False)
+    ax.margins(y=0)
+
+    # consistent padding
+    plt.subplots_adjust(top=0.83, bottom=0.24)
+
+def _col_values(df, colname):
+    if df is None or df.empty or (colname not in df.columns):
+        return np.array([])
+    return pd.to_numeric(df[colname], errors="coerce").to_numpy()
+
+def _participant_value(rec, key):
+    try:
+        return float(str(rec.get(key, np.nan)).strip())
+    except Exception:
+        return np.nan
+
+# --- Data prep ---------------------------------------------------------------
+
+# 1) Imagery (VVIQ)
+try:
+    vviq_score
+except NameError:
+    VVIQ_FIELDS = [
+        "quest_a1","quest_a2","quest_a3","quest_a4",
+        "quest_b1","quest_b2","quest_b3","quest_b4",
+        "quest_c1","quest_c2","quest_c3","quest_c4",
+        "quest_d1","quest_d2","quest_d3","quest_d4"
+    ]
+    vviq_vals  = [float(record.get(k, np.nan)) if pd.notna(record.get(k, np.nan)) else np.nan for k in VVIQ_FIELDS]
+    vviq_score = sum(v for v in vviq_vals if np.isfinite(v))
+
+N = 8000; mu, sigma = 61.0, 9.2; low, high = 30, 80
+a, b = (low - mu) / sigma, (high - mu) / sigma
+vviq_samples = truncnorm.rvs(a, b, loc=mu, scale=sigma, size=N, random_state=42)
+vviq_edges   = np.linspace(low, high, 26)
+vviq_counts, _ = np.histogram(vviq_samples, bins=vviq_edges, density=True)
+vviq_hidx = int(np.clip(np.digitize(vviq_score, vviq_edges) - 1, 0, len(vviq_counts)-1))
+
+# 2) Creativity 1–6
+cre_vals  = _col_values(pop_data, "creativity_trait")
+cre_edges = np.arange(0.5, 6.5 + 1.0, 1.0)
+cre_counts, _ = np.histogram(cre_vals, bins=cre_edges, density=True) if cre_vals.size else (np.array([]), cre_edges)
+cre_part  = _participant_value(record, "creativity_trait")
+cre_hidx  = int(np.clip(np.digitize(cre_part, cre_edges) - 1, 0, len(cre_counts)-1)) if cre_counts.size else 0
+
+# 3) Anxiety 1–100, 5-point bins
+anx_vals  = _col_values(pop_data, "anxiety")
+anx_edges = np.arange(0.5, 100.5 + 5, 5)
+anx_counts, _ = np.histogram(anx_vals, bins=anx_edges, density=True) if anx_vals.size else (np.array([]), anx_edges)
+anx_part  = _participant_value(record, "anxiety")
+anx_hidx  = int(np.clip(np.digitize(anx_part, anx_edges) - 1, 0, len(anx_counts)-1)) if anx_counts.size else 0
+
+# --- Display side-by-side ----------------------------------------------------
+# imagery slightly taller before; now tuned so x-axes align exactly
+FIGSIZE_IMAGERY  = (2.4, 2.75)   # adjusted (was 2.9)
+FIGSIZE_STANDARD = (2.4, 2.6)
 
 c1, c2, c3 = st.columns(3, gap="small")
 
-def _mini_hist_from_counts(edges, counts, hidx, title):
-    fig, ax = plt.subplots(figsize=(2.4, 2.6))
-    fig.set_constrained_layout(False)
-    fig.patch.set_alpha(0.0)
-    ax.set_facecolor("none")
-    ax.set_position(AX_POS_MINI)
-
-    if counts.size:
-        # draw population bars
-        ax.bar(edges[:-1], counts, width=edges[1]-edges[0],
-               color="#D9D9D9", edgecolor="white", align="edge")
-        # highlight participant bin
-        if 0 <= hidx < len(counts):
-            ax.bar(edges[hidx], counts[hidx], width=edges[1]-edges[0],
-                   color=PURPLE_HEX, edgecolor="white", align="edge")
-
-    # unified titles
-    ax.set_title(title, fontsize=9, pad=6, color="#222222")
-
-    # minimalist x: baseline + low/high labels
-    ax.set_xlabel("")
-    ax.set_xticks([])
-    ax.get_yaxis().set_visible(False)
-    for s in ["left", "right", "top"]:
-        ax.spines[s].set_visible(False)
-    ax.text(0.00, -0.10, "low",  transform=ax.transAxes, ha="left",  va="top", fontsize=9)
-    ax.text(1.00, -0.10, "high", transform=ax.transAxes, ha="right", va="top", fontsize=9)
-    ax.tick_params(axis="x", pad=2)
-    return fig
-
 with c1:
-    if vviq_counts.size:
-        st.pyplot(_mini_hist_from_counts(vviq_edges, vviq_counts, vviq_hidx, "Your visual imagery at wake"),
-                  use_container_width=False)
-    else:
-        st.info("Population imagery data unavailable.")
+    fig, ax = plt.subplots(figsize=FIGSIZE_IMAGERY)
+    fig.patch.set_alpha(0); ax.set_facecolor("none")
+    _mini_hist(ax, vviq_counts, vviq_edges, vviq_hidx, "Your visual imagery at wake")
+    st.pyplot(fig, use_container_width=False)
 
 with c2:
-    if cre_counts.size:
-        st.pyplot(_mini_hist_from_counts(cre_edges, cre_counts, cre_hidx, "Your level of creativity"),
-                  use_container_width=False)
+    if not cre_counts.size:
+        st.info("Population data for creativity unavailable.")
     else:
-        st.info("Population creativity data unavailable.")
+        fig, ax = plt.subplots(figsize=FIGSIZE_STANDARD)
+        fig.patch.set_alpha(0); ax.set_facecolor("none")
+        _mini_hist(ax, cre_counts, cre_edges, cre_hidx, "Your level of creativity")
+        st.pyplot(fig, use_container_width=False)
 
 with c3:
-    if anx_counts.size:
-        st.pyplot(_mini_hist_from_counts(anx_edges, anx_counts, anx_hidx, "Your level of anxiety"),
-                  use_container_width=False)
+    if not anx_counts.size:
+        st.info("Population data for anxiety unavailable.")
     else:
-        st.info("Population anxiety data unavailable.")
-
-# =============================================================================
-# "Your sleep" — Latency · Duration · Chronotype & Dream recall  (stable layout)
-# =============================================================================
-
-# --- Section divider (thin 1px line, one-line title) -------------------------
-st.markdown(
-    """
-    <div class="dm-center" style="max-width:1020px; margin:28px auto 16px;">
-      <div style="display:flex; align-items:center; gap:44px;">
-        <div style="height:1px; background:#000; flex:1;"></div>
-        <div style="flex:0; font-weight:700; font-size:1.35rem; letter-spacing:0.2px; white-space:nowrap;">
-          Your sleep
-        </div>
-        <div style="height:1px; background:#000; flex:1;"></div>
-      </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-col_left, col_mid, col_right = st.columns(3, gap="small")
-
-# --- LEFT: Sleep latency (KDE) -----------------------------------------------
-from scipy.stats import gaussian_kde
-
-with col_left:
-    if pop_data is None or pop_data.empty:
-        st.info("Population data unavailable.")
-    else:
-        lat_cols = [c for c in pop_data.columns if "sleep_latency" in c.lower()]
-        if not lat_cols:
-            st.info("No sleep latency column in population data.")
-        else:
-            lat_col = lat_cols[0]
-            raw_lat = pd.to_numeric(pop_data[lat_col], errors="coerce").dropna()
-            if raw_lat.empty:
-                st.info("No valid population sleep-latency values.")
-            else:
-                # population samples in minutes (cap at CAP_MIN)
-                samples = np.clip(raw_lat.values * CAP_MIN if raw_lat.max() <= 1.5 else raw_lat.values, 0, CAP_MIN)
-
-                # participant value minutes
-                raw_sl  = _get_first(record, ["sleep_latency"])
-                sl_norm = norm_latency_auto(raw_sl, cap_minutes=CAP_MIN)
-                if np.isnan(sl_norm):
-                    st.info("No sleep-latency value available for this participant.")
-                else:
-                    try:
-                        part_raw_minutes = float(str(raw_sl).strip())
-                    except Exception:
-                        part_raw_minutes = np.nan
-                    part_display = sl_norm * CAP_MIN if sl_norm <= 1.5 else float(sl_norm)
-                    part_display = float(np.clip(part_display, 0, CAP_MIN))
-                    rounded_raw  = int(round(part_raw_minutes)) if np.isfinite(part_raw_minutes) else int(round(part_display))
-
-                    kde = gaussian_kde(samples, bw_method="scott")
-                    xs  = np.linspace(0, CAP_MIN, 400)
-                    ys  = kde(xs)
-                    y_part = float(kde(part_display))
-
-                    fig, ax = plt.subplots(figsize=(2.2, 2.4))
-                    fig.set_constrained_layout(False)
-                    fig.patch.set_alpha(0.0)
-                    ax.set_facecolor("none")
-                    ax.set_position(AX_POS_SLEEP)
-
-                    # KDE fill + capped vertical marker and dot
-                    ax.fill_between(xs, ys, color="#e6e6e6", linewidth=0)
-                    ax.vlines(part_display, 0, y_part, lw=0.8, color="#222222")
-                    ax.scatter([part_display], [y_part], s=28, zorder=3,
-                               color=PURPLE_HEX, edgecolors="none")
-
-                    ax.set_title(f"You fall asleep in {rounded_raw} minutes", fontsize=9, pad=6, color="#222222")
-                    ax.set_xlabel("minutes", fontsize=9, color="#333333")
-
-                    # minimalist y
-                    ax.set_ylabel("")
-                    ax.get_yaxis().set_visible(False)
-                    for s in ["left", "right", "top"]:
-                        ax.spines[s].set_visible(False)
-                    ax.tick_params(axis="x", pad=2)
-                    st.pyplot(fig, use_container_width=False)
-
-# --- MIDDLE: Sleep duration (histogram) --------------------------------------
-with col_mid:
-    if pop_data is None or pop_data.empty:
-        st.info("Population data unavailable.")
-    else:
-        dur_cols = [c for c in pop_data.columns if c.lower() in (
-            "sleep_duration", "sleep_duration_h", "sleep_duration_hours", "total_sleep_time_h"
-        )]
-        if not dur_cols:
-            st.warning("No sleep duration column found in population data.")
-        else:
-            col = dur_cols[0]
-
-            def _to_hours_for_plot(x):
-                if x is None: return np.nan
-                s = str(x).strip()
-                if s == "": return np.nan
-                if s.endswith("+"):
-                    try: return float(s[:-1])
-                    except: return 12.0
-                try: return float(s)
-                except: return np.nan
-
-            raw_series = pop_data[col].apply(_to_hours_for_plot)
-            samples_h  = raw_series.astype(float).to_numpy()
-            samples_h  = samples_h[np.isfinite(samples_h)]
-            samples_h  = np.clip(samples_h, 1.0, 12.0)
-
-            if samples_h.size == 0:
-                st.info("No valid sleep duration values in population data.")
-            else:
-                dur_raw     = _get_first(record, ["sleep_duration", "sleep_duration_h", "sleep_duration_hours", "total_sleep_time_h"])
-                dur_raw_str = str(dur_raw).strip() if dur_raw is not None else ""
-                try:
-                    if dur_raw_str.endswith("+"):
-                        part_hours_plot = float(dur_raw_str[:-1])
-                        title_str = f"You sleep {dur_raw_str} hours on average"
-                    else:
-                        part_hours_plot = float(dur_raw_str)
-                        title_str = f"You sleep {int(round(part_hours_plot))} hours on average"
-                except Exception:
-                    part_hours_plot = float(np.nanmedian(samples_h))
-                    title_str = "Your sleep duration"
-
-                part_hours_plot = float(np.clip(part_hours_plot, 1.0, 12.0))
-                edges   = np.arange(0.5, 12.5 + 1.0, 1.0)
-                counts, _  = np.histogram(samples_h, bins=edges, density=True)
-                centers = 0.5 * (edges[:-1] + edges[1:])
-                highlight_idx = int(np.clip(np.digitize(part_hours_plot, edges) - 1, 0, len(counts) - 1))
-
-                fig, ax = plt.subplots(figsize=(2.2, 2.52))  # tuned to match latency baseline
-                fig.set_constrained_layout(False)
-                fig.patch.set_alpha(0.0)
-                ax.set_facecolor("none")
-                ax.set_position(AX_POS_SLEEP)
-
-                ax.bar(centers, counts, width=edges[1]-edges[0],
-                       color="#D9D9D9", edgecolor="white", align="center")
-                ax.bar(centers[highlight_idx], counts[highlight_idx],
-                       width=edges[1]-edges[0], color=PURPLE_HEX,
-                       edgecolor="white", align="center")
-
-                ax.set_title(title_str, fontsize=9, pad=6, color="#222222")
-                ax.set_xlabel("hours", fontsize=9, color="#333333")
-
-                ax.set_ylabel("")
-                ax.get_yaxis().set_visible(False)
-                for s in ["left", "right", "top"]:
-                    ax.spines[s].set_visible(False)
-                ax.tick_params(axis="x", pad=2)
-                st.pyplot(fig, use_container_width=False)
-
-# --- RIGHT: Chronotype & Dream recall (card) ---------------------------------
-with col_right:
-    # values
-    def _to_int(x):
-        try:    return int(str(x).strip())
-        except: return None
-
-    chronotype_val = _to_int(record.get("chronotype", None))
-    dreamrec_val   = _to_int(record.get("dream_recall", None))
-
-    CHRONO_LBL = {1:"Morning type", 2:"Evening type", 3:"No preference", 4:"None"}
-    DREAM_LBL  = {1:"Less than once a month", 2:"1 to 2 times a month", 3:"Once a week", 4:"Several times a week", 5:"Every day"}
-
-    chrono_txt = CHRONO_LBL.get(chronotype_val, "—")
-    recall_txt = DREAM_LBL.get(dreamrec_val, "—")
-
-    # push down to align visually with histogram baselines
-    st.markdown("<div style='height:90px;'></div>", unsafe_allow_html=True)
-    st.markdown(
-        f"""
-        <div class="dm-center" style="max-width:320px; margin:0 auto;">
-          <div style="
-              border:1px solid rgba(0,0,0,0.15);
-              border-radius:12px;
-              padding:16px 18px;
-              background:rgba(255,255,255,0.02);
-            ">
-            <div style="font-size:0.95rem; line-height:1.6; color:#111;">
-              <div><span style="opacity:0.8;">Chronotype:</span> <strong>{chrono_txt}</strong></div>
-              <div><span style="opacity:0.8;">Dream recall:</span> <strong>{recall_txt}</strong></div>
-            </div>
-          </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+        fig, ax = plt.subplots(figsize=FIGSIZE_STANDARD)
+        fig.patch.set_alpha(0); ax.set_facecolor("none")
+        _mini_hist(ax, anx_counts, anx_edges, anx_hidx, "Your level of anxiety")
+        st.pyplot(fig, use_container_width=False)
 
 
 
