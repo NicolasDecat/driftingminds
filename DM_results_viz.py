@@ -1231,11 +1231,11 @@ st.markdown(
 # --- Three-column layout -----------------------------------------------------
 col_left, col_mid, col_right = st.columns(3, gap="small")
 
-# =============================================================================
-# LEFT: Sleep latency KDE (copied from your existing block)
-# =============================================================================
 from scipy.stats import gaussian_kde
 
+# =============================================================================
+# LEFT: Sleep latency KDE
+# =============================================================================
 with col_left:
     if pop_data is None or pop_data.empty:
         st.info("Population data unavailable.")
@@ -1274,41 +1274,43 @@ with col_left:
                         "axes.linewidth": 0.8,
                         "xtick.color": "#333333",
                         "ytick.color": "#333333",
-                        "xtick.major.width": 0.8,
-                        "ytick.major.width": 0.8,
                         "font.size": 9,
                     }):
                         fig, ax = plt.subplots(figsize=(2.2, 2.4))
                         fig.patch.set_alpha(0.0)
                         ax.set_facecolor("none")
+
+                        # KDE area + outline
                         ax.fill_between(xs, ys, color="#e6e6e6", linewidth=0)
+
+                        # Participant marker (thin line + purple dot)
                         ax.axvline(part_display, lw=0.8, color="#222222")
                         ax.scatter(
                             [part_display],
                             [kde(part_display)],
-                            s=28,
-                            zorder=3,
-                            color=PURPLE_HEX,
-                            edgecolors="none"
+                            s=28, zorder=3, color=PURPLE_HEX, edgecolors="none"
                         )
+
+                        # Titles and labels
                         ax.set_title(f"{rounded_raw} minutes to fall asleep", fontsize=10, pad=6, color="#222222")
                         ax.set_xlabel("Time (min)", fontsize=9, color="#333333")
-                        ax.set_ylabel("Population", fontsize=9, color="#333333")
-                        ax.yaxis.set_major_locator(MaxNLocator(nbins=3, prune="both"))
-                        ax.set_yticks([])
+
+                        # Remove y-axis for minimalist look
+                        ax.set_ylabel("")
+                        ax.get_yaxis().set_visible(False)
+                        for side in ("left", "right", "top"):
+                            ax.spines[side].set_visible(False)
+
                         xticks = np.linspace(0, CAP_MIN, 7)
                         ax.set_xticks(xticks)
                         xlabels = [str(int(t)) if t < CAP_MIN else "60+" for t in xticks]
                         ax.set_xticklabels(xlabels)
-                        for side in ("top", "right"):
-                            ax.spines[side].set_visible(False)
-                        ax.tick_params(axis="x", labelsize=8)
-                        ax.tick_params(axis="y", length=0)
+                        ax.tick_params(axis="x", labelsize=8, color="#333333")
                         plt.tight_layout()
                         st.pyplot(fig, use_container_width=False)
 
 # =============================================================================
-# MIDDLE: Sleep duration histogram (copied from your existing block)
+# MIDDLE: Sleep duration histogram
 # =============================================================================
 with col_mid:
     if pop_data is None or pop_data.empty:
@@ -1364,27 +1366,32 @@ with col_mid:
 
                 fig, ax = plt.subplots(figsize=(2.2, 2.4))
                 fig.patch.set_alpha(0); ax.set_facecolor("none")
-                ax.bar(centers, counts, width=edges[1]-edges[0], color="#D9D9D9", edgecolor="white", align="center")
+                ax.bar(centers, counts, width=edges[1]-edges[0],
+                       color="#D9D9D9", edgecolor="white", align="center")
                 ax.bar(centers[highlight_idx], counts[highlight_idx],
-                       width=edges[1]-edges[0], color=PURPLE_HEX, edgecolor="white",
-                       align="center", label="Your duration")
+                       width=edges[1]-edges[0], color=PURPLE_HEX,
+                       edgecolor="white", align="center")
                 ax.set_title(title_str, fontsize=10, pad=6)
                 ax.set_xlabel("Time (h)", fontsize=9)
-                ax.set_ylabel("Population", fontsize=9)
-                ax.set_yticks([]); ax.set_yticklabels([])
-                ticks = np.arange(1, 13, 1); ax.set_xticks(ticks)
+
+                # Remove y-axis for minimalist look
+                ax.set_ylabel("")
+                ax.get_yaxis().set_visible(False)
+                for side in ("left", "right", "top"):
+                    ax.spines[side].set_visible(False)
+
+                ticks = np.arange(1, 13, 1)
+                ax.set_xticks(ticks)
                 labels = ["" for _ in ticks]
-                for i in range(4, 11): labels[i-1] = str(i)  # show 4..10
+                for i in range(4, 11):
+                    labels[i-1] = str(i)
                 ax.set_xticklabels(labels)
-                ax.spines["top"].set_visible(False)
-                ax.spines["right"].set_visible(False)
                 ax.tick_params(axis="x", labelsize=8)
-                ax.tick_params(axis="y", length=0)
                 plt.tight_layout()
                 st.pyplot(fig, use_container_width=False)
 
 # =============================================================================
-# RIGHT: Chronotype + Dream recall (new)
+# RIGHT: Chronotype + Dream recall (card)
 # =============================================================================
 with col_right:
     raw_chrono = record.get("chronotype", None)
@@ -1416,6 +1423,8 @@ with col_right:
     chrono_txt = CHRONO_LBL.get(chronotype_val, "—")
     recall_txt = DREAMRECALL_LBL.get(dreamrec_val, "—")
 
+    # Card with vertical offset so it's aligned with the baseline of plots
+    st.markdown("<div style='height:32px;'></div>", unsafe_allow_html=True)
     st.markdown(
         f"""
         <div class="dm-center" style="max-width:320px; margin:0 auto;">
@@ -1434,7 +1443,6 @@ with col_right:
         """,
         unsafe_allow_html=True
     )
-
 
 
 
