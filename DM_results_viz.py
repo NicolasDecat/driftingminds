@@ -1551,5 +1551,5 @@ def check_switch_off_norms(df):
     print(f"Latency norms (min,mean,max): {np.nanmin(arr[:,0]):.3f}, {np.nanmean(arr[:,0]):.3f}, {np.nanmax(arr[:,0]):.3f}")
     print(f"Traj norms unique: {np.unique(arr[:,1], return_counts=True)}")
 
-check_switch_off_norms(pop_data)
+check_switch_off_norms(pop_data) 
 
