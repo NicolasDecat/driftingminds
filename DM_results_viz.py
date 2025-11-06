@@ -345,6 +345,23 @@ def norm_latency_auto(x, cap_minutes=CAP_MIN):
 PROFILES = {
 
     # =====================================================================
+    # Dreamweaver
+    # =====================================================================
+    "Dreamweaver": {
+    "features": [
+        {"type": "var","key": ["freq_percept_real"],      "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1.2},
+        {"type": "var", "key": ["freq_percept_intense"],  "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1.2},
+        {"type": "var", "key": ["freq_percept_bizarre"],  "norm": norm_1_6, "norm_kwargs": {}, "target": 0.85, "weight": 1.0},
+        {"type": "var", "key": ["freq_absorbed"],         "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.0},
+        {"type": "var", "key": ["freq_positive"],         "norm": norm_1_6, "norm_kwargs": {}, "target": 0.50, "weight": 0.5},
+        {"type": "var", "key": ["sleep_latency"],         "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.50, "weight": 0.3},
+    ],
+    "description": "You drift into vivid, sensory mini-dreams as you fall asleep.",
+    "icon": "seahorse.svg",
+    },
+
+
+    # =====================================================================
     # Switch-Off
     # =====================================================================
     "The Switch-Off": {
@@ -355,6 +372,54 @@ PROFILES = {
         ],
         "description": "You fall asleep quickly, especially when you already feel sleepy.",
         "icon": "bear.svg",
+    },
+    
+       
+    # =====================================================================
+    # Fantasizer
+    # =====================================================================
+    "Fantasizer": {
+    "features": [
+        {"type": "var","key": ["freq_scenario"],      "norm": norm_1_6, "norm_kwargs": {}, "target": 1, "weight": 1.3},       
+        {"type": "var","key": ["freq_positive"],       "norm": norm_1_6, "norm_kwargs": {},"target": 0.90, "weight": 0.8,
+         "only_if": {"key": ["timequest_positive "],   "norm": norm_1_100,"norm_kwargs": {},"op": "between","bounds": [0, 0.50]}
+        },
+    ],
+    "description": "Your mind drifts into imagined stories; vivid, intentional scenarios that feel like daydreams easing you into sleep.",
+    "icon": "dolhpin.svg",
+    },
+    
+    # =====================================================================
+    # Archivist
+    # =====================================================================
+    "Archivist": {
+    "features": [
+        {"type": "var", "key": ["freq_replay"],                "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1.3},
+        {"type": "var","key": ["freq_think_ordinary"],         "norm": norm_1_6, "norm_kwargs": {},"target": 0.90, "weight": 1,
+         "only_if": {"key": ["timequest_think_ordinary"],      "norm": norm_1_100,"norm_kwargs": {},"op": "between","bounds": [0, 0.50]}
+        },
+        {"type": "var","key": ["freq_think_seq_ordinary"],     "norm": norm_1_6, "norm_kwargs": {},"target": 0.90, "weight": 1,
+         "only_if": {"key": ["timequest_think_seq_ordinary"],  "norm": norm_1_100,"norm_kwargs": {},"op": "between","bounds": [0, 0.50]}
+        },
+    ],
+    "description": "You drift into vivid, sensory mini-dreams as you fall asleep.",
+    "icon": "salmon.svg",
+    },
+    
+    # =====================================================================
+    # Ruminator
+    # =====================================================================
+    "Ruminator": {
+        "features": [
+            {"type": "var", "key": ["freq_ruminate"],                   "norm": norm_1_6,   "norm_kwargs": {}, "target": 1, "weight": 1.3},  
+            {"type": "var", "key": ["freq_negative"],                   "norm": norm_1_6,   "norm_kwargs": {}, "target": 0.70, "weight": 0.80},  
+            {"type": "var", "key": ["anxiety"],                         "norm": norm_1_100, "norm_kwargs": {}, "target": 0.70, "weight": 0.80},  
+            {"type": "var", "key": ["sleep_latency"],                   "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.90, "weight": 1.1},
+            {"type": "var", "key": ["degreequest_emotionality"],        "norm": norm_1_6,   "norm_kwargs": {}, "target": 0.30, "weight": 0.70},  
+
+        ],
+        "description": "You replay or analyze the day, with longer latency and tension.",
+        "icon": "cow.svg",
     },
 
     # =====================================================================
@@ -371,21 +436,6 @@ PROFILES = {
         "icon":        "octopus.svg",
     },
 
-    # =====================================================================
-    # Dreamweaver
-    # =====================================================================
-    "Dreamweaver": {
-    "features": [
-        {"type": "var","key": ["freq_percept_real"],      "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1.2},
-        {"type": "var", "key": ["freq_percept_intense"],  "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1.2},
-        {"type": "var", "key": ["freq_percept_bizarre"],  "norm": norm_1_6, "norm_kwargs": {}, "target": 0.85, "weight": 1.0},
-        {"type": "var", "key": ["freq_absorbed"],         "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.0},
-        {"type": "var", "key": ["freq_positive"],         "norm": norm_1_6, "norm_kwargs": {}, "target": 0.50, "weight": 0.5},
-        {"type": "var", "key": ["sleep_latency"],         "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.50, "weight": 0.3},
-    ],
-    "description": "You drift into vivid, sensory mini-dreams as you fall asleep.",
-    "icon": "seahorse.svg",
-    },
 
     # =====================================================================
     # Freewheeler
@@ -404,39 +454,7 @@ PROFILES = {
     "description": "You start intentional, then let go into spontaneous imagery.",
     "icon": "otter.svg",
     },
-    
-    # =====================================================================
-    # Strategist
-    # =====================================================================
-    "Strategist": {
-        "features": [
-            {"type": "var", "key": ["freq_planning"],              "norm": norm_1_6, "norm_kwargs": {}, "target": 1, "weight": 1.2},  
-            {"type": "var", "key": ["freq_think_ordinary"],        "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.0},  
-            {"type": "var", "key": ["freq_percept_ordinary"],      "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.0},  
-            {"type": "var", "key": ["freq_think_seq_ordinary"],    "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.0},  
-            {"type": "var", "key": ["degreequest_bizarreness"],    "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 0.8},  
-            {"type": "var", "key": ["degreequest_spontaneity"],    "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 1.0},  
-        ],
-        "description": "You stay in control with practical or analytical thoughts until lights out.",
-        "icon": "ant.svg",
-    },
-    
-    # =====================================================================
-    # Ruminator
-    # =====================================================================
-    "Ruminator": {
-        "features": [
-            {"type": "var", "key": ["freq_ruminate"],                   "norm": norm_1_6,   "norm_kwargs": {}, "target": 1, "weight": 1.3},  
-            {"type": "var", "key": ["freq_negative"],                   "norm": norm_1_6,   "norm_kwargs": {}, "target": 0.70, "weight": 0.80},  
-            {"type": "var", "key": ["anxiety"],                         "norm": norm_1_100, "norm_kwargs": {}, "target": 0.70, "weight": 0.80},  
-            {"type": "var", "key": ["sleep_latency"],                   "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.90, "weight": 1.1},
-            {"type": "var", "key": ["degreequest_emotionality"],        "norm": norm_1_6,   "norm_kwargs": {}, "target": 0.30, "weight": 0.70},  
-
-        ],
-        "description": "You replay or analyze the day, with longer latency and tension.",
-        "icon": "cow.svg",
-    },
-    
+        
     # =====================================================================
     # Quiet Mind
     # =====================================================================
@@ -460,21 +478,68 @@ PROFILES = {
     },
     
     # =====================================================================
-    # Archivist
+    # Radio Tuner
     # =====================================================================
-    "Archivist": {
-    "features": [
-        {"type": "var", "key": ["freq_replay"],                "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1.3},
-        {"type": "var","key": ["freq_think_ordinary"],         "norm": norm_1_6, "norm_kwargs": {},"target": 0.90, "weight": 1,
-         "only_if": {"key": ["timequest_think_ordinary"],      "norm": norm_1_100,"norm_kwargs": {},"op": "between","bounds": [0, 0.50]}
-        },
-        {"type": "var","key": ["freq_think_seq_ordinary"],     "norm": norm_1_6, "norm_kwargs": {},"target": 0.90, "weight": 1,
-         "only_if": {"key": ["timequest_think_seq_ordinary"],  "norm": norm_1_100,"norm_kwargs": {},"op": "between","bounds": [0, 0.50]}
-        },
-    ],
-    "description": "You drift into vivid, sensory mini-dreams as you fall asleep.",
-    "icon": "salmon.svg",
+    "Radio Tuner": {
+        "features": [
+            {"type": "var","key": ["freq_think_ordinary"],      "norm": norm_1_6, "norm_kwargs": {},"target": 0.90, "weight": 1,
+             "only_if": {"key": ["timequest_think_ordinary"],   "norm": norm_1_100,"norm_kwargs": {},"op": "between","bounds": [0, 0.50]}
+            },
+            {"type": "var","key": ["freq_think_bizarre"],       "norm": norm_1_6, "norm_kwargs": {},"target": 0.90, "weight": 1,
+             "only_if": {"key": ["timequest_think_ordinary"],   "norm": norm_1_100,"norm_kwargs": {},"op": "between","bounds": [0.51, 1]}
+            },
+            {"type": "var","key": ["freq_percept_dull"],        "norm": norm_1_6, "norm_kwargs": {},"target": 0.90, "weight": 1,
+             "only_if": {"key": ["timequest_percept_full"],     "norm": norm_1_100,"norm_kwargs": {},"op": "between","bounds": [0, 0.50]}
+            },
+            {"type": "var","key": ["freq_percept_intense"],     "norm": norm_1_6, "norm_kwargs": {},"target": 0.90, "weight": 1,
+             "only_if": {"key": ["timequest_percept_intense"],  "norm": norm_1_100,"norm_kwargs": {},"op": "between","bounds": [0.51, 1]}
+            },
+            {"type": "var","key": ["freq_hear_env"],            "norm": norm_1_6, "norm_kwargs": {},"target": 0.90, "weight": 1,
+             "only_if": {"key": ["timequest_hear_env"],         "norm": norm_1_100,"norm_kwargs": {},"op": "between","bounds": [0, 0.50]}
+            },
+            {"type": "var","key": ["freq_absorbed"],            "norm": norm_1_6, "norm_kwargs": {},"target": 0.90, "weight": 1,
+             "only_if": {"key": ["timequest_absorbed"],         "norm": norm_1_100,"norm_kwargs": {},"op": "between","bounds": [0.51, 1]}
+            },
+        ],
+        "description": "Your mind shifts rapidly between thoughts and sensations — like tuning through mental stations, never lingering on one for long.",
+        "icon": "chameleon.svg",
     },
+    
+    # =====================================================================
+    # Strategist
+    # =====================================================================
+    "Strategist": {
+        "features": [
+            {"type": "var", "key": ["freq_planning"],              "norm": norm_1_6, "norm_kwargs": {}, "target": 1, "weight": 1.2},  
+            {"type": "var", "key": ["freq_think_ordinary"],        "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.0},  
+            {"type": "var", "key": ["freq_percept_ordinary"],      "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.0},  
+            {"type": "var", "key": ["freq_think_seq_ordinary"],    "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.0},  
+            {"type": "var", "key": ["degreequest_bizarreness"],    "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 0.8},  
+            {"type": "var", "key": ["degreequest_spontaneity"],    "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 1.0},  
+        ],
+        "description": "You stay in control with practical or analytical thoughts until lights out.",
+        "icon": "ant.svg",
+    },
+    
+    # =====================================================================
+    # Sentinelle
+    # =====================================================================
+    "Sentinelle": {
+        "features": [
+            {"type": "var", "key": ["freq_hear_env"],              "norm": norm_1_6, "norm_kwargs": {}, "target": 1, "weight": 1.3},  
+            {"type": "var", "key": ["sleep_latency"],              "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.4, "weight": 0.8},
+
+        
+        ],
+        "description": "You stay in control with practical or analytical thoughts until lights out.",
+        "icon": "merkaat.svg",
+    },
+    
+
+    
+  
+ 
+    
 }
 
 
