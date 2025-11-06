@@ -1063,36 +1063,42 @@ st.markdown("</div></div>", unsafe_allow_html=True)
 
 
 # ==============
-# "You" — Imagery · Creativity · Anxiety (mini histos, updated)
+# "You" — Imagery · Creativity · Anxiety (final tweaks)
 # ==============
 
 st.markdown("<div style='height:18px;'></div>", unsafe_allow_html=True)
 st.subheader("You")
 
-# Fallback purple if not globally defined
 try:
     PURPLE_HEX
 except NameError:
-    PURPLE_HEX = "#6F45FF"
+    PURPLE_HEX = "#6F45FF"  # DM purple (only used inside Matplotlib, not printed)
 
 def _mini_hist(ax, counts, edges, highlight_idx, title):
     centers = 0.5 * (edges[:-1] + edges[1:])
     width   = edges[1] - edges[0]
+
+    # Population bars (grey) + participant bin (purple)
     ax.bar(centers, counts, width=width, color="#D9D9D9", edgecolor="white", align="center")
-    ax.bar(centers[highlight_idx], counts[highlight_idx], width=width,
-           color=PURPLE_HEX, edgecolor="white", align="center")
+    if 0 <= highlight_idx < len(counts):
+        ax.bar(centers[highlight_idx], counts[highlight_idx], width=width,
+               color=PURPLE_HEX, edgecolor="white", align="center")
 
-    # Titles & axes
+    # Title
     ax.set_title(title, fontsize=10, pad=6)
-    ax.set_ylabel("Population", fontsize=9)
-    ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
-    ax.tick_params(axis="y", labelsize=8)
 
-    # Replace numeric x-axis with "low" / "high"
+    # Remove all Y visuals
+    ax.get_yaxis().set_visible(False)
+    ax.spines["left"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["top"].set_visible(False)
+
+    # Keep only the X baseline; replace numeric ticks with LOW/HIGH labels
     ax.set_xlabel("")
     ax.set_xticks([])
-    ax.text(0.0, -0.08, "low", transform=ax.transAxes, ha="left", va="top", fontsize=9)
-    ax.text(1.0, -0.08, "high", transform=ax.transAxes, ha="right", va="top", fontsize=9)
+    ax.spines["bottom"].set_visible(True)
+    ax.text(0.0, -0.10, "low", transform=ax.transAxes, ha="left", va="top", fontsize=9)
+    ax.text(1.0, -0.10, "high", transform=ax.transAxes, ha="right", va="top", fontsize=9)
 
 def _col_values(df, colname):
     if df is None or df.empty or (colname not in df.columns):
@@ -1107,10 +1113,10 @@ def _participant_value(rec, key):
 
 c1, c2, c3 = st.columns(3, gap="small")
 
-# --- 1) Visual imagery (VVIQ) — compact version
+# --- 1) Visual imagery (VVIQ) — start at 30
 with c1:
     try:
-        vviq_score  # already computed upstream
+        vviq_score  # computed upstream
     except NameError:
         VVIQ_FIELDS = [
             "quest_a1","quest_a2","quest_a3","quest_a4",
@@ -1121,13 +1127,12 @@ with c1:
         vviq_vals  = [float(record.get(k, np.nan)) if pd.notna(record.get(k, np.nan)) else np.nan for k in VVIQ_FIELDS]
         vviq_score = sum(v for v in vviq_vals if np.isfinite(v))
 
-    # Normative VVIQ (same as your main plot)
     from scipy.stats import truncnorm
-    N = 8000; mu, sigma = 61.0, 9.2; low, high = 16, 80
+    N = 8000; mu, sigma = 61.0, 9.2; low, high = 30, 80   # starts at 30 now
     a, b = (low - mu) / sigma, (high - mu) / sigma
     vviq_samples = truncnorm.rvs(a, b, loc=mu, scale=sigma, size=N, random_state=42)
 
-    bins = np.linspace(low, high, 33)  # ~2-pt bins
+    bins = np.linspace(low, high, 26)  # ~2-pt bins within [30,80]
     counts, edges = np.histogram(vviq_samples, bins=bins, density=True)
     hidx = int(np.clip(np.digitize(vviq_score, edges) - 1, 0, len(counts)-1))
 
@@ -1136,14 +1141,14 @@ with c1:
     _mini_hist(ax, counts, edges, hidx, "Your visual imagery at wake")
     st.pyplot(fig, use_container_width=False)
 
-# --- 2) Creativity (0–100, 10-pt bins) — uses creativity_trait
+# --- 2) Creativity — 1..6 discrete (creativity_trait)
 with c2:
     colname = "creativity_trait"
     vals = _col_values(pop_data, colname)
     if vals.size == 0:
         st.info("Population data for creativity unavailable.")
     else:
-        edges = np.arange(-0.5, 100.5 + 10, 10)  # [-0.5, 9.5, ..., 100.5]
+        edges = np.arange(0.5, 6.5 + 1.0, 1.0)  # 1..6 bins
         counts, _ = np.histogram(vals, bins=edges, density=True)
         part_val = _participant_value(record, colname)
         hidx = int(np.clip(np.digitize(part_val, edges) - 1, 0, len(counts)-1))
@@ -1153,19 +1158,15 @@ with c2:
         _mini_hist(ax, counts, edges, hidx, "Your level of creativity")
         st.pyplot(fig, use_container_width=False)
 
-# --- 3) Anxiety (likely 1–6; auto-bin if 0–100 used in the future)
+# --- 3) Anxiety — assume 1..6 (auto-fallback if not)
 with c3:
     colname = "anxiety"
     vals = _col_values(pop_data, colname)
     if vals.size == 0:
         st.info("Population data for anxiety unavailable.")
     else:
-        # Prefer discrete 1–6; fallback to 0–100 if detected
         vmin, vmax = np.nanmin(vals), np.nanmax(vals)
-        if 1 <= vmin <= 6 and vmax <= 6:
-            edges = np.arange(0.5, 6.5 + 1.0, 1.0)
-        else:
-            edges = np.arange(-0.5, 100.5 + 10, 10)
+        edges = np.arange(0.5, 6.5 + 1.0, 1.0) if (1 <= vmin <= 6 and vmax <= 6) else np.linspace(vmin, vmax, 16)
         counts, _ = np.histogram(vals, bins=edges, density=True)
         part_val = _participant_value(record, colname)
         hidx = int(np.clip(np.digitize(part_val, edges) - 1, 0, len(counts)-1))
