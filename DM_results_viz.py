@@ -1063,14 +1063,14 @@ st.markdown("</div></div>", unsafe_allow_html=True)
 
 
 # ==============
-# "You" — Imagery · Creativity · Anxiety (longer rule + perfect x-axis alignment)
+# "You" — Imagery · Creativity · Anxiety (final alignment + clean title line)
 # ==============
 
-# --- Centered title with *longer* black rule that skips the word -------------
+# --- Centered title with wide black rule that skips the word -----------------
 st.markdown(
     """
     <div class="dm-center" style="max-width:960px; margin:26px auto 14px;">
-      <div style="display:flex; align-items:center; gap:32px;">   /* wider gap = longer rule */
+      <div style="display:flex; align-items:center; gap:32px;">
         <div style="height:2px; background:#000; flex:1;"></div>
         <div style="flex:0; font-weight:700; font-size:1.35rem; letter-spacing:0.2px;">You</div>
         <div style="height:2px; background:#000; flex:1;"></div>
@@ -1104,8 +1104,9 @@ def _mini_hist(ax, counts, edges, highlight_idx, title, bar_width_factor=0.95):
     centers = 0.5 * (edges[:-1] + edges[1:])
     width   = (edges[1] - edges[0]) * bar_width_factor
 
-    # bars
+    # population bars
     ax.bar(centers, counts, width=width, color="#D9D9D9", edgecolor="white", align="center")
+    # participant bin
     if 0 <= highlight_idx < len(counts):
         ax.bar(centers[highlight_idx], counts[highlight_idx], width=width,
                color=HL_RGB, edgecolor="white", align="center")
@@ -1113,7 +1114,7 @@ def _mini_hist(ax, counts, edges, highlight_idx, title, bar_width_factor=0.95):
     # title
     ax.set_title(title, fontsize=10, pad=8)
 
-    # x-axis + closer “low/high” labels
+    # x-axis baseline and labels
     ax.spines["bottom"].set_visible(True)
     ax.set_xlabel("")
     ax.set_xticks([])
@@ -1126,7 +1127,7 @@ def _mini_hist(ax, counts, edges, highlight_idx, title, bar_width_factor=0.95):
     ax.get_yaxis().set_visible(False)
     ax.margins(y=0)
 
-    # consistent margins
+    # consistent padding
     plt.subplots_adjust(top=0.83, bottom=0.24)
 
 def _col_values(df, colname):
@@ -1142,7 +1143,7 @@ def _participant_value(rec, key):
 
 # --- Data prep ---------------------------------------------------------------
 
-# 1) Imagery (VVIQ) – same distribution, starts at 30
+# 1) Imagery (VVIQ)
 try:
     vviq_score
 except NameError:
@@ -1169,7 +1170,7 @@ cre_counts, _ = np.histogram(cre_vals, bins=cre_edges, density=True) if cre_vals
 cre_part  = _participant_value(record, "creativity_trait")
 cre_hidx  = int(np.clip(np.digitize(cre_part, cre_edges) - 1, 0, len(cre_counts)-1)) if cre_counts.size else 0
 
-# 3) Anxiety 1–100 with 5-pt bins
+# 3) Anxiety 1–100, 5-point bins
 anx_vals  = _col_values(pop_data, "anxiety")
 anx_edges = np.arange(0.5, 100.5 + 5, 5)
 anx_counts, _ = np.histogram(anx_vals, bins=anx_edges, density=True) if anx_vals.size else (np.array([]), anx_edges)
@@ -1177,9 +1178,9 @@ anx_part  = _participant_value(record, "anxiety")
 anx_hidx  = int(np.clip(np.digitize(anx_part, anx_edges) - 1, 0, len(anx_counts)-1)) if anx_counts.size else 0
 
 # --- Display side-by-side ----------------------------------------------------
-# Imagery plot slightly taller → pushes x-axis lower to align with others
-FIGSIZE_IMAGERY   = (2.4, 2.9)   # taller
-FIGSIZE_STANDARD  = (2.4, 2.6)
+# imagery slightly taller before; now tuned so x-axes align exactly
+FIGSIZE_IMAGERY  = (2.4, 2.75)   # adjusted (was 2.9)
+FIGSIZE_STANDARD = (2.4, 2.6)
 
 c1, c2, c3 = st.columns(3, gap="small")
 
@@ -1206,6 +1207,7 @@ with c3:
         fig.patch.set_alpha(0); ax.set_facecolor("none")
         _mini_hist(ax, anx_counts, anx_edges, anx_hidx, "Your level of anxiety")
         st.pyplot(fig, use_container_width=False)
+
 
 
 
