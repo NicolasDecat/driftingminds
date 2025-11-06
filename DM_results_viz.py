@@ -383,12 +383,12 @@ PROFILES = {
     # =====================================================================
     "Dreamweaver": {
     "features": [
-        {"type": "var", "key": ["freq_percept_intense"],     "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1},
-        {"type": "var", "key": ["freq_percept_narrative"],   "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1},
-        {"type": "var", "key": ["freq_percept_imposed"],     "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1},
+        {"type": "var", "key": ["freq_percept_intense"],     "norm": norm_1_6, "norm_kwargs": {}, "target": 0.70, "weight": 1},
+        {"type": "var", "key": ["freq_percept_narrative"],   "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1},
+        {"type": "var", "key": ["freq_percept_imposed"],     "norm": norm_1_6, "norm_kwargs": {}, "target": 0.70, "weight": 1},
         {"type": "var", "key": ["freq_absorbed"],            "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.0},
-        {"type": "var", "key": ["degreequest_vividness"] ,   "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 0.8},  
-        {"type": "var", "key": ["degreequest_bizarreness"] , "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 0.8},  
+        {"type": "var", "key": ["degreequest_vividness"] ,   "norm": norm_1_6, "norm_kwargs": {}, "target": 0.70, "weight": 0.8},  
+        {"type": "var", "key": ["degreequest_bizarreness"] , "norm": norm_1_6, "norm_kwargs": {}, "target": 0.70, "weight": 0.8},  
     
     ],
     "description": "You drift into vivid, sensory mini-dreams as you fall asleep.",
