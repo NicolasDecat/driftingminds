@@ -283,9 +283,10 @@ def norm_bool(x): # For binary 0 / 1
     except:
         return np.nan
     
-def norm_eq(x, value):  # For trajectories
-    if x is None or (isinstance(x, float) and np.isnan(x)): return np.nan
-    return 1.0 if str(x) == str(value) else 0.0
+def norm_eq(x, value):
+    if x is None or (isinstance(x, float) and np.isnan(x)):
+        return np.nan
+    return 1.0 if str(x).strip() == str(value) else 0.0
     
 def norm_1_4(x):
     x = _to_float(x)
