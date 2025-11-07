@@ -1088,6 +1088,7 @@ st.markdown("</div>", unsafe_allow_html=True)
 
 import streamlit.components.v1 as components
 
+# Download button using a more reliable approach
 components.html(
     """
     <div style="max-width:820px; margin:12px auto 0; text-align:center;">
@@ -1098,7 +1099,6 @@ components.html(
       </button>
     </div>
 
-    <!-- html2canvas (client-side DOM to PNG) -->
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script>
       (function () {
@@ -1107,42 +1107,74 @@ components.html(
 
         async function capture() {
           try {
-            // Wait for fonts to be ready so text doesn’t shift after capture
-            if (window.parent && window.parent.document && window.parent.document.fonts) {
-              try { await window.parent.document.fonts.ready; } catch (_) {}
+            // Access parent document
+            const parentDoc = window.parent.document;
+            
+            // Wait for fonts
+            if (parentDoc.fonts) {
+              await parentDoc.fonts.ready;
+            }
+            
+            // Extra delay to ensure everything is rendered
+            await new Promise(resolve => setTimeout(resolve, 300));
+
+            const node = parentDoc.getElementById('dm-share-card');
+            if (!node) { 
+              alert('Section not found. The page may still be loading.'); 
+              return; 
             }
 
-            const node = window.parent.document.getElementById('dm-share-card');
-            if (!node) { alert('Share section not found.'); return; }
+            // Get background color
+            const bgColor = window.getComputedStyle(parentDoc.body).backgroundColor || '#ffffff';
 
+            // Capture with html2canvas
             const canvas = await html2canvas(node, {
-              backgroundColor: window.getComputedStyle(window.parent.document.body).backgroundColor || '#ffffff',
-              scale: Math.max(2, window.devicePixelRatio || 1),
+              backgroundColor: bgColor,
+              scale: 2,
               useCORS: true,
-              allowTaint: true,
-              logging: false
+              allowTaint: false,
+              logging: false,
+              windowWidth: node.scrollWidth,
+              windowHeight: node.scrollHeight,
+              onclone: function(clonedDoc) {
+                // Ensure all styles are properly cloned
+                const clonedNode = clonedDoc.getElementById('dm-share-card');
+                if (clonedNode) {
+                  clonedNode.style.transform = 'none';
+                }
+              }
             });
 
-            // Robust download via toBlob (avoids empty data: URLs)
+            // Check if canvas has content
+            if (canvas.width === 0 || canvas.height === 0) {
+              alert('Capture failed - canvas is empty. Please try again.');
+              return;
+            }
+
+            // Convert to blob and download
             canvas.toBlob(function (blob) {
-              if (!blob) {
-                alert('Capture failed (empty blob). Try a different browser or reload the page.');
+              if (!blob || blob.size === 0) {
+                alert('Capture failed - no image data. Please try again or use a different browser.');
                 return;
               }
+              
               const url = URL.createObjectURL(blob);
               const a = document.createElement('a');
               a.href = url;
               a.download = 'drifting_minds_profile.png';
+              a.style.display = 'none';
               document.body.appendChild(a);
               a.click();
+              
               setTimeout(() => {
                 URL.revokeObjectURL(url);
                 a.remove();
-              }, 500);
-            }, 'image/png');
+              }, 100);
+            }, 'image/png', 1.0);
+            
           } catch (e) {
-            console.error(e);
-            alert('Capture failed. Try a different browser or disable tracker blockers.');
+            console.error('Capture error:', e);
+            alert('Capture failed: ' + e.message + '. Try refreshing the page or using a different browser.');
           }
         }
 
@@ -1152,7 +1184,6 @@ components.html(
     """,
     height=80
 )
-
 
 
 
