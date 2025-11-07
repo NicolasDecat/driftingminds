@@ -1703,25 +1703,27 @@ for i, items in bin_items.items():
 
 # --- Plot (horizontal bar with L→R gradient: Awake → Asleep)
 with exp_right:
+    from matplotlib import patheffects as pe
+
     fig, ax = plt.subplots(figsize=(6.0, 3.0))
     fig.patch.set_alpha(0)
     ax.set_facecolor("none")
     ax.axis("off")
 
-    # ── Layout tweaks you asked for ───────────────────────────────────────────
-    y_bar = 0.32                 # move the timeline lower
-    bar_half_h = 0.075           # make the bar thicker
-    x_left, x_right = 0.14, 0.86 # shorten both left & right ends (more breathing room)
+    # ── Requested layout changes ──────────────────────────────────────────────
+    y_bar = 0.18                 # much lower on the page
+    bar_half_h = 0.30            # 4x thicker than previous (0.075 * 4)
+    x_left, x_right = 0.14, 0.86 # keep breathing room on both sides
 
     def tx(val):  # map 1..100 → x in [x_left, x_right]
         return x_left + (val - 1.0) / 99.0 * (x_right - x_left)
 
     # Horizontal gradient: white (Awake) → purple (Asleep)
-    left_rgb = np.array([1.0, 1.0, 1.0])
+    left_rgb  = np.array([1.0, 1.0, 1.0])
     right_rgb = np.array([0x5B/255, 0x21/255, 0xB6/255])
-    n = 1200
+    n = 1600
     cols = np.linspace(left_rgb, right_rgb, n)
-    grad_img = np.tile(cols[None, :, :], (12, 1, 1))
+    grad_img = np.tile(cols[None, :, :], (24, 1, 1))  # taller texture for thickness
     ax.imshow(
         grad_img,
         extent=(tx(1), tx(100), y_bar - bar_half_h, y_bar + bar_half_h),
@@ -1730,39 +1732,52 @@ with exp_right:
         interpolation="bilinear"
     )
 
-    # End labels (bold, larger)
-    end_fs = 22  # ~2x previous
-    ax.text(tx(1),   y_bar - 0.09, "Awake",  ha="left",  va="top",
-            fontsize=end_fs, fontweight="bold", color="#000000")
-    ax.text(tx(100), y_bar - 0.09, "Asleep", ha="right", va="top",
-            fontsize=end_fs, fontweight="bold", color="#000000")
+    # In-bar end labels: white text, black rectangular frame, bold + outlined
+    end_fs = 22 * 2  # double previous size
+    text_effects = [pe.withStroke(linewidth=2.2, foreground="black")]  # black outline for readability
 
-    # Alternating annotation positions: up / down / up (bigger text, slightly farther)
-    label_fs = 18.4  # ~2x previous
-    up_y   = y_bar + bar_half_h + 0.06
-    down_y = y_bar - bar_half_h - 0.06
+    ax.text(
+        tx(6), y_bar, "Awake",
+        ha="left", va="center",
+        fontsize=end_fs, fontweight="bold", color="white",
+        bbox=dict(boxstyle="square,pad=0.25", fc="none", ec="black", linewidth=1.4),
+        path_effects=text_effects
+    )
+
+    ax.text(
+        tx(94), y_bar, "Asleep",
+        ha="right", va="center",
+        fontsize=end_fs, fontweight="bold", color="white",
+        bbox=dict(boxstyle="square,pad=0.25", fc="none", ec="black", linewidth=1.4),
+        path_effects=text_effects
+    )
+
+    # Alternating annotation positions much farther from bar: up / down / up
+    label_fs = 18.4 * 2  # double label size
+    up_y   = y_bar + bar_half_h + 0.14
+    down_y = y_bar - bar_half_h - 0.14
     positions = [up_y, down_y, up_y]
 
-    # Draw stems + labels
-    stem_lw = 1.6
+    stem_lw = 1.8
     for i, center in enumerate(bin_centers):
         lab = winners[i]
         if not lab:
             continue
         x_c = tx(center)
         if positions[i] == up_y:
-            ax.plot([x_c, x_c], [y_bar + bar_half_h, up_y - 0.014],
+            ax.plot([x_c, x_c], [y_bar + bar_half_h, up_y - 0.018],
                     color="#000000", linewidth=stem_lw)
             ax.text(x_c, up_y, lab, ha="center", va="bottom",
                     fontsize=label_fs, color="#000000")
         else:
-            ax.plot([x_c, x_c], [y_bar - bar_half_h, down_y + 0.014],
+            ax.plot([x_c, x_c], [y_bar - bar_half_h, down_y + 0.018],
                     color="#000000", linewidth=stem_lw)
             ax.text(x_c, down_y, lab, ha="center", va="top",
                     fontsize=label_fs, color="#000000")
 
-    plt.tight_layout(pad=0.25)
+    plt.tight_layout(pad=0.2)
     st.pyplot(fig, use_container_width=False)
+
 
 
 
