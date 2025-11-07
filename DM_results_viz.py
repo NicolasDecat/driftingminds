@@ -1193,7 +1193,7 @@ DM_SHARE_CSS = r"""
 #export-root { 
   width: 820px;                 
   /* Add top/right/bottom padding for breathing room */
-  padding: 40px 50px 40px 70px;   /* top 40, right 50, bottom 40, left 70 */
+  padding: 40px 60px 40px 60px;   /* top 40, right 50, bottom 40, left 70 */
   box-sizing: border-box;
   background: #ffffff;
   border-radius: 8px;             /* optional – gives a softer PNG edge */
@@ -1222,10 +1222,10 @@ DM_SHARE_CSS = r"""
 /* Spacing tweaks for readability */
 #export-root .dm-title {
   letter-spacing: 0.2px;
-  margin-bottom: 24px;            /* ⟵ more space below title */
+  margin-bottom: 30px;            /* ⟵ more space below title */
 }
 #export-root .dm-lead {
-  margin-top: 12px;               /* ⟵ more gap below the title line */
+  margin-top: 18px;               /* ⟵ more gap below the title line */
 }
 #export-root .dm-desc  { max-width: 680px; }
 
