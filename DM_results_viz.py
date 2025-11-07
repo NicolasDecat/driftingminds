@@ -1062,6 +1062,13 @@ for b in bars:
 st.markdown("</div></div>", unsafe_allow_html=True)
 
 
+
+# Lock-in axes rectangles (left, bottom, width, height) so x-axes align perfectly
+AX_POS_YOU   = [0.14, 0.24, 0.82, 0.66]   # used by You: imagery/creativity/anxiety
+AX_POS_SLEEP = [0.14, 0.24, 0.82, 0.66]   # used by Your sleep: latency/duration
+
+
+
 # ==============
 # "You" — Imagery · Creativity · Anxiety (final alignment + clean title line)
 # ==============
@@ -1189,7 +1196,9 @@ with c1:
     fig, ax = plt.subplots(figsize=FIGSIZE_IMAGERY)
     fig.patch.set_alpha(0); ax.set_facecolor("none")
     _mini_hist(ax, vviq_counts, vviq_edges, vviq_hidx, "Your visual imagery at wake")
+    ax.set_position(AX_POS_YOU)  # ← lock baseline
     st.pyplot(fig, use_container_width=False)
+
 
 with c2:
     if not cre_counts.size:
@@ -1198,7 +1207,9 @@ with c2:
         fig, ax = plt.subplots(figsize=FIGSIZE_STANDARD)
         fig.patch.set_alpha(0); ax.set_facecolor("none")
         _mini_hist(ax, cre_counts, cre_edges, cre_hidx, "Your level of creativity")
+        ax.set_position(AX_POS_YOU)  # ← lock baseline
         st.pyplot(fig, use_container_width=False)
+
 
 with c3:
     if not anx_counts.size:
@@ -1207,7 +1218,9 @@ with c3:
         fig, ax = plt.subplots(figsize=FIGSIZE_STANDARD)
         fig.patch.set_alpha(0); ax.set_facecolor("none")
         _mini_hist(ax, anx_counts, anx_edges, anx_hidx, "Your level of anxiety")
+        ax.set_position(AX_POS_YOU)  # ← lock baseline
         st.pyplot(fig, use_container_width=False)
+
 
 
 
@@ -1309,6 +1322,8 @@ with col_left:
                         ax.set_xticklabels(xlabels)
                         ax.tick_params(axis="x", labelsize=8, color="#333333")
                         plt.tight_layout()
+                        plt.tight_layout()
+                        ax.set_position(AX_POS_SLEEP)  # ← lock baseline
                         st.pyplot(fig, use_container_width=False)
 
 # =============================================================================
@@ -1392,7 +1407,10 @@ with col_mid:
                 ax.set_xticklabels(labels)
                 ax.tick_params(axis="x", labelsize=8)
                 plt.tight_layout()
+                plt.tight_layout()
+                ax.set_position(AX_POS_SLEEP)  # ← lock baseline
                 st.pyplot(fig, use_container_width=False)
+
 
 
 # =============================================================================
@@ -1448,8 +1466,6 @@ with col_right:
         """,
         unsafe_allow_html=True
     )
-
-
 
 
 
