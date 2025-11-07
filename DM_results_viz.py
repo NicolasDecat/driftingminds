@@ -23,7 +23,7 @@ from scipy.stats import gaussian_kde, truncnorm
 # App config
 # ==============`
 
-# st.markdown('<div id="dm-share-card">', unsafe_allow_html=True)
+st.markdown('<div id="dm-share-card">', unsafe_allow_html=True)
 
 
 st.set_page_config(page_title="Drifting Minds — Profile", layout="centered")
@@ -1081,6 +1081,9 @@ for b in bars:
     st.markdown(row_html, unsafe_allow_html=True)
 
 st.markdown("</div></div>", unsafe_allow_html=True)
+
+st.markdown("</div>", unsafe_allow_html=True)  # closes id="dm-share-card"
+
 
 # st.markdown("</div>", unsafe_allow_html=True)
 
