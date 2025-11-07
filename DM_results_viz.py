@@ -1468,10 +1468,30 @@ with col_right:
 
 
 # ==============
-# Easy-to-pick radar (unchanged visuals)
+# Your experience — Section header + 3-column layout (radar on the left)
 # ==============
-st.markdown("<div style='height:32px;'></div>", unsafe_allow_html=True)
+st.markdown(
+    """
+    <div class="dm-center" style="max-width:1020px; margin:28px auto 16px;">
+      <div style="display:flex; align-items:center; gap:44px;">
+        <div style="height:1px; background:#000; flex:1;"></div>
+        <div style="flex:0; font-weight: 600; font-size:1.35rem; letter-spacing:0.2px; white-space:nowrap;">
+          Your experience
+        </div>
+        <div style="height:1px; background:#000; flex:1;"></div>
+      </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
+# Scaffold for future charts (left: radar; middle/right will come later)
+exp_left, exp_mid, exp_right = st.columns(3, gap="small")
+
+# ------------
+# Radar (left)
+# ------------
+# Fields (same order/labels as before)
 FIELDS = [
     ("degreequest_vividness",       "vivid"),
     ("degreequest_immersiveness",   "immersive"),
@@ -1482,59 +1502,79 @@ FIELDS = [
     ("degreequest_sleepiness",      "sleepy"),
 ]
 
-def as_float(x):
-    try: return float(x)
-    except: return np.nan
+def _as_float_or_nan(x):
+    try:
+        v = float(x)
+        return np.nan if np.isnan(v) else v
+    except Exception:
+        return np.nan
 
-def clamp_1_6(v):
-    if np.isnan(v): return np.nan
-    return max(1.0, min(6.0, v))
+# Pull values from current participant record (1..6 scale expected)
+vals = [_as_float_or_nan(record.get(k)) for k, _ in FIELDS]
+labels = [lab for _, lab in FIELDS]
 
-vals, labels = [], []
-for k, lab in FIELDS:
-    v = clamp_1_6(as_float(record.get(k, np.nan)))
-    vals.append(v); labels.append(lab)
+# If all missing, default to zeros so the chart still renders
+if np.all(np.isnan(vals)):
+    vals_filled = [0.0] * len(vals)
+else:
+    # Simple imputation: replace NaNs with the mean of available values
+    mean_val = float(np.nanmean(vals))
+    vals_filled = [mean_val if np.isnan(v) else v for v in vals]
 
-if all(np.isnan(v) for v in vals):
-    st.warning("No dimension scores found.")
-    st.stop()
-
-neutral = 3.5
-vals_filled = [neutral if np.isnan(v) else v for v in vals]
+# Close the loop for polar plot
+values = vals_filled + [vals_filled[0]]
 num_vars = len(vals_filled)
 angles = np.linspace(0, 2 * np.pi, num_vars, endpoint=False).tolist()
-values = vals_filled + [vals_filled[0]]
 angles_p = angles + angles[:1]
 
+# Visual style (kept identical to your app’s radar)
 POLY, GRID, SPINE, TICK, LABEL = PURPLE_HEX, "#B0B0B0", "#222222", "#555555", "#000000"
-s = 1.4
-col_left, col_right = st.columns([1.3, 1.7])
+s = 1.4  # global scale used in your originals
 
-fig, ax = plt.subplots(figsize=(3.0 * s, 3.0 * s), subplot_kw=dict(polar=True))
-fig.patch.set_alpha(0); ax.set_facecolor("none")
-ax.set_theta_offset(np.pi / 2); ax.set_theta_direction(-1)
-ax.set_thetagrids(np.degrees(angles), labels)
+with exp_left:
+    fig, ax = plt.subplots(figsize=(3.0 * s, 3.0 * s), subplot_kw=dict(polar=True))
+    fig.patch.set_alpha(0); ax.set_facecolor("none")
 
-for lbl, ang in zip(ax.get_xticklabels(), angles):
-    if ang in (0, np.pi): lbl.set_horizontalalignment("center")
-    elif 0 < ang < np.pi: lbl.set_horizontalalignment("left")
-    else: lbl.set_horizontalalignment("right")
-    lbl.set_color(LABEL); lbl.set_fontsize(8.5 * s)
-ax.tick_params(axis="x", pad=int(2.5 * s))
+    # Orientation and labels
+    ax.set_theta_offset(np.pi / 2); ax.set_theta_direction(-1)
+    ax.set_thetagrids(np.degrees(angles), labels)
 
-ax.set_ylim(0, 6)
-ax.set_rgrids([1, 2, 3, 4, 5, 6], angle=180 / num_vars, color=TICK)
-ax.tick_params(axis="y", labelsize=7.0 * s, colors=TICK, pad=-1)
-ax.grid(color=GRID, linewidth=0.45 * s)
-ax.spines["polar"].set_color(SPINE); ax.spines["polar"].set_linewidth(0.7 * s)
-ax.plot(angles_p, values, color=POLY, linewidth=1.0 * s, zorder=3)
-ax.fill(angles_p, values, color=POLY, alpha=0.22, zorder=2)
-for a in angles:
-    ax.plot([a, a], [0, 6], color=GRID, linewidth=0.4 * s, alpha=0.35, zorder=1)
+    # Fine-tune label alignment around the circle
+    for lbl, ang in zip(ax.get_xticklabels(), angles):
+        if ang in (0, np.pi):
+            lbl.set_horizontalalignment("center")
+        elif 0 < ang < np.pi:
+            lbl.set_horizontalalignment("left")
+        else:
+            lbl.set_horizontalalignment("right")
+        lbl.set_color(LABEL); lbl.set_fontsize(8.5 * s)
+    ax.tick_params(axis="x", pad=int(2.5 * s))
 
-plt.tight_layout(pad=0.3 * s)
-with col_left:
+    # Radial settings
+    ax.set_ylim(0, 6)
+    ax.set_rgrids([1, 2, 3, 4, 5, 6], angle=180 / num_vars, color=TICK)
+    ax.tick_params(axis="y", labelsize=7.0 * s, colors=TICK, pad=-1)
+
+    # Grid & spine
+    ax.grid(color=GRID, linewidth=0.45 * s)
+    ax.spines["polar"].set_color(SPINE)
+    ax.spines["polar"].set_linewidth(0.7 * s)
+
+    # Data polygon
+    ax.plot(angles_p, values, color=POLY, linewidth=1.0 * s, zorder=3)
+    ax.fill(angles_p, values, color=POLY, alpha=0.22, zorder=2)
+
+    # Light spokes
+    for a in angles:
+        ax.plot([a, a], [0, 6], color=GRID, linewidth=0.4 * s, alpha=0.35, zorder=1)
+
+    plt.tight_layout(pad=0.3 * s)
     st.pyplot(fig, use_container_width=False)
+
+# (exp_mid and exp_right intentionally left empty for now)
+
+    
+    
 
 # ==============
 # Vertical timeline (unchanged visuals)
@@ -1662,57 +1702,6 @@ for i, center in enumerate(bin_centers):
 plt.tight_layout(pad=0.25)
 st.pyplot(fig, use_container_width=True)
 
-# ==============
-# VVIQ distribution (unchanged visuals)
-# ==============
-st.markdown("<div style='height:32px;'></div>", unsafe_allow_html=True)
-
-VVIQ_FIELDS = [
-    "quest_a1","quest_a2","quest_a3","quest_a4",
-    "quest_b1","quest_b2","quest_b3","quest_b4",
-    "quest_c1","quest_c2","quest_c3","quest_c4",
-    "quest_d1","quest_d2","quest_d3","quest_d4"
-]
-
-def as_float_vviq(x):
-    try: return float(x)
-    except: return np.nan
-
-vviq_vals = [as_float_vviq(record.get(k, np.nan)) for k in VVIQ_FIELDS]
-vviq_score = sum(v for v in vviq_vals if not np.isnan(v))
-
-N = 10000; mu, sigma = 61.0, 9.2; low, high = 16, 80
-a, b = (low - mu) / sigma, (high - mu) / sigma
-samples = truncnorm.rvs(a, b, loc=mu, scale=sigma, size=N, random_state=42)
-
-bins = np.linspace(low, high, 33)
-counts, edges = np.histogram(samples, bins=bins, density=True)
-centers = 0.5 * (edges[:-1] + edges[1:])
-
-highlight_idx = np.digitize(vviq_score, edges) - 1
-highlight_idx = np.clip(highlight_idx, 0, len(counts)-1)
-
-fig, ax = plt.subplots(figsize=(6.5, 3.5))
-fig.patch.set_alpha(0); ax.set_facecolor("none")
-ax.bar(centers, counts, width=edges[1]-edges[0], color="#D9D9D9", edgecolor="white")
-ax.bar(centers[highlight_idx], counts[highlight_idx],
-       width=edges[1]-edges[0], color=PURPLE_HEX, edgecolor="white",
-       label=f"Your score: {int(vviq_score)}")
-
-aphantasia_cut, hyper_cut = 32, 75
-ax.axvline(aphantasia_cut, color="#D9D9D9", linestyle="--", linewidth=1)
-ax.axvline(hyper_cut, color="#D9D9D9", linestyle="--", linewidth=1)
-y_text = ax.get_ylim()[1] * 0.92
-ax.text(aphantasia_cut - 1.5, y_text, "Aphantasia", color="#888888", ha="right", va="center", fontsize=8)
-ax.text(hyper_cut + 1.5, y_text, "Hyperphantasia", color="#888888", ha="left", va="center", fontsize=8)
-
-ax.set_title("Vididness for visual imagery during wakefulness (VVIQ)", fontsize=11, pad=10)
-ax.set_xlabel("VVIQ score"); ax.set_ylabel("Distribution in the population")
-ax.legend(frameon=False, fontsize=8, loc="lower left")
-ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
-ax.tick_params(axis="both", labelsize=8)
-plt.tight_layout()
-st.pyplot(fig, use_container_width=True)
 
 
 
