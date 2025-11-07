@@ -1606,11 +1606,10 @@ with exp_mid:
 
     
     
-
 # ==============
-# Vertical timeline (unchanged visuals)
+# Horizontal timeline (3 bins) — goes in RIGHT column of "Your experience"
 # ==============
-st.markdown("<div style='height:32px;'></div>", unsafe_allow_html=True)
+st.markdown("<div style='height:16px;'></div>", unsafe_allow_html=True)
 
 CUSTOM_LABELS = {
     "freq_think_ordinary": "thinking logical thoughts",
@@ -1659,79 +1658,105 @@ TIME_VARS = [
     "timequest_syn","timequest_creat"
 ]
 
-def _core_name(v): return re.sub(r"^(freq_|timequest_)", "", v)
-def _as_float(x): 
-    try: return float(x)
-    except: return np.nan
+def _core_name(v): 
+    return re.sub(r"^(freq_|timequest_)", "", v)
 
+def _as_float(x): 
+    try: 
+        return float(x)
+    except: 
+        return np.nan
+
+# Pair time (1..100) with frequency (1..6) per concept, and keep only complete pairs
 freq_scores = {_core_name(v): _as_float(record.get(v, np.nan)) for v in FREQ_VARS}
 time_scores = {_core_name(v): _as_float(record.get(v, np.nan)) for v in TIME_VARS}
 common = [c for c in time_scores if c in freq_scores and not np.isnan(time_scores[c]) and not np.isnan(freq_scores[c])]
 
-# Build core tuples
+# Build core tuples: (concept_key, time, freq, label)
 cores = []
 for c in common:
     t = float(time_scores[c]); f = float(freq_scores[c])
     lab = CUSTOM_LABELS.get(f"freq_{c}", c.replace("_", " "))
     cores.append((c, t, f, lab))
 
-bins = [(1,10),(11,20),(21,30),(31,40),(41,50),(51,60),(61,70),(71,80),(81,90),(91,100)]
-bin_centers = [(lo+hi)/2 for (lo,hi) in bins]
+# --- 3 equal bins across 1..100
+bins = [(1.0, 33.3333), (33.3333, 66.6667), (66.6667, 100.0)]
+bin_centers = [(lo + hi) / 2.0 for (lo, hi) in bins]
+
+# Assign items to bins
 bin_items = {i: [] for i in range(len(bins))}
 for c, t, f, lab in cores:
     for i, (lo, hi) in enumerate(bins):
         if lo <= t <= hi:
-            bin_items[i].append((c, t, f, lab)); break
+            bin_items[i].append((c, t, f, lab))
+            break
 
-winners = {i: [] for i in range(len(bins))}
+# Winner per bin: single most frequent label (break ties by label name for determinism)
+winners = [None, None, None]
 for i, items in bin_items.items():
-    if not items: continue
-    items_sorted = sorted(items, key=lambda x: (-x[2], x[3]))
-    top_f = items_sorted[0][2]
-    if top_f < 3: continue
-    tied = [it for it in items_sorted if abs(it[2] - top_f) < 1e-9]
-    winners[i] = [it[3] for it in tied[:2]]
+    if not items:
+        continue
+    items_sorted = sorted(items, key=lambda x: (-x[2], x[3]))  # highest freq, then label
+    top = items_sorted[0]
+    # Optional threshold: if you want to require at least "moderate" frequency, set e.g. top[2] >= 3
+    winners[i] = top[3]
 
-fig, ax = plt.subplots(figsize=(3.6, 6.0))
-fig.patch.set_alpha(0); ax.set_facecolor("none"); ax.axis("off")
-x_bar = 0.5; bar_half_w = 0.007; y_top, y_bot = 0.92, 0.08
-def ty(val): return y_top - (val - 1) / 99.0 * (y_top - y_bot)
+# --- Plot (horizontal bar with L→R gradient: Awake → Asleep)
+with exp_right:
+    fig, ax = plt.subplots(figsize=(6.0, 3.0))
+    fig.patch.set_alpha(0)
+    ax.set_facecolor("none")
+    ax.axis("off")
 
-top_rgb  = np.array([1.0, 1.0, 1.0])
-bot_rgb  = np.array([0x5B/255, 0x21/255, 0xB6/255])
-n = 900
-rows = np.linspace(bot_rgb, top_rgb, n)
-grad_img = np.tile(rows[:, None, :], (1, 12, 1))
-ax.imshow(grad_img, extent=(x_bar - bar_half_w, x_bar + bar_half_w, ty(100), ty(1)),
-          origin="lower", aspect="auto", interpolation="bilinear")
+    # Geometry of the bar
+    y_bar = 0.50
+    bar_half_h = 0.045
+    x_left, x_right = 0.08, 0.92
 
-ax.text(x_bar, ty(1)  + 0.035, "Awake",  ha="center", va="bottom", fontsize=11, color="#000000")
-ax.text(x_bar, ty(100) - 0.035, "Asleep", ha="center", va="top",    fontsize=11, color="#000000")
+    def tx(val):  # map 1..100 → x in [x_left, x_right]
+        return x_left + (val - 1.0) / 99.0 * (x_right - x_left)
 
-x_right = x_bar + 0.042; x_left = x_bar - 0.042
-line_w = 0.15; label_fs = 9.2
+    # Horizontal gradient: white (Awake) → purple (Asleep)
+    left_rgb = np.array([1.0, 1.0, 1.0])
+    right_rgb = np.array([0x5B/255, 0x21/255, 0xB6/255])
+    n = 1200
+    cols = np.linspace(left_rgb, right_rgb, n)
+    grad_img = np.tile(cols[None, :, :], (12, 1, 1))
+    ax.imshow(
+        grad_img,
+        extent=(tx(1), tx(100), y_bar - bar_half_h, y_bar + bar_half_h),
+        origin="lower",
+        aspect="auto",
+        interpolation="bilinear"
+    )
 
-for i, center in enumerate(bin_centers):
-    labs = winners[i]
-    if not labs: continue
-    y_c = ty(center)
-    y_positions = [y_c] if len(labs) == 1 else [y_c + 0.02, y_c - 0.02]
-    side_right = (i % 2 == 0)
-    if side_right:
-        ax.plot([x_bar + bar_half_w, x_right - 0.003], [y_positions[0], y_positions[0]],
-                color="#000000", linewidth=line_w)
-        for yy, text_label in zip(y_positions, labs):
-            ax.text(x_right, yy, text_label, ha="left", va="center",
-                    fontsize=label_fs, color="#000000", linespacing=1.18)
-    else:
-        ax.plot([x_bar - bar_half_w, x_left + 0.003], [y_positions[0], y_positions[0]],
-                color="#000000", linewidth=line_w)
-        for yy, text_label in zip(y_positions, labs):
-            ax.text(x_left, yy, text_label, ha="right", va="center",
-                    fontsize=label_fs, color="#000000", linespacing=1.18)
+    # End labels
+    ax.text(tx(1),   y_bar - 0.07, "Awake",  ha="left",  va="top",    fontsize=11, color="#000000")
+    ax.text(tx(100), y_bar - 0.07, "Asleep", ha="right", va="top",    fontsize=11, color="#000000")
 
-plt.tight_layout(pad=0.25)
-st.pyplot(fig, use_container_width=True)
+    # Alternating annotation positions: up / down / up
+    label_fs = 9.2
+    stem_h = 0.055
+    up_y   = y_bar + bar_half_h + 0.04
+    down_y = y_bar - bar_half_h - 0.04
+    positions = [up_y, down_y, up_y]
+
+    for i, center in enumerate(bin_centers):
+        lab = winners[i]
+        if not lab:
+            continue
+        x_c = tx(center)
+        # stem line from bar edge to label level
+        if positions[i] == up_y:
+            ax.plot([x_c, x_c], [y_bar + bar_half_h, up_y - 0.012], color="#000000", linewidth=1.2)
+            ax.text(x_c, up_y, lab, ha="center", va="bottom", fontsize=label_fs, color="#000000")
+        else:
+            ax.plot([x_c, x_c], [y_bar - bar_half_h, down_y + 0.012], color="#000000", linewidth=1.2)
+            ax.text(x_c, down_y, lab, ha="center", va="top", fontsize=label_fs, color="#000000")
+
+    plt.tight_layout(pad=0.25)
+    st.pyplot(fig, use_container_width=False)
+
 
 
 
