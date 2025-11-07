@@ -1708,10 +1708,13 @@ with exp_right:
     ax.set_facecolor("none")
     ax.axis("off")
 
-    # ── Layout tweaks you asked for ───────────────────────────────────────────
+    # ── Layout tweaks ─────────────────────────────────────────────────────────
     y_bar = 0.32                 # move the timeline lower
     bar_half_h = 0.075           # make the bar thicker
     x_left, x_right = 0.14, 0.86 # shorten both left & right ends (more breathing room)
+
+    y_bar = 0.50                 # center the timeline vertically in the column
+    bar_half_h = 0.12            # thicker bar (top-to-bottom), same left-right length
 
     def tx(val):  # map 1..100 → x in [x_left, x_right]
         return x_left + (val - 1.0) / 99.0 * (x_right - x_left)
