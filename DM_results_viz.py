@@ -1744,11 +1744,11 @@ with exp_right:
 
     # Bin 0 (1–50): one stem around x≈33, labels above the bar (stacked downward)
     top_anchor_x = tx(33.0)
-    top_base_y   = y_bar + bar_half_h + 0.12  # raised higher above the bar
+    top_base_y   = y_bar + bar_half_h + 0.06
     top_positions = [top_base_y,
                      top_base_y - row_gap,
                      top_base_y - 2 * row_gap]
-    
+
     if winners[0]:
         ax.plot([top_anchor_x, top_anchor_x],
                 [y_bar + bar_half_h, top_positions[0] - 0.014],
@@ -1756,14 +1756,15 @@ with exp_right:
         for yy, text_label in zip(top_positions, winners[0]):
             ax.text(top_anchor_x, yy, text_label, ha="center", va="bottom",
                     fontsize=label_fs, color="#000000", linespacing=1.12)
-    
+
     # Bin 1 (51–100): one stem around x≈66, labels below the bar (stacked downward)
     bot_anchor_x = tx(66.0)
-    bot_base_y   = y_bar - bar_half_h - 0.12  # lowered further below the bar
+    bot_base_y   = y_bar - bar_half_h - 0.06
     bot_positions = [bot_base_y,
                      bot_base_y + row_gap,
                      bot_base_y + 2 * row_gap]
-    
+
+
     if winners[1]:
         ax.plot([bot_anchor_x, bot_anchor_x],
                 [y_bar - bar_half_h, bot_positions[0] + 0.018],
@@ -1772,7 +1773,6 @@ with exp_right:
             ax.text(bot_anchor_x, yy, text_label,
                     ha="center", va="top",
                     fontsize=label_fs, color="#000000", linespacing=1.15)
-
 
     plt.tight_layout(pad=0.25)
     st.pyplot(fig, use_container_width=False)
