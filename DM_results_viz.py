@@ -1164,6 +1164,13 @@ DM_SHARE_HTML = export_title_html + export_header_html + export_bars_html
 # Subset of your CSS needed for the mirror (copied from your big CSS)
 DM_SHARE_CSS = r"""
 <style>
+/* Match Streamlit's native font (Inter fallback stack) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+body, .dm-center, .dm-row, .dm-text, .dm-title, .dm-lead, .dm-key, .dm-desc,
+.dm2-label, .dm2-anchors, .dm2-scoretag, .dm2-mediantag {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
 :root { --dm-max: 820px; }
 .dm-center { max-width: var(--dm-max); margin: 0 auto; }
 .dm-title { font-size: 2.5rem; font-weight: 200; margin: 0 0 1.25rem 0; text-align: center; }
@@ -1193,7 +1200,7 @@ DM_SHARE_CSS = r"""
 #export-root { 
   width: 820px;                 
   /* Add top/right/bottom padding for breathing room */
-  padding: 40px 60px 40px 60px;   /* top 40, right 50, bottom 40, left 70 */
+  padding: 40px 60px 30px 60px;   /* top 40, right 50, bottom 40, left 70 */
   box-sizing: border-box;
   background: #ffffff;
   border-radius: 8px;             /* optional – gives a softer PNG edge */
