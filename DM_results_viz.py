@@ -1188,8 +1188,12 @@ DM_SHARE_CSS = r"""
 .dm2-scoretag { position: absolute; bottom: calc(100% + 2px); transform: translateX(-50%); font-size: .86rem; font-weight: 500; color: #7B61FF; white-space: nowrap; line-height: 1.05; }
 .dm2-scoretag.below { bottom: auto; top: calc(100% + 2px); }
 .dm2-anchors { display:flex; justify-content:space-between; font-size: .85rem; color:#666; margin-top: 0; line-height: 1; }
+/* Fix export offset so nothing is clipped in the snapshot */
+#export-root { padding-left: 70px; }             /* compensates the removed negative margin */
+.dm2-outer { margin-left: 0 !important; }        /* keep everything inside the 820px canvas */
 </style>
 """
+
 
 import streamlit.components.v1 as components
 
@@ -1204,7 +1208,6 @@ components.html(
   /* keep the mirror off-screen but fully laid out */
   #export-root {{
     position: fixed;
-    left: -10000px;
     top: 0;
     width: 820px;            /* matches your dm-center max */
     background: #ffffff;
@@ -1269,7 +1272,7 @@ components.html(
 </body>
 </html>
     """,
-    height=90
+    height=120
 )
 
 
