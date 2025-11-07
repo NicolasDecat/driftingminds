@@ -1082,6 +1082,9 @@ for b in bars:
 
 st.markdown("</div></div>", unsafe_allow_html=True)
 
+st.markdown("</div>", unsafe_allow_html=True)
+
+
 
 import streamlit.components.v1 as components
 
