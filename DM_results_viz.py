@@ -1092,7 +1092,7 @@ components.html(
     <div style="max-width:820px; margin:12px auto 0; text-align:center;">
       <button id="dmshot" style="
         display:inline-block; padding:10px 16px; border:none; border-radius:8px;
-        font-size:15px; cursor:pointer; background:#7B61FF; color:#fff;">
+        font-size:15px; cursor:pointer; background:#7B61FF; color:#fff; font-weight:500;">
         📸 Download this section (PNG)
       </button>
     </div>
@@ -1101,9 +1101,16 @@ components.html(
     <script>
       (function () {
         const btn = document.getElementById('dmshot');
-        if (!btn) return;
+        if (!btn) {
+          console.error('Download button not found');
+          return;
+        }
 
         async function capture() {
+          btn.disabled = true;
+          btn.textContent = 'Capturing...';
+          btn.style.opacity = '0.7';
+          
           try {
             // Access parent document
             const parentDoc = window.parent.document;
@@ -1114,13 +1121,22 @@ components.html(
             }
             
             // Extra delay to ensure everything is rendered
-            await new Promise(resolve => setTimeout(resolve, 300));
+            await new Promise(resolve => setTimeout(resolve, 500));
 
             const node = parentDoc.getElementById('dm-share-card');
             if (!node) { 
-              alert('Section not found. The page may still be loading.'); 
+              alert('Section not found. The page may still be loading. Please wait a moment and try again.'); 
               return; 
             }
+
+            // Log dimensions for debugging
+            console.log('Capturing node:', node);
+            console.log('Node dimensions:', {
+              scrollWidth: node.scrollWidth,
+              scrollHeight: node.scrollHeight,
+              offsetWidth: node.offsetWidth,
+              offsetHeight: node.offsetHeight
+            });
 
             // Get background color
             const bgColor = window.getComputedStyle(parentDoc.body).backgroundColor || '#ffffff';
@@ -1131,21 +1147,23 @@ components.html(
               scale: 2,
               useCORS: true,
               allowTaint: false,
-              logging: false,
+              logging: true,
+              width: node.scrollWidth,
+              height: node.scrollHeight,
               windowWidth: node.scrollWidth,
               windowHeight: node.scrollHeight,
-              onclone: function(clonedDoc) {
-                // Ensure all styles are properly cloned
-                const clonedNode = clonedDoc.getElementById('dm-share-card');
-                if (clonedNode) {
-                  clonedNode.style.transform = 'none';
-                }
-              }
+              x: 0,
+              y: 0
+            });
+
+            console.log('Canvas created:', {
+              width: canvas.width,
+              height: canvas.height
             });
 
             // Check if canvas has content
             if (canvas.width === 0 || canvas.height === 0) {
-              alert('Capture failed - canvas is empty. Please try again.');
+              alert('Capture failed - canvas is empty. Please try again or refresh the page.');
               return;
             }
 
@@ -1155,6 +1173,8 @@ components.html(
                 alert('Capture failed - no image data. Please try again or use a different browser.');
                 return;
               }
+              
+              console.log('Blob created:', blob.size, 'bytes');
               
               const url = URL.createObjectURL(blob);
               const a = document.createElement('a');
@@ -1173,6 +1193,10 @@ components.html(
           } catch (e) {
             console.error('Capture error:', e);
             alert('Capture failed: ' + e.message + '. Try refreshing the page or using a different browser.');
+          } finally {
+            btn.disabled = false;
+            btn.textContent = '📸 Download this section (PNG)';
+            btn.style.opacity = '1';
           }
         }
 
