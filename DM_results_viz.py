@@ -21,7 +21,11 @@ from scipy.stats import gaussian_kde, truncnorm
 
 # ==============
 # App config
-# ==============
+# ==============`
+
+st.markdown('<div id="dm-share-card">', unsafe_allow_html=True)
+
+
 st.set_page_config(page_title="Drifting Minds — Profile", layout="centered")
 
 REDCAP_API_URL = st.secrets.get("REDCAP_API_URL")
@@ -1079,170 +1083,38 @@ for b in bars:
 st.markdown("</div></div>", unsafe_allow_html=True)
 
 
+st.markdown('</div>', unsafe_allow_html=True)
 
-# ==============
-# Export / Share (just below the dimension bars)
-# ==============
-import io
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-from matplotlib.patches import FancyBboxPatch
-import numpy as np
+st.markdown("""
+<!-- html2canvas (client-side DOM to PNG) -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
-def _make_share_card_hifi(prof_name: str, prof_desc: str, bars_list: list,
-                          purple=PURPLE_HEX, dpi=300):
-    """
-    Return (png_bytes, pdf_bytes) of a polished 'profile card'
-    matching DM aesthetics with embedded font + smooth gradients.
-    """
-    # Global style (prefer Inter if you added it)
-    mpl.rcParams.update({
-        "font.family": "Inter",
-        "font.size": 11,
-        "text.color": "#111111",
-        "figure.facecolor": "white",
-        "savefig.facecolor": "white",
-        "savefig.transparent": False,   # critical for crisp gradients
-        "pdf.fonttype": 42,             # TrueType in PDF
-        "ps.fonttype": 42,
-    })
+<script>
+function dmCapture() {
+  const node = document.getElementById('dm-share-card');
+  if (!node) { alert('Share section not found.'); return; }
+  // Increase scale for a crisp export; keep background to preserve your white.
+  html2canvas(node, {
+    backgroundColor: window.getComputedStyle(document.body).backgroundColor || '#ffffff',
+    scale: 2,     // 2x for retina-like sharpness
+    useCORS: true // allows local / CDN images where possible
+  }).then(canvas => {
+    const link = document.createElement('a');
+    link.download = 'drifting_minds_profile.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
+}
+</script>
 
-    # Canvas
-    W, H = 9.4, 4.9  # inches
-    fig, ax = plt.subplots(figsize=(W, H), dpi=dpi)
-    ax.axis("off")
-
-    # Safe text values
-    prof_name = prof_name or ""
-    prof_desc = (prof_desc or "").strip()
-    if len(prof_desc) > 180:
-        prof_desc = prof_desc[:177] + "…"
-
-    # Layout anchors (0..1 figure coords)
-    left, right = 0.06, 0.96
-    top, bottom = 0.94, 0.10
-
-    # Header
-    ax.text((left + right) / 2, top, "DRIFTING MINDS STUDY",
-            ha="center", va="top", fontsize=20, weight=500, color="#111111")
-
-    # Profile name (big, purple)
-    ax.text(left, top - 0.11, prof_name,
-            ha="left", va="top", fontsize=36, weight=700, color=purple)
-
-    # One-line description
-    if prof_desc:
-        ax.text(left, top - 0.11 - 0.055, prof_desc,
-                ha="left", va="top", fontsize=13.2, color="#222222")
-
-    # Divider
-    y_div = top - 0.11 - 0.085
-    ax.plot([left, right], [y_div, y_div], color="#000000", lw=0.8, alpha=0.65)
-
-    # Bars area
-    bar_top = y_div - 0.035
-    row_h = 0.100
-    track_h = 0.038
-    row_gap = 0.020
-    label_w = 0.22  # left text width before track
-    track_left = left + label_w
-    track_right = right
-    track_w = track_right - track_left
-
-    # Render each bar in the SAME order as your `bars` list
-    # bars_list items: {"name": <str>, "score": <0..100 or None>, "help": "..."}
-    for i, b in enumerate(bars_list):
-        nm = b.get("name", "")
-        sc = b.get("score", None)
-        sc = 0 if (sc is None or (isinstance(sc, float) and np.isnan(sc))) else float(np.clip(sc, 0, 100))
-
-        y0 = bar_top - i * (row_h + row_gap)
-
-        # Left label
-        ax.text(left, y0 + track_h * 0.5, nm,
-                ha="left", va="center", fontsize=12.5, weight=700, color="#222222")
-
-        # Track (rounded)
-        ax.add_patch(FancyBboxPatch(
-            (track_left, y0), track_w, track_h,
-            boxstyle="round,pad=0.006,rounding_size=0.016",
-            linewidth=0, facecolor="#ECECEC"
-        ))
-
-        # Smooth fill (we draw as a solid; gradients on screen are preserved by the main app,
-        # but for the export we keep it clean + high DPI so it stays smooth)
-        fill_w = track_w * max(0.02, sc / 100.0)
-        ax.add_patch(FancyBboxPatch(
-            (track_left, y0), fill_w, track_h,
-            boxstyle="round,pad=0.006,rounding_size=0.016",
-            linewidth=0, facecolor=purple
-        ))
-
-        # Anchors 0..100
-        ax.text(track_left,  y0 - 0.012, "0",    ha="left",  va="top", fontsize=10, color="#666666")
-        ax.text(track_right, y0 - 0.012, "100",  ha="right", va="top", fontsize=10, color="#666666")
-
-        # Score tag above the fill end
-        ax.text(track_left + fill_w, y0 + track_h + 0.012, f"{int(round(sc))}%",
-                ha="center", va="bottom", fontsize=11, color=purple)
-
-    # Footer
-    ax.text(right, bottom, "driftingminds.org",
-            ha="right", va="bottom", fontsize=10.5, color="#666666")
-
-    # Export buffers
-    png_buf = io.BytesIO()
-    pdf_buf = io.BytesIO()
-    fig.savefig(png_buf, format="png", dpi=dpi, bbox_inches="tight", pad_inches=0.2)
-    fig.savefig(pdf_buf, format="pdf", dpi=dpi, bbox_inches="tight", pad_inches=0.2)
-    plt.close(fig)
-    png_buf.seek(0); pdf_buf.seek(0)
-    return png_buf, pdf_buf
-
-
-# Build the high-fidelity share card from current state
-png_buf, pdf_buf = _make_share_card_hifi(
-    prof_name=prof_name,
-    prof_desc=prof_cfg.get("description", ""),
-    bars_list=bars
-)
-
-st.markdown("<div class='dm-center' style='max-width:820px; margin:12px auto 0;'>", unsafe_allow_html=True)
-col1, col2, col3 = st.columns([1,1,1], gap="small")
-
-with col1:
-    st.download_button(
-        "⬇️ PNG (share)",
-        data=png_buf.getvalue(),
-        file_name="drifting_minds_profile.png",
-        mime="image/png",
-        type="primary",
-        use_container_width=True,
-    )
-
-with col2:
-    st.download_button(
-        "⬇️ PDF (print)",
-        data=pdf_buf.getvalue(),
-        file_name="drifting_minds_profile.pdf",
-        mime="application/pdf",
-        use_container_width=True,
-    )
-
-with col3:
-    share_href = f"?id={record_id}" if record_id else None
-    if share_href:
-        st.link_button("🔗 Share link", url=share_href, use_container_width=True)
-    else:
-        st.markdown("<div style='height:38px;'></div>", unsafe_allow_html=True)
-        st.info("No record link in URL.")
-st.markdown("</div>", unsafe_allow_html=True)
-
-
-
-
-
-
+<div style="max-width:820px; margin:12px auto 0; text-align:center;">
+  <button onclick="dmCapture()" style="
+    display:inline-block; padding:10px 16px; border:none; border-radius:8px;
+    font-size:15px; cursor:pointer; background:#7B61FF; color:#fff;">
+    📸 Download this section (PNG)
+  </button>
+</div>
+""", unsafe_allow_html=True)
 
 
 
