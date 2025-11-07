@@ -1806,8 +1806,7 @@ with exp_right:
 # ==============
 # Profile distribution across the N=1000 population
 # ==============
-st.markdown("<div style='height:80px;'></div>", unsafe_allow_html=True)
-st.subheader("How common is each profile in the population?")
+st.markdown("<div style='height:120px;'></div>", unsafe_allow_html=True)
 
 if pop_data is None or pop_data.empty:
     st.info("Population data unavailable.")
