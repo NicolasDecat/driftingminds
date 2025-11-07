@@ -1061,6 +1061,21 @@ for b in bars:
 
 st.markdown("</div></div>", unsafe_allow_html=True)
 
+st.markdown("<div style='height:12px;'></div>", unsafe_allow_html=True)
+st.markdown("### Share your profile")
+
+if st.button("📸 Capture & download your profile section"):
+    img = st.experimental_get_screenshot_as_png()
+    st.download_button(
+        "⬇️ Download snapshot (PNG)",
+        data=img,
+        file_name="drifting_minds_profile.png",
+        mime="image/png",
+    )
+
+
+import streamlit as st
+
 
 
 # ==============
