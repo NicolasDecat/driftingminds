@@ -1083,38 +1083,51 @@ for b in bars:
 st.markdown("</div></div>", unsafe_allow_html=True)
 
 
-st.markdown('</div>', unsafe_allow_html=True)
+import streamlit.components.v1 as components
 
-st.markdown("""
-<!-- html2canvas (client-side DOM to PNG) -->
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+components.html(
+    """
+    <div style="max-width:820px; margin:12px auto 0; text-align:center;">
+      <button id="dmshot" style="
+        display:inline-block; padding:10px 16px; border:none; border-radius:8px;
+        font-size:15px; cursor:pointer; background:#7B61FF; color:#fff;">
+        📸 Download this section (PNG)
+      </button>
+    </div>
 
-<script>
-function dmCapture() {
-  const node = document.getElementById('dm-share-card');
-  if (!node) { alert('Share section not found.'); return; }
-  // Increase scale for a crisp export; keep background to preserve your white.
-  html2canvas(node, {
-    backgroundColor: window.getComputedStyle(document.body).backgroundColor || '#ffffff',
-    scale: 2,     // 2x for retina-like sharpness
-    useCORS: true // allows local / CDN images where possible
-  }).then(canvas => {
-    const link = document.createElement('a');
-    link.download = 'drifting_minds_profile.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-  });
-}
-</script>
+    <!-- html2canvas (client-side DOM to PNG) -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script>
+      (function () {
+        const btn = document.getElementById('dmshot');
+        if (!btn) return;
 
-<div style="max-width:820px; margin:12px auto 0; text-align:center;">
-  <button onclick="dmCapture()" style="
-    display:inline-block; padding:10px 16px; border:none; border-radius:8px;
-    font-size:15px; cursor:pointer; background:#7B61FF; color:#fff;">
-    📸 Download this section (PNG)
-  </button>
-</div>
-""", unsafe_allow_html=True)
+        btn.addEventListener('click', async () => {
+          try {
+            // Grab the section from the parent frame (the main Streamlit app)
+            const node = window.parent.document.getElementById('dm-share-card');
+            if (!node) { alert('Share section not found.'); return; }
+
+            const canvas = await html2canvas(node, {
+              backgroundColor: window.getComputedStyle(window.parent.document.body).backgroundColor || '#ffffff',
+              scale: 2,
+              useCORS: true
+            });
+
+            const a = document.createElement('a');
+            a.download = 'drifting_minds_profile.png';
+            a.href = canvas.toDataURL('image/png');
+            a.click();
+          } catch (e) {
+            console.error(e);
+            alert('Capture failed. Try a different browser or disable tracker blockers.');
+          }
+        });
+      })();
+    </script>
+    """,
+    height=80
+)
 
 
 
