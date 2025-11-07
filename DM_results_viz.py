@@ -1135,8 +1135,6 @@ def _mini_hist(ax, counts, edges, highlight_idx, title, bar_width_factor=0.95):
     ax.get_yaxis().set_visible(False)
     ax.margins(y=0)
 
-    # consistent padding
-    plt.subplots_adjust(top=0.83, bottom=0.24)
 
 def _col_values(df, colname):
     if df is None or df.empty or (colname not in df.columns):
@@ -1187,8 +1185,8 @@ anx_hidx  = int(np.clip(np.digitize(anx_part, anx_edges) - 1, 0, len(anx_counts)
 
 # --- Display side-by-side ----------------------------------------------------
 # imagery slightly taller before; now tuned so x-axes align exactly
-FIGSIZE_IMAGERY  = (2.4, 2.75)   # adjusted (was 2.9)
-FIGSIZE_STANDARD = (2.4, 2.6)
+FIGSIZE_IMAGERY  = (2.4, 2.60)
+FIGSIZE_STANDARD = (2.4, 2.60)
 
 c1, c2, c3 = st.columns(3, gap="small")
 
@@ -1293,7 +1291,7 @@ with col_left:
                         "ytick.color": "#333333",
                         "font.size": 9,
                     }):
-                        fig, ax = plt.subplots(figsize=(2.2, 2.4))
+                        fig, ax = plt.subplots(figsize=(2.2, 2.52))
                         fig.patch.set_alpha(0.0)
                         ax.set_facecolor("none")
 
