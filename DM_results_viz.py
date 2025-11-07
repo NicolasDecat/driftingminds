@@ -1751,12 +1751,14 @@ with exp_right:
                      top_base_y - 2 * row_gap]
     
     if winners[0]:
+        nearest_top = top_positions[-1]  # closest to the bar
         ax.plot([top_anchor_x, top_anchor_x],
-                [y_bar + bar_half_h, top_positions[0] - 0.018],
+                [y_bar + bar_half_h, nearest_top - 0.018],
                 color="#000000", linewidth=stem_lw)
         for yy, text_label in zip(top_positions, winners[0]):
             ax.text(top_anchor_x, yy, text_label, ha="center", va="bottom",
                     fontsize=label_fs, color="#000000", linespacing=1.12)
+
     
     # Bin 1 (51–100): one stem around x≈66, labels below the bar (stacked downward)
     bot_anchor_x = tx(66.0)
@@ -1766,12 +1768,12 @@ with exp_right:
                      bot_base_y + 2 * row_gap]
     
     if winners[1]:
+        nearest_bot = bot_positions[0]   # closest to the bar
         ax.plot([bot_anchor_x, bot_anchor_x],
-                [y_bar - bar_half_h, bot_positions[0] + 0.018],
+                [y_bar - bar_half_h, nearest_bot + 0.018],
                 color="#000000", linewidth=stem_lw)
         for yy, text_label in zip(bot_positions, winners[1]):
-            ax.text(bot_anchor_x, yy, text_label,
-                    ha="center", va="top",
+            ax.text(bot_anchor_x, yy, text_label, ha="center", va="top",
                     fontsize=label_fs, color="#000000", linespacing=1.15)
 
 
