@@ -1097,59 +1097,83 @@ components.html(
       </button>
     </div>
 
-    <!-- dom-to-image-more: tends to be more robust than html2canvas in iframes -->
+    <!-- libs -->
     <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3.4.0/dist/dom-to-image-more.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
     <script>
       (function () {
         const btn = document.getElementById('dmshot');
         if (!btn) return;
 
+        async function waitFonts(doc) {
+          try { if (doc.fonts && doc.fonts.ready) await doc.fonts.ready; } catch(e) {}
+        }
+
+        async function downloadBlob(blob, name) {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = name;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 500);
+        }
+
         async function capture() {
+          const pdoc = window.parent?.document || document;
+          const node = pdoc.getElementById('dm-share-card');
+          if (!node) {
+            alert('Section not found. The page may still be loading.'); return;
+          }
+
+          await waitFonts(pdoc);
+
+          // Robust sizing from layout, NOT scrollWidth/Height
+          const rect = node.getBoundingClientRect();
+          const w = Math.ceil(rect.width);
+          const h = Math.ceil(rect.height);
+
+          // Try dom-to-image-more first (good CSS fidelity)
           try {
-            const pdoc = window.parent?.document || document;
-            const node = pdoc.getElementById('dm-share-card');
-            if (!node) {
-              alert('Section not found. The page may still be loading. Please wait a moment and try again.');
-              return;
-            }
-
-            // Wait for fonts (prevents empty / shifted text)
-            if (pdoc.fonts && pdoc.fonts.ready) { try { await pdoc.fonts.ready; } catch(e){} }
-
-            // Dimensions + scale for crisp export
-            const w = node.scrollWidth;
-            const h = node.scrollHeight;
-            const scale = Math.max(2, window.devicePixelRatio || 1);
-
-            // dom-to-image-more capture
             const blob = await window.domtoimage.toBlob(node, {
-              bgcolor: getComputedStyle(pdoc.body).backgroundColor || '#ffffff',
               width:  w,
               height: h,
-              style: {
-                transform: 'scale(' + scale + ')',
-                transformOrigin: 'top left',
+              bgcolor: getComputedStyle(pdoc.body).backgroundColor || '#ffffff',
+              style: {  // ensure the clone has the same size
                 width:  w + 'px',
                 height: h + 'px',
-                // Safer snapshots: avoid filters that sometimes break serialization
+                transform: 'none',
+                transformOrigin: 'top left',
                 filter: 'none'
               },
               quality: 1,
               cacheBust: true
             });
-
-            if (!blob) {
-              alert('Capture failed (empty blob). Try refreshing the page or a different browser.');
+            if (blob && blob.size > 0) {
+              await downloadBlob(blob, 'drifting_minds_profile.png');
               return;
             }
+          } catch (e) {
+            console.warn('dom-to-image-more failed, will fallback', e);
+          }
 
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'drifting_minds_profile.png';
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 500);
+          // Fallback: html2canvas (set explicit size & scale)
+          try {
+            const scale = Math.max(2, (window.devicePixelRatio || 1));
+            const canvas = await html2canvas(node, {
+              backgroundColor: getComputedStyle(pdoc.body).backgroundColor || '#ffffff',
+              scale,
+              width:  w,
+              height: h,
+              x: rect.left + (window.parent?.scrollX || 0),
+              y: rect.top  + (window.parent?.scrollY || 0),
+              useCORS: true,
+              allowTaint: true,
+              logging: false
+            });
+            await new Promise((res, rej) => {
+              canvas.toBlob(b => b ? res(downloadBlob(b, 'drifting_minds_profile.png')) : rej(new Error('empty blob')), 'image/png');
+            });
           } catch (e) {
             console.error(e);
             alert('Capture failed. Try refreshing the page or a different browser.');
@@ -1162,6 +1186,7 @@ components.html(
     """,
     height=80
 )
+
 
 
 
