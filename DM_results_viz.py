@@ -1714,7 +1714,7 @@ with exp_right:
     ax.set_facecolor("none")
     ax.axis("off")
     
-    ax.set_title("Dynamics of your experience", fontsize=16, pad=2, color="#222222")
+    ax.set_title("Dynamics of your experience", fontsize=16, pad=18, color="#222222")
 
 
     # Geometry
