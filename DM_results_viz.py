@@ -1710,7 +1710,7 @@ with exp_right:
 
     # Geometry
     y_bar = 0.50
-    bar_half_h = 0.12
+    bar_half_h = 0.08
     x_left, x_right = 0.14, 0.86
 
     def tx(val):  # map 1..100 → x in [x_left, x_right]
