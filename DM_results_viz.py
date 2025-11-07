@@ -1084,8 +1084,6 @@ st.markdown("</div></div>", unsafe_allow_html=True)
 
 # st.markdown("</div>", unsafe_allow_html=True)
 
-
-
 import streamlit.components.v1 as components
 
 # Download button using a more reliable approach
@@ -1184,7 +1182,6 @@ components.html(
     """,
     height=80
 )
-
 
 
 # Lock-in axes rectangles (left, bottom, width, height) so x-axes align perfectly
