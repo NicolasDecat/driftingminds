@@ -1744,7 +1744,7 @@ with exp_right:
 
     # Bin 0 (1–50): one stem around x≈33, labels above the bar (stacked downward)
     top_anchor_x = tx(33.0)
-    top_base_y   = y_bar + bar_half_h + 0.06
+    top_base_y   = y_bar + bar_half_h + 0.18   # was 0.12
     top_positions = [top_base_y,
                      top_base_y - row_gap,
                      top_base_y - 2 * row_gap]
@@ -1759,10 +1759,11 @@ with exp_right:
 
     # Bin 1 (51–100): one stem around x≈66, labels below the bar (stacked downward)
     bot_anchor_x = tx(66.0)
-    bot_base_y   = y_bar - bar_half_h - 0.06
+    bot_base_y   = y_bar - bar_half_h - 0.18   # was 0.12
     bot_positions = [bot_base_y,
                      bot_base_y + row_gap,
                      bot_base_y + 2 * row_gap]
+
 
 
     if winners[1]:
