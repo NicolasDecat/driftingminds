@@ -1705,7 +1705,7 @@ for i, items in bin_items.items():
 
 # --- Plot (horizontal bar with L→R gradient: Awake → Asleep)
 with exp_right:
-    st.markdown("<div style='height:120px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:70px;'></div>", unsafe_allow_html=True)
 
     fig, ax = plt.subplots(figsize=(6.0, 3.0))
     fig.patch.set_alpha(0)
