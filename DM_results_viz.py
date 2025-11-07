@@ -1468,7 +1468,7 @@ with col_right:
 
 
 # ==============
-# Your experience — Section header + 3-column layout (radar on the left)
+# Your experience — Section header + 3-column layout (image left, radar middle)
 # ==============
 st.markdown(
     """
@@ -1485,13 +1485,40 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Scaffold for future charts (left: radar; middle/right will come later)
+# 3-column scaffold
 exp_left, exp_mid, exp_right = st.columns(3, gap="small")
 
 # ------------
-# Radar (left)
+# LEFT: Trajectory image (trajectories-01..04.png based on record["trajectories"])
 # ------------
-# Fields (same order/labels as before)
+def _safe_int(val):
+    try:
+        return int(str(val).strip())
+    except Exception:
+        return None
+
+traj_val = _safe_int(record.get("trajectories"))
+traj_map = {
+    1: "trajectories-01.png",
+    2: "trajectories-02.png",
+    3: "trajectories-03.png",
+    4: "trajectories-04.png",
+}
+img_name = traj_map.get(traj_val)
+
+with exp_left:
+    if img_name:
+        img_path = os.path.join("assets", img_name)
+        try:
+            st.image(img_path, use_container_width=True)
+        except Exception:
+            st.info("Trajectory image not found.")
+    else:
+        st.info("No trajectory selected.")
+
+# ------------
+# MIDDLE: Radar
+# ------------
 FIELDS = [
     ("degreequest_vividness",       "vivid"),
     ("degreequest_immersiveness",   "immersive"),
@@ -1517,7 +1544,6 @@ labels = [lab for _, lab in FIELDS]
 if np.all(np.isnan(vals)):
     vals_filled = [0.0] * len(vals)
 else:
-    # Simple imputation: replace NaNs with the mean of available values
     mean_val = float(np.nanmean(vals))
     vals_filled = [mean_val if np.isnan(v) else v for v in vals]
 
@@ -1531,15 +1557,17 @@ angles_p = angles + angles[:1]
 POLY, GRID, SPINE, TICK, LABEL = PURPLE_HEX, "#B0B0B0", "#222222", "#555555", "#000000"
 s = 1.4  # global scale used in your originals
 
-with exp_left:
+with exp_mid:
     fig, ax = plt.subplots(figsize=(3.0 * s, 3.0 * s), subplot_kw=dict(polar=True))
-    fig.patch.set_alpha(0); ax.set_facecolor("none")
+    fig.patch.set_alpha(0)
+    ax.set_facecolor("none")
 
     # Orientation and labels
-    ax.set_theta_offset(np.pi / 2); ax.set_theta_direction(-1)
+    ax.set_theta_offset(np.pi / 2)
+    ax.set_theta_direction(-1)
     ax.set_thetagrids(np.degrees(angles), labels)
 
-    # Fine-tune label alignment around the circle
+    # Fine-tune label alignment
     for lbl, ang in zip(ax.get_xticklabels(), angles):
         if ang in (0, np.pi):
             lbl.set_horizontalalignment("center")
@@ -1547,7 +1575,8 @@ with exp_left:
             lbl.set_horizontalalignment("left")
         else:
             lbl.set_horizontalalignment("right")
-        lbl.set_color(LABEL); lbl.set_fontsize(8.5 * s)
+        lbl.set_color(LABEL)
+        lbl.set_fontsize(8.5 * s)
     ax.tick_params(axis="x", pad=int(2.5 * s))
 
     # Radial settings
@@ -1571,7 +1600,9 @@ with exp_left:
     plt.tight_layout(pad=0.3 * s)
     st.pyplot(fig, use_container_width=False)
 
-# (exp_mid and exp_right intentionally left empty for now)
+# RIGHT column (placeholder for future content)
+# with exp_right:
+#     st.markdown("&nbsp;")
 
     
     
