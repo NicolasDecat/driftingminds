@@ -1705,7 +1705,8 @@ for i, items in bin_items.items():
 
 # --- Plot (horizontal bar with L→R gradient: Awake → Asleep)
 with exp_right:
-    st.markdown("<div style='height:70px;'></div>", unsafe_allow_html=True)
+    # push the timeline a bit down the page
+    st.markdown("<div style='height:60px;'></div>", unsafe_allow_html=True)
 
     fig, ax = plt.subplots(figsize=(6.0, 3.0))
     fig.patch.set_alpha(0)
@@ -1713,8 +1714,8 @@ with exp_right:
     ax.axis("off")
 
     # ── Layout tweaks ─────────────────────────────────────────────────────────
-    y_bar = 0.50                 # keep centered *within* the figure
-    bar_half_h = 0.12            # thicker top-to-bottom (you can bump to 0.14–0.16 if you want even thicker)
+    y_bar = 0.50                 # keep centered inside the figure
+    bar_half_h = 0.12            # thickness top-bottom
     x_left, x_right = 0.14, 0.86 # same left-right length
 
     def tx(val):  # map 1..100 → x in [x_left, x_right]
@@ -1734,15 +1735,20 @@ with exp_right:
         interpolation="bilinear"
     )
 
-    # End labels (bold, larger)
-    end_fs = 22  # ~2x previous
-    ax.text(tx(1),   y_bar - 0.09, "Awake",  ha="left",  va="top",
-            fontsize=end_fs, fontweight="bold", color="#000000")
-    ax.text(tx(100), y_bar - 0.09, "Asleep", ha="right", va="top",
+    # In-bar labels
+    end_fs = 22
+    # "Awake" inside left, black text
+    ax.text(tx(6), y_bar, "Awake",
+            ha="left", va="center",
             fontsize=end_fs, fontweight="bold", color="#000000")
 
-    # Alternating annotation positions: up / down / up (bigger text, slightly farther)
-    label_fs = 18.4  # ~2x previous
+    # "Asleep" inside right, white text
+    ax.text(tx(94), y_bar, "Asleep",
+            ha="right", va="center",
+            fontsize=end_fs, fontweight="bold", color="#FFFFFF")
+
+    # Alternating annotation positions: up / down / up
+    label_fs = 18.4
     up_y   = y_bar + bar_half_h + 0.06
     down_y = y_bar - bar_half_h - 0.06
     positions = [up_y, down_y, up_y]
@@ -1767,6 +1773,7 @@ with exp_right:
 
     plt.tight_layout(pad=0.25)
     st.pyplot(fig, use_container_width=False)
+
 
 
 
