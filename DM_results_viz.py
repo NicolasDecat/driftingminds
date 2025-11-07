@@ -1188,6 +1188,29 @@ DM_SHARE_CSS = r"""
 .dm2-scoretag { position: absolute; bottom: calc(100% + 2px); transform: translateX(-50%); font-size: .86rem; font-weight: 500; color: #7B61FF; white-space: nowrap; line-height: 1.05; }
 .dm2-scoretag.below { bottom: auto; top: calc(100% + 2px); }
 .dm2-anchors { display:flex; justify-content:space-between; font-size: .85rem; color:#666; margin-top: 0; line-height: 1; }
+/* ===== Export-only overrides: keep the mirror aligned and full-width ===== */
+#export-root { 
+  /* this element wraps ONLY the export mirror, not the main page */
+  width: 820px;               /* same as dm-center max */
+  padding-left: 70px;         /* replaces your on-page negative margin */
+  padding-right: 0;
+  box-sizing: border-box;
+}
+
+/* Remove layout nudges that are useful on-page but distort the export */
+#export-root .dm2-outer { margin-left: 0 !important; }
+#export-root .dm2-wrap  { margin-left: 0; }
+
+/* Keep header row left-aligned, no icon shift, no extra left padding on text */
+#export-root .dm-row  { justify-content: flex-start; gap: 16px; }
+#export-root .dm-icon { transform: none; margin: 0; }
+#export-root .dm-text { padding-left: 0; }
+
+/* (Optional) small readability touch-ups for the mirror */
+#export-root .dm-title { letter-spacing: 0.2px; }
+#export-root .dm-desc  { max-width: 680px; }
+
+              
 </style>
 """
 
