@@ -1271,7 +1271,7 @@ components.html(
 </head>
 <body>
   <div style="max-width:820px; margin:12px auto 0; text-align:center;">
-    <button id="dmshot" class="bar">📸 Download this section (PNG)</button>
+    <button id="dmshot" class="bar">📸 Download your Drifting Mind (PNG)</button>
   </div>
 
   <!-- Hidden mirror of your section -->
