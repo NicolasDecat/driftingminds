@@ -1741,7 +1741,7 @@ with exp_right:
     # --- Single-stem stacked labels per bin ---
     label_fs = 15.0   # smaller text for both lists
     stem_lw = 1.6
-    row_gap = 0.07    # keep same spacing between each item
+    row_gap = 0.05    # keep same spacing between each item
     
     # Bin 0 (1–50): one stem around x≈33, labels above the bar (stacked downward)
     top_anchor_x = tx(33.0)
