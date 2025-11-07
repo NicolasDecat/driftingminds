@@ -1191,9 +1191,9 @@ DM_SHARE_CSS = r"""
 
 /* ===== Export-only overrides: keep the mirror aligned and full-width ===== */
 #export-root { 
-  width: 820px;               /* same as dm-center max */
-  padding-left: 70px;         /* replaces your on-page negative margin */
-  box-sizing: border-box;
+  width: 820px;                 /* same as dm-center max */
+  padding: 0 40px 0 70px;       /* ⟵ adds right padding (40px), keeps left = 70px */
+  box-sizing: border-box;       /* ensures padding is included in total width */
 }
 
 /* Remove layout nudges that were useful on-page but distort the export */
