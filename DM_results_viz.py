@@ -1102,27 +1102,48 @@ components.html(
         const btn = document.getElementById('dmshot');
         if (!btn) return;
 
-        btn.addEventListener('click', async () => {
+        async function capture() {
           try {
-            // Grab the section from the parent frame (the main Streamlit app)
+            // Wait for fonts to be ready so text doesn’t shift after capture
+            if (window.parent && window.parent.document && window.parent.document.fonts) {
+              try { await window.parent.document.fonts.ready; } catch (_) {}
+            }
+
             const node = window.parent.document.getElementById('dm-share-card');
             if (!node) { alert('Share section not found.'); return; }
 
             const canvas = await html2canvas(node, {
               backgroundColor: window.getComputedStyle(window.parent.document.body).backgroundColor || '#ffffff',
-              scale: 2,
-              useCORS: true
+              scale: Math.max(2, window.devicePixelRatio || 1),
+              useCORS: true,
+              allowTaint: true,
+              logging: false
             });
 
-            const a = document.createElement('a');
-            a.download = 'drifting_minds_profile.png';
-            a.href = canvas.toDataURL('image/png');
-            a.click();
+            // Robust download via toBlob (avoids empty data: URLs)
+            canvas.toBlob(function (blob) {
+              if (!blob) {
+                alert('Capture failed (empty blob). Try a different browser or reload the page.');
+                return;
+              }
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'drifting_minds_profile.png';
+              document.body.appendChild(a);
+              a.click();
+              setTimeout(() => {
+                URL.revokeObjectURL(url);
+                a.remove();
+              }, 500);
+            }, 'image/png');
           } catch (e) {
             console.error(e);
             alert('Capture failed. Try a different browser or disable tracker blockers.');
           }
-        });
+        }
+
+        btn.addEventListener('click', capture);
       })();
     </script>
     """,
