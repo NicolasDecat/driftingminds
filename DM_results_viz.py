@@ -1609,7 +1609,7 @@ with exp_mid:
 # ==============
 # Horizontal timeline (3 bins) — goes in RIGHT column of "Your experience"
 # ==============
-st.markdown("<div style='height:10px;'></div>", unsafe_allow_html=True)
+st.markdown("<div style='height:30px;'></div>", unsafe_allow_html=True)
 
 CUSTOM_LABELS = {
     "freq_think_ordinary": "thinking logical thoughts",
