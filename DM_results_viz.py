@@ -1713,7 +1713,7 @@ with exp_right:
     )
     
     # keep it slightly lowered on the page
-    st.markdown("<div style='height:20px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:5px;'></div>", unsafe_allow_html=True)
 
     fig, ax = plt.subplots(figsize=(6.0, 3.0))
     fig.patch.set_alpha(0)
