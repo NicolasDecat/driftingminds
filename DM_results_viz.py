@@ -1507,6 +1507,9 @@ traj_map = {
 img_name = traj_map.get(traj_val)
 
 with exp_left:
+    # mini-title to match histo titles
+    st.markdown("<div style='font-size:12px; color:#222; margin:0 0 6px 0;'>Your trajectory</div>", unsafe_allow_html=True)
+
     if img_name:
         img_path = os.path.join("assets", img_name)
         try:
@@ -1561,6 +1564,9 @@ with exp_mid:
     fig, ax = plt.subplots(figsize=(3.0 * s, 3.0 * s), subplot_kw=dict(polar=True))
     fig.patch.set_alpha(0)
     ax.set_facecolor("none")
+    
+    ax.set_title("Intensity of your experience", fontsize=8, pad=6, color="#222222")
+
 
     # Orientation and labels
     ax.set_theta_offset(np.pi / 2)
@@ -1707,6 +1713,9 @@ with exp_right:
     fig.patch.set_alpha(0)
     ax.set_facecolor("none")
     ax.axis("off")
+    
+    ax.set_title("Dynamics of your experience", fontsize=8, pad=6, color="#222222")
+
 
     # Geometry
     y_bar = 0.50
@@ -1791,7 +1800,7 @@ with exp_right:
 # ==============
 # Profile distribution across the N=1000 population
 # ==============
-st.markdown("<div style='height:40px;'></div>", unsafe_allow_html=True)
+st.markdown("<div style='height:80px;'></div>", unsafe_allow_html=True)
 st.subheader("How common is each profile in the population?")
 
 if pop_data is None or pop_data.empty:
