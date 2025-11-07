@@ -1272,7 +1272,7 @@ components.html(
 </body>
 </html>
     """,
-    height=120
+    height=90
 )
 
 
