@@ -1708,12 +1708,12 @@ for i, items in bin_items.items():
 with exp_right:
     
     st.markdown(
-    "<div style='font-size:16px; color:#222; text-align:center; margin-bottom:8px;'>Dynamics of your experience</div>",
+    "<div style='font-size:18px; color:#222; text-align:center; margin-bottom:8px;'>Dynamics of your experience</div>",
     unsafe_allow_html=True
     )
     
     # keep it slightly lowered on the page
-    st.markdown("<div style='height:30px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:20px;'></div>", unsafe_allow_html=True)
 
     fig, ax = plt.subplots(figsize=(6.0, 3.0))
     fig.patch.set_alpha(0)
