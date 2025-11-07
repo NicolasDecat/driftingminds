@@ -1791,13 +1791,13 @@ with exp_right:
 # ==============
 # Profile distribution across the N=1000 population
 # ==============
-st.markdown("<div style='height:24px;'></div>", unsafe_allow_html=True)
+st.markdown("<div style='height:40px;'></div>", unsafe_allow_html=True)
 st.subheader("How common is each profile in the population?")
 
 if pop_data is None or pop_data.empty:
     st.info("Population data unavailable.")
 else:
-    # Assign a best profile to each participant (uses your PROFILES + assigner)
+    # Assign a best profile to each participant
     prof_names = []
     for _, row in pop_data.iterrows():
         name, _ = assign_profile_from_record(row.to_dict())
@@ -1808,26 +1808,27 @@ else:
     ser = pd.Series(prof_names, name="profile")
     counts = ser.value_counts().reindex(order, fill_value=0)
 
-    # Build tidy table
     total_n = int(counts.sum())
     perc = (counts / max(total_n, 1) * 100).round(1)
-    dist_df = (
-        pd.DataFrame({"profile": counts.index, "count": counts.values, "percent": perc.values})
-        .reset_index(drop=True)
-    )
+    dist_df = pd.DataFrame({
+        "profile": counts.index,
+        "count": counts.values,
+        "percent": perc.values
+    }).reset_index(drop=True)
 
-    # --- Issue checks
+    # --- Issue checks (keep diagnostic feedback)
     zero_profiles = dist_df.loc[dist_df["count"] == 0, "profile"].tolist()
-    over_profiles  = dist_df.loc[dist_df["percent"] > 30.0, "profile"].tolist()
+    over_profiles = dist_df.loc[dist_df["percent"] > 30.0, "profile"].tolist()
 
     if zero_profiles:
         st.error("Profiles with **0%** representation: " + ", ".join(zero_profiles))
     if over_profiles:
         st.warning("Profiles above **30%** of the sample: " + ", ".join(over_profiles))
 
-    # --- Bar chart (consistent minimalist look + your purple)
+    # --- Bar chart (clean, minimal, consistent look)
     fig, ax = plt.subplots(figsize=(7.0, 3.4))
-    fig.patch.set_alpha(0); ax.set_facecolor("none")
+    fig.patch.set_alpha(0)
+    ax.set_facecolor("none")
 
     x = np.arange(len(dist_df))
     ax.bar(x, dist_df["percent"].values, width=0.6, color=PURPLE_HEX, edgecolor="white")
@@ -1837,20 +1838,15 @@ else:
     ax.set_ylabel("Participants (%)", fontsize=10)
     ax.set_title(f"Profile distribution (N = {total_n})", fontsize=11, pad=8)
 
-    # Light grid, clean frame
     ax.grid(axis="y", linestyle=":", linewidth=0.6, alpha=0.5)
-    ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
 
-    # Add value labels on top
+    # Add value labels above bars
     for xi, p in zip(x, dist_df["percent"].values):
         ax.text(xi, p + 0.8, f"{p:.1f}%", ha="center", va="bottom", fontsize=8, color="#111")
 
     plt.tight_layout()
     st.pyplot(fig, use_container_width=True)
-
-    # Show the table (sorted by percent descending for quick scan)
-    dist_show = dist_df.sort_values("percent", ascending=False, ignore_index=True)
-    st.dataframe(dist_show, use_container_width=True)
-    st.caption("Heuristic checks: aim for no empty categories and avoid overly dominant ones (>30%).")
 
 
