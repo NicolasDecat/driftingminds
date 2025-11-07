@@ -1679,9 +1679,8 @@ for c in common:
     lab = CUSTOM_LABELS.get(f"freq_{c}", c.replace("_", " "))
     cores.append((c, t, f, lab))
 
-# --- 3 equal bins across 1..100
-bins = [(1.0, 33.3333), (33.3333, 66.6667), (66.6667, 100.0)]
-bin_centers = [(lo + hi) / 2.0 for (lo, hi) in bins]
+# --- 2 bins across 1..100 (1–50, 51–100)
+bins = [(1.0, 50.0), (51.0, 100.0)]
 
 # Assign items to bins
 bin_items = {i: [] for i in range(len(bins))}
@@ -1691,21 +1690,17 @@ for c, t, f, lab in cores:
             bin_items[i].append((c, t, f, lab))
             break
 
-# Winner per bin: single most frequent label (break ties by label name for determinism)
-winners = [None, None, None]
+# Winners per bin: top 3 by frequency (break ties by label name for determinism)
+winners = {0: [], 1: []}
 for i, items in bin_items.items():
     if not items:
         continue
     items_sorted = sorted(items, key=lambda x: (-x[2], x[3]))  # highest freq, then label
-    top = items_sorted[0]
-    # Optional threshold: if you want to require at least "moderate" frequency, set e.g. top[2] >= 3
-    winners[i] = top[3]
-
-# --- Plot (horizontal bar with L→R gradient: Awake → Asleep)
+    winners[i] = [it[3] for it in items_sorted[:3]]
 
 # --- Plot (horizontal bar with L→R gradient: Awake → Asleep)
 with exp_right:
-    # push the timeline a bit down the page
+    # keep the block slightly lowered on page
     st.markdown("<div style='height:60px;'></div>", unsafe_allow_html=True)
 
     fig, ax = plt.subplots(figsize=(6.0, 3.0))
@@ -1713,15 +1708,15 @@ with exp_right:
     ax.set_facecolor("none")
     ax.axis("off")
 
-    # ── Layout tweaks ─────────────────────────────────────────────────────────
-    y_bar = 0.50                 # keep centered inside the figure
-    bar_half_h = 0.12            # thickness top-bottom
-    x_left, x_right = 0.14, 0.86 # same left-right length
+    # Geometry
+    y_bar = 0.50
+    bar_half_h = 0.12
+    x_left, x_right = 0.14, 0.86
 
     def tx(val):  # map 1..100 → x in [x_left, x_right]
         return x_left + (val - 1.0) / 99.0 * (x_right - x_left)
 
-    # Horizontal gradient: white (Awake) → purple (Asleep)
+    # Bar gradient
     left_rgb = np.array([1.0, 1.0, 1.0])
     right_rgb = np.array([0x5B/255, 0x21/255, 0xB6/255])
     n = 1200
@@ -1735,44 +1730,44 @@ with exp_right:
         interpolation="bilinear"
     )
 
-    # In-bar labels
+    # In-bar end labels
     end_fs = 22
-    # "Awake" inside left, black text
-    ax.text(tx(6), y_bar, "Awake",
-            ha="left", va="center",
+    ax.text(tx(6),   y_bar, "Awake",  ha="left",  va="center",
             fontsize=end_fs, fontweight="bold", color="#000000")
-
-    # "Asleep" inside right, white text
-    ax.text(tx(94), y_bar, "Asleep",
-            ha="right", va="center",
+    ax.text(tx(94),  y_bar, "Asleep", ha="right", va="center",
             fontsize=end_fs, fontweight="bold", color="#FFFFFF")
 
-    # Alternating annotation positions: up / down / up
-    label_fs = 18.4
-    up_y   = y_bar + bar_half_h + 0.06
-    down_y = y_bar - bar_half_h - 0.06
-    positions = [up_y, down_y, up_y]
+    # Label positions: three positions per bin (evenly spread within each bin)
+    # TOP (bin 0: 1–50) above the bar
+    top_x_vals = [16.7, 33.3, 50.0]     # centers across bin 0
+    top_y = y_bar + bar_half_h + 0.06
 
-    # Draw stems + labels
+    # BOTTOM (bin 1: 51–100) below the bar
+    bot_x_vals = [62.5, 75.0, 87.5]     # centers across bin 1
+    bot_y = y_bar - bar_half_h - 0.06
+
+    label_fs = 18.4
     stem_lw = 1.6
-    for i, center in enumerate(bin_centers):
-        lab = winners[i]
-        if not lab:
-            continue
-        x_c = tx(center)
-        if positions[i] == up_y:
-            ax.plot([x_c, x_c], [y_bar + bar_half_h, up_y - 0.014],
-                    color="#000000", linewidth=stem_lw)
-            ax.text(x_c, up_y, lab, ha="center", va="bottom",
-                    fontsize=label_fs, color="#000000")
-        else:
-            ax.plot([x_c, x_c], [y_bar - bar_half_h, down_y + 0.014],
-                    color="#000000", linewidth=stem_lw)
-            ax.text(x_c, down_y, lab, ha="center", va="top",
-                    fontsize=label_fs, color="#000000")
+
+    # Draw TOP labels (bin 0)
+    for xv, lab in zip(top_x_vals, winners.get(0, [])):
+        x_c = tx(xv)
+        ax.plot([x_c, x_c], [y_bar + bar_half_h, top_y - 0.014],
+                color="#000000", linewidth=stem_lw)
+        ax.text(x_c, top_y, lab, ha="center", va="bottom",
+                fontsize=label_fs, color="#000000")
+
+    # Draw BOTTOM labels (bin 1)
+    for xv, lab in zip(bot_x_vals, winners.get(1, [])):
+        x_c = tx(xv)
+        ax.plot([x_c, x_c], [y_bar - bar_half_h, bot_y + 0.014],
+                color="#000000", linewidth=stem_lw)
+        ax.text(x_c, bot_y, lab, ha="center", va="top",
+                fontsize=label_fs, color="#000000")
 
     plt.tight_layout(pad=0.25)
     st.pyplot(fig, use_container_width=False)
+
 
 
 
