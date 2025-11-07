@@ -1508,7 +1508,7 @@ img_name = traj_map.get(traj_val)
 
 with exp_left:
     # mini-title to match histo titles
-    st.markdown("<div style='font-size:16px; color:#222; text-align:center; margin:2px 0 6px 0;'>Your trajectory</div>", unsafe_allow_html=True)
+    st.markdown("<div style='font-size:18px; color:#222; text-align:center; margin:2px 0 6px 0;'>Your trajectory</div>", unsafe_allow_html=True)
 
     if img_name:
         img_path = os.path.join("assets", img_name)
@@ -1707,7 +1707,7 @@ for i, items in bin_items.items():
 # --- Plot (horizontal bar with L→R gradient: Awake → Asleep)
 with exp_right:
     # keep it slightly lowered on the page
-    st.markdown("<div style='height:10px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:30px;'></div>", unsafe_allow_html=True)
 
     fig, ax = plt.subplots(figsize=(6.0, 3.0))
     fig.patch.set_alpha(0)
