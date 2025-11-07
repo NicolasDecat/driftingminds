@@ -1082,115 +1082,110 @@ for b in bars:
 
 st.markdown("</div></div>", unsafe_allow_html=True)
 
-# === Build exportable HTML mirror of the title + icon/text + 5 bars ===
-# Title
-export_title_html = """
-<div class="dm-center">
-  <div class="dm-title">DRIFTING MINDS STUDY</div>
-</div>
-"""
+st.markdown("</div>", unsafe_allow_html=True)
 
-# Header (icon + text)
-export_icon_html = f'<img class="dm-icon" src="{icon_src}" alt="profile icon"/>' if has_icon else ""
-export_header_html = f"""
-<div class="dm-center">
-  <div class="dm-row">
-    {export_icon_html}
-    <div class="dm-text">
-      <p class="dm-lead">You drift into sleep like a</p>
-      <div class="dm-key">{prof_name}</div>
-      <p class="dm-desc">{prof_desc or "&nbsp;"}</p>
+
+import streamlit.components.v1 as components
+
+components.html(
+    """
+    <div style="max-width:820px; margin:12px auto 0; text-align:center;">
+      <button id="dmshot" style="
+        display:inline-block; padding:10px 16px; border:none; border-radius:8px;
+        font-size:15px; cursor:pointer; background:#7B61FF; color:#fff;">
+        📸 Download this section (PNG)
+      </button>
     </div>
-  </div>
-</div>
-"""
 
-# Bars (same values you computed above)
-export_bars_html = ["<div class='dm2-outer'><div class='dm2-bars'>"]
-for b in bars:
-    name = b["name"]; help_txt = b["help"]; score = b["score"]
-    median = pop_medians.get(name, None)
+    <!-- libs -->
+    <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3.4.0/dist/dom-to-image-more.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
-    if score is None or (isinstance(score, float) and np.isnan(score)):
-        width = 2; score_txt = "NA"; width_clamped = 2.0
-    else:
-        width = int(round(np.clip(score, 0, 100))); width = max(width, 2)
-        score_txt = f"{int(round(score))}%"
-        width_clamped = max(2.0, min(98.0, float(width)))
+    <script>
+      (function () {
+        const btn = document.getElementById('dmshot');
+        if (!btn) return;
 
-    if median is None or (isinstance(median, float) and np.isnan(median)):
-        median_html = ""; med_left_clamped = None
-    else:
-        med_left = float(np.clip(median, 0, 100))
-        med_left_clamped = max(2.0, min(98.0, med_left))
-        median_html = f"<div class='dm2-median' style='left:{med_left_clamped}%;'></div>"
+        async function waitFonts(doc) {
+          try { if (doc.fonts && doc.fonts.ready) await doc.fonts.ready; } catch(e) {}
+        }
 
-    if isinstance(help_txt, str) and "↔" in help_txt:
-        left_anchor, right_anchor = [s.strip() for s in help_txt.split("↔", 1)]
-    else:
-        left_anchor, right_anchor = "0", "100"
+        async function downloadBlob(blob, name) {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = name;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 500);
+        }
 
-    # 'world' tag logic for Vivid (keep identical to page)
-    mediantag_html = ""
-    if name.lower() in ("perception", "vivid") and (med_left_clamped is not None):
-        overlap = (score_txt != "NA" and abs(width_clamped - med_left_clamped) <= 6.0)
-        mediantag_class = "dm2-mediantag below" if overlap else "dm2-mediantag"
-        mediantag_html = f"<div class='{mediantag_class}' style='left:{med_left_clamped}%;'>world</div>"
+        async function capture() {
+          const pdoc = window.parent?.document || document;
+          const node = pdoc.getElementById('dm-share-card');
+          if (!node) {
+            alert('Section not found. The page may still be loading.'); return;
+          }
 
-    scoretag_html = "" if score_txt == "NA" else f"<div class='dm2-scoretag' style='left:{width_clamped}%;'>{score_txt}</div>"
+          await waitFonts(pdoc);
 
-    export_bars_html.append(
-        "<div class='dm2-row'>"
-          "<div class='dm2-left'>"
-            f"<div class='dm2-label'>{name}</div>"
-          "</div>"
-          "<div class='dm2-wrap'>"
-            f"<div class='dm2-track' aria-label='{name} score {score_txt}'>"
-              f"<div class='dm2-fill' style='width:{width}%;'></div>"
-              f"{median_html}{mediantag_html}{scoretag_html}"
-            "</div>"
-            "<div class='dm2-anchors'>"
-              f"<span>{left_anchor}</span><span>{right_anchor}</span>"
-            "</div>"
-          "</div>"
-        "</div>"
-    )
-export_bars_html.append("</div></div>")
-export_bars_html = "\n".join(export_bars_html)
+          // Robust sizing from layout, NOT scrollWidth/Height
+          const rect = node.getBoundingClientRect();
+          const w = Math.ceil(rect.width);
+          const h = Math.ceil(rect.height);
 
-# Full HTML we will snapshot inside the component
-DM_SHARE_HTML = export_title_html + export_header_html + export_bars_html
+          // Try dom-to-image-more first (good CSS fidelity)
+          try {
+            const blob = await window.domtoimage.toBlob(node, {
+              width:  w,
+              height: h,
+              bgcolor: getComputedStyle(pdoc.body).backgroundColor || '#ffffff',
+              style: {  // ensure the clone has the same size
+                width:  w + 'px',
+                height: h + 'px',
+                transform: 'none',
+                transformOrigin: 'top left',
+                filter: 'none'
+              },
+              quality: 1,
+              cacheBust: true
+            });
+            if (blob && blob.size > 0) {
+              await downloadBlob(blob, 'drifting_minds_profile.png');
+              return;
+            }
+          } catch (e) {
+            console.warn('dom-to-image-more failed, will fallback', e);
+          }
 
-# Subset of your CSS needed for the mirror (copied from your big CSS)
-DM_SHARE_CSS = r"""
-<style>
-:root { --dm-max: 820px; }
-.dm-center { max-width: var(--dm-max); margin: 0 auto; }
-.dm-title { font-size: 2.5rem; font-weight: 200; margin: 0 0 1.25rem 0; text-align: center; }
-.dm-row { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: .25rem; }
-.dm-icon { width: 140px; height: auto; flex: 0 0 auto; transform: translateX(6rem); }
-.dm-text { flex: 1 1 0; min-width: 0; padding-left: 6rem; }
-.dm-lead { font-weight: 400; font-size: 1rem; color: #666; margin: 0 0 8px 0; letter-spacing: .3px; font-style: italic; text-align: left; }
-.dm-key { font-weight: 600; font-size: clamp(28px, 5vw, 60px); line-height: 1.05; margin: 0 0 10px 0; color: #7A5CFA; text-align: left; }
-.dm-desc { color: #111; font-size: 1.05rem; line-height: 1.55; margin: 0; max-width: 680px; font-weight: 400; text-align: left; }
+          // Fallback: html2canvas (set explicit size & scale)
+          try {
+            const scale = Math.max(2, (window.devicePixelRatio || 1));
+            const canvas = await html2canvas(node, {
+              backgroundColor: getComputedStyle(pdoc.body).backgroundColor || '#ffffff',
+              scale,
+              width:  w,
+              height: h,
+              x: rect.left + (window.parent?.scrollX || 0),
+              y: rect.top  + (window.parent?.scrollY || 0),
+              useCORS: true,
+              allowTaint: true,
+              logging: false
+            });
+            await new Promise((res, rej) => {
+              canvas.toBlob(b => b ? res(downloadBlob(b, 'drifting_minds_profile.png')) : rej(new Error('empty blob')), 'image/png');
+            });
+          } catch (e) {
+            console.error(e);
+            alert('Capture failed. Try refreshing the page or a different browser.');
+          }
+        }
 
-.dm2-outer { margin-left: -70px !important; width: 100%; }
-.dm2-bars { margin-top: 16px; display: flex; flex-direction: column; align-items: flex-start; width: 100%; text-align: left; }
-.dm2-row { display: grid; grid-template-columns: 160px 1fr; column-gap: 8px; align-items: center; margin: 10px 0; }
-.dm2-left { display:flex; align-items:center; gap:0px; width:160px; flex:0 0 160px; }
-.dm2-label { font-weight: 800; font-size: 1.10rem; line-height: 1.05; white-space: nowrap; letter-spacing: .1px; position: relative; top: -3px; text-align: right; width: 100%; padding-right: 40px; margin: 0; }
-.dm2-wrap { flex: 1 1 auto; display:flex; flex-direction:column; gap:4px; margin-left: -12px; }
-.dm2-track { position: relative; width: 100%; height: 14px; background: #EDEDED; border-radius: 999px; overflow: visible; }
-.dm2-fill { height: 100%; background: linear-gradient(90deg, #CBBEFF 0%, #A18BFF 60%, #7B61FF 100%); border-radius: 999px; }
-.dm2-median { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 8px; height: 8px; background: #000; border: 1.5px solid #FFF; border-radius: 50%; pointer-events: none; box-sizing: border-box; }
-.dm2-mediantag { position: absolute; bottom: calc(100% + 2px); transform: translateX(-50%); font-size: .82rem; font-weight: 600; color: #000; white-space: nowrap; line-height: 1.05; }
-.dm2-mediantag.below { bottom: auto; top: calc(100% + 2px); }
-.dm2-scoretag { position: absolute; bottom: calc(100% + 2px); transform: translateX(-50%); font-size: .86rem; font-weight: 500; color: #7B61FF; white-space: nowrap; line-height: 1.05; }
-.dm2-scoretag.below { bottom: auto; top: calc(100% + 2px); }
-.dm2-anchors { display:flex; justify-content:space-between; font-size: .85rem; color:#666; margin-top: 0; line-height: 1; }
-</style>
-"""
-
+        btn.addEventListener('click', capture);
+      })();
+    </script>
+    """,
+    height=80
+)
 
 
 
