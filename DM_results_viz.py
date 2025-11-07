@@ -1714,7 +1714,7 @@ with exp_right:
 
     # ── Layout tweaks ─────────────────────────────────────────────────────────
     y_bar = 0.50                 # keep centered *within* the figure
-    bar_half_h = 0.12            # thicker top-to-bottom (you can bump to 0.14–0.16 if you want even thicker)
+    bar_half_h = 0.06            # thicker top-to-bottom (you can bump to 0.14–0.16 if you want even thicker)
     x_left, x_right = 0.14, 0.86 # same left-right length
 
     def tx(val):  # map 1..100 → x in [x_left, x_right]
