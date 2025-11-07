@@ -1082,124 +1082,77 @@ for b in bars:
 
 st.markdown("</div></div>", unsafe_allow_html=True)
 
-st.markdown("</div>", unsafe_allow_html=True)  # closes id="dm-share-card"
+st.markdown("</div>", unsafe_allow_html=True)
 
-
-# st.markdown("</div>", unsafe_allow_html=True)
 
 import streamlit.components.v1 as components
 
-# Download button using a more reliable approach
 components.html(
     """
     <div style="max-width:820px; margin:12px auto 0; text-align:center;">
       <button id="dmshot" style="
         display:inline-block; padding:10px 16px; border:none; border-radius:8px;
-        font-size:15px; cursor:pointer; background:#7B61FF; color:#fff; font-weight:500;">
+        font-size:15px; cursor:pointer; background:#7B61FF; color:#fff;">
         📸 Download this section (PNG)
       </button>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <!-- dom-to-image-more: tends to be more robust than html2canvas in iframes -->
+    <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3.4.0/dist/dom-to-image-more.min.js"></script>
     <script>
       (function () {
         const btn = document.getElementById('dmshot');
-        if (!btn) {
-          console.error('Download button not found');
-          return;
-        }
+        if (!btn) return;
 
         async function capture() {
-          btn.disabled = true;
-          btn.textContent = 'Capturing...';
-          btn.style.opacity = '0.7';
-          
           try {
-            // Access parent document
-            const parentDoc = window.parent.document;
-            
-            // Wait for fonts
-            if (parentDoc.fonts) {
-              await parentDoc.fonts.ready;
-            }
-            
-            // Extra delay to ensure everything is rendered
-            await new Promise(resolve => setTimeout(resolve, 500));
-
-            const node = parentDoc.getElementById('dm-share-card');
-            if (!node) { 
-              alert('Section not found. The page may still be loading. Please wait a moment and try again.'); 
-              return; 
-            }
-
-            // Log dimensions for debugging
-            console.log('Capturing node:', node);
-            console.log('Node dimensions:', {
-              scrollWidth: node.scrollWidth,
-              scrollHeight: node.scrollHeight,
-              offsetWidth: node.offsetWidth,
-              offsetHeight: node.offsetHeight
-            });
-
-            // Get background color
-            const bgColor = window.getComputedStyle(parentDoc.body).backgroundColor || '#ffffff';
-
-            // Capture with html2canvas
-            const canvas = await html2canvas(node, {
-              backgroundColor: bgColor,
-              scale: 2,
-              useCORS: true,
-              allowTaint: false,
-              logging: true,
-              width: node.scrollWidth,
-              height: node.scrollHeight,
-              windowWidth: node.scrollWidth,
-              windowHeight: node.scrollHeight,
-              x: 0,
-              y: 0
-            });
-
-            console.log('Canvas created:', {
-              width: canvas.width,
-              height: canvas.height
-            });
-
-            // Check if canvas has content
-            if (canvas.width === 0 || canvas.height === 0) {
-              alert('Capture failed - canvas is empty. Please try again or refresh the page.');
+            const pdoc = window.parent?.document || document;
+            const node = pdoc.getElementById('dm-share-card');
+            if (!node) {
+              alert('Section not found. The page may still be loading. Please wait a moment and try again.');
               return;
             }
 
-            // Convert to blob and download
-            canvas.toBlob(function (blob) {
-              if (!blob || blob.size === 0) {
-                alert('Capture failed - no image data. Please try again or use a different browser.');
-                return;
-              }
-              
-              console.log('Blob created:', blob.size, 'bytes');
-              
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = 'drifting_minds_profile.png';
-              a.style.display = 'none';
-              document.body.appendChild(a);
-              a.click();
-              
-              setTimeout(() => {
-                URL.revokeObjectURL(url);
-                a.remove();
-              }, 100);
-            }, 'image/png', 1.0);
-            
+            // Wait for fonts (prevents empty / shifted text)
+            if (pdoc.fonts && pdoc.fonts.ready) { try { await pdoc.fonts.ready; } catch(e){} }
+
+            // Dimensions + scale for crisp export
+            const w = node.scrollWidth;
+            const h = node.scrollHeight;
+            const scale = Math.max(2, window.devicePixelRatio || 1);
+
+            // dom-to-image-more capture
+            const blob = await window.domtoimage.toBlob(node, {
+              bgcolor: getComputedStyle(pdoc.body).backgroundColor || '#ffffff',
+              width:  w,
+              height: h,
+              style: {
+                transform: 'scale(' + scale + ')',
+                transformOrigin: 'top left',
+                width:  w + 'px',
+                height: h + 'px',
+                // Safer snapshots: avoid filters that sometimes break serialization
+                filter: 'none'
+              },
+              quality: 1,
+              cacheBust: true
+            });
+
+            if (!blob) {
+              alert('Capture failed (empty blob). Try refreshing the page or a different browser.');
+              return;
+            }
+
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'drifting_minds_profile.png';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 500);
           } catch (e) {
-            console.error('Capture error:', e);
-            alert('Capture failed: ' + e.message + '. Try refreshing the page or using a different browser.');
-          } finally {
-            btn.disabled = false;
-            btn.textContent = '📸 Download this section (PNG)';
-            btn.style.opacity = '1';
+            console.error(e);
+            alert('Capture failed. Try refreshing the page or a different browser.');
           }
         }
 
@@ -1209,6 +1162,7 @@ components.html(
     """,
     height=80
 )
+
 
 
 # Lock-in axes rectangles (left, bottom, width, height) so x-axes align perfectly
