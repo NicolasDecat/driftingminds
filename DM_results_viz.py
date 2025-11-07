@@ -1207,7 +1207,10 @@ body, .dm-center, .dm-row, .dm-text, .dm-title, .dm-lead, .dm-key, .dm-desc,
 }
 
 /* Remove layout nudges that were useful on-page but distort the export */
-#export-root .dm2-outer { margin-left: 0 !important; }
+#export-root .dm2-outer { 
+  margin-left: 0 !important;
+  margin-top: 36px;          /* ⟵ adds breathing room between profile text and bars */
+}
 #export-root .dm2-wrap  { margin-left: 0; }
 
 /* Ensure the grid allocates full horizontal space for the bar column */
