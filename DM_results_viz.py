@@ -1740,8 +1740,8 @@ with exp_right:
         # --- Single-stem stacked labels per bin ---
     label_fs = 18.4
     stem_lw = 1.6
--   row_gap = 0.035  # vertical spacing between stacked lines
-+   row_gap = 0.07   # ⬅️ Increased spacing between stacked lines (was too compact)
+    row_gap = 0.035  # vertical spacing between stacked lines
+    row_gap = 0.07   # ⬅️ Increased spacing between stacked lines (was too compact)
 
     # Bin 0 (1–50): one stem around x≈33, labels above the bar (stacked downward)
     top_anchor_x = tx(33.0)
