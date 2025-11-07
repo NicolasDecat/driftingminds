@@ -1565,7 +1565,8 @@ with exp_mid:
     fig.patch.set_alpha(0)
     ax.set_facecolor("none")
     
-    ax.set_title("Intensity of your experience", fontsize=16, pad=10, color="#222222")
+    ax.set_title("Intensity of your experience", fontsize=16, pad=16, color="#222222")
+    ax.title.set_y(1.03)
 
 
     # Orientation and labels
