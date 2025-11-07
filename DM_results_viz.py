@@ -1702,6 +1702,8 @@ for i, items in bin_items.items():
     winners[i] = top[3]
 
 # --- Plot (horizontal bar with L→R gradient: Awake → Asleep)
+st.markdown("<div style='height:140px;'></div>", unsafe_allow_html=True)
+
 with exp_right:
     fig, ax = plt.subplots(figsize=(6.0, 3.0))
     fig.patch.set_alpha(0)
