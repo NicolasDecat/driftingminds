@@ -1701,7 +1701,7 @@ for i, items in bin_items.items():
 # --- Plot (horizontal bar with L→R gradient: Awake → Asleep)
 with exp_right:
     # keep it slightly lowered on the page
-    st.markdown("<div style='height:1px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:-10px;'></div>", unsafe_allow_html=True)
 
     fig, ax = plt.subplots(figsize=(6.0, 3.0))
     fig.patch.set_alpha(0)
@@ -1741,11 +1741,11 @@ with exp_right:
     # --- Single-stem stacked labels per bin ---
     label_fs = 15.0   # smaller text for both lists
     stem_lw = 1.6
-    row_gap = 0.05    # spacing between each item
+    row_gap = 0.05    # keep same spacing between each item
     
     # Bin 0 (1–50): one stem around x≈33, labels above the bar (stacked downward)
     top_anchor_x = tx(33.0)
-    top_base_y   = y_bar + bar_half_h + 0.18   # was 0.22 → slightly closer to the bar
+    top_base_y   = y_bar + bar_half_h + 0.22   # farther above the bar
     top_positions = [top_base_y,
                      top_base_y - row_gap,
                      top_base_y - 2 * row_gap]
@@ -1753,15 +1753,16 @@ with exp_right:
     if winners[0]:
         nearest_top = top_positions[-1]  # closest to the bar
         ax.plot([top_anchor_x, top_anchor_x],
-                [y_bar + bar_half_h, nearest_top - 0.010],  # shorter line
+                [y_bar + bar_half_h, nearest_top - 0.018],
                 color="#000000", linewidth=stem_lw)
         for yy, text_label in zip(top_positions, winners[0]):
             ax.text(top_anchor_x, yy, text_label, ha="center", va="bottom",
                     fontsize=label_fs, color="#000000", linespacing=1.12)
+
     
     # Bin 1 (51–100): one stem around x≈66, labels below the bar (stacked downward)
     bot_anchor_x = tx(66.0)
-    bot_base_y   = y_bar - bar_half_h - 0.18   # was 0.22 → slightly closer to the bar
+    bot_base_y   = y_bar - bar_half_h - 0.22   # farther below the bar
     bot_positions = [bot_base_y,
                      bot_base_y + row_gap,
                      bot_base_y + 2 * row_gap]
@@ -1769,13 +1770,12 @@ with exp_right:
     if winners[1]:
         nearest_bot = bot_positions[-1]  # closest to the bar
         ax.plot([bot_anchor_x, bot_anchor_x],
-                [y_bar - bar_half_h, nearest_bot + 0.010],  # shorter line
+                [y_bar - bar_half_h, nearest_bot + 0.018],
                 color="#000000", linewidth=stem_lw)
         for yy, text_label in zip(bot_positions, winners[1]):
             ax.text(bot_anchor_x, yy, text_label,
                     ha="center", va="top",
                     fontsize=label_fs, color="#000000", linespacing=1.15)
-
 
 
     plt.tight_layout(pad=0.25)
