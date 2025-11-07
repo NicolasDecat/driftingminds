@@ -1702,21 +1702,20 @@ for i, items in bin_items.items():
     winners[i] = top[3]
 
 # --- Plot (horizontal bar with L→R gradient: Awake → Asleep)
-st.markdown("<div style='height:140px;'></div>", unsafe_allow_html=True)
 
+# --- Plot (horizontal bar with L→R gradient: Awake → Asleep)
 with exp_right:
+    st.markdown("<div style='height:220px;'></div>", unsafe_allow_html=True)  # push the whole block down
+
     fig, ax = plt.subplots(figsize=(6.0, 3.0))
     fig.patch.set_alpha(0)
     ax.set_facecolor("none")
     ax.axis("off")
 
     # ── Layout tweaks ─────────────────────────────────────────────────────────
-    y_bar = 0.32                 # move the timeline lower
-    bar_half_h = 0.075           # make the bar thicker
-    x_left, x_right = 0.14, 0.86 # shorten both left & right ends (more breathing room)
-
-    y_bar = 0.50                 # center the timeline vertically in the column
-    bar_half_h = 0.12            # thicker bar (top-to-bottom), same left-right length
+    y_bar = 0.50                 # keep centered *within* the figure
+    bar_half_h = 0.12            # thicker top-to-bottom (you can bump to 0.14–0.16 if you want even thicker)
+    x_left, x_right = 0.14, 0.86 # same left-right length
 
     def tx(val):  # map 1..100 → x in [x_left, x_right]
         return x_left + (val - 1.0) / 99.0 * (x_right - x_left)
