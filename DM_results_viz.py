@@ -1690,7 +1690,7 @@ for c, t, f, lab in cores:
             bin_items[i].append((c, t, f, lab))
             break
 
-# Winners per bin: top 3 by frequency (break ties by label name for determinism)
+# Winners per bin: top 3 by frequency (break ties by label for determinism)
 winners = {0: [], 1: []}
 for i, items in bin_items.items():
     if not items:
@@ -1700,7 +1700,7 @@ for i, items in bin_items.items():
 
 # --- Plot (horizontal bar with L→R gradient: Awake → Asleep)
 with exp_right:
-    # keep the block slightly lowered on page
+    # keep it slightly lowered on the page
     st.markdown("<div style='height:60px;'></div>", unsafe_allow_html=True)
 
     fig, ax = plt.subplots(figsize=(6.0, 3.0))
@@ -1737,37 +1737,41 @@ with exp_right:
     ax.text(tx(94),  y_bar, "Asleep", ha="right", va="center",
             fontsize=end_fs, fontweight="bold", color="#FFFFFF")
 
-    # Label positions: three positions per bin (evenly spread within each bin)
-    # TOP (bin 0: 1–50) above the bar
-    top_x_vals = [16.7, 33.3, 50.0]     # centers across bin 0
-    top_y = y_bar + bar_half_h + 0.06
-
-    # BOTTOM (bin 1: 51–100) below the bar
-    bot_x_vals = [62.5, 75.0, 87.5]     # centers across bin 1
-    bot_y = y_bar - bar_half_h - 0.06
-
+    # --- Single-stem stacked labels per bin ---
     label_fs = 18.4
     stem_lw = 1.6
+    row_gap = 0.035  # vertical spacing between stacked lines
 
-    # Draw TOP labels (bin 0)
-    for xv, lab in zip(top_x_vals, winners.get(0, [])):
-        x_c = tx(xv)
-        ax.plot([x_c, x_c], [y_bar + bar_half_h, top_y - 0.014],
-                color="#000000", linewidth=stem_lw)
-        ax.text(x_c, top_y, lab, ha="center", va="bottom",
-                fontsize=label_fs, color="#000000")
+    # Bin 0 (1–50): one stem around x≈33, labels above the bar (stacked downward)
+    top_anchor_x = tx(33.0)
+    top_base_y   = y_bar + bar_half_h + 0.06
+    top_positions = [top_base_y, top_base_y - row_gap, top_base_y - 2 * row_gap]
 
-    # Draw BOTTOM labels (bin 1)
-    for xv, lab in zip(bot_x_vals, winners.get(1, [])):
-        x_c = tx(xv)
-        ax.plot([x_c, x_c], [y_bar - bar_half_h, bot_y + 0.014],
+    if winners[0]:
+        # stem from bar to the first (nearest) label
+        ax.plot([top_anchor_x, top_anchor_x],
+                [y_bar + bar_half_h, top_positions[0] - 0.014],
                 color="#000000", linewidth=stem_lw)
-        ax.text(x_c, bot_y, lab, ha="center", va="top",
-                fontsize=label_fs, color="#000000")
+        for yy, text_label in zip(top_positions, winners[0]):
+            ax.text(top_anchor_x, yy, text_label, ha="center", va="bottom",
+                    fontsize=label_fs, color="#000000", linespacing=1.12)
+
+    # Bin 1 (51–100): one stem around x≈66, labels below the bar (stacked downward)
+    bot_anchor_x = tx(66.0)
+    bot_base_y   = y_bar - bar_half_h - 0.06
+    bot_positions = [bot_base_y, bot_base_y + row_gap, bot_base_y + 2 * row_gap]
+
+    if winners[1]:
+        # stem from bar to the first (nearest) label
+        ax.plot([bot_anchor_x, bot_anchor_x],
+                [y_bar - bar_half_h, bot_positions[0] + 0.014],
+                color="#000000", linewidth=stem_lw)
+        for yy, text_label in zip(bot_positions, winners[1]):
+            ax.text(bot_anchor_x, yy, text_label, ha="center", va="top",
+                    fontsize=label_fs, color="#000000", linespacing=1.12)
 
     plt.tight_layout(pad=0.25)
     st.pyplot(fig, use_container_width=False)
-
 
 
 
