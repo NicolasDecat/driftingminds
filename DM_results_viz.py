@@ -1191,9 +1191,12 @@ DM_SHARE_CSS = r"""
 
 /* ===== Export-only overrides: keep the mirror aligned and full-width ===== */
 #export-root { 
-  width: 820px;                 /* same as dm-center max */
-  padding: 0 40px 0 70px;       /* ⟵ adds right padding (40px), keeps left = 70px */
-  box-sizing: border-box;       /* ensures padding is included in total width */
+  width: 820px;                 
+  /* Add top/right/bottom padding for breathing room */
+  padding: 40px 50px 40px 70px;   /* top 40, right 50, bottom 40, left 70 */
+  box-sizing: border-box;
+  background: #ffffff;
+  border-radius: 8px;             /* optional – gives a softer PNG edge */
 }
 
 /* Remove layout nudges that were useful on-page but distort the export */
@@ -1216,8 +1219,14 @@ DM_SHARE_CSS = r"""
 #export-root .dm-icon { transform: none; margin: 0; }
 #export-root .dm-text { padding-left: 0; }
 
-/* (Optional) small readability touch-ups */
-#export-root .dm-title { letter-spacing: 0.2px; }
+/* Spacing tweaks for readability */
+#export-root .dm-title {
+  letter-spacing: 0.2px;
+  margin-bottom: 24px;            /* ⟵ more space below title */
+}
+#export-root .dm-lead {
+  margin-top: 12px;               /* ⟵ more gap below the title line */
+}
 #export-root .dm-desc  { max-width: 680px; }
 
 
