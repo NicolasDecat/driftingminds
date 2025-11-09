@@ -1868,7 +1868,7 @@ with exp_mid:
     fig.patch.set_alpha(0)
     ax.set_facecolor("none")
     
-    ax.set_title("Intensity of your experience", fontsize=20, pad=26, color="#222")
+    ax.set_title("Intensity of your experience", fontsize=20, pad=6, color="#222")
     ax.title.set_y(1.03)
 
 
