@@ -1207,7 +1207,18 @@ export_bars_html.append("</div></div>")
 export_bars_html = "\n".join(export_bars_html)
 
 # Full HTML we will snapshot inside the component
-DM_SHARE_HTML = export_title_html + export_header_html + export_bars_html
+DM_SHARE_HTML = f"""
+<div style='position:relative;'>
+  <div style='position:absolute; top:40px; right:0px; text-align:center; font-size:0.9rem; color:#000; line-height:1.05;'>
+    <img src="{qr_src}" width="88" style="display:block; margin:0 auto 1px auto;" />
+    <div style="font-weight:600; margin:0;">Participate!</div>
+    <div style="font-size:0.8rem; margin-top:3px;">redcap.link/DriftingMinds</div>
+  </div>
+  {export_title_html}
+  {export_header_html}
+  {export_bars_html}
+</div>
+"""
 
 # Subset of your CSS needed for the mirror (copied from your big CSS)
 DM_SHARE_CSS = r"""
