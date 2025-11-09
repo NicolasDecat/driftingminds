@@ -66,7 +66,7 @@ st.markdown(
     ">
         <img src="{qr_src}" width="88" style="display:block; margin:0 auto 1px auto;" />
         <div style="font-weight:600; margin:0;">Participate!</div>
-        <div style="font-size:0.8rem; margin:0;">redcap.link/DriftingMinds</div>
+        <div style="font-size:0.8rem; margin-top:3px;">redcap.link/DriftingMinds</div>
     </div>
     """,
     unsafe_allow_html=True
