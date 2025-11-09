@@ -882,7 +882,7 @@ st.markdown(
         color: #444;
         z-index: 1000;
     ">
-        <img src="assets/qr_code_DM.png" width="90" style="display:block; margin:0 auto 4px auto;" />
+        <img src="assets/qr_code_DM" width="90" style="display:block; margin:0 auto 4px auto;" />
         <div style="font-weight:600; color:#000;">Participate!</div>
         <div style="font-size:0.8rem; color:#7C3AED;">redcap.link/DriftingMinds</div>
     </div>
