@@ -1539,7 +1539,7 @@ with c1:
             ha="right", va="top", fontsize=9)
     
     # --- Optional vertical marker for very low imagery (<30) -----------------
-    if vviq_score < 30:
+    if vviq_score < 35:
         x_line = vviq_score
         # short vertical segment (20% of current y max)
         y_max = ax.get_ylim()[1]
