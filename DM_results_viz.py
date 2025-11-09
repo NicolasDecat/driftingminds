@@ -1130,6 +1130,36 @@ for b in bars:
 
 st.markdown("</div></div>", unsafe_allow_html=True)
 
+# --- Explanatory note below the horizontal bars ----------------------------
+st.markdown(
+    """
+    <div style="
+        max-width:820px;
+        margin:14px 0 0 0;
+        text-align:left;
+        font-size:0.82rem;
+        color:#444;
+        line-height:1.45;
+    ">
+      <em>
+      <strong>Vivid</strong>: how intense the sensations are — the brightness or contrast of what you see, or the loudness of what you hear.<br>
+      <strong>Bizarre</strong>: how unusual or unrealistic the content feels.<br>
+      <strong>Immersive</strong>: how deeply absorbed you are in the experience and detached from your surroundings.<br>
+      <strong>Spontaneous</strong>: how much the content comes to you on its own, without deliberate control.<br>
+      <strong>Emotional</strong>: how strongly you felt emotions while the content unfolded.<br><br>
+      Scores are based on your self-rated experiences from Section 3.<br>
+      Grey (“world”) shows the average scores from 1,000 people worldwide.
+      </em>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+
+
+
+
+
 # === Build exportable HTML mirror of the title + icon/text + 5 bars ===
 # Title
 export_title_html = """
