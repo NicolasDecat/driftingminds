@@ -1389,16 +1389,217 @@ components.html(
 
 
 
+# ==============
+# Your unique traits — minimal section right after the bars & download
+# ==============
 
-# Lock-in axes rectangles (left, bottom, width, height) so x-axes align perfectly
-AX_POS_YOU   = [0.14, 0.24, 0.82, 0.66]   # used by You: imagery/creativity/anxiety
-AX_POS_SLEEP = [0.14, 0.24, 0.82, 0.66]   # used by Your sleep: latency/duration
+st.markdown("<div style='height:10px;'></div>", unsafe_allow_html=True)
+
+import pandas as _pd
+
+# --- Load uniqueness mapping (Type, Dim, Var) -------------------------------
+_UNI_PATH = "/mnt/data/uniqueness.xlsx"
+try:
+    uniq_df = _pd.read_excel(_UNI_PATH)
+    # Keep only rows with all three columns present
+    uniq_df = uniq_df.rename(columns={c: c.strip() for c in uniq_df.columns})
+    uniq_df = uniq_df.dropna(subset=["Type", "Dim", "Var"])
+except Exception as e:
+    uniq_df = None
+    st.warning("Could not read uniqueness.xlsx. The 'Your unique traits' section will be skipped.")
+
+def _pretty_dim_name(s: str) -> str:
+    """Human-facing label for a dimension; extend as you see fit."""
+    if not isinstance(s, str):
+        return "this dimension"
+    MAP = {
+        "Vivid": "vivid perceptions",
+        "Bizarre": "bizarre elements",
+        "Immersive": "immersive experiences",
+        "Spontaneous": "spontaneous content",
+        "Emotional": "emotional content",
+        "Biz": "bizarre elements",
+        "Viv": "vivid perceptions",
+        "Imm": "immersive experiences",
+        "Spont": "spontaneous content",
+        "Temp": "temporal placement",
+    }
+    # Fall back to a neat lowercase variant
+    return MAP.get(s, s.replace("_", " ").lower())
+
+def _norm_freq_1_6(x):
+    # 1..6 → 0..1 (same behavior as norm_1_6)
+    return norm_1_6(x)
+
+def _norm_time_1_100(x):
+    # 1..100 → 0..1 (same behavior as norm_1_100)
+    return norm_1_100(x)
+
+def _composite_from_row(rec: dict, vars_list, norm_fn) -> float:
+    vals = []
+    for v in vars_list:
+        if v in rec:
+            vals.append(norm_fn(rec.get(v)))
+        else:
+            # tolerate missing columns
+            vals.append(np.nan)
+    vals = [vv for vv in vals if not (isinstance(vv, float) and np.isnan(vv))]
+    if not vals:
+        return np.nan
+    return float(np.clip(np.mean(vals), 0.0, 1.0))
+
+def _build_dim_catalog(df: _pd.DataFrame):
+    """
+    Returns:
+      dims: dict like {"Freq": {"Bizarre":[...vars], ...}, "Temp": {...}}
+    """
+    dims = {"Freq": {}, "Temp": {}}
+    for _, r in df.iterrows():
+        typ = str(r["Type"]).strip()
+        dim = str(r["Dim"]).strip()
+        var = str(r["Var"]).strip()
+        if typ not in dims:
+            # allow custom types if present, but we only evaluate Freq/Temp below
+            dims[typ] = {}
+        dims[typ].setdefault(dim, []).append(var)
+    return dims
+
+def _population_distributions_for_uniqueness(pop_df: _pd.DataFrame, dim_catalog: dict):
+    """
+    Compute population arrays of composite scores (0..1) for each dimension.
+    Returns: {"Freq": {dim: np.array}, "Temp": {dim: np.array}}
+    """
+    out = {"Freq": {}, "Temp": {}}
+    if pop_df is None or pop_df.empty:
+        return out
+
+    # pre-materialize rows as dicts for speed
+    rows = [row._asdict() if hasattr(row, "_asdict") else row.to_dict() for _, row in pop_df.iterrows()]
+
+    for typ in ("Freq", "Temp"):
+        if typ not in dim_catalog:
+            continue
+        for dim, vars_list in dim_catalog[typ].items():
+            arr = []
+            norm_fn = _norm_freq_1_6 if typ == "Freq" else _norm_time_1_100
+            for rec in rows:
+                s = _composite_from_row(rec, vars_list, norm_fn)
+                if not (isinstance(s, float) and np.isnan(s)):
+                    arr.append(s)
+            out[typ][dim] = np.array(arr, dtype=float)
+    return out
+
+def _participant_uniqueness(rec: dict, dim_catalog: dict, pop_dists: dict,
+                            freq_top=0.10, temp_top=0.05, max_items=3):
+    """
+    Determine which dimensions this participant is 'unique' on.
+    - freq_top: e.g., 0.10 means top 10% for Freq
+    - temp_top: e.g., 0.05 means top 5% for Temp
+    Returns a list of tuples (kind, dim, score, z, pct_threshold)
+    where kind ∈ {"Freq", "Temp"} and pct_threshold ∈ {10,5} by default.
+    """
+    findings = []
+
+    for typ, cutoff in (("Freq", freq_top), ("Temp", temp_top)):
+        if typ not in dim_catalog:
+            continue
+        for dim, vars_list in dim_catalog[typ].items():
+            norm_fn = _norm_freq_1_6 if typ == "Freq" else _norm_time_1_100
+            sc = _composite_from_row(rec, vars_list, norm_fn)
+            if isinstance(sc, float) and np.isnan(sc):
+                continue
+
+            dist = pop_dists.get(typ, {}).get(dim, np.array([]))
+            if dist.size < 20:
+                # not enough data; skip quietly
+                continue
+
+            thr = np.quantile(dist, 1.0 - cutoff)  # top X%
+            mu, sd = float(np.mean(dist)), float(np.std(dist, ddof=1)) or 1e-9
+            z = (sc - mu) / sd
+            if sc >= thr:
+                findings.append((
+                    typ, dim, float(sc), float(z), int(round(cutoff * 100))
+                ))
+
+    # Sort by “rarity” first (higher z), then by score
+    findings.sort(key=lambda t: (-t[3], -t[2]))
+    return findings[:max_items]
+
+if uniq_df is not None:
+    dim_catalog = _build_dim_catalog(uniq_df)
+
+    # Build population distributions (reuses already-loaded pop_data)
+    pop_uni = _population_distributions_for_uniqueness(pop_data, dim_catalog)
+
+    # Compute participant findings
+    uniq_hits = _participant_uniqueness(record, dim_catalog, pop_uni,
+                                        freq_top=0.10, temp_top=0.05, max_items=3)
+
+    # --- Render section only if we have at least one hit ---------------------
+    if uniq_hits:
+        st.markdown(
+            """
+            <div class="dm-center" style="max-width:1020px; margin:26px auto 14px;">
+              <div style="display:flex; align-items:center; gap:18px;">
+                <div style="height:1px; background:#000; flex:1;"></div>
+                <div style="flex:0; font-weight:600; font-size:1.20rem; letter-spacing:0.2px; white-space:nowrap;">
+                  YOUR UNIQUE TRAITS
+                </div>
+                <div style="height:1px; background:#000; flex:1;"></div>
+              </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # Build 1–3 concise lines
+        lines = []
+        for typ, dim, score, z, pct in uniq_hits:
+            # sentence templates
+            label = _pretty_dim_name(dim)
+            if typ == "Freq":
+                # Example: “You’re among the 10% of people who most often experience bizarre elements.”
+                lines.append(f"You're among the <strong>{pct}%</strong> of people who most often experience <strong>{label}</strong>.")
+            else:
+                # Example: “You're among the 5% of people whose content is the most spontaneous.”
+                # Turn label into 'the most X' phrasing
+                if label.startswith(("vowel",)):  # placeholder never matched; kept for future grammar tweaks
+                    lines.append(f"You're among the <strong>{pct}%</strong> of people whose content is the most <strong>{label}</strong>.")
+                else:
+                    lines.append(f"You're among the <strong>{pct}%</strong> of people whose content is the most <strong>{label}</strong>.")
+
+        # Minimal, on-brand list (keeps aesthetics homogeneous)
+        html_items = "".join([f"<li style='margin:4px 0;'>{ln}</li>" for ln in lines])
+        st.markdown(
+            f"""
+            <div class="dm-center" style="max-width:820px;">
+              <ul style="list-style:none; padding-left:0; margin:0; font-size:1.02rem; line-height:1.55; color:#111;">
+                {html_items}
+              </ul>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+          
+          
+          
+          
+          
+          
+          
 
 
 
 # ==============
 # "You" — Imagery · Creativity · Anxiety (final alignment + clean title line)
 # ==============
+
+# Lock-in axes rectangles (left, bottom, width, height) so x-axes align perfectly
+AX_POS_YOU   = [0.14, 0.24, 0.82, 0.66]   # used by You: imagery/creativity/anxiety
+AX_POS_SLEEP = [0.14, 0.24, 0.82, 0.66]   # used by Your sleep: latency/duration
+
 
 # --- Centered title for "You" (thinner black line) -----------------
 st.markdown(
