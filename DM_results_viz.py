@@ -1469,7 +1469,7 @@ with c1:
     x0 = 0.02
     y_top = 0.63
     y_gap = 0.085  # slightly larger spacing
-    box_size = 0.028  # bigger squares
+    box_size = 0.038  # bigger squares
 
     # you (top)
     ax.add_patch(plt.Rectangle((x0, y_top - box_size / 2),
