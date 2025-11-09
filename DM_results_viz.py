@@ -1496,6 +1496,24 @@ vviq_edges   = np.linspace(low, high, 26)
 vviq_counts, _ = np.histogram(vviq_samples, bins=vviq_edges, density=True)
 vviq_hidx = int(np.clip(np.digitize(vviq_score, vviq_edges) - 1, 0, len(vviq_counts)-1))
 
+# --- Diagnostics: where does the population actually start? ---
+st.caption("🔎 Visual imagery population debug")
+st.write("min(vviq_samples) =", float(np.nanmin(vviq_samples)),
+        "max(vviq_samples) =", float(np.nanmax(vviq_samples)))
+
+nonzero_idx = np.where(vviq_counts > 0)[0]
+if nonzero_idx.size:
+    i0 = int(nonzero_idx[0])
+    first_bin_left  = float(vviq_edges[i0])
+    first_bin_right = float(vviq_edges[i0+1])
+    first_bin_center = 0.5 * (first_bin_left + first_bin_right)
+    st.write(
+        f"first non-zero bin: [{first_bin_left:.2f}, {first_bin_right:.2f}) "
+        f"(center ≈ {first_bin_center:.2f}), count={vviq_counts[i0]:.4f}"
+    )
+else:
+    st.write("All bins are zero with the current edges (no data in [16, 80]).")
+
 # 2) Creativity 1–6
 cre_vals  = _col_values(pop_data, "creativity_trait")
 cre_edges = np.arange(0.5, 6.5 + 1.0, 1.0)
@@ -1534,7 +1552,7 @@ with c1:
     # --- Custom x-axis labels -------------------------------------------------
     ax.text(0.00, -0.05, "low (16)",   transform=ax.transAxes,
             ha="left",  va="top", fontsize=9)
-    ax.text(1.00, -0.05, "high (100)", transform=ax.transAxes,
+    ax.text(1.00, -0.05, "high (80)", transform=ax.transAxes,
             ha="right", va="top", fontsize=9)
 
     # --- In-axes minimalist legend (left, mid-height) ------------------------
