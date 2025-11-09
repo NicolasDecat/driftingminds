@@ -1551,6 +1551,29 @@ with c1:
             transform=ax.transAxes, ha="left", va="center",
             fontsize=7.5, color="#444444")
 
+
+    # --- Add legend (right side, mid-height) ---------------------------------
+    x0 = 0.82     # further to the right inside axes (0–1 in Axes coords)
+    y_top = 0.63  # vertical position for first label
+    y_gap = 0.085
+    size = 0.038  # symbol size (same scale as imagery legend)
+    
+    # "you" — purple circle
+    circle = plt.Circle((x0 + size/2, y_top), size/2,
+                        transform=ax.transAxes, color=PURPLE_HEX, lw=0)
+    ax.add_patch(circle)
+    ax.text(x0 + 0.05, y_top, "you", transform=ax.transAxes,
+            ha="left", va="center", fontsize=7.5, color=PURPLE_HEX)
+    
+    # "world" — gray square below
+    ax.add_patch(plt.Rectangle((x0, y_top - y_gap - size / 2),
+                               size, size,
+                               transform=ax.transAxes,
+                               color="#D9D9D9", lw=0))
+    ax.text(x0 + 0.05, y_top - y_gap, "world",
+            transform=ax.transAxes, ha="left", va="center",
+            fontsize=7.5, color="#444444")
+
     # maintain alignment
     ax.set_position(AX_POS_YOU)
     st.pyplot(fig, use_container_width=False)
