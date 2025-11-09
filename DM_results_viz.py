@@ -1523,7 +1523,7 @@ with c1:
     ax.set_facecolor("none")
 
     # --- Rebuild histogram so x starts at 16 ---------------------------------
-    vviq_edges = np.linspace(16, 100, 22)  # 16 → 100
+    vviq_edges = np.linspace(16, 80, 22)  # 16 → 80
     vviq_counts, _ = np.histogram(vviq_samples, bins=vviq_edges, density=True)
     vviq_hidx = int(np.clip(np.digitize(vviq_score, vviq_edges) - 1, 0, len(vviq_counts) - 1))
 
@@ -1577,6 +1577,11 @@ with c2:
         fig.patch.set_alpha(0); ax.set_facecolor("none")
         _mini_hist(ax, cre_counts, cre_edges, cre_hidx,
            f"Your level of creativity: {int(round(cre_part))}")
+        # Replace default x-labels
+        ax.text(0.0, -0.05, "low (0)",  transform=ax.transAxes,
+                ha="left", va="top", fontsize=9)
+        ax.text(1.0, -0.05, "high (6)", transform=ax.transAxes,
+                ha="right", va="top", fontsize=9)
         ax.set_position(AX_POS_YOU)  # ← lock baseline
         st.pyplot(fig, use_container_width=False)
 
@@ -1589,6 +1594,11 @@ with c3:
         fig.patch.set_alpha(0); ax.set_facecolor("none")
         _mini_hist(ax, anx_counts, anx_edges, anx_hidx,
            f"Your level of anxiety: {int(round(anx_part))}")
+        # Replace default x-labels
+        ax.text(0.0, -0.05, "low (16)",  transform=ax.transAxes,
+                ha="left", va="top", fontsize=9)
+        ax.text(1.0, -0.05, "high (100)", transform=ax.transAxes,
+                ha="right", va="top", fontsize=9)
         ax.set_position(AX_POS_YOU)  # ← lock baseline
         st.pyplot(fig, use_container_width=False)
 
