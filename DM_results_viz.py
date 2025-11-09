@@ -897,7 +897,6 @@ st.markdown(
 
 
 
-
 # Assign profile + get text/icon
 prof_name, scores = assign_profile_from_record(record)
 prof_cfg = PROFILES.get(prof_name, {})
