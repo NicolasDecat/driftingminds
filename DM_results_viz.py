@@ -1774,10 +1774,10 @@ with col_right:
 # ==============
 st.markdown(
     """
-    <div class="dm-center" style="max-width:1020px; margin:28px auto 16px;">
+    <div class="dm-center" style="max-width:1020px; margin:28px auto 32px;">
       <div style="display:flex; align-items:center; gap:24px;">
         <div style="height:1px; background:#000; flex:1;"></div>
-        <div style="flex:0; font-weight: 600; font-size:1.35rem; letter-spacing:0.2px; white-space:nowrap;">
+        <div style="flex:0; font-weight:600; font-size:1.35rem; letter-spacing:0.2px; white-space:nowrap;">
           YOUR EXPERIENCE
         </div>
         <div style="height:1px; background:#000; flex:1;"></div>
@@ -1786,6 +1786,7 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
 
 # 3-column scaffold
 exp_left, exp_mid, exp_right = st.columns(3, gap="small")
