@@ -1142,13 +1142,13 @@ st.markdown(
         line-height:1.45;
     ">
       <em>
-      <strong>Vivid</strong>: how intense the sensations are — the brightness or contrast of what you see, or the loudness of what you hear.
-      <strong>Bizarre</strong>: how unusual or unrealistic the content feels.
-      <strong>Immersive</strong>: how deeply absorbed you are in the experience and detached from your surroundings.
-      <strong>Spontaneous</strong>: how much the content comes to you on its own, without deliberate control.
-      <strong>Emotional</strong>: how strongly you felt emotions while the content unfolded.<br>
-      Scores are based on your self-rated experiences from Section 3.<br>
-      Grey (“world”) shows the average scores from 1,000 people worldwide.
+        <p><strong>Vivid</strong>: how intense the sensations are — the brightness or contrast of what you see, or the loudness of what you hear.</p>
+        <p><strong>Bizarre</strong>: how unusual or unrealistic the content feels.</p>
+        <p><strong>Immersive</strong>: how deeply absorbed you are in the experience and detached from your surroundings.</p>
+        <p><strong>Spontaneous</strong>: how much the content comes to you on its own, without deliberate control.</p>
+        <p><strong>Emotional</strong>: how strongly you felt emotions while the content unfolded.</p>
+        <p>Scores are based on your self-rated experiences from Section 3.<br>
+        Grey (“world”) shows the average scores from 1,000 people worldwide.</p>
       </em>
     </div>
     """,
