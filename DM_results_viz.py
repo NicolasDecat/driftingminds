@@ -1453,8 +1453,8 @@ def _mini_hist(ax, counts, edges, highlight_idx, title, bar_width_factor=0.95):
     ax.spines["bottom"].set_visible(True)
     ax.set_xlabel("")
     ax.set_xticks([])
-    ax.text(0.0, -0.05, "low",  transform=ax.transAxes, ha="left",  va="top", fontsize=9)
-    ax.text(1.0, -0.05, "high", transform=ax.transAxes, ha="right", va="top", fontsize=9)
+    # ax.text(0.0, -0.05, "low",  transform=ax.transAxes, ha="left",  va="top", fontsize=9)
+    # ax.text(1.0, -0.05, "high", transform=ax.transAxes, ha="right", va="top", fontsize=9)
 
     # remove y
     for s in ["left", "right", "top"]:
