@@ -1458,28 +1458,23 @@ FIGSIZE_STANDARD = (2.4, 2.60)
 c1, c2, c3 = st.columns(3, gap="small")
 
 with c1:
-    # --- Minimalist legend (left, mid-height) ---
-    st.markdown("""
-    <div style="
-        position: relative;
-        top: 45%;
-        left: -15px;
-        transform: translateY(-50%);
-        font-size: 11px;
-        line-height: 1.4;
-        color: #444;
-    ">
-        <div style="margin-bottom:2px;"><span style="display:inline-block;width:10px;height:10px;background:#D9D9D9;border-radius:50%;margin-right:6px;"></span>World</div>
-        <div><span style="display:inline-block;width:10px;height:10px;background:#7C3AED;border-radius:50%;margin-right:6px;"></span>You</div>
-    </div>
-    """, unsafe_allow_html=True)
-
     fig, ax = plt.subplots(figsize=FIGSIZE_IMAGERY)
-    fig.patch.set_alpha(0); ax.set_facecolor("none")
+    fig.patch.set_alpha(0)
+    ax.set_facecolor("none")
+
+    # --- Plot histogram ---
     _mini_hist(ax, vviq_counts, vviq_edges, vviq_hidx,
-           f"Your visual imagery at wake: {int(round(vviq_score))}")
-    ax.set_position(AX_POS_YOU)  # ← lock baseline
+               f"Your visual imagery at wake: {int(round(vviq_score))}")
+    ax.set_position(AX_POS_YOU)
+
+    # --- In-plot minimalist legend (left, mid-height) ---
+    ax.text(-0.45, 0.5, "● World", transform=ax.transAxes,
+            ha="left", va="center", color="#888888", fontsize=8.5)
+    ax.text(-0.45, 0.42, "● You", transform=ax.transAxes,
+            ha="left", va="center", color="#7C3AED", fontsize=8.5)
+
     st.pyplot(fig, use_container_width=False)
+
 
 
 with c2:
