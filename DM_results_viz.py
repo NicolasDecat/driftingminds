@@ -1131,30 +1131,30 @@ for b in bars:
 st.markdown("</div></div>", unsafe_allow_html=True)
 
 # --- Explanatory note below the horizontal bars ----------------------------
-st.markdown(
-    """
-    <div style="
-        max-width:720px;
-        margin:14px 0 0 0;
-        text-align:justify;
-        text-justify:inter-word;
-        font-size:0.82rem;
-        color:#444;
-        line-height:1.5;
-    ">
-      <p style="margin:0;">
-        <strong>Vivid</strong> describes how intense your perceptions are; the brightness or contrast of what you see, or the loudness of what you hear. 
-        <strong>Bizarre</strong> reflects how unusual or unrealistic the content feels. 
-        <strong>Immersive</strong> refers to how deeply absorbed you are in the experience and how detached you feel from your surroundings. 
-        <strong>Spontaneous</strong> indicates how much the content comes to you on its own, without deliberate control. 
-        <strong>Emotional</strong> relates to how strongly you felt emotions. 
-        Scores are based on your intensity scores from Section 3. 
-        Grey (“world”) shows the average scores from 1,000 people worldwide.
-      </p>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+# st.markdown(
+#     """
+#     <div style="
+#         max-width:720px;
+#         margin:14px 0 0 0;
+#         text-align:justify;
+#         text-justify:inter-word;
+#         font-size:0.82rem;
+#         color:#444;
+#         line-height:1.5;
+#     ">
+#       <p style="margin:0;">
+#         <strong>Vivid</strong> describes how intense your perceptions are; the brightness or contrast of what you see, or the loudness of what you hear. 
+#         <strong>Bizarre</strong> reflects how unusual or unrealistic the content feels. 
+#         <strong>Immersive</strong> refers to how deeply absorbed you are in the experience and how detached you feel from your surroundings. 
+#         <strong>Spontaneous</strong> indicates how much the content comes to you on its own, without deliberate control. 
+#         <strong>Emotional</strong> relates to how strongly you felt emotions. 
+#         Scores are based on your intensity scores from Section 3. 
+#         Grey (“world”) shows the average scores from 1,000 people worldwide.
+#       </p>
+#     </div>
+#     """,
+#     unsafe_allow_html=True
+# )
 
 
 
@@ -1339,38 +1339,70 @@ body, .dm-center, .dm-row, .dm-text, .dm-title, .dm-lead, .dm-key, .dm-desc,
 
 import streamlit.components.v1 as components
 
-components.html(
-    f"""
+# --- Note (left) + Download button (right) -----------------------------------
+left_note, right_btn = st.columns([7, 3], gap="small")
+
+with left_note:
+    st.markdown(
+        """
+        <div style="
+            max-width:720px;
+            margin:14px 0 0 0;
+            text-align:justify;
+            text-justify:inter-word;
+            font-size:0.82rem;
+            color:#444;
+            line-height:1.5;
+        ">
+          <p style="margin:0;">
+            <strong>Vivid</strong> describes how intense your perceptions are; the brightness or contrast of what you see, or the loudness of what you hear. 
+            <strong>Bizarre</strong> reflects how unusual or unrealistic the content feels. 
+            <strong>Immersive</strong> refers to how deeply absorbed you are in the experience and how detached you feel from your surroundings. 
+            <strong>Spontaneous</strong> indicates how much the content comes to you on its own, without deliberate control. 
+            <strong>Emotional</strong> relates to how strongly you felt emotions. 
+            Scores are based on your intensity ratings from Section 3. 
+            Grey (“world”) shows the average scores from 1,000 people worldwide.
+          </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+with right_btn:
+    # keep the button in its own iframe so JS works; align it to the right
+    components.html(
+        f"""
 <!doctype html>
 <html>
 <head>
 <meta charset="utf-8" />
 {DM_SHARE_CSS}
 <style>
-  /* keep the mirror off-screen but fully laid out */
-  #export-root {{
-    position: fixed;
-    left: -10000px;
-    top: 0;
-    width: 820px;            /* matches your dm-center max */
-    background: #ffffff;
+  body {{ margin:0; background:#fff; }}
+  .wrap {{
+    display:flex; justify-content:flex-end; align-items:flex-start;
+    padding-top:14px;  /* align with note's top margin */
   }}
   .bar {{
     display:inline-block; padding:10px 16px; border:none; border-radius:8px;
     font-size:15px; cursor:pointer; background:#7B61FF; color:#fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,.08);
   }}
-  body {{ margin:0; background:#fff; }}
+  /* Hidden mirror (off-screen) */
+  #export-root {{
+    position: fixed; left: -10000px; top: 0;
+    width: 820px; background:#fff;
+  }}
 </style>
 </head>
 <body>
-  <div style="max-width:820px; margin:12px auto 0; text-align:center;">
-    <button id="dmshot" class="bar"> ↓ Download your profile (PNG)</button>
+  <div class="wrap">
+    <button id="dmshot" class="bar">↓ Download your profile (PNG)</button>
   </div>
 
   <!-- Hidden mirror of your section -->
   <div id="export-root">{DM_SHARE_HTML}</div>
 
-  <!-- libs -->
   <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3.4.0/dist/dom-to-image-more.min.js"></script>
   <script>
   (function() {{
@@ -1387,19 +1419,11 @@ components.html(
 
     async function capture() {{
       try {{
-        // wait a frame to ensure layout computed
         await new Promise(r => requestAnimationFrame(r));
-
         const rect = root.getBoundingClientRect();
-        const w = Math.ceil(rect.width);
-        const h = Math.ceil(rect.height);
-
+        const w = Math.ceil(rect.width), h = Math.ceil(rect.height);
         const blob = await window.domtoimage.toBlob(root, {{
-          width: w,
-          height: h,
-          bgcolor: '#ffffff',
-          quality: 1,
-          cacheBust: true
+          width: w, height: h, bgcolor: '#ffffff', quality: 1, cacheBust: true
         }});
         if (!blob || !blob.size) throw new Error('empty blob');
         await downloadBlob(blob, 'drifting_minds_profile.png');
@@ -1414,9 +1438,10 @@ components.html(
   </script>
 </body>
 </html>
-    """,
-    height=90
-)
+        """,
+        height=70
+    )
+
 
 
 
