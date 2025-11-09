@@ -877,7 +877,7 @@ qr_src = _data_uri(qr_path) if os.path.exists(qr_path) else ""
 st.markdown(
     f"""
     <div style="
-        position: fixed;
+        position: absolute;
         top: 40px;           /* top padding alignment */
         right: 18rem;         /* matches Streamlit's page right padding */
         text-align: center;
