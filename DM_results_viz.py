@@ -1530,7 +1530,7 @@ with c3:
 st.markdown(
     """
     <div class="dm-center" style="max-width:1020px; margin:28px auto 16px;">
-      <div style="display:flex; align-items:center; gap:44px;">
+      <div style="display:flex; align-items:center; gap:34px;">
         <div style="height:1px; background:#000; flex:0.5;"></div>
         <div style="flex:0; font-weight: 600; font-size:1.35rem; letter-spacing:0.2px; white-space:nowrap;">
           YOUR SLEEP
