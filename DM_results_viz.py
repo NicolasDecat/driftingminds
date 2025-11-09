@@ -1211,8 +1211,8 @@ DM_SHARE_HTML = f"""
 <div style='position:relative;'>
   <div style='position:absolute; top:5px; right:0px; text-align:center; font-size:0.9rem; color:#000; line-height:1.05;'>
     <img src="{qr_src}" width="88" style="display:block; margin:0 auto 1px auto;" />
-    <div style="font-weight:600; margin:0;">Participate!</div>
-    <div style="font-size:0.8rem; margin-top:3px;">redcap.link/DriftingMinds</div>
+    <div style="font-weight:600; font-size:0.6rem; margin:0;">Participate!</div>
+    <div style="font-size:0.6rem; margin-top:3px;">redcap.link/DriftingMinds</div>
   </div>
   {export_title_html}
   {export_header_html}
