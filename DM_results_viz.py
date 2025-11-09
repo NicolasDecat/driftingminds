@@ -56,7 +56,7 @@ st.markdown(
     f"""
     <div style="
         position: absolute;
-        top: 0px;          /* now truly the top of the content area */
+        top: 5px;          /* now truly the top of the content area */
         right: 0px;        /* hugs the content's right edge */
         text-align: center;
         font-size: 0.9rem;
