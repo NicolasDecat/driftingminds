@@ -1467,7 +1467,7 @@ with c1:
 
     # --- In-axes minimalist legend (left, mid-height) ---
     x0 = 0.02
-    y_top = 0.53
+    y_top = 0.63
     y_gap = 0.085  # slightly larger spacing
     box_size = 0.028  # bigger squares
 
