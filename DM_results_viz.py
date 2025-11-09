@@ -1478,7 +1478,7 @@ with c1:
                                color=PURPLE_HEX, lw=0))
     ax.text(x0 + 0.05, y_top, "you",
             transform=ax.transAxes, ha="left", va="center",
-            fontsize=9.5, color=PURPLE_HEX)
+            fontsize=7.5, color=PURPLE_HEX)
 
     # world (below)
     ax.add_patch(plt.Rectangle((x0, y_top - y_gap - box_size / 2),
@@ -1487,7 +1487,7 @@ with c1:
                                color="#D9D9D9", lw=0))
     ax.text(x0 + 0.05, y_top - y_gap, "world",
             transform=ax.transAxes, ha="left", va="center",
-            fontsize=9.5, color="#444444")
+            fontsize=7.5, color="#444444")
 
     # maintain alignment
     ax.set_position(AX_POS_YOU)
