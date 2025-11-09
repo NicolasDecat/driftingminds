@@ -1496,23 +1496,6 @@ vviq_edges   = np.linspace(low, high, 26)
 vviq_counts, _ = np.histogram(vviq_samples, bins=vviq_edges, density=True)
 vviq_hidx = int(np.clip(np.digitize(vviq_score, vviq_edges) - 1, 0, len(vviq_counts)-1))
 
-# --- Diagnostics: where does the population actually start? ---
-st.caption("🔎 Visual imagery population debug")
-st.write("min(vviq_samples) =", float(np.nanmin(vviq_samples)),
-        "max(vviq_samples) =", float(np.nanmax(vviq_samples)))
-
-nonzero_idx = np.where(vviq_counts > 0)[0]
-if nonzero_idx.size:
-    i0 = int(nonzero_idx[0])
-    first_bin_left  = float(vviq_edges[i0])
-    first_bin_right = float(vviq_edges[i0+1])
-    first_bin_center = 0.5 * (first_bin_left + first_bin_right)
-    st.write(
-        f"first non-zero bin: [{first_bin_left:.2f}, {first_bin_right:.2f}) "
-        f"(center ≈ {first_bin_center:.2f}), count={vviq_counts[i0]:.4f}"
-    )
-else:
-    st.write("All bins are zero with the current edges (no data in [16, 80]).")
 
 # 2) Creativity 1–6
 cre_vals  = _col_values(pop_data, "creativity_trait")
@@ -1554,6 +1537,14 @@ with c1:
             ha="left",  va="top", fontsize=9)
     ax.text(1.00, -0.05, "high (80)", transform=ax.transAxes,
             ha="right", va="top", fontsize=9)
+    
+    # --- Optional vertical marker for very low imagery (<30) -----------------
+    if vviq_score < 30:
+        x_line = vviq_score
+        # short vertical segment (20% of current y max)
+        y_max = ax.get_ylim()[1]
+        ax.vlines(x_line, 0, y_max * 0.2, color=PURPLE_HEX, lw=1.2)
+    
 
     # --- In-axes minimalist legend (left, mid-height) ------------------------
     x0 = 0.02
