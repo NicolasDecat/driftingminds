@@ -1346,7 +1346,7 @@ st.markdown(
     <div class="dm-center" style="max-width:960px; margin:18px auto 10px;">
       <div style="display:flex; align-items:center; gap:18px;">
         <div style="height:1px; background:#000; flex:1;"></div>
-        <div style="flex:0; font-weight:600; font-size:1.35rem; letter-spacing:0.2px;">You</div>
+        <div style="flex:0; font-weight:600; font-size:1.35rem; letter-spacing:0.2px;">YOU</div>
         <div style="height:1px; background:#000; flex:1;"></div>
       </div>
     </div>
@@ -1458,9 +1458,26 @@ FIGSIZE_STANDARD = (2.4, 2.60)
 c1, c2, c3 = st.columns(3, gap="small")
 
 with c1:
+    # --- Minimalist legend (left, mid-height) ---
+    st.markdown("""
+    <div style="
+        position: relative;
+        top: 45%;
+        left: -15px;
+        transform: translateY(-50%);
+        font-size: 11px;
+        line-height: 1.4;
+        color: #444;
+    ">
+        <div style="margin-bottom:2px;"><span style="display:inline-block;width:10px;height:10px;background:#D9D9D9;border-radius:50%;margin-right:6px;"></span>World</div>
+        <div><span style="display:inline-block;width:10px;height:10px;background:#7C3AED;border-radius:50%;margin-right:6px;"></span>You</div>
+    </div>
+    """, unsafe_allow_html=True)
+
     fig, ax = plt.subplots(figsize=FIGSIZE_IMAGERY)
     fig.patch.set_alpha(0); ax.set_facecolor("none")
-    _mini_hist(ax, vviq_counts, vviq_edges, vviq_hidx, "Your visual imagery at wake")
+    _mini_hist(ax, vviq_counts, vviq_edges, vviq_hidx,
+           f"Your visual imagery at wake: {int(round(vviq_score))}")
     ax.set_position(AX_POS_YOU)  # ← lock baseline
     st.pyplot(fig, use_container_width=False)
 
@@ -1471,7 +1488,8 @@ with c2:
     else:
         fig, ax = plt.subplots(figsize=FIGSIZE_STANDARD)
         fig.patch.set_alpha(0); ax.set_facecolor("none")
-        _mini_hist(ax, cre_counts, cre_edges, cre_hidx, "Your level of creativity")
+        _mini_hist(ax, cre_counts, cre_edges, cre_hidx,
+           f"Your level of creativity: {int(round(cre_part))}")
         ax.set_position(AX_POS_YOU)  # ← lock baseline
         st.pyplot(fig, use_container_width=False)
 
@@ -1482,7 +1500,8 @@ with c3:
     else:
         fig, ax = plt.subplots(figsize=FIGSIZE_STANDARD)
         fig.patch.set_alpha(0); ax.set_facecolor("none")
-        _mini_hist(ax, anx_counts, anx_edges, anx_hidx, "Your level of anxiety")
+        _mini_hist(ax, anx_counts, anx_edges, anx_hidx,
+           f"Your level of anxiety: {int(round(anx_part))}")
         ax.set_position(AX_POS_YOU)  # ← lock baseline
         st.pyplot(fig, use_container_width=False)
 
@@ -1500,7 +1519,7 @@ st.markdown(
       <div style="display:flex; align-items:center; gap:44px;">
         <div style="height:1px; background:#000; flex:1;"></div>
         <div style="flex:0; font-weight: 600; font-size:1.35rem; letter-spacing:0.2px; white-space:nowrap;">
-          Your sleep
+          YOUR SLEEP
         </div>
         <div style="height:1px; background:#000; flex:1;"></div>
       </div>
@@ -1743,7 +1762,7 @@ st.markdown(
       <div style="display:flex; align-items:center; gap:44px;">
         <div style="height:1px; background:#000; flex:1;"></div>
         <div style="flex:0; font-weight: 600; font-size:1.35rem; letter-spacing:0.2px; white-space:nowrap;">
-          Your experience
+          YOUR EXPERIENCE
         </div>
         <div style="height:1px; background:#000; flex:1;"></div>
       </div>
