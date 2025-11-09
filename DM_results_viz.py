@@ -1587,7 +1587,7 @@ with c2:
         _mini_hist(ax, cre_counts, cre_edges, cre_hidx,
            f"Your level of creativity: {int(round(cre_part))}")
         # Replace default x-labels
-        ax.text(0.0, -0.05, "low (0)",  transform=ax.transAxes,
+        ax.text(0.0, -0.05, "low (1)",  transform=ax.transAxes,
                 ha="left", va="top", fontsize=9)
         ax.text(1.0, -0.05, "high (6)", transform=ax.transAxes,
                 ha="right", va="top", fontsize=9)
@@ -1604,7 +1604,7 @@ with c3:
         _mini_hist(ax, anx_counts, anx_edges, anx_hidx,
            f"Your level of anxiety: {int(round(anx_part))}")
         # Replace default x-labels
-        ax.text(0.0, -0.05, "low (16)",  transform=ax.transAxes,
+        ax.text(0.0, -0.05, "low (1)",  transform=ax.transAxes,
                 ha="left", va="top", fontsize=9)
         ax.text(1.0, -0.05, "high (100)", transform=ax.transAxes,
                 ha="right", va="top", fontsize=9)
