@@ -2104,7 +2104,7 @@ with exp_right:
 
 st.markdown(
     """
-    <div class="dm-center" style="max-width:800px; margin:30px auto 0; text-align:left; font-size:0.8rem; color:#444;">
+    <div style="max-width:800px; margin:30px 0 0 0; text-align:left; font-size:0.8rem; color:#444;">
       <em>
         These results are automatically generated from your responses to the Drifting Minds questionnaire.  
         They are meant for research and self-reflection only, not as medical or diagnostic advice.  
@@ -2114,6 +2114,7 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
 
 
 
