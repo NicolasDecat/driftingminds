@@ -870,7 +870,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# --- QR code (top-right corner, aligned with page padding) ------------------
+# --- QR code (aligned with title + bars) -------------------------------------
 qr_path = os.path.join("assets", "qr_code_DM.png")
 qr_src = _data_uri(qr_path) if os.path.exists(qr_path) else ""
 
@@ -878,14 +878,15 @@ st.markdown(
     f"""
     <div style="
         position: absolute;
-        top: 24px;
-        right: 48px;
+        top: 28px;                 /* aligns with title height */
+        left: 50%;
+        transform: translateX(calc(var(--dm-max) / 2 - 100%)); /* right edge of main content */
         text-align: center;
         font-size: 0.9rem;
         color: #000;
         z-index: 1000;
     ">
-        <img src="{qr_src}" width="90" style="display:block; margin:0 auto 4px auto;" />
+        <img src="{qr_src}" width="88" style="display:block; margin:0 auto 4px auto;" />
         <div style="font-weight:600; color:#000;">Participate!</div>
         <div style="font-size:0.8rem; color:#000;">redcap.link/DriftingMinds</div>
     </div>
