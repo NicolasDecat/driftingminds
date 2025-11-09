@@ -1459,22 +1459,27 @@ c1, c2, c3 = st.columns(3, gap="small")
 
 with c1:
     fig, ax = plt.subplots(figsize=FIGSIZE_IMAGERY)
-    fig.patch.set_alpha(0)
-    ax.set_facecolor("none")
+    fig.patch.set_alpha(0); ax.set_facecolor("none")
 
-    # --- Plot histogram ---
-    _mini_hist(ax, vviq_counts, vviq_edges, vviq_hidx,
-               f"Your visual imagery at wake: {int(round(vviq_score))}")
+    # original plot
+    _mini_hist(ax, vviq_counts, vviq_edges, vviq_hidx, "Your visual imagery at wake")
+
+    # --- In-axes minimalist legend (left, mid-height) ---
+    # positions are in axes coordinates (0..1)
+    x0 = 0.02
+    ax.scatter([x0], [0.55], transform=ax.transAxes, s=26,
+               color="#D9D9D9", edgecolors="none", zorder=4)
+    ax.text(x0 + 0.045, 0.55, "World", transform=ax.transAxes,
+            ha="left", va="center", fontsize=9, color="#444444")
+
+    ax.scatter([x0], [0.42], transform=ax.transAxes, s=26,
+               color=PURPLE_HEX, edgecolors="none", zorder=4)
+    ax.text(x0 + 0.045, 0.42, "You", transform=ax.transAxes,
+            ha="left", va="center", fontsize=9, color=PURPLE_HEX)
+
+    # keep your locked baseline & render
     ax.set_position(AX_POS_YOU)
-
-    # --- In-plot minimalist legend (left, mid-height) ---
-    ax.text(-0.45, 0.5, "● World", transform=ax.transAxes,
-            ha="left", va="center", color="#888888", fontsize=8.5)
-    ax.text(-0.45, 0.42, "● You", transform=ax.transAxes,
-            ha="left", va="center", color="#7C3AED", fontsize=8.5)
-
     st.pyplot(fig, use_container_width=False)
-
 
 
 with c2:
