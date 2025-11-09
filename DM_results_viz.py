@@ -1557,8 +1557,14 @@ if uniq_df is not None:
     uniq_hits = _participant_uniqueness(record, dim_catalog, pop_uni,
                                         freq_top=0.10, temp_top=0.05, max_items=3)
 
+    
+    
     # --- Render section only if we have at least one hit ---------------------
     if uniq_hits:
+        
+        st.write("🧪 DEBUG — Uniqueness raw scores")
+        for typ, dim, score, z, pct in uniq_hits:
+            st.write(f"{dim}: {score:.2f}, z={z:.2f}, top{pct}% threshold={np.quantile(pop_uni[typ][dim], 1-pct/100):.2f}")
         st.markdown(
             """
             <div class="dm-center" style="max-width:1020px; margin:26px auto 14px;">
