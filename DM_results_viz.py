@@ -1677,8 +1677,8 @@ with col_left:
                             ax.spines[side].set_visible(False)
                             
                         # --- Add legend (right side, mid-height) ---------------------------------
-                        x0 = 0.82     # further to the right inside axes (0–1 in Axes coords)
-                        y_top = 0.63  # vertical position for first label
+                        x0 = 0.72     # further to the right inside axes (0–1 in Axes coords)
+                        y_top = 0.73  # vertical position for first label
                         y_gap = 0.085
                         size = 0.038  # symbol size (same scale as imagery legend)
                         
