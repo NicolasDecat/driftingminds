@@ -1134,7 +1134,7 @@ st.markdown("</div></div>", unsafe_allow_html=True)
 st.markdown(
     """
     <div style="
-        max-width:820px;
+        max-width:720px;
         margin:14px 0 0 0;
         text-align:justify;
         text-justify:inter-word;
