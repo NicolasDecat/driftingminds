@@ -1535,7 +1535,7 @@ st.markdown(
         <div style="flex:0; font-weight: 600; font-size:1.35rem; letter-spacing:0.2px; white-space:nowrap;">
           YOUR SLEEP
         </div>
-        <div style="height:1px; background:#000; flex:1;"></div>
+        <div style="height:1px; background:#000; flex:0.8;"></div>
       </div>
     </div>
     """,
@@ -1664,7 +1664,7 @@ with col_mid:
                 try:
                     if dur_raw_str.endswith("+"):
                         part_hours_plot = float(dur_raw_str[:-1])
-                        title_str = f"You sleep {dur_raw_str} hours on average"
+                        title_str = f"You sleep on average {dur_raw_str} hours"
                     else:
                         part_hours_plot = float(dur_raw_str)
                         title_str = f"You sleep {int(round(part_hours_plot))} hours on average"
