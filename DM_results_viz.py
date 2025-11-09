@@ -878,8 +878,8 @@ st.markdown(
     f"""
     <div style="
         position: fixed;
-        top: 30px;           /* top padding alignment */
-        right: 30rem;         /* matches Streamlit's page right padding */
+        top: 35px;           /* top padding alignment */
+        right: 15rem;         /* matches Streamlit's page right padding */
         text-align: center;
         font-size: 0.9rem;
         color: #000;
