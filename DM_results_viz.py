@@ -1522,18 +1522,28 @@ with c1:
     fig.patch.set_alpha(0)
     ax.set_facecolor("none")
 
-    # --- Plot imagery histogram ---
+    # --- Rebuild histogram so x starts at 16 ---------------------------------
+    vviq_edges = np.linspace(16, 100, 22)  # 16 → 100
+    vviq_counts, _ = np.histogram(vviq_samples, bins=vviq_edges, density=True)
+    vviq_hidx = int(np.clip(np.digitize(vviq_score, vviq_edges) - 1, 0, len(vviq_counts) - 1))
+
+    # --- Plot imagery histogram ----------------------------------------------
     _mini_hist(ax, vviq_counts, vviq_edges, vviq_hidx,
-           f"Your visual imagery at wake: {int(round(vviq_score))}")
+               f"Your visual imagery at wake: {int(round(vviq_score))}")
 
+    # --- Custom x-axis labels -------------------------------------------------
+    ax.text(0.00, -0.05, "low (16)",   transform=ax.transAxes,
+            ha="left",  va="top", fontsize=9)
+    ax.text(1.00, -0.05, "high (100)", transform=ax.transAxes,
+            ha="right", va="top", fontsize=9)
 
-    # --- In-axes minimalist legend (left, mid-height) ---
+    # --- In-axes minimalist legend (left, mid-height) ------------------------
     x0 = 0.02
     y_top = 0.63
-    y_gap = 0.085  # slightly larger spacing
-    box_size = 0.038  # bigger squares
+    y_gap = 0.085
+    box_size = 0.038
 
-    # you (top)
+    # you (purple square)
     ax.add_patch(plt.Rectangle((x0, y_top - box_size / 2),
                                box_size, box_size,
                                transform=ax.transAxes,
@@ -1542,7 +1552,7 @@ with c1:
             transform=ax.transAxes, ha="left", va="center",
             fontsize=7.5, color=PURPLE_HEX)
 
-    # world (below)
+    # world (gray square)
     ax.add_patch(plt.Rectangle((x0, y_top - y_gap - box_size / 2),
                                box_size, box_size,
                                transform=ax.transAxes,
@@ -1554,6 +1564,7 @@ with c1:
     # maintain alignment
     ax.set_position(AX_POS_YOU)
     st.pyplot(fig, use_container_width=False)
+
 
 
 
