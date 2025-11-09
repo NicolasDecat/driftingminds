@@ -1623,8 +1623,8 @@ st.markdown(
         line-height:1.45;
     ">
       <em>
-        "World” corresponds to data from 1,000 participants worldwide.<br>
-        Left graph: Vividness of Visual Imagery Questionnaire (VVIQ) score.  Middle / right graphs: self-reported ratings on creativity and anxiety over the past year.
+        Grey info ("world”) represents data from 1,000 people worldwide.<br>
+        Left graph: Vividness of visual imagery when awake (VVIQ score).  Middle and right: self-rated creativity and anxiety over the past year.
       </em>
     </div>
     """,
