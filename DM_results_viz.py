@@ -31,33 +31,41 @@ st.set_page_config(page_title="Drifting Minds — Profile", layout="centered")
 REDCAP_API_URL = st.secrets.get("REDCAP_API_URL")
 REDCAP_API_TOKEN = st.secrets.get("REDCAP_API_TOKEN")
 
-# ==============
-# QR code
-# ==============
+# Make Streamlit's main content container "position: relative"
+st.markdown("""
+<style>
+/* Ensure absolute children are positioned relative to the page content area */
+[data-testid="stAppViewContainer"] > .main > div {
+  position: relative;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# --- QR code (top-right inside page padding) ---
 def _data_uri(path: str) -> str:
     mime = "image/svg+xml" if path.lower().endswith(".svg") else "image/png"
     with open(path, "rb") as f:
+        import base64
         b64 = base64.b64encode(f.read()).decode()
     return f"data:{mime};base64,{b64}"
 
-# --- QR code (top-right corner within Streamlit page padding) ---------------
 qr_path = os.path.join("assets", "qr_code_DM.png")
-qr_src = _data_uri(qr_path) if os.path.exists(qr_path) else ""
+qr_src  = _data_uri(qr_path) if os.path.exists(qr_path) else ""
 
 st.markdown(
     f"""
     <div style="
         position: absolute;
-        top: 15;
-        right: 0rem;
+        top: 0px;          /* now truly the top of the content area */
+        right: 0px;        /* hugs the content's right edge */
         text-align: center;
         font-size: 0.9rem;
         color: #000;
         z-index: 1000;
     ">
         <img src="{qr_src}" width="88" style="display:block; margin:0 auto 4px auto;" />
-        <div style="font-weight:600; color:#000;">Participate!</div>
-        <div style="font-size:0.8rem; color:#000;">redcap.link/DriftingMinds</div>
+        <div style="font-weight:600;">Participate!</div>
+        <div style="font-size:0.8rem;">redcap.link/DriftingMinds</div>
     </div>
     """,
     unsafe_allow_html=True
