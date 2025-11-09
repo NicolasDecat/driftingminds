@@ -2104,11 +2104,12 @@ with exp_right:
 
 st.markdown(
     """
-    <div class="dm-center" style="max-width:800px; margin:36px auto 0; text-align:center; font-size:0.9rem; color:#444;">
+    <div class="dm-center" style="max-width:800px; margin:36px auto 0; text-align:center; font-size:0.85rem; color:#444;">
       <em>
         These results are automatically generated from your responses to the Drifting Minds questionnaire.  
         They are meant for research and self-reflection only, not as medical or diagnostic advice.  
-        This study explores how experiences vary as we fall asleep — your participation helps advance this research.  
+        <br>
+        This study explores how experiences vary as we fall asleep, and your participation helps advance this research.  
         For any questions, contact <a href="mailto:driftingminds@icm-institute.org" style="color:#7C3AED; text-decoration:none;">driftingminds@icm-institute.org</a>.
       </em>
     </div>
