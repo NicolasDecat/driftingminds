@@ -1615,22 +1615,23 @@ with c3:
 st.markdown(
     """
     <div style="
-        max-width:800px;
-        margin:10px auto 0;
+        max-width:820px;
+        margin:14px 0 0 0;   /* no horizontal centering, flush left */
         text-align:left;
         font-size:0.82rem;
         color:#444;
         line-height:1.45;
     ">
       <em>
-        Note — “world” corresponds to data from 1,000 participants worldwide.  
-        Left graph: Vividness of Visual Imagery Questionnaire (VVIQ) score.  
+        Note — “world” corresponds to data from 1,000 participants worldwide.<br>
+        Left graph: Vividness of Visual Imagery Questionnaire (VVIQ) score.<br>
         Creativity and anxiety values are self-reported ratings.
       </em>
     </div>
     """,
     unsafe_allow_html=True
 )
+
 
 
 
