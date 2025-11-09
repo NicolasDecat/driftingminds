@@ -56,16 +56,16 @@ st.markdown(
     f"""
     <div style="
         position: absolute;
-        top: 40px;          /* now truly the top of the content area */
-        right: 0px;        /* hugs the content's right edge */
+        top: 40px;          /* top alignment inside content area */
+        right: 0px;         /* hugs the content's right edge */
         text-align: center;
         font-size: 0.9rem;
         color: #000;
         z-index: 1000;
     ">
-        <img src="{qr_src}" width="88" style="display:block; margin:0 auto 4px auto;" />
-        <div style="font-weight:600;">Participate!</div>
-        <div style="font-size:0.8rem;">redcap.link/DriftingMinds</div>
+        <img src="{qr_src}" width="88" style="display:block; margin:0 auto 2px auto;" />
+        <div style="font-weight:600; margin-top:2px; margin-bottom:1px;">Participate!</div>
+        <div style="font-size:0.8rem; margin-top:0px; color:#000;">redcap.link/DriftingMinds</div>
     </div>
     """,
     unsafe_allow_html=True
