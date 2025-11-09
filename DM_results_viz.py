@@ -1610,7 +1610,172 @@ if uniq_df is not None:
         )
 
           
-          
+      
+        
+        
+        
+        
+        
+        # =========================
+# DIAGNOSTIC + ALIGNMENT for "Your unique traits"
+# =========================
+
+import numpy as np
+import pandas as pd
+import streamlit as st
+
+# --- 1) Map "Dim" labels in uniqueness.csv to your bar keys (left=CSV, right=BARS) ---
+# Edit only if your naming differs. We'll also try an automatic guess below.
+UNI2BAR_MAP = {
+    # "Emotional": "Emotional",   # example
+    # "Bizarre":   "Bizarre",
+    # "Vivid":     "Vivid",
+    # "Immersive": "Immersive",
+    # "Spontaneous": "Spontaneous",
+}
+
+# --- helpers to read var lists from both sources ---
+def get_uni_vars_for_dim(uniq_df, typ, dim):
+    """Variables listed in uniqueness.csv for a given Type ('Freq'/'Temp') and Dim."""
+    tmp = uniq_df[(uniq_df["Type"].astype(str).str.strip()==typ) &
+                  (uniq_df["Dim"].astype(str).str.strip()==dim)]
+    return sorted(list(tmp["Var"].astype(str).str.strip().unique()))
+
+def get_bar_freq_vars_for_dim(DIM_BAR_CONFIG, bar_dim_key):
+    """Frequency-driving vars used by the bars for that dim (from DIM_BAR_CONFIG)."""
+    cfg = DIM_BAR_CONFIG.get(bar_dim_key, {})
+    return sorted([v for v in cfg.get("freq_keys", [])])
+
+# --- normalize like in the bars for frequency-only (no weights/k-bump) ---
+def score_freq_only_mean01(rec, vars_list):
+    vals = []
+    for v in vars_list:
+        if v in rec:
+            vals.append(norm_1_6(rec[v]))  # bars frequency items are on 1..6 → norm_1_6
+    vals = [vv for vv in vals if isinstance(vv, (int,float)) and not np.isnan(vv)]
+    return float(np.mean(vals)) if len(vals) else np.nan
+
+# --- compute via your existing bar function (includes weights/k-bump if any) ---
+def score_via_bars(rec, bar_dim_key):
+    cfg = DIM_BAR_CONFIG.get(bar_dim_key, None)
+    if cfg is None:
+        return np.nan
+    try:
+        return float(compute_dimension_score(rec, cfg, k_bump=0.8))
+    except Exception:
+        return np.nan
+
+# --- (Optional) population scoring using the SAME formula as participant ---
+def pop_scores_for_dim(pop_df, vars_list, use_bars=False, bar_dim_key=None):
+    out = []
+    if pop_df is None or pop_df.empty:
+        return np.array(out, dtype=float)
+    for _, row in pop_df.iterrows():
+        rec = row.to_dict()
+        if use_bars and bar_dim_key:
+            s = score_via_bars(rec, bar_dim_key)
+        else:
+            s = score_freq_only_mean01(rec, vars_list)
+        if not np.isnan(s):
+            out.append(s)
+    return np.array(out, dtype=float)
+
+# --- 2) Try to auto-link uniqueness dims to bar dims if not in UNI2BAR_MAP ---
+if uniq_df is not None:
+    bar_keys = list(DIM_BAR_CONFIG.keys())
+    missing_map = {}
+    for dim_csv in uniq_df["Dim"].astype(str).str.strip().unique():
+        if dim_csv not in UNI2BAR_MAP:
+            # naive guess: case-insensitive exact match
+            candidates = [bk for bk in bar_keys if bk.lower() == dim_csv.lower()]
+            UNI2BAR_MAP[dim_csv] = candidates[0] if candidates else None
+            if not candidates:
+                missing_map[dim_csv] = True
+
+    if missing_map:
+        st.info(f"[Uniqueness] These CSV dims are not found in DIM_BAR_CONFIG: {sorted(missing_map.keys())}")
+
+    # --- 3) Side-by-side comparison + variable-set diff + score diff ---
+    st.markdown("#### 🔎 Consistency check: bars vs uniqueness")
+    rows = []
+    for typ in ["Freq"]:  # Temp handled separately; bars usually model frequency dims
+        for dim_csv in sorted(uniq_df["Dim"].astype(str).str.strip().unique()):
+            # skip if this dim is not in this Type
+            if uniq_df[(uniq_df["Type"].astype(str).str.strip()==typ) &
+                       (uniq_df["Dim"].astype(str).str.strip()==dim_csv)].empty:
+                continue
+
+            vars_uni = get_uni_vars_for_dim(uniq_df, typ, dim_csv)
+            bar_key = UNI2BAR_MAP.get(dim_csv, None)
+            vars_bar = get_bar_freq_vars_for_dim(DIM_BAR_CONFIG, bar_key) if bar_key else []
+
+            # Set comparisons
+            set_uni = set(vars_uni)
+            set_bar = set(vars_bar)
+            only_in_uni = sorted(list(set_uni - set_bar))
+            only_in_bar = sorted(list(set_bar - set_uni))
+
+            # Scores
+            s_uni = score_freq_only_mean01(record, vars_uni) if vars_uni else np.nan
+            s_bar = score_via_bars(record, bar_key) if bar_key else np.nan
+
+            rows.append({
+                "Type": typ,
+                "Dim(CSV)": dim_csv,
+                "BarKey": bar_key,
+                "CSV_vars_count": len(vars_uni),
+                "BAR_vars_count": len(vars_bar),
+                "only_in_CSV": ", ".join(only_in_uni[:8]) + (" …" if len(only_in_uni)>8 else ""),
+                "only_in_BAR": ", ".join(only_in_bar[:8]) + (" …" if len(only_in_bar)>8 else ""),
+                "Score_uni_mean01": None if np.isnan(s_uni) else round(s_uni, 3),
+                "Score_bar_current": None if np.isnan(s_bar) else round(s_bar, 3),
+            })
+
+    if rows:
+        df_chk = pd.DataFrame(rows)
+        st.dataframe(df_chk, use_container_width=True)
+
+    # --- 4) Make uniqueness use the EXACT SAME computation as the bars (recommended) ---
+    # Toggle this to True to force alignment:
+    FORCE_ALIGNMENT_WITH_BARS = True
+
+    def compute_uniqueness_score(rec, typ, dim_csv):
+        """Returns the participant score AND the population distribution using the aligned formula."""
+        bar_key = UNI2BAR_MAP.get(dim_csv, None)
+        # If bars don't have this dim, fall back to CSV frequency-mean
+        if FORCE_ALIGNMENT_WITH_BARS and (typ == "Freq") and bar_key:
+            # Use the bar computation for participant and population
+            p_sc = score_via_bars(rec, bar_key)
+            # For population: re-evaluate using bar formula as well
+            dist = []
+            if pop_data is not None and not pop_data.empty:
+                for _, row in pop_data.iterrows():
+                    dist.append(score_via_bars(row.to_dict(), bar_key))
+                dist = np.array([d for d in dist if not np.isnan(d)], dtype=float)
+            else:
+                dist = np.array([], dtype=float)
+            return p_sc, dist
+        else:
+            # CSV-driven plain mean (Freq) or your Temp logic elsewhere
+            vars_uni = get_uni_vars_for_dim(uniq_df, typ, dim_csv)
+            p_sc = score_freq_only_mean01(rec, vars_uni) if vars_uni else np.nan
+            dist = pop_scores_for_dim(pop_data, vars_uni, use_bars=False)
+            return p_sc, dist
+
+    # --- 5) Example: recompute Emotional (or all) with aligned formula and show threshold ---
+    # This replaces the earlier uniqueness per-dim scoring when you build the sentences.
+    # Where you previously had sc/dist = ..., swap to this:
+    #    p_sc, dist = compute_uniqueness_score(record, typ, dim)
+    #    thr = np.quantile(dist, 0.90)        # for top 10%
+    #    is_top = (p_sc >= thr)
+    #
+    # If you want, you can print one specific dim for a quick visual check:
+    DIM_TO_CHECK = None  # e.g., "Emotional"
+    if DIM_TO_CHECK:
+        p_sc, dist = compute_uniqueness_score(record, "Freq", DIM_TO_CHECK)
+        if dist.size:
+            st.write(f"DEBUG {DIM_TO_CHECK}: participant={p_sc:.3f}, mean={np.mean(dist):.3f}, p90={np.quantile(dist,0.9):.3f}")
+
           
           
           
