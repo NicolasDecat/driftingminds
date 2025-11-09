@@ -1398,9 +1398,10 @@ st.markdown("<div style='height:10px;'></div>", unsafe_allow_html=True)
 import pandas as _pd
 
 # --- Load uniqueness mapping (Type, Dim, Var) -------------------------------
-_UNI_PATH = os.path.join("assets", "uniqueness.xlsx")
+_UNI_PATH = os.path.join("assets", "uniqueness.csv")
+
 try:
-    uniq_df = _pd.read_excel(_UNI_PATH)
+    uniq_df = _pd.read_csv(_UNI_PATH)
     # Keep only rows with all three columns present
     uniq_df = uniq_df.rename(columns={c: c.strip() for c in uniq_df.columns})
     uniq_df = uniq_df.dropna(subset=["Type", "Dim", "Var"])
