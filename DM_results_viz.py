@@ -1530,7 +1530,7 @@ with c3:
 st.markdown(
     """
     <div class="dm-center" style="max-width:1020px; margin:28px auto 16px;">
-      <div style="display:flex; align-items:center; gap:24px;">
+      <div style="display:flex; align-items:center; gap:20px;">
         <div style="height:1px; background:#000; flex:0.5;"></div>
         <div style="flex:0; font-weight: 600; font-size:1.35rem; letter-spacing:0.2px; white-space:nowrap;">
           YOUR SLEEP
@@ -2097,6 +2097,24 @@ with exp_right:
     st.pyplot(fig, use_container_width=False)
 
 
+
+# ==============
+# Disclaimer
+# ==============
+
+st.markdown(
+    """
+    <div class="dm-center" style="max-width:800px; margin:36px auto 0; text-align:center; font-size:0.9rem; color:#444;">
+      <em>
+        These results are automatically generated from your responses to the Drifting Minds questionnaire.  
+        They are meant for research and self-reflection only, not as medical or diagnostic advice.  
+        This study explores how experiences vary as we fall asleep — your participation helps advance this research.  
+        For any questions, contact <a href="mailto:driftingminds@icm-institute.org" style="color:#7C3AED; text-decoration:none;">driftingminds@icm-institute.org</a>.
+      </em>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 
 
