@@ -1463,7 +1463,9 @@ with c1:
     ax.set_facecolor("none")
 
     # --- Plot imagery histogram ---
-    _mini_hist(ax, vviq_counts, vviq_edges, vviq_hidx, "Your visual imagery at wake")
+    _mini_hist(ax, vviq_counts, vviq_edges, vviq_hidx,
+           f"Your visual imagery at wake: {int(round(vviq_score))}")
+
 
     # --- In-axes minimalist legend (left, mid-height) ---
     x0 = 0.02
