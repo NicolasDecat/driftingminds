@@ -1467,24 +1467,32 @@ with c1:
 
     # --- In-axes minimalist legend (left, mid-height) ---
     x0 = 0.02
-    y_top = 0.54
-    y_gap = 0.06  # tighter vertical gap
+    y_top = 0.53
+    y_gap = 0.085  # slightly larger spacing
+    box_size = 0.028  # bigger squares
 
-    # You (top)
-    ax.add_patch(plt.Rectangle((x0, y_top - 0.02), 0.02, 0.02,
-                               transform=ax.transAxes, color=PURPLE_HEX, lw=0))
-    ax.text(x0 + 0.045, y_top - 0.01, "You", transform=ax.transAxes,
-            ha="left", va="center", fontsize=9, color=PURPLE_HEX)
+    # you (top)
+    ax.add_patch(plt.Rectangle((x0, y_top - box_size / 2),
+                               box_size, box_size,
+                               transform=ax.transAxes,
+                               color=PURPLE_HEX, lw=0))
+    ax.text(x0 + 0.05, y_top, "you",
+            transform=ax.transAxes, ha="left", va="center",
+            fontsize=9.5, color=PURPLE_HEX)
 
-    # World (below)
-    ax.add_patch(plt.Rectangle((x0, y_top - y_gap - 0.02), 0.02, 0.02,
-                               transform=ax.transAxes, color="#D9D9D9", lw=0))
-    ax.text(x0 + 0.045, y_top - y_gap - 0.01, "World", transform=ax.transAxes,
-            ha="left", va="center", fontsize=9, color="#444444")
+    # world (below)
+    ax.add_patch(plt.Rectangle((x0, y_top - y_gap - box_size / 2),
+                               box_size, box_size,
+                               transform=ax.transAxes,
+                               color="#D9D9D9", lw=0))
+    ax.text(x0 + 0.05, y_top - y_gap, "world",
+            transform=ax.transAxes, ha="left", va="center",
+            fontsize=9.5, color="#444444")
 
-    # maintain consistent alignment
+    # maintain alignment
     ax.set_position(AX_POS_YOU)
     st.pyplot(fig, use_container_width=False)
+
 
 
 
