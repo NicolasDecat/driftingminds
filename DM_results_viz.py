@@ -1611,6 +1611,26 @@ with c3:
         ax.set_position(AX_POS_YOU)  # ← lock baseline
         st.pyplot(fig, use_container_width=False)
 
+# --- Explanatory note below the three histograms ----------------------------
+st.markdown(
+    """
+    <div style="
+        max-width:800px;
+        margin:10px auto 0;
+        text-align:left;
+        font-size:0.82rem;
+        color:#444;
+        line-height:1.45;
+    ">
+      <em>
+        Note — “world” corresponds to data from 1,000 participants worldwide.  
+        Left graph: Vividness of Visual Imagery Questionnaire (VVIQ) score.  
+        Creativity and anxiety values are self-reported ratings.
+      </em>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 
 
