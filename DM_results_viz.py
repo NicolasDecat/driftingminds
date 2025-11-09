@@ -1395,19 +1395,39 @@ components.html(
 
 st.markdown("<div style='height:10px;'></div>", unsafe_allow_html=True)
 
-import pandas as _pd
 
 # --- Load uniqueness mapping (Type, Dim, Var) -------------------------------
-_UNI_PATH = os.path.join("assets", "uniqueness.csv")
+import os, glob
+import pandas as _pd
 
-try:
-    uniq_df = _pd.read_csv(_UNI_PATH)
-    # Keep only rows with all three columns present
-    uniq_df = uniq_df.rename(columns={c: c.strip() for c in uniq_df.columns})
-    uniq_df = uniq_df.dropna(subset=["Type", "Dim", "Var"])
-except Exception as e:
-    uniq_df = None
-    st.warning("Could not read uniqueness.xlsx. The 'Your unique traits' section will be skipped.")
+def _load_uniqueness():
+    candidates = [
+        os.path.join("assets", "uniqueness.csv"),  # project folder
+        "/mnt/data/uniqueness.csv",               # uploaded path
+    ]
+    last_err = None
+    for p in candidates:
+        if not os.path.exists(p):
+            continue
+        try:
+            # auto-detect delimiter, tolerate BOM
+            df = _pd.read_csv(p, sep=None, engine="python", encoding="utf-8-sig")
+            df = df.rename(columns={str(c).strip(): str(c).strip() for c in df.columns})
+            df = df.dropna(subset=["Type", "Dim", "Var"])
+            if df.empty:
+                raise ValueError("uniqueness.csv has no usable rows after cleaning.")
+            st.caption(f"Loaded uniqueness mapping from: {p}")
+            return df
+        except Exception as e:
+            last_err = e
+    # Minimal diagnostic to help if it still fails
+    st.warning("Could not read uniqueness.csv — skipping 'Your unique traits'.")
+    st.caption(f"CWD: {os.getcwd()} — assets/ listing: {glob.glob('assets/*')}")
+    if last_err:
+        st.caption(f"Last error: {last_err}")
+    return None
+
+uniq_df = _load_uniqueness()
 
 def _pretty_dim_name(s: str) -> str:
     """Human-facing label for a dimension; extend as you see fit."""
