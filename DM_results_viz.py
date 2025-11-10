@@ -1724,10 +1724,10 @@ with col_left:
                     with plt.rc_context({
                         "axes.facecolor": "none",
                         "axes.edgecolor": "#000000",
-                        "axes.linewidth": 0.8,
+                        "axes.linewidth": 0.3,
                         "xtick.color": "#333333",
                         "ytick.color": "#333333",
-                        "font.size": 9,
+                        "font.size": 7.5,
                     }):
                         fig, ax = plt.subplots(figsize=(2.2, 2.52))
                         fig.patch.set_alpha(0.0)
@@ -1744,13 +1744,15 @@ with col_left:
 
                         # Titles & labels
                         ax.set_title(f"You fall asleep in {rounded_raw} minutes", fontsize=8, pad=6, color="#222222")
-                        ax.set_xlabel("minutes", fontsize=9, color="#333333")
+                        ax.set_xlabel("minutes", fontsize=7.5, color="#333333")
 
                         # Remove y-axis
                         ax.set_ylabel("")
                         ax.get_yaxis().set_visible(False)
                         for side in ("left", "right", "top"):
                             ax.spines[side].set_visible(False)
+                            ax.spines["bottom"].set_linewidth(0.3)   # thinner x-axis
+
                             
                         # --- Add legend (right side, mid-height) ---------------------------------
                         x0 = 0.72     # further to the right inside axes (0–1 in Axes coords)
@@ -1850,7 +1852,7 @@ with col_mid:
                        width=edges[1]-edges[0], color=PURPLE_HEX,
                        edgecolor="white", align="center")
                 ax.set_title(title_str, fontsize=8, pad=6, color="#222222")
-                ax.set_xlabel("hours", fontsize=9)
+                ax.set_xlabel("hours", fontsize=7.5)
 
                 # Remove y-axis
                 ax.set_ylabel("")
