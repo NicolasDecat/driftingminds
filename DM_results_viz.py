@@ -928,13 +928,31 @@ has_icon = bool(icon_path and os.path.exists(icon_path))
 
 # Icon + text row (side-by-side; exact same spacing/shifts)
 icon_src = _data_uri(icon_path) if has_icon else ""
+
+# --- small % label from population ---
+POP_PERC = {
+    "Dreamweaver": 4.2,
+    "The Switch-Off": 14.4,
+    "Fantasizer": 5.4,
+    "Archivist": 9.0,
+    "Ruminator": 5.9,
+    "Freewheeler": 6.8,
+    "Quiet Mind": 8.0,
+    "Radio Tuner": 9.3,
+    "Strategist": 6.7,
+    "Sentinelle": 10.3,
+    "Fragmented Mind": 5.2,
+    "Pragmatic": 14.7
+}
+perc_txt = f" <span style='font-size:0.45em; color:#777; font-weight:400;'>({POP_PERC.get(prof_name, 0)}% of the population)</span>"
+
 st.markdown(f"""
 <div class="dm-center">
   <div class="dm-row">
     {'<img class="dm-icon" src="'+icon_src+'" alt="profile icon"/>' if has_icon else ''}
     <div class="dm-text">
       <p class="dm-lead">You drift into sleep like a</p>
-      <div class="dm-key">{prof_name}</div>
+      <div class="dm-key">{prof_name}{perc_txt}</div>
       <p class="dm-desc">{prof_desc or "&nbsp;"}</p>
     </div>
   </div>
