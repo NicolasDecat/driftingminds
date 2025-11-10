@@ -2276,7 +2276,7 @@ st.markdown(
     """
     <div style="
         max-width:620px;
-        margin:2px 0 0 0;
+        margin:-10px 0 0 0;
         text-align:left;
         font-size:0.82rem;
         color:#444;
