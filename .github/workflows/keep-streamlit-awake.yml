@@ -1,39 +1,40 @@
-name: Keep Streamlit awake
+name: Keep Streamlit awake (main)
 
 on:
   schedule:
-    - cron: '0 */10 * * *'   # every 10 hours (UTC)
+    - cron: '0 */10 * * *'
   workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: keepalive-${{ github.ref }}
+  group: keepalive-main
   cancel-in-progress: false
 
 jobs:
   keepalive:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          persist-credentials: true
           fetch-depth: 0
-          ref: main   # <-- change if your deploy branch isn't 'main'
+          ref: main
+
+      - name: Rebase to latest remote
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git rebase origin/main || git pull --rebase origin main
 
       - name: Update keepalive stamp
         run: |
           mkdir -p .github/_keepalive
           date -u +"%Y-%m-%dT%H:%M:%SZ" > .github/_keepalive/last_wake.txt
+          git add .github/_keepalive/last_wake.txt
+          git commit -m "chore: keep Streamlit awake [skip ci]" || echo "No changes"
 
-      - name: Commit & push (rebase; safe force if needed)
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          branch: main           # <-- change if different
-          file_pattern: .github/_keepalive/last_wake.txt
-          commit_message: "chore: keep Streamlit awake [skip ci]"
-          pull_strategy: REBASE
-          push_options: --force-with-lease
+      - name: Push (safe force if race)
+        run: |
+          git push --force-with-lease origin HEAD:main
