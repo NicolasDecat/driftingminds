@@ -926,7 +926,27 @@ icon_file = prof_cfg.get("icon")
 icon_path = f"assets/{icon_file}" if icon_file else None
 has_icon = bool(icon_path and os.path.exists(icon_path))
 
-# Icon + text row (side-by-side; exact same spacing/shifts)
+# --- Add population percentage at the end of the profile description ---
+POP_PERC = {
+    "Dreamweaver": 4,
+    "The Switch-Off": 14,
+    "Fantasizer": 5,
+    "Archivist": 9,
+    "Ruminator": 6,
+    "Freewheeler": 7,
+    "Quiet Mind": 8,
+    "Radio Tuner": 9,
+    "Strategist": 7,
+    "Sentinelle": 10,
+    "Fragmented Mind": 5,
+    "Pragmatic": 15
+}
+
+perc_val = POP_PERC.get(prof_name, 0)
+prof_desc_ext = f"""{prof_desc}<br><span style='display:block; margin-top:6px; font-size:0.9rem; color:#444;'>
+<strong>{prof_name}s</strong> represent {perc_val}% of the population.</span>"""
+
+# --- Render profile header ---
 icon_src = _data_uri(icon_path) if has_icon else ""
 st.markdown(f"""
 <div class="dm-center">
@@ -935,11 +955,12 @@ st.markdown(f"""
     <div class="dm-text">
       <p class="dm-lead">You drift into sleep like a</p>
       <div class="dm-key">{prof_name}</div>
-      <p class="dm-desc">{prof_desc or "&nbsp;"}</p>
+      <p class="dm-desc">{prof_desc_ext}</p>
     </div>
   </div>
 </div>
 """, unsafe_allow_html=True)
+
 
 # ==============
 # Helper (formatting)
