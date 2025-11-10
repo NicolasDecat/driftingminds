@@ -2275,8 +2275,8 @@ with exp_right:
 st.markdown(
     """
     <div style="
-        max-width:620px;
-        margin:-10px 0 0 0;
+        max-width:700px;
+        margin:-15px 0 0 0;
         text-align:left;
         font-size:0.82rem;
         color:#444;
@@ -2299,7 +2299,7 @@ st.markdown(
 
 st.markdown(
     """
-    <div style="max-width:800px; margin:30px 0 0 0; text-align:left; font-size:0.8rem; color:#444;">
+    <div style="width:100%; margin:50px 0 0 0; text-align:left; font-size:0.8rem; color:#444;">
       <em>
         These results are automatically generated from your responses to the Drifting Minds questionnaire.  
         They are meant for research and self-reflection only, not as medical or diagnostic advice.  
