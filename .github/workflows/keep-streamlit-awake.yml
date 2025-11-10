@@ -17,16 +17,26 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: true
+          fetch-depth: 0   # needed so we can pull/rebase
+
+      - name: Sync with remote (rebase)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin ${{ github.ref_name }}
+          # Rebase local checkout onto the latest remote to avoid "fetch first" errors
+          git rebase origin/${{ github.ref_name }} || git pull --rebase origin ${{ github.ref_name }}
 
       - name: Update keepalive stamp
         run: |
           mkdir -p .github/_keepalive
           date -u +"%Y-%m-%dT%H:%M:%SZ" > .github/_keepalive/last_wake.txt
 
-      - name: Commit & push if changed
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore: keep Streamlit awake [skip ci]"
-          file_pattern: .github/_keepalive/last_wake.txt
-          branch: ${{ github.ref_name }}   # usually "main"
+      - name: Commit (if there are changes)
+        run: |
+          git add .github/_keepalive/last_wake.txt
+          git commit -m "chore: keep Streamlit awake [skip ci]" || echo "No changes to commit"
 
+      - name: Push
+        run: |
+          git push origin HEAD:${{ github.ref_name }}
