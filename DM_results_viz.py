@@ -1322,7 +1322,7 @@ with left_note:
             text-justify:inter-word;
             font-size:0.82rem;
             color:#444;
-            line-height:1.5;
+            line-height:1.2;
         ">
           <p style="margin:0;">
             <strong>Vivid</strong> describes the brightness or contrast of your imagery, or the loudness of what you hear. 
