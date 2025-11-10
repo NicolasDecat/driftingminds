@@ -7,7 +7,7 @@ permissions:
   contents: write
 concurrency:
   group: keepalive-main
-  cancel-in-progress: false
+  cancel-in-progress: true  # Changed to true to prevent overlaps
 jobs:
   keepalive:
     runs-on: ubuntu-latest
@@ -22,25 +22,53 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       
-      - name: Create empty commit and push with retry
+      - name: Fetch latest and create commit
         run: |
-          for i in {1..5}; do
-            # Fetch latest
-            git fetch origin main
-            git reset --hard origin/main
-            
-            # Create empty commit
-            git commit --allow-empty -m "chore: keep Streamlit awake [skip ci]"
-            
-            # Try to push
+          # Ensure we have the very latest
+          git fetch origin main
+          git reset --hard origin/main
+          
+          # Create timestamp file
+          mkdir -p .github/_keepalive
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > .github/_keepalive/last_wake.txt
+          git add .github/_keepalive/last_wake.txt
+          
+          # Only commit if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes needed"
+            exit 0
+          fi
+          
+          git commit -m "chore: keep Streamlit awake [skip ci]"
+      
+      - name: Push changes with retry
+        run: |
+          for i in {1..3}; do
             if git push origin main; then
-              echo "✅ Push succeeded"
+              echo "✅ Successfully pushed"
               exit 0
             fi
             
-            echo "⚠️  Push failed, attempt $i/5. Retrying in 3s..."
-            sleep 3
+            echo "⚠️  Push failed (attempt $i/3), fetching latest..."
+            git fetch origin main
+            
+            # Check if remote has moved ahead
+            if ! git merge-base --is-ancestor HEAD origin/main; then
+              echo "Remote has diverged, rebasing..."
+              git rebase origin/main || {
+                echo "Rebase failed, resetting and retrying..."
+                git rebase --abort
+                git reset --hard origin/main
+                
+                mkdir -p .github/_keepalive
+                date -u +"%Y-%m-%dT%H:%M:%SZ" > .github/_keepalive/last_wake.txt
+                git add .github/_keepalive/last_wake.txt
+                git commit -m "chore: keep Streamlit awake [skip ci]"
+              }
+            fi
+            
+            sleep 2
           done
           
-          echo "❌ Push failed after 5 attempts"
+          echo "❌ Failed to push after 3 attempts"
           exit 1
