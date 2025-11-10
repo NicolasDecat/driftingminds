@@ -944,7 +944,7 @@ POP_PERC = {
     "Fragmented Mind": 5.2,
     "Pragmatic": 14.7
 }
-perc_txt = f" <span style='font-size:0.45em; color:#777; font-weight:400;'>({POP_PERC.get(prof_name, 0)}% of the population)</span>"
+perc_txt = f" <span style='font-size:0.15em; color:#777; font-weight:400;'>({POP_PERC.get(prof_name, 0)}% of the population)</span>"
 
 st.markdown(f"""
 <div class="dm-center">
