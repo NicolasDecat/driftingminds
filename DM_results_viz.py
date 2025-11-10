@@ -1876,8 +1876,9 @@ with col_mid:
                 ax.set_xticklabels(labels)
                 ax.tick_params(axis="x", labelsize=7.5)
                 for label in ax.get_xticklabels():
-                    label.set_fontweight("regular")  # ensure not bold
-                plt.tight_layout()
+                    label.set_fontweight("normal")  # ensure not bold`
+                    label.set_fontfamily("Inter")  # force same font as rest of UI
+
                 plt.tight_layout()
                 ax.set_position(AX_POS_SLEEP)  # ← lock baseline
                 st.pyplot(fig, use_container_width=False)
