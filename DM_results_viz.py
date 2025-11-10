@@ -2276,8 +2276,8 @@ with exp_right:
 st.markdown(
     """
     <div style="
-        max-width:420px;
-        margin:14px 0 0 0;
+        max-width:820px;
+        margin:10px 0 0 0;
         text-align:left;
         font-size:0.82rem;
         color:#444;
