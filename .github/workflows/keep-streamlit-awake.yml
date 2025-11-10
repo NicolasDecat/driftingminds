@@ -14,7 +14,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           ref: main
           token: ${{ secrets.GITHUB_TOKEN }}
       
@@ -23,27 +22,25 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       
-      - name: Pull latest changes
-        run: |
-          git pull origin main --rebase
-      
-      - name: Update keepalive stamp
-        run: |
-          mkdir -p .github/_keepalive
-          date -u +"%Y-%m-%dT%H:%M:%SZ" > .github/_keepalive/last_wake.txt
-          git add .github/_keepalive/last_wake.txt
-          git commit -m "chore: keep Streamlit awake [skip ci]" || echo "No changes to commit"
-      
-      - name: Push with retry
+      - name: Create empty commit and push with retry
         run: |
           for i in {1..5}; do
+            # Fetch latest
+            git fetch origin main
+            git reset --hard origin/main
+            
+            # Create empty commit
+            git commit --allow-empty -m "chore: keep Streamlit awake [skip ci]"
+            
+            # Try to push
             if git push origin main; then
-              echo "Push succeeded"
+              echo "✅ Push succeeded"
               exit 0
             fi
-            echo "Push failed, attempt $i/5. Pulling and retrying..."
-            git pull origin main --rebase
-            sleep 2
+            
+            echo "⚠️  Push failed, attempt $i/5. Retrying in 3s..."
+            sleep 3
           done
-          echo "Push failed after 5 attempts"
+          
+          echo "❌ Push failed after 5 attempts"
           exit 1
