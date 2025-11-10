@@ -1874,7 +1874,9 @@ with col_mid:
                 for i in range(4, 11):
                     labels[i-1] = str(i)
                 ax.set_xticklabels(labels)
-                ax.tick_params(axis="x", labelsize=8)
+                ax.tick_params(axis="x", labelsize=7.5)
+                for label in ax.get_xticklabels():
+                    label.set_fontweight("regular")  # ensure not bold
                 plt.tight_layout()
                 plt.tight_layout()
                 ax.set_position(AX_POS_SLEEP)  # ← lock baseline
