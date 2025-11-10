@@ -1329,7 +1329,7 @@ with left_note:
             <strong>Bizarre</strong>: how unusual or unrealistic the content feels. 
             <strong>Immersive</strong>: how deeply absorbed you are in your mental content. 
             <strong>Spontaneous</strong>: how much the content comes to you on its own, without deliberate control. 
-            <strong>Emotional</strong>: how strongly you felt emotions. 
+            <strong>Emotional</strong>: how strongly you felt emotions.<br>
             "World” represents the average scores from 1,000 people worldwide.
             </p>
         </div>
