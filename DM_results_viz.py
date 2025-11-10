@@ -1859,6 +1859,8 @@ with col_mid:
                 ax.get_yaxis().set_visible(False)
                 for side in ("left", "right", "top"):
                     ax.spines[side].set_visible(False)
+                    ax.spines["bottom"].set_linewidth(0.3)   # thinner x-axis
+
 
                 ticks = np.arange(1, 13, 1)
                 ax.set_xticks(ticks)
