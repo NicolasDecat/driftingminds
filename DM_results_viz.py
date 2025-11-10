@@ -25,12 +25,8 @@ from scipy.stats import gaussian_kde, truncnorm
 
 st.markdown('<div id="dm-share-card">', unsafe_allow_html=True)
 
-st.set_page_config(page_title="Drifting Minds — Profile", layout="centered")
 
-# Force desktop viewport on mobile
-# st.markdown("""
-# <meta name="viewport" content="width=1100, initial-scale=1.0, user-scalable=yes">
-# """, unsafe_allow_html=True)
+st.set_page_config(page_title="Drifting Minds — Profile", layout="centered")
 
 REDCAP_API_URL = st.secrets.get("REDCAP_API_URL")
 REDCAP_API_TOKEN = st.secrets.get("REDCAP_API_TOKEN")
@@ -94,7 +90,6 @@ ASSETS_CSV = os.path.join("assets", "N1000_comparative_viz_ready.csv")
 # ==============
 # CSS (single block; exact same visual result)
 # ==============
-
 st.markdown("""
 <style>
 /* Remove Streamlit default padding (multiple selectors for version coverage) */
@@ -113,7 +108,7 @@ header[data-testid="stHeader"]::before { content: none; }
 .dm-title {
   font-size: 2.5rem;
   font-weight: 200;
-  margin: 0 0 1.25rem 0;
+  margin: 0 0 1.25rem 0;  /* tightened below, zero above */
   text-align: center;
 }
 
@@ -122,26 +117,26 @@ header[data-testid="stHeader"]::before { content: none; }
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: .25rem;
+  gap: 0.5rem;          /* small gap between pictogram and text block */
+  margin-bottom: .25rem;  /* ⟵ add this for extra space before bars */
 }
 
-/* Icon slightly shifted right */
+/* Icon slightly shifted right (keeps close to right-shifted text) */
 .dm-icon {
   width: 140px;
   height: auto;
   flex: 0 0 auto;
-  transform: translateX(8rem) !important;  /* ALWAYS desktop value */
+  transform: translateX(6rem);  /* mobile/tablet shift */
 }
 
-/* Text block */
+/* Text block (strong right shift) */
 .dm-text {
   flex: 1 1 0;
   min-width: 0;
-  padding-left: 8rem !important;  /* ALWAYS desktop value */
+  padding-left: 6rem;           /* matches current look */
 }
 
-/* Typography for lead/name/desc */
+/* Typography for lead/name/desc (unchanged) */
 .dm-lead {
   font-weight: 400;
   font-size: 1rem;
@@ -169,7 +164,15 @@ header[data-testid="stHeader"]::before { content: none; }
   text-align: left;
 }
 
-/* REMOVE ALL @media queries that were making things responsive */
+/* Responsive tweaks */
+@media (min-width: 640px) {
+  .dm-icon { transform: translateX(8rem); } /* extra shift on desktop */
+  .dm-text { padding-left: 8rem; }
+}
+@media (max-width: 420px) {
+  .dm-icon { width: 110px; }
+  .dm-row  { gap: 0.9rem; }
+}
 
 /* ===============================
    Drifting Minds — Bars Styling
@@ -178,7 +181,7 @@ header[data-testid="stHeader"]::before { content: none; }
 
 .dm2-row {
   display: grid;
-  grid-template-columns: 160px 1fr !important;
+  grid-template-columns: 160px 1fr;  /* label | bar */
   column-gap: 8px;
   align-items: center;
   margin: 10px 0;
@@ -194,40 +197,31 @@ header[data-testid="stHeader"]::before { content: none; }
 }
 
 /* Left column — label only */
-.dm2-left { 
-  display: flex; 
-  align-items: center; 
-  gap: 0px; 
-  width: 160px !important; 
-  flex: 0 0 160px !important; 
-}
+.dm2-left { display:flex; align-items:center; gap:0px; width:160px; flex:0 0 160px; }
 .dm2-label {
   font-weight: 800;
-  font-size: 1.10rem !important;
+  font-size: 1.10rem;
   line-height: 1.05;
   white-space: nowrap;
   letter-spacing: 0.1px;
   position: relative;
-  top: -3px !important;
+  top: -3px;
   text-align: right;
   width: 100%;
-  padding-right: 40px !important;
+  padding-right: 40px;
   margin: 0;
 }
 
 /* Right column — bars + overlays */
 .dm2-wrap {
   flex: 1 1 auto;
-  display: flex; 
-  flex-direction: column; 
-  gap: 4px;
-  margin-left: -12px;
+  display:flex; flex-direction:column; gap:4px;
+  margin-left: -12px;   /* nudge bars toward labels */
 }
 
 .dm2-track {
   position: relative;
-  width: 100%; 
-  height: 14px;
+  width: 100%; height: 14px;
   background: #EDEDED;
   border-radius: 999px;
   overflow: visible;
@@ -239,27 +233,20 @@ header[data-testid="stHeader"]::before { content: none; }
   transition: width 600ms ease;
 }
 .dm2-median {
-  position: absolute; 
-  top: 50%;
+  position: absolute; top: 50%;
   transform: translate(-50%, -50%);
-  width: 8px; 
-  height: 8px;
+  width: 8px; height: 8px;
   background: #000000;
   border: 1.5px solid #FFFFFF;
   border-radius: 50%;
-  pointer-events: none; 
-  box-sizing: border-box;
+  pointer-events: none; box-sizing: border-box;
 }
 .dm2-mediantag {
   position: absolute;
   bottom: calc(100% + 2px);
   transform: translateX(-50%);
-  font-size: 0.82rem; 
-  font-weight: 600; 
-  color: #000;
-  white-space: nowrap; 
-  pointer-events: none; 
-  line-height: 1.05;
+  font-size: 0.82rem; font-weight: 600; color: #000;
+  white-space: nowrap; pointer-events: none; line-height: 1.05;
 }
 .dm2-mediantag.below { bottom: auto; top: calc(100% + 2px); }
 
@@ -267,70 +254,33 @@ header[data-testid="stHeader"]::before { content: none; }
   position: absolute;
   bottom: calc(100% + 2px);
   transform: translateX(-50%);
-  font-size: 0.86rem; 
-  font-weight: 500; 
-  color: #7B61FF;
-  white-space: nowrap; 
-  pointer-events: none; 
-  line-height: 1.05;
+  font-size: 0.86rem; font-weight: 500; color: #7B61FF;
+  white-space: nowrap; pointer-events: none; line-height: 1.05;
 }
 .dm2-scoretag.below { bottom: auto; top: calc(100% + 2px); }
 
 .dm2-anchors {
-  display: flex; 
-  justify-content: space-between;
-  font-size: 0.85rem; 
-  color: #666; 
-  margin-top: 0; 
-  line-height: 1;
+  display:flex; justify-content:space-between;
+  font-size: 0.85rem; color:#666; margin-top: 0; line-height: 1;
+}
+
+@media (max-width: 640px){
+  .dm2-left { width: 148px; flex-basis:148px; }
+  .dm2-label { font-size: 1.05rem; top:-2px; padding-right: 6px; }
 }
 
 /* Reduce default left/right padding for main content */
 .block-container {
     padding-left: 5rem !important;
     padding-right: 5rem !important;
-    max-width: 1100px !important;
-    margin: 0 auto !important;
+    max-width: 1100px !important;   /* optional: widen usable area */
+    margin: 0 auto !important;      /* keep centered */
 }
 
-/* ========================================
-   FORCE DESKTOP LAYOUT ON ALL DEVICES
-   ======================================== */
-
-/* Force Streamlit columns to NEVER stack */
-[data-testid="column"] {
-    width: calc(100% / 3) !important;  /* Force 3-column layout */
-    min-width: 0 !important;
-    flex: 1 1 calc(100% / 3) !important;
-}
-
-/* Override Streamlit's responsive column behavior */
-[data-testid="stHorizontalBlock"] {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    gap: 1rem !important;
-}
-
-/* Set minimum width for the entire viewport */
-[data-testid="stAppViewContainer"],
-.main,
-.block-container {
-    min-width: 1100px !important;
-}
-
-/* Enable horizontal scrolling */
-body, html {
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-}
-
-/* Prevent text size adjustments on mobile */
-html {
-    -webkit-text-size-adjust: 100%;
-    -ms-text-size-adjust: 100%;
-}
 
 </style>
+
+
 """, unsafe_allow_html=True)
 
 # --- Force light mode globally (no dark mode on any device) ---
