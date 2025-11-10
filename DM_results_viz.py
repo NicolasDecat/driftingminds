@@ -605,7 +605,7 @@ PROFILES = {
             {"type": "var", "key": ["freq_think_seq_ordinary"],      "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.0},  
         ],
         "description": "You stay in control with practical or analytical thoughts until lights out.",
-        "icon": "ant.svg",
+        "icon": "octopus.svg",
     },
     
     # =====================================================================
@@ -2276,7 +2276,7 @@ st.markdown(
     """
     <div style="
         max-width:740px;
-        margin:-15px 0 0 0;
+        margin:-20px 0 0 0;
         text-align:left;
         font-size:0.82rem;
         color:#444;
