@@ -943,8 +943,8 @@ POP_PERC = {
 }
 
 perc_val = POP_PERC.get(prof_name, 0)
-prof_desc_ext = f"""{prof_desc}<br><span style='display:block; margin-top:6px; font-size:0.9rem; color:#444;'>
-<strong>{prof_name}s</strong> represent {perc_val}% of the population.</span>"""
+prof_desc_ext = f"""{prof_desc}<br><span style='display:block; margin-top:2px; font-size:0.9rem; color:#444;'>
+{prof_name}s represent {perc_val}% of the population.</span>"""
 
 # --- Render profile header ---
 icon_src = _data_uri(icon_path) if has_icon else ""
