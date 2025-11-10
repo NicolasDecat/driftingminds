@@ -2272,6 +2272,27 @@ with exp_right:
     st.pyplot(fig, use_container_width=False)
 
 
+# --- Explanatory note below "Your Experience" -----------------------------------
+st.markdown(
+    """
+    <div style="
+        max-width:820px;
+        margin:14px 0 0 0;
+        text-align:left;
+        font-size:0.82rem;
+        color:#444;
+        line-height:1.35;
+    ">
+      <em>
+        The <strong>left</strong> graph (“Your trajectory”) corresponds to your own trajectory selection.  
+        The <strong>middle</strong> graph (“Intensity of your experience”) represents your self-rated intensity scores from Section 3.  
+        The <strong>right</strong> graph (“Dynamics of your experience”) highlights the mental contents that most often emerged early versus late as you drifted into sleep.
+      </em>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 
 # ==============
 # Disclaimer
