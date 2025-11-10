@@ -25,8 +25,12 @@ from scipy.stats import gaussian_kde, truncnorm
 
 st.markdown('<div id="dm-share-card">', unsafe_allow_html=True)
 
-
 st.set_page_config(page_title="Drifting Minds — Profile", layout="centered")
+
+# Force desktop viewport on mobile
+st.markdown("""
+<meta name="viewport" content="width=1100, initial-scale=0.5, maximum-scale=1.0, user-scalable=yes">
+""", unsafe_allow_html=True)
 
 REDCAP_API_URL = st.secrets.get("REDCAP_API_URL")
 REDCAP_API_TOKEN = st.secrets.get("REDCAP_API_TOKEN")
@@ -277,83 +281,64 @@ header[data-testid="stHeader"]::before { content: none; }
     margin: 0 auto !important;      /* keep centered */
 }
 
-</style>
 
-<style>
-/* =======================================================
-   DESKTOP-ON-MOBILE — strong overrides for Streamlit
-   (Put this at the VERY END of your CSS)
-   ======================================================= */
-@media (max-width: 820px) {
+/* ========================================
+   FORCE DESKTOP LAYOUT ON ALL DEVICES
+   ======================================== */
 
-  /* 0) Be sure nothing clips the scaled content (iOS Safari is picky) */
-  html, body,
-  [data-testid="stAppViewContainer"],
-  [data-testid="stAppViewContainer"] > .main,
-  [data-testid="stAppViewContainer"] > .main > div,
-  .block-container {
-    overflow: visible !important;
-  }
+/* Set a minimum width for the entire app */
+[data-testid="stAppViewContainer"] {
+    min-width: 1100px !important;
+}
 
-  /* 1) Stop Streamlit from stacking columns on small screens */
-  /* Use a very specific path so we beat Streamlit’s own media rules */
-  [data-testid="stAppViewContainer"] .main
-  :where([data-testid="stHorizontalBlock"]) {
-    flex-wrap: nowrap !important;
-    gap: 0.5rem !important;
-  }
+/* Prevent mobile responsive behavior */
+@media (max-width: 768px) {
+    /* Force desktop padding even on mobile */
+    .block-container {
+        padding-left: 5rem !important;
+        padding-right: 5rem !important;
+        max-width: 1100px !important;
+        margin: 0 auto !important;
+    }
+    
+    /* Keep icon transforms at desktop values */
+    .dm-icon { 
+        transform: translateX(8rem) !important; 
+        width: 140px !important;
+    }
+    .dm-text { 
+        padding-left: 8rem !important; 
+    }
+    
+    /* Keep bar layout intact */
+    .dm2-left { 
+        width: 160px !important; 
+        flex-basis: 160px !important; 
+    }
+    .dm2-label { 
+        font-size: 1.10rem !important; 
+        top: -3px !important; 
+        padding-right: 40px !important; 
+    }
+    
+    /* Prevent row wrapping */
+    .dm-row { 
+        gap: 0.5rem !important; 
+    }
+}
 
-  /* 2) Force each column to keep its width (3-up by default) */
-  [data-testid="stAppViewContainer"] .main
-  :where([data-testid="stHorizontalBlock"] > div[data-testid="column"]) {
-    flex: 0 0 calc(100% / 3) !important;
-    width: calc(100% / 3) !important;
-    min-width: 0 !important;     /* avoid weird overflow */
-    max-width: none !important;
-  }
-
-  /* 3) Optional: for known 2-column rows, tag the container with dm-keep-2 */
-  .dm-keep-2 [data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-    flex-basis: 50% !important;
-    width: 50% !important;
-  }
-
-  /* 4) Scale the whole page down so the desktop grid fits phone width */
-  /* Apply transform on the block-container (stable across Streamlit versions) */
-  [data-testid="stAppViewContainer"] .main .block-container {
-    transform: scale(0.86);
-    transform-origin: top center;
-    width: calc(100% / 0.86) !important; /* compensate so nothing is cut */
-  }
-
-  /* 5) Allow horizontal scroll if a specific row still overflows */
-  html, body, [data-testid="stAppViewContainer"] {
+/* Force horizontal scrolling if content is too wide */
+body {
     overflow-x: auto !important;
-  }
-
-  /* 6) Minor type/spacing tweaks so it breathes on phones */
-  .dm-title { font-size: 2.1rem !important; }
-  .dm-icon  { width: 110px !important; transform: translateX(4rem) !important; }
-  .dm-text  { padding-left: 4rem !important; }
-  .dm2-label { font-size: 1.0rem !important; padding-right: 18px !important; }
 }
 
-/* Pin specific triptychs to “3 up” on mobile without touching Python:
-   Wrap those sections with:
-   st.markdown("<div class='dm-keep-3'>", unsafe_allow_html=True)
-   ... st.columns(3) ...
-   st.markdown("</div>", unsafe_allow_html=True)
-*/
-@media (max-width: 820px) {
-  .dm-keep-3 [data-testid="stHorizontalBlock"] { flex-wrap: nowrap !important; }
-  .dm-keep-3 [data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-    flex: 0 0 calc(100% / 3) !important;
-    width: calc(100% / 3) !important;
-    min-width: 0 !important;
-  }
+/* Disable viewport scaling (add to page config too) */
+html {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
 }
+
 </style>
-
 
 
 """, unsafe_allow_html=True)
