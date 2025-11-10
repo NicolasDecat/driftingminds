@@ -277,6 +277,41 @@ header[data-testid="stHeader"]::before { content: none; }
     margin: 0 auto !important;      /* keep centered */
 }
 
+/* ===== Desktop-on-mobile mode ===== */
+@media (max-width: 820px) {
+
+  /* Keep Streamlit columns side-by-side (stop auto stacking) */
+  [data-testid="stHorizontalBlock"] {
+    flex-wrap: nowrap !important;
+    gap: 0.5rem !important;
+  }
+  [data-testid="column"] {
+    /* 3-up by default; tweak to 2-up for specific rows if you want */
+    width: calc(100% / 3) !important;
+    flex: 0 0 calc(100% / 3) !important;
+    min-width: 0 !important;
+  }
+
+  /* Scale the whole content so the desktop grid fits on small screens */
+  [data-testid="stAppViewContainer"] > .main > div {
+    transform: scale(0.86);
+    transform-origin: top center;
+    /* Compensate width so scaled content doesn’t clip */
+    width: calc(100% / 0.86) !important;
+  }
+
+  /* Allow a tiny horizontal scroll if needed instead of wrapping */
+  html, body, [data-testid="stAppViewContainer"] {
+    overflow-x: auto !important;
+  }
+
+  /* Tighten some spacings so it breathes on phones */
+  .dm-title { font-size: 2.1rem; }
+  .dm-icon  { width: 110px; transform: translateX(4rem); }
+  .dm-text  { padding-left: 4rem; }
+  .dm2-label { font-size: 1.0rem; padding-right: 18px; }
+}
+
 </style>
 """, unsafe_allow_html=True)
 
