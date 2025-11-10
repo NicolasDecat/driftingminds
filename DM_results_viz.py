@@ -1479,10 +1479,15 @@ def _mini_hist(ax, counts, edges, highlight_idx, title, bar_width_factor=0.95):
 
     # x-axis baseline and labels
     ax.spines["bottom"].set_visible(True)
+    ax.spines["bottom"].set_linewidth(0.6)      # thinner x-axis line
     ax.set_xlabel("")
     ax.set_xticks([])
-    # ax.text(0.0, -0.05, "low",  transform=ax.transAxes, ha="left",  va="top", fontsize=9)
-    # ax.text(1.0, -0.05, "high", transform=ax.transAxes, ha="right", va="top", fontsize=9)
+    
+    # smaller x-labels ("low" / "high")
+    ax.text(0.0, -0.07, "low",  transform=ax.transAxes,
+            ha="left",  va="top", fontsize=7.5, color="#333333")
+    ax.text(1.0, -0.07, "high", transform=ax.transAxes,
+            ha="right", va="top", fontsize=7.5, color="#333333")
 
     # remove y
     for s in ["left", "right", "top"]:
