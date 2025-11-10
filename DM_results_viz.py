@@ -2313,22 +2313,28 @@ st.markdown(
 
 
 # ==============
-# ALL DMs
+# ALL DMs (embedded, centered)
 # ==============
+import base64
+
+with open("assets/all_DMs.png", "rb") as f:
+    all_dms_b64 = base64.b64encode(f.read()).decode()
+
 st.markdown(
-    """
+    f"""
     <div style="
         display: flex;
         justify-content: center;
         align-items: center;
         margin: 40px 0;
     ">
-        <img src="assets/all_DMs.png" alt="All Drifting Minds Profiles" 
+        <img src="data:image/png;base64,{all_dms_b64}" 
              style="max-width: 90%; height: auto; border-radius: 8px;">
     </div>
     """,
     unsafe_allow_html=True
 )
+
 
 
 
