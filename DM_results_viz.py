@@ -1478,16 +1478,9 @@ def _mini_hist(ax, counts, edges, highlight_idx, title, bar_width_factor=0.95):
     ax.set_title(title, fontsize=8, pad=6, color="#222222")
 
     # x-axis baseline and labels
-    ax.spines["bottom"].set_visible(True)
-    ax.spines["bottom"].set_linewidth(0.6)      # thinner x-axis line
+    ax.spines["bottom"].set_linewidth(0.6)
     ax.set_xlabel("")
     ax.set_xticks([])
-    
-    # smaller x-labels ("low" / "high")
-    ax.text(0.0, -0.07, "low",  transform=ax.transAxes,
-            ha="left",  va="top", fontsize=7.5, color="#333333")
-    ax.text(1.0, -0.07, "high", transform=ax.transAxes,
-            ha="right", va="top", fontsize=7.5, color="#333333")
 
     # remove y
     for s in ["left", "right", "top"]:
@@ -1567,9 +1560,9 @@ with c1:
 
     # --- Custom x-axis labels -------------------------------------------------
     ax.text(0.00, -0.05, "low (16)",   transform=ax.transAxes,
-            ha="left",  va="top", fontsize=9)
+            ha="left",  va="top", fontsize=7.5)
     ax.text(1.00, -0.05, "high (80)", transform=ax.transAxes,
-            ha="right", va="top", fontsize=9)
+            ha="right", va="top", fontsize=7.5)
     
     # --- Optional vertical marker for very low imagery (<30) -----------------
     if vviq_score < 35:
@@ -1621,9 +1614,9 @@ with c2:
            f"Your level of creativity: {int(round(cre_part))}")
         # Replace default x-labels
         ax.text(0.0, -0.05, "low (1)",  transform=ax.transAxes,
-                ha="left", va="top", fontsize=9)
+                ha="left", va="top", fontsize=7.5)
         ax.text(1.0, -0.05, "high (6)", transform=ax.transAxes,
-                ha="right", va="top", fontsize=9)
+                ha="right", va="top", fontsize=7.5)
         ax.set_position(AX_POS_YOU)  # ← lock baseline
         st.pyplot(fig, use_container_width=False)
 
@@ -1638,9 +1631,9 @@ with c3:
            f"Your level of anxiety: {int(round(anx_part))}")
         # Replace default x-labels
         ax.text(0.0, -0.05, "low (1)",  transform=ax.transAxes,
-                ha="left", va="top", fontsize=9)
+                ha="left", va="top", fontsize=7.5)
         ax.text(1.0, -0.05, "high (100)", transform=ax.transAxes,
-                ha="right", va="top", fontsize=9)
+                ha="right", va="top", fontsize=7.5)
         ax.set_position(AX_POS_YOU)  # ← lock baseline
         st.pyplot(fig, use_container_width=False)
 
