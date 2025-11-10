@@ -1,0 +1,39 @@
+name: Debug Git Push
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      
+      - name: Debug info
+        run: |
+          echo "=== Current branch ==="
+          git branch -v
+          echo ""
+          echo "=== Remote branches ==="
+          git branch -r -v
+          echo ""
+          echo "=== Git status ==="
+          git status
+          echo ""
+          echo "=== Last 3 commits on main ==="
+          git log --oneline -3
+          echo ""
+          echo "=== Last 3 commits on origin/main ==="
+          git log --oneline -3 origin/main
+          echo ""
+          echo "=== Checking if we can push ==="
+          git fetch origin main
+          git log HEAD..origin/main --oneline
