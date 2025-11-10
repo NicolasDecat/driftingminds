@@ -1,0 +1,55 @@
+name: Keep Streamlit awake
+on:
+  schedule:
+    - cron: '0 */10 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: keepalive-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 2
+      
+      - name: Setup and push keepalive
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # Try up to 5 times
+          for attempt in {1..5}; do
+            echo "Attempt $attempt/5"
+            
+            # Get absolutely latest
+            git fetch origin main
+            git reset --hard origin/main
+            
+            # Make our change
+            mkdir -p .github/_keepalive
+            date -u +"%Y-%m-%dT%H:%M:%SZ" > .github/_keepalive/last_wake.txt
+            
+            # Commit
+            git add .github/_keepalive/last_wake.txt
+            git commit -m "chore: keepalive [skip ci]" || true
+            
+            # Try to push
+            if git push origin main 2>&1; then
+              echo "✅ Push successful!"
+              exit 0
+            fi
+            
+            echo "Push failed, waiting 5 seconds..."
+            sleep 5
+          done
+          
+          echo "❌ All attempts failed"
+          exit 1
