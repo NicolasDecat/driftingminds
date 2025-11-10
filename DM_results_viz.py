@@ -2294,6 +2294,30 @@ st.markdown(
 
 
 # ==============
+# ALL DMs (embedded, centered)
+# ==============
+import base64
+
+with open("assets/all_DMs.png", "rb") as f:
+    all_dms_b64 = base64.b64encode(f.read()).decode()
+
+st.markdown(
+    f"""
+    <div style="
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 50px 0;
+    ">
+        <img src="data:image/png;base64,{all_dms_b64}" 
+             style="max-width: 70%; height: auto; border-radius: 8px;">
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+
+# ==============
 # Disclaimer
 # ==============
 
@@ -2309,32 +2333,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
-
-
-# ==============
-# ALL DMs (embedded, centered)
-# ==============
-import base64
-
-with open("assets/all_DMs.png", "rb") as f:
-    all_dms_b64 = base64.b64encode(f.read()).decode()
-
-st.markdown(
-    f"""
-    <div style="
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin: 80px 0;
-    ">
-        <img src="data:image/png;base64,{all_dms_b64}" 
-             style="max-width: 70%; height: auto; border-radius: 8px;">
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
 
 
 
