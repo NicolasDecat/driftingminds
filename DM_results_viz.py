@@ -2276,7 +2276,7 @@ with exp_right:
 st.markdown(
     """
     <div style="
-        max-width:820px;
+        max-width:720px;
         margin:14px 0 0 0;
         text-align:left;
         font-size:0.82rem;
