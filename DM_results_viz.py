@@ -943,7 +943,7 @@ POP_PERC = {
 }
 
 perc_val = POP_PERC.get(prof_name, 0)
-prof_desc_ext = f"""{prof_desc}<br><span style='display:block; margin-top:2px; font-size:0.9rem; color:#444;'>
+prof_desc_ext = f"""{prof_desc}<br><span style='display:block; margin-top:2px; font-size:0.9rem; color:#222;'>
 {prof_name}s represent {perc_val}% of the population.</span>"""
 
 # --- Render profile header ---
