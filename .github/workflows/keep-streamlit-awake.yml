@@ -2,30 +2,31 @@ name: Keep Streamlit awake
 
 on:
   schedule:
-    # Runs every 10 hours (GitHub Actions uses UTC)
-    - cron: '0 */10 * * *'
+    - cron: '0 */10 * * *'   # every 10 hours (UTC)
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   keepalive:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
 
-      - name: Write/update keepalive stamp
+      - name: Update keepalive stamp
         run: |
           mkdir -p .github/_keepalive
           date -u +"%Y-%m-%dT%H:%M:%SZ" > .github/_keepalive/last_wake.txt
 
-      - name: Commit (if there are changes)
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .github/_keepalive/last_wake.txt
-          git commit -m "chore: keep Streamlit awake [skip ci]" || echo "No changes to commit"
+      - name: Commit & push if changed
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: keep Streamlit awake [skip ci]"
+          file_pattern: .github/_keepalive/last_wake.txt
+          branch: ${{ github.ref_name }}   # usually "main"
 
-      - name: Push
-        run: |
-          git push
