@@ -280,6 +280,23 @@ header[data-testid="stHeader"]::before { content: none; }
 </style>
 """, unsafe_allow_html=True)
 
+# --- Force light mode globally (no dark mode on any device) ---
+st.markdown("""
+<style>
+html, body, [data-testid="stAppViewContainer"], [data-testid="stAppViewContainer"] > .main {
+  background-color: #FFFFFF !important;
+  color-scheme: light !important;
+}
+@media (prefers-color-scheme: dark) {
+  html, body, [data-testid="stAppViewContainer"], [data-testid="stAppViewContainer"] > .main {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+  }
+}
+</style>
+""", unsafe_allow_html=True)
+
+
 # ==============
 # Data access
 # ==============
