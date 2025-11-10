@@ -2312,6 +2312,23 @@ st.markdown(
 
 
 
+# ==============
+# ALL DMs
+# ==============
+st.markdown(
+    """
+    <div style="
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 40px 0;
+    ">
+        <img src="assets/all_DMs.png" alt="All Drifting Minds Profiles" 
+             style="max-width: 90%; height: auto; border-radius: 8px;">
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 
 
