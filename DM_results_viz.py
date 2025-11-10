@@ -2284,9 +2284,9 @@ st.markdown(
         line-height:1.35;
     ">
       <em>
-        The <strong>left</strong> graph (“Your trajectory”) corresponds to your own trajectory selection.  
-        The <strong>middle</strong> graph (“Intensity of your experience”) represents your self-rated intensity scores from Section 3.  
-        The <strong>right</strong> graph (“Dynamics of your experience”) highlights the mental contents that most often emerged early versus late as you drifted into sleep.
+        Left graph: your own trajectory selection.  
+        Middle graph: your self-rated intensity scores of your typical mental content.
+        Right graph: mental content that most often emerged early vs. late as you fall asleep.
       </em>
     </div>
     """,
