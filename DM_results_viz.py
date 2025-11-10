@@ -961,7 +961,7 @@ def _fmt(v, nd=3):
 DIM_BAR_CONFIG = {
     "Vivid": {
         "freq_keys": ["freq_percept_intense", "freq_percept_precise", "freq_percept_real"],
-        "weight_keys": ["degreequest_vividness", "degreequest_distinctness"],
+        "weight_keys": ["degreequest_vividness"],
         "invert_keys": [],
         "weight_mode": "standard",
         "help": "Dull  ↔  Vivid",
@@ -1325,13 +1325,12 @@ with left_note:
             line-height:1.2;
         ">
           <p style="margin:0;">
+            "World” represents the average scores from 1,000 people worldwide.
             <strong>Vivid</strong>: brightness or contrast of your imagery, or the loudness of what you hear. 
             <strong>Bizarre</strong>: how unusual or unrealistic the content feels. 
             <strong>Immersive</strong>: how deeply absorbed you are in your mental content. 
             <strong>Spontaneous</strong>: how much the content comes to you on its own, without deliberate control. 
             <strong>Emotional</strong>: how strongly you felt emotions. 
-            Scores are based on your intensity ratings from Section 3. 
-            Grey (“world”) shows the average scores from 1,000 people worldwide.
           </p>
         </div>
         """,
@@ -2285,7 +2284,7 @@ st.markdown(
     ">
       <em>
         Left graph: your own trajectory selection.  
-        Middle graph: your self-rated intensity scores of your typical mental content.
+        Middle graph: your self-rated intensity scores of your typical mental content (1 = low, 6 = high).
         Right graph: mental content that most often emerged early vs. late as you fall asleep.
       </em>
     </div>
