@@ -1478,7 +1478,7 @@ def _mini_hist(ax, counts, edges, highlight_idx, title, bar_width_factor=0.95):
     ax.set_title(title, fontsize=8, pad=6, color="#222222")
 
     # x-axis baseline and labels
-    ax.spines["bottom"].set_linewidth(0.6)
+    ax.spines["bottom"].set_linewidth(0.3)
     ax.set_xlabel("")
     ax.set_xticks([])
 
