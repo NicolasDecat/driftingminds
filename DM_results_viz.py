@@ -931,20 +931,20 @@ icon_src = _data_uri(icon_path) if has_icon else ""
 
 # --- small % label from population ---
 POP_PERC = {
-    "Dreamweaver": 4.2,
-    "The Switch-Off": 14.4,
-    "Fantasizer": 5.4,
-    "Archivist": 9.0,
-    "Ruminator": 5.9,
-    "Freewheeler": 6.8,
-    "Quiet Mind": 8.0,
-    "Radio Tuner": 9.3,
-    "Strategist": 6.7,
-    "Sentinelle": 10.3,
-    "Fragmented Mind": 5.2,
-    "Pragmatic": 14.7
+    "Dreamweaver": 4,
+    "The Switch-Off": 14,
+    "Fantasizer": 5,
+    "Archivist": 9,
+    "Ruminator": 6,
+    "Freewheeler": 7,
+    "Quiet Mind": 8,
+    "Radio Tuner": 9,
+    "Strategist": 7,
+    "Sentinelle": 10,
+    "Fragmented Mind": 5,
+    "Pragmatic": 15
 }
-perc_txt = f" <span style='font-size:0.30em; color:#222; font-weight:400;'>(like {POP_PERC.get(prof_name, 0)}% of the world)</span>"
+perc_txt = f" <span style='font-size:0.20em; color:#222; font-weight:400;'>(like {POP_PERC.get(prof_name, 0)}% of the world)</span>"
 
 st.markdown(f"""
 <div class="dm-center">
