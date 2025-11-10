@@ -1325,11 +1325,11 @@ with left_note:
             line-height:1.2;
         ">
           <p style="margin:0;">
-            <strong>Vivid</strong> describes the brightness or contrast of your imagery, or the loudness of what you hear. 
-            <strong>Bizarre</strong> reflects how unusual or unrealistic the content feels. 
-            <strong>Immersive</strong> refers to how deeply absorbed you are in your mental content and how detached you feel from your surroundings. 
-            <strong>Spontaneous</strong> indicates how much the content comes to you on its own, without deliberate control. 
-            <strong>Emotional</strong> relates to how strongly you felt emotions. 
+            <strong>Vivid</strong>: brightness or contrast of your imagery, or the loudness of what you hear. 
+            <strong>Bizarre</strong>: how unusual or unrealistic the content feels. 
+            <strong>Immersive</strong>: how deeply absorbed you are in your mental content. 
+            <strong>Spontaneous</strong>: how much the content comes to you on its own, without deliberate control. 
+            <strong>Emotional</strong>: how strongly you felt emotions. 
             Scores are based on your intensity ratings from Section 3. 
             Grey (“world”) shows the average scores from 1,000 people worldwide.
           </p>
