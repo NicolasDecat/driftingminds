@@ -458,16 +458,20 @@ st.markdown("""
   .dm-key{ font-size: clamp(22px, 7.2vw, 32px) !important; }
  }
 
-/* Drifting Minds Study title — smaller, left, and split into two lines */
-  .dm-title {
-    text-align: left !important;                      /* align with page content */
-    font-size: clamp(30px, 9vw, 32px) !important;     /* smaller but still prominent */
-    font-weight: 300 !important;                      /* lighter for mobile */
-    line-height: 1.15 !important;
-    margin: 6px 0 14px 0 !important;                  /* tighter spacing */
-    padding: 0 !important;
-    white-space: pre-line !important;                 /* preserve line breaks */
-  }
+/* Drifting Minds Study title — smaller, left, auto-split into two lines */
+.dm-title {
+  text-align: left !important;                      /* align with page content */
+  font-size: clamp(30px, 9vw, 32px) !important;     /* smaller but still prominent */
+  font-weight: 300 !important;                      /* lighter for mobile */
+  line-height: 1.15 !important;
+  margin: 6px 0 14px 0 !important;                  /* tighter spacing */
+  padding: 0 !important;
+  display: inline-block !important;
+  max-width: 90% !important;                        /* allow wrapping at "Study" */
+  word-break: break-word !important;                /* break if space allows */
+  white-space: normal !important;                   /* let words wrap naturally */
+}
+
 
 
 </style>
