@@ -578,16 +578,16 @@ st.markdown("""
 .dm-subtitle-trajectory{
   font-size: 20px !important;   /* up from 18px */
   line-height: 1.3 !important;
-  font-weight: 550 !important;
+  font-weight: 400 !important;
   letter-spacing: 0.1px;
 }
 
 /* Mobile — larger, but lighter weight for visual balance */
 @media (max-width: 640px){
   .dm-subtitle-trajectory{
-    font-size: 24px !important;
+    font-size: 28px !important;
     line-height: 1.28 !important;
-    font-weight: 500 !important;
+    font-weight: 400 !important;
     letter-spacing: 0.15px;
   }
 }
