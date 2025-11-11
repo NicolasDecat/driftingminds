@@ -440,11 +440,10 @@ st.markdown("""
    flex-basis: 120px !important;
  }
 
- /* Right-align the text inside label cells */
+ /* Remove the big spacer between label and bar */
  .dm2-label {
-   text-align: right !important;     /* ← text hugs the bar */
-   padding-right: 4px !important;    /* small space between label text and bar */
-   margin: 0 !important;
+   padding-right: 4px !important;  /* was 40px; we keep a tiny gap */
+   text-align: left !important;    /* keep labels left-aligned on mobile */
  }
 
  /* Ensure the bars themselves don't add any extra left offset */
