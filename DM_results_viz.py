@@ -552,20 +552,26 @@ st.markdown("""
 # Change dynamics title size
 st.markdown("""
 <style>
+/* Default (desktop) — slightly bigger than before */
+.dm-subtitle-dynamics{
+  font-size: 20px !important;   /* up from 18px */
+  line-height: 1.3 !important;
+  font-weight: 550 !important;  /* semi-bold */
+  letter-spacing: 0.1px;
+}
+
+/* Mobile tweak — even bigger but lighter */
 @media (max-width: 640px){
   .dm-subtitle-dynamics{
-    font-size: 30px !important;     /* a bit larger than before */
+    font-size: 24px !important;   /* larger for phone readability */
     line-height: 1.28 !important;
-    font-weight: 400 !important;    /* lighter than 600 */
+    font-weight: 500 !important;  /* slightly lighter than desktop */
     letter-spacing: 0.15px;
-  }
-  [data-testid="stMarkdownContainer"] .dm-subtitle-dynamics{
-    font-size: 24px !important;
-    font-weight: 500 !important;
   }
 }
 </style>
 """, unsafe_allow_html=True)
+
 
 # =====================
 # MOBILE-ONLY SPACERS (extra gaps before sections)
