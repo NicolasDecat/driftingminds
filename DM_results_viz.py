@@ -1373,12 +1373,13 @@ with left_note:
             <strong>Immersive</strong>: how deeply absorbed you are in your mental content. 
             <strong>Spontaneous</strong>: how much the content comes to you on its own, without deliberate control. 
             <strong>Emotional</strong>: how strongly you felt emotions.<br>
-            ⚫️ "World average”: represents the average scores from 1,000 people worldwide.
-            </p>
+            <span style="font-size:0.5em;">⚫️</span> "World average” represents the average scores from 1,000 people worldwide.
+          </p>
         </div>
         """,
         unsafe_allow_html=True
     )
+
 
 with right_btn:
     # keep the button in its own iframe so JS works; align it to the right
