@@ -497,6 +497,10 @@ st.markdown("""
     display: inline !important; 
     margin: 0 !important; 
   }
+  
+  .dm-desc {
+    margin-bottom: 36px !important;   /* adjust 32–48px to taste */
+  }
 }
 </style>
 """, unsafe_allow_html=True)
