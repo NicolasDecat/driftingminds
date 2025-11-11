@@ -1144,7 +1144,7 @@ for b in bars:
     if is_perception and (med_left_clamped is not None):
         overlap = (score_txt != "NA" and abs(width_clamped - med_left_clamped) <= 6.0)
         mediantag_class = "dm2-mediantag below" if overlap else "dm2-mediantag"
-        mediantag_html = f"<div class='{mediantag_class}' style='left:{med_left_clamped}%;'>world</div>"
+        mediantag_html = f"<div class='{mediantag_class}' style='left:{med_left_clamped}%;'>world average</div>"
 
     scoretag_html = "" if score_txt == "NA" else f"<div class='dm2-scoretag' style='left:{width_clamped}%;'>{score_txt}</div>"
 
