@@ -585,7 +585,7 @@ st.markdown("""
   section.main > div.block-container:first-of-type,
   .main .block-container:first-of-type {
     padding-top: 0 !important;
-    margin-top: -60px !important;   /* ↑ Move everything up — adjust value if needed */
+    margin-top: -80px !important;   /* ↑ Move everything up – increased from -60px */
   }
 
   /* Reset title spacing to prevent extra offset */
