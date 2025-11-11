@@ -404,6 +404,29 @@ st.markdown("""
     margin-left: 0 !important;      /* was -12px on desktop */
   }
   
+  /* D) Bars: pull them further left on phones */
+  .dm2-bar {
+    margin-left: 0 !important;      /* cancel any previous offset */
+    padding-left: 0 !important;     /* cancel any previous padding */
+  }
+
+  /* If the bars are wrapped in .dm2-wrap, adjust that too */
+  .dm2-wrap {
+    margin-left: -8px !important;   /* bring bars closer to the label column */
+    padding-left: 0 !important;
+  }
+
+  /* If each individual bar container (.dm2-item or similar) has padding, reset it */
+  .dm2-item {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+  }
+
+  /* Optional: tighten bar section a bit overall for small phones */
+  @media (max-width: 420px){
+    .dm2-wrap { margin-left: -10px !important; }
+  }
+  
 }
 
 /* Tiny phones: slightly smaller icon/name */
