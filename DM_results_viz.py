@@ -472,15 +472,16 @@ st.markdown("""
     display: block !important;
   }
   .dm-title-main {
-    font-size: clamp(18px, 6vw, 24px) !important;  /* ↓ smaller on mobile */
-    font-weight: 300 !important;
-    margin-bottom: 2px !important;
-  }
-  .dm-title-sub {
-    font-size: clamp(16px, 5.5vw, 20px) !important;  /* ↓ smaller on mobile */
-    font-weight: 300 !important;
-    margin: 0 !important;
-  }
+  font-size: clamp(18px, 5vw, 22px) !important;   /* much smaller */
+  font-weight: 300 !important;
+  margin-bottom: 2px !important;
+}
+
+.dm-title-sub {
+  font-size: clamp(15px, 4.5vw, 18px) !important; /* smaller too */
+  font-weight: 300 !important;
+  margin: 0 !important;
+}
 }
 
 /* --- DESKTOP (>=641px): restore original centered, single line --- */
