@@ -611,6 +611,23 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# Page starts higher up
+st.markdown("""
+<style>
+/* === Lift all main content upward (except QR code) === */
+
+/* Apply to all screen sizes */
+[data-testid="stAppViewContainer"] > .main > div {
+  margin-top: -60px !important;   /* adjust this value for how much you want to lift (−40 to −100 works well) */
+}
+
+/* Ensure the QR code (absolutely positioned) stays where it is */
+div[style*="position: absolute"][style*="qr_code_DM.png"] {
+  margin-top: 0 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 
 # =====================
 # MOBILE-ONLY SPACERS (extra gaps before sections)
