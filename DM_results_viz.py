@@ -545,19 +545,27 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =====================
-# MOBILE: lift the title slightly higher
+# MOBILE: lift the title section (force override on its wrapper)
 # =====================
 st.markdown("""
 <style>
 @media screen and (max-width: 640px){
+
+  /* Move the title upward by reducing the block container’s padding */
+  div.block-container:first-of-type,
+  [data-testid="stVerticalBlock"]:has(.dm-title),
+  [data-testid="stVerticalBlock"] .dm-title {
+    margin-top: -24px !important;     /* pull up the block containing the title */
+    padding-top: 0 !important;
+  }
+
+  /* Also make sure the title element itself doesn’t get constrained */
   .dm-title {
-    margin-top: -30px !important;   /* move the title a bit closer to the top */
+    margin-top: 0 !important;         /* reset inner margin so container shift works cleanly */
   }
 }
 </style>
 """, unsafe_allow_html=True)
-
-
 
 # --- Force light mode globally (no dark mode on any device) ---
 st.markdown("""
