@@ -1572,8 +1572,8 @@ with right_btn:
     } catch (e) {
       console.error(e);
       alert('Capture failed. Try refreshing the page or a different browser.');
-    }
-  }
+    }}
+  }}
 
     dlBtn.addEventListener('click', capture);
   }})();
