@@ -554,9 +554,9 @@ st.markdown("""
 <style>
 @media (max-width: 640px){
   .dm-subtitle-dynamics{
-    font-size: 24px !important;     /* a bit larger than before */
+    font-size: 30px !important;     /* a bit larger than before */
     line-height: 1.28 !important;
-    font-weight: 500 !important;    /* lighter than 600 */
+    font-weight: 400 !important;    /* lighter than 600 */
     letter-spacing: 0.15px;
   }
   [data-testid="stMarkdownContainer"] .dm-subtitle-dynamics{
