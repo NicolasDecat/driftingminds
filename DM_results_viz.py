@@ -549,19 +549,19 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# Change dynamics title size
 st.markdown("""
 <style>
 @media (max-width: 640px){
-  /* FINAL: bump subtitle on phones, win over anything else */
   .dm-subtitle-dynamics{
-    font-size: 22px !important;
-    line-height: 1.3 !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.2px;
+    font-size: 24px !important;     /* a bit larger than before */
+    line-height: 1.28 !important;
+    font-weight: 500 !important;    /* lighter than 600 */
+    letter-spacing: 0.15px;
   }
-  /* belt-and-suspenders in case Streamlit wraps extra containers */
   [data-testid="stMarkdownContainer"] .dm-subtitle-dynamics{
-    font-size: 22px !important;
+    font-size: 24px !important;
+    font-weight: 500 !important;
   }
 }
 </style>
