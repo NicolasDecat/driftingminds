@@ -568,20 +568,27 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =====================
-# DESKTOP: move title higher (simple, reliable)
+# DESKTOP: pull everything (including title) higher
 # =====================
 st.markdown("""
 <style>
 @media (min-width: 641px){
 
-  /* Remove Streamlit's default top padding */
+  /* Remove Streamlit's header and main container spacing */
+  header[data-testid="stHeader"] {
+    height: 0 !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
   section.main > div.block-container:first-of-type,
   .main .block-container:first-of-type {
     padding-top: 0 !important;
-    margin-top: -24px !important;   /* move everything, including title, higher */
+    margin-top: -60px !important;   /* ↑ Move everything up — adjust value if needed */
   }
 
-  /* Ensure the title itself isn’t adding back spacing */
+  /* Reset title spacing to prevent extra offset */
   .dm-title {
     margin-top: 0 !important;
     padding-top: 0 !important;
@@ -589,7 +596,6 @@ st.markdown("""
 }
 </style>
 """, unsafe_allow_html=True)
-
 
 
 # --- Force light mode globally (no dark mode on any device) ---
