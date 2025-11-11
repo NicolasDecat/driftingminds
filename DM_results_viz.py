@@ -567,20 +567,30 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ==============
-# DESKTOP: nudge the title upward (only on >=641px)
-# ==============
+# =====================
+# DESKTOP: move title higher (simple, reliable)
+# =====================
 st.markdown("""
 <style>
 @media (min-width: 641px){
-  .dm-title{
-    position: relative !important;
-    top: -16px !important;   /* adjust: -12px/-20px if you want more/less */
+
+  /* Remove Streamlit's default top padding */
+  section.main > div.block-container:first-of-type,
+  .main .block-container:first-of-type {
+    padding-top: 0 !important;
+    margin-top: -24px !important;   /* move everything, including title, higher */
+  }
+
+  /* Ensure the title itself isn’t adding back spacing */
+  .dm-title {
     margin-top: 0 !important;
+    padding-top: 0 !important;
   }
 }
 </style>
 """, unsafe_allow_html=True)
+
+
 
 # --- Force light mode globally (no dark mode on any device) ---
 st.markdown("""
