@@ -18,50 +18,20 @@ import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde, truncnorm
-from streamlit.components.v1 import html as components_html
 
 # ==============
 # App config
-# ==============
+# ==============`
 
 st.set_page_config(page_title="Drifting Minds — Profile", layout="centered")
+
+# Force desktop viewport on mobile
+st.markdown('<meta name="viewport" content="width=1200, initial-scale=0.3, maximum-scale=1.0, user-scalable=yes">', unsafe_allow_html=True)
 
 REDCAP_API_URL = st.secrets.get("REDCAP_API_URL")
 REDCAP_API_TOKEN = st.secrets.get("REDCAP_API_TOKEN")
 
-# (Optional) Keep a fixed virtual desktop width on mobile
-components_html('<meta name="viewport" content="width=1100, initial-scale=1">', height=0)
-
-# --- Freeze desktop layout width and scale it on phones ---
-st.markdown("""
-<style>
-  :root { --dm-desktop: 1100px; }
-
-  /* Wrap the whole page content so we can scale it as one block */
-  #dm-fixed-desktop {
-    width: var(--dm-desktop);
-    margin: 0 auto;
-  }
-
-  /* On narrow screens, scale the entire app to fit the viewport width */
-  @media (max-width: 1099px) {
-    html, body { overflow-x: hidden; }
-    #dm-fixed-desktop {
-      transform-origin: top left;
-      transform: scale(calc(100vw / var(--dm-desktop)));
-    }
-    /* Ensure Streamlit's inner container doesn't fight our width */
-    [data-testid="stAppViewContainer"] > .main > div {
-      width: var(--dm-desktop) !important;
-      max-width: var(--dm-desktop) !important;
-    }
-  }
-</style>
-<div id="dm-fixed-desktop">
-""", unsafe_allow_html=True)
-
 # Shareable png starts now
-
 st.markdown('<div id="dm-share-card">', unsafe_allow_html=True)
 
 
@@ -197,15 +167,7 @@ header[data-testid="stHeader"]::before { content: none; }
   text-align: left;
 }
 
-/* Responsive tweaks */
-@media (min-width: 640px) {
-  .dm-icon { transform: translateX(8rem); } /* extra shift on desktop */
-  .dm-text { padding-left: 8rem; }
-}
-@media (max-width: 420px) {
-  .dm-icon { width: 110px; }
-  .dm-row  { gap: 0.9rem; }
-}
+
 
 /* ===============================
    Drifting Minds — Bars Styling
@@ -297,17 +259,13 @@ header[data-testid="stHeader"]::before { content: none; }
   font-size: 0.85rem; color:#666; margin-top: 0; line-height: 1;
 }
 
-@media (max-width: 640px){
-  .dm2-left { width: 148px; flex-basis:148px; }
-  .dm2-label { font-size: 1.05rem; top:-2px; padding-right: 6px; }
-}
-
 /* Reduce default left/right padding for main content */
 .block-container {
     padding-left: 5rem !important;
     padding-right: 5rem !important;
-    max-width: 1100px !important;   /* optional: widen usable area */
-    margin: 0 auto !important;      /* keep centered */
+    max-width: 1100px !important;
+    margin: 0 auto !important;
+    min-width: 1100px !important;  /* Prevent shrinking on mobile */
 }
 
 
@@ -316,18 +274,30 @@ header[data-testid="stHeader"]::before { content: none; }
 
 """, unsafe_allow_html=True)
 
-# --- Force light mode globally (no dark mode on any device) ---
+# --- Force light mode globally and prevent mobile column stacking ---
 st.markdown("""
 <style>
 html, body, [data-testid="stAppViewContainer"], [data-testid="stAppViewContainer"] > .main {
   background-color: #FFFFFF !important;
   color-scheme: light !important;
+  min-width: 1100px !important;
+  overflow-x: auto !important;
 }
 @media (prefers-color-scheme: dark) {
   html, body, [data-testid="stAppViewContainer"], [data-testid="stAppViewContainer"] > .main {
     background-color: #FFFFFF !important;
     color: #000000 !important;
   }
+}
+
+/* Prevent Streamlit from stacking columns on mobile */
+[data-testid="column"] {
+    flex-direction: row !important;
+    min-width: 0 !important;
+}
+
+div[data-testid="stHorizontalBlock"] {
+    flex-wrap: nowrap !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -2449,6 +2419,8 @@ st.markdown(
 )
 
 
+
+
 # ==============
 # Profile distribution across the N=1000 population
 # ==============
@@ -2509,8 +2481,4 @@ else:
     plt.tight_layout()
     st.pyplot(fig, use_container_width=True)
 
-
-# Close the fixed-desktop wrapper
-st.markdown("</div>", unsafe_allow_html=True)  # closes #dm-share-card
-st.markdown("</div>", unsafe_allow_html=True)  # closes #dm-fixed-desktop
 
