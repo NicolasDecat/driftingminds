@@ -285,84 +285,108 @@ header[data-testid="stHeader"]::before { content: none; }
 
 
 # =====================
-# Mobile-only: make the page truly full-width (and fix the viewport)
+# Mobile-only layout: balanced margins + no cropping + left-aligned header
 # =====================
 st.markdown("""
 <style>
 @media (max-width: 640px){
 
-  /* Use full screen width, kill all default paddings/margins */
+  /* 1) Use real mobile viewport width; prevent horizontal scroll/crop */
   html, body {
     margin: 0 !important;
     padding: 0 !important;
-    width: 100% !important;
+    width: 100% !important;        /* use % not 100vw to avoid scrollbar crop */
     overflow-x: hidden !important;
+    box-sizing: border-box !important;
   }
 
-  /* Streamlit shells */
-  [data-testid="stAppViewContainer"] { padding: 0 !important; }
+  /* 2) Streamlit page container: add comfy side padding (margins) */
+  [data-testid="stAppViewContainer"] > .main,
   section.main > div.block-container,
   .main .block-container,
   div.block-container {
-    padding: 0 !important;
+    padding-left: 16px !important;  /* ← your margin-on-mobile */
+    padding-right: 16px !important; /* → your margin-on-mobile */
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
     margin: 0 !important;
-    max-width: 100vw !important;
-    width: 100vw !important;
+    max-width: 100% !important;
+    width: 100% !important;         /* avoid 100vw to prevent crop */
+    box-sizing: border-box !important;
   }
 
-  /* Any column/row wrappers */
+  /* 3) Any column/row wrappers: no extra inner margins that fight the padding */
   [data-testid="stVerticalBlock"],
   [data-testid="stHorizontalBlock"],
   [data-testid="column"] {
-    padding: 0 !important;
     margin: 0 !important;
+    padding: 0 !important;
   }
   [data-testid="stVerticalBlock"] > div,
   [data-testid="stHorizontalBlock"] > div,
   [data-testid="column"] > div {
-    padding: 0 !important;
     margin: 0 !important;
+    padding: 0 !important;
   }
 
-  /* Your own centered wrapper should not clamp width on phones */
+  /* 4) Your own centered wrapper: don't clamp width on phones, inherit padding */
   .dm-center {
-    max-width: 100vw !important;
-    width: 100vw !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;          /* padding is handled by the container above */
+    box-sizing: border-box !important;
+  }
+
+  /* 5) Profile header: truly left aligned *within* the 16px mobile padding */
+  .dm-row{
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+  .dm-icon{
+    transform: none !important;
+    width: 84px !important;
+    height: auto !important;
     margin: 0 !important;
     padding: 0 !important;
   }
-
-  /* Ensure profile header/text blocks are truly flush-left */
-  .dm-row, .dm-text, .dm-key, .dm-desc {
-    margin-left: 0 !important;
-    padding-left: 0 !important;
+  .dm-text{
+    margin: 0 !important;
+    padding: 0 !important;
     text-align: left !important;
+    width: calc(100% - 84px) !important;
+    box-sizing: border-box !important;
+  }
+  .dm-key{
+    text-align: left !important;
+    margin: 0 0 4px 0 !important;
+    padding: 0 !important;
+    font-size: clamp(24px, 8vw, 36px) !important;
+  }
+  .dm-desc{
+    text-align: left !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* 6) Make media responsive inside padded layout */
+  [data-testid="stImage"] img, img {
+    max-width: 100% !important;
+    height: auto !important;
   }
 }
-</style>
-""", unsafe_allow_html=True)
 
-# Also fix any hard-coded desktop viewport (e.g., width=1100) on phones only
-st.markdown("""
-<script>
-(function(){
-  function applyViewport(){
-    if (window.innerWidth > 640) return; // desktop untouched
-    var m = document.querySelector('meta[name="viewport"]');
-    if (!m) {
-      m = document.createElement('meta');
-      m.setAttribute('name','viewport');
-      document.head.appendChild(m);
-    }
-    var desired = 'width=device-width, initial-scale=1, viewport-fit=cover';
-    if (m.getAttribute('content') !== desired) m.setAttribute('content', desired);
-  }
-  applyViewport();
-  // Streamlit can rerender the head — keep it corrected
-  var obs = new MutationObserver(applyViewport);
-  obs.observe(document.documentElement, { childList: true, subtree: true });
-})();
-</script>
+/* Tiny phones: slightly smaller icon/name */
+@media (max-width: 420px){
+  .dm-icon{ width:72px !important; }
+  .dm-key{ font-size: clamp(22px, 7.2vw, 32px) !important; }
+}
+</style>
 """, unsafe_allow_html=True)
 
 
