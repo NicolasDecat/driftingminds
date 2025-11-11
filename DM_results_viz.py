@@ -379,6 +379,31 @@ st.markdown("""
     max-width: 100% !important;
     height: auto !important;
   }
+  
+  /* 7) Horizontal bars: remove the extra left indent on phones */
+  /* If your bars are Matplotlib images, Streamlit centers them by default. */
+  [data-testid="stImage"] { text-align: left !important; }                 /* un-center */
+  [data-testid="stImage"] img { margin-left: 0 !important; }               /* flush-left */
+
+  /* If bars are Plotly/Altair/SVG/canvas, strip left margins too */
+  [data-testid="stPlotlyChart"] > div,
+  .js-plotly-plot, 
+  svg, 
+  canvas {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+  }
+
+  /* If you wrapped the bars/labels section yourself, these help too */
+  .dm-bars,
+  .dm-hbar-wrap,
+  .dm-hbar-labels,
+  .dm-hbar-label {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    text-align: left !important;
+  }
+  
 }
 
 /* Tiny phones: slightly smaller icon/name */
