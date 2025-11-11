@@ -380,33 +380,28 @@ st.markdown("""
     height: auto !important;
   }
   
-  /* If you have a labels container (add this class if not yet) */
-  .dm-hbar-labels, .dm-hbar-label {
-    text-align: left !important;
-    margin-left: 0 !important;
-    padding-left: 0 !important;
-    width: auto !important;
+  /* A) Shift the whole bars section slightly left within the 16px page padding */
+  /* 0 = align with page padding; negative pulls it a bit closer to the edge. */
+  .dm2-outer{
+    margin-left: -8px !important;   /* try -8px first; if you want even more, use -12px or -16px */
   }
 
-  /* Streamlit column blocks sometimes keep inner padding—kill it */
-  [data-testid="column"] > div:has(.dm-hbar-label),
-  [data-testid="column"] > div:has(.dm-hbar-labels) {
+  /* B) Make the LABELS themselves start on the left (not right-aligned) */
+  .dm2-left{
+    width: 140px !important;        /* a bit narrower on phones */
+    flex-basis: 140px !important;
     padding-left: 0 !important;
     margin-left: 0 !important;
   }
-
-  /* In case labels are plain paragraphs/spans inside the bar section */
-  .dm-bars p, .dm-bars span, .dm-bars div {
-    text-align: left !important;
-    margin-left: 0 !important;
-    padding-left: 0 !important;
+  .dm2-label{
+    text-align: left !important;    /* <— key change: place label text at the left */
+    padding-right: 8px !important;  /* small gap before the bar (was 40px) */
+    margin: 0 !important;
   }
 
-  /* Finally, un-center any Streamlit column content holding labels */
-  [data-testid="column"] p,
-  [data-testid="column"] span,
-  [data-testid="column"] div {
-    text-align: left !important;
+  /* C) Bars wrapper: remove the extra nudge so bars sit closer to labels */
+  .dm2-wrap{
+    margin-left: 0 !important;      /* was -12px on desktop */
   }
   
 }
