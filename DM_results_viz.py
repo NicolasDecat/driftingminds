@@ -568,27 +568,27 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =====================
-# DESKTOP: pull everything (including title) higher
+# DESKTOP: precisely lift the title container (not the first block)
 # =====================
 st.markdown("""
 <style>
 @media (min-width: 641px){
 
-  /* Remove Streamlit's header and main container spacing */
-  header[data-testid="stHeader"] {
-    height: 0 !important;
-    min-height: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-
+  /* 0) Undo any global lifts you applied earlier to the first block to avoid double-shifting */
   section.main > div.block-container:first-of-type,
   .main .block-container:first-of-type {
+    margin-top: 0 !important;
     padding-top: 0 !important;
-    margin-top: -80px !important;   /* ↑ Move everything up – increased from -60px */
   }
 
-  /* Reset title spacing to prevent extra offset */
+  /* 1) Lift the ACTUAL block container that holds the title */
+  section.main div.block-container:has(.dm-title),
+  [data-testid="stVerticalBlock"]:has(.dm-title) {
+    margin-top: -56px !important;   /* tweak: -40 / -56 / -72 as you prefer */
+    padding-top: 0 !important;
+  }
+
+  /* 2) Ensure the title itself doesn't add spacing back */
   .dm-title {
     margin-top: 0 !important;
     padding-top: 0 !important;
@@ -596,6 +596,7 @@ st.markdown("""
 }
 </style>
 """, unsafe_allow_html=True)
+
 
 
 # --- Force light mode globally (no dark mode on any device) ---
