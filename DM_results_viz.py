@@ -585,10 +585,27 @@ st.markdown("""
 /* Mobile — larger, but lighter weight for visual balance */
 @media (max-width: 640px){
   .dm-subtitle-trajectory{
-    font-size: 28px !important;
+    font-size: 24px !important;
     line-height: 1.28 !important;
     font-weight: 400 !important;
     letter-spacing: 0.15px;
+  }
+}
+</style>
+""", unsafe_allow_html=True)
+
+# add space after profile desc
+st.markdown("""
+<style>
+/* Add space after profile description (applies to all devices) */
+.dm-desc {
+  margin-bottom: 24px !important;  /* extra gap below the profile text */
+}
+
+/* Optional: slightly more breathing room on mobile */
+@media (max-width: 640px) {
+  .dm-desc {
+    margin-bottom: 36px !important;
   }
 }
 </style>
