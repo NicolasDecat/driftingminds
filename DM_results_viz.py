@@ -291,6 +291,24 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stAppViewContainer
     overflow-x: hidden !important;
   }
 }
+@media (prefers-color-scheme: dark) {
+  html, body, [data-testid="stAppViewContainer"], [data-testid="stAppViewContainer"] > .main {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+  }
+}
+
+/* Prevent Streamlit from stacking columns on mobile */
+[data-testid="column"] {
+    flex-direction: row !important;
+    min-width: 0 !important;
+}
+
+div[data-testid="stHorizontalBlock"] {
+    flex-wrap: nowrap !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
 
 # ==============
