@@ -458,37 +458,45 @@ st.markdown("""
   .dm-key{ font-size: clamp(22px, 7.2vw, 32px) !important; }
  }
 
-/* Mobile-only: stack "Drifting Minds" and "Study" vertically */
-.dm-title {
+/* --- MOBILE (<=640px): stacked, left, smaller --- */
+@media (max-width: 640px){
+  .dm-title {
     text-align: left !important;
     margin: 6px 0 14px 0 !important;
     padding: 0 !important;
     line-height: 1.1 !important;
   }
+  /* If you used spans for a 2-line title, stack them on phones */
   .dm-title-main,
   .dm-title-sub {
-    display: block !important;                 /* stack vertically */
+    display: block !important;
   }
   .dm-title-main {
-    font-size: clamp(28px, 8vw, 32px) !important;
+    font-size: clamp(24px, 7.5vw, 30px) !important;  /* ↓ smaller on mobile */
     font-weight: 300 !important;
     margin-bottom: 2px !important;
   }
   .dm-title-sub {
-    font-size: clamp(22px, 7vw, 28px) !important;
+    font-size: clamp(20px, 6.5vw, 26px) !important;  /* ↓ smaller on mobile */
     font-weight: 300 !important;
     margin: 0 !important;
   }
 }
 
-/* --- DESKTOP (>=641px): restore your original centered, single line --- */
+/* --- DESKTOP (>=641px): restore original centered, single line --- */
 @media (min-width: 641px){
-  .dm-title       { text-align: center !important; }
+  .dm-title { 
+    text-align: center !important; 
+    margin-left: auto !important;   /* ensure visual centering even with container padding */
+    margin-right: auto !important;
+  }
+  /* If spans exist, show them inline so it’s one line on desktop */
   .dm-title-main,
-  .dm-title-sub   { display: inline !important; margin: 0 !important; }
+  .dm-title-sub { 
+    display: inline !important; 
+    margin: 0 !important; 
+  }
 }
-
-
 </style>
 """, unsafe_allow_html=True)
 
