@@ -547,7 +547,7 @@ st.markdown("""
 st.markdown("""
 <style>
 @media (max-width: 640px){
-  .dm-spacer-you    { height: 36px; }
+  .dm-spacer-you    { height: 16px; }
   .dm-spacer-sleep  { height: 56px; }
   .dm-spacer-exp    { height: 56px; }
 }
