@@ -280,27 +280,17 @@ st.markdown("""
 html, body, [data-testid="stAppViewContainer"], [data-testid="stAppViewContainer"] > .main {
   background-color: #FFFFFF !important;
   color-scheme: light !important;
-  min-width: 1100px !important;
-  overflow-x: auto !important;
 }
-@media (prefers-color-scheme: dark) {
-  html, body, [data-testid="stAppViewContainer"], [data-testid="stAppViewContainer"] > .main {
-    background-color: #FFFFFF !important;
-    color: #000000 !important;
+
+/* Scale down entire page on mobile to fit screen width */
+@media (max-width: 768px) {
+  body {
+    zoom: 0.35;
+    -moz-transform: scale(0.35);
+    -moz-transform-origin: 0 0;
+    overflow-x: hidden !important;
   }
 }
-
-/* Prevent Streamlit from stacking columns on mobile */
-[data-testid="column"] {
-    flex-direction: row !important;
-    min-width: 0 !important;
-}
-
-div[data-testid="stHorizontalBlock"] {
-    flex-wrap: nowrap !important;
-}
-</style>
-""", unsafe_allow_html=True)
 
 
 # ==============
