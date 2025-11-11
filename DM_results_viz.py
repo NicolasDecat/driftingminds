@@ -285,13 +285,33 @@ header[data-testid="stHeader"]::before { content: none; }
 
 
 # =====================
-# Mobile-only layout fix — full flush left
+# Mobile-only: nuke left padding & force profile header flush-left
 # =====================
 st.markdown("""
 <style>
 @media (max-width: 640px){
-  /* Container */
-  .dm-row{
+
+  /* 1) Kill Streamlit container/column padding on phones */
+  [data-testid="stAppViewContainer"] > .main, 
+  .main .block-container,
+  [data-testid="stVerticalBlock"],
+  [data-testid="stHorizontalBlock"],
+  [data-testid="column"] {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* 2) Your own wrappers: no centering, no side margins */
+  .dm-center {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* 3) Profile header row: fully flush-left */
+  .dm-row {
     justify-content: flex-start !important;
     align-items: flex-start !important;
     gap: 10px !important;
@@ -300,46 +320,38 @@ st.markdown("""
     width: 100% !important;
   }
 
-  /* Icon: anchored hard left */
-  .dm-icon{
+  /* 4) Icon + text */
+  .dm-icon {
     transform: none !important;
     width: 84px !important;
     height: auto !important;
     margin: 0 !important;
     padding: 0 !important;
   }
-
-  /* Text wrapper: flush left, no indent */
-  .dm-text{
-    padding: 0 !important;
+  .dm-text {
     margin: 0 !important;
+    padding: 0 !important;
     text-align: left !important;
-    width: calc(100% - 84px) !important;
+    width: calc(100% - 84px) !important;  /* text takes the rest */
+    box-sizing: border-box !important;
   }
 
-  /* Profile name */
-  .dm-key{
-    font-size: clamp(24px, 8vw, 36px) !important;
+  /* 5) Name + description truly left-aligned with no indent */
+  .dm-key {
+    text-align: left !important;
     margin: 0 0 4px 0 !important;
     padding: 0 !important;
-    text-align: left !important;
+    font-size: clamp(24px, 8vw, 36px) !important;
   }
-
-  /* Profile description */
-  .dm-desc{
-    max-width: 100% !important;
+  .dm-desc {
+    text-align: left !important;
     margin: 0 !important;
     padding: 0 !important;
-    text-align: left !important;
-  }
-
-  /* Make sure parent container doesn’t center the block */
-  [data-testid="stVerticalBlock"] > div{
-    margin-left: 0 !important;
-    padding-left: 0 !important;
+    max-width: 100% !important;
   }
 }
 
+/* Tiny phones: optional micro-tweaks */
 @media (max-width: 420px){
   .dm-icon{ width:72px !important; }
   .dm-key{ font-size: clamp(22px, 7.2vw, 32px) !important; }
