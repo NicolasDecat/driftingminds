@@ -551,7 +551,7 @@ st.markdown("""
 <style>
 @media screen and (max-width: 640px){
   .dm-title {
-    margin-top: -10px !important;   /* move the title a bit closer to the top */
+    margin-top: -5px !important;   /* move the title a bit closer to the top */
   }
 }
 </style>
