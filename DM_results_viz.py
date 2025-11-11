@@ -544,7 +544,18 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-
+# =====================
+# MOBILE: lift the title slightly higher
+# =====================
+st.markdown("""
+<style>
+@media screen and (max-width: 640px){
+  .dm-title {
+    margin-top: -10px !important;   /* move the title a bit closer to the top */
+  }
+}
+</style>
+""", unsafe_allow_html=True)
 
 
 
