@@ -526,6 +526,16 @@ st.markdown("""
     font-weight: 300 !important;
     margin: 0 !important;
   }
+  /* Add more top margin before each main section header */
+  div.dm-center:has(> div > div:contains("YOU")) {
+    margin-top: 48px !important;
+  }
+  div.dm-center:has(> div > div:contains("YOUR SLEEP")) {
+    margin-top: 52px !important;
+  }
+  div.dm-center:has(> div > div:contains("YOUR EXPERIENCE")) {
+    margin-top: 56px !important;
+  }
 }
 </style>
 """, unsafe_allow_html=True)
