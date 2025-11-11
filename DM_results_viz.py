@@ -1402,8 +1402,17 @@ with right_btn:
   }}
   .bar:hover {{ background:#222; }}
   .bar:active {{ background:#444; }}
-  /* Hidden export mirror */
-  #export-root {{ position:fixed; left:-10000px; top:0; width:820px; background:#fff; }}
+
+  /* Keep export root in-viewport so mobile paints it */
+  #export-root {{
+    position: fixed;
+    left: 0; top: 0;
+    width: 820px;
+    background: #fff;
+    opacity: 0.001;           /* invisible but rendered */
+    pointer-events: none;     /* non-interactive */
+    transform: translateZ(0); /* nudge GPU paint on mobile */
+  }}
 </style>
 </head>
 <body data-rec="{record_id or ''}">
@@ -1412,6 +1421,7 @@ with right_btn:
     <button id="copylink" class="bar">🔗 Copy link</button>
   </div>
 
+  <!-- Hidden export mirror (painted in viewport) -->
   <div id="export-root">{DM_SHARE_HTML}</div>
 
   <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3.4.0/dist/dom-to-image-more.min.js"></script>
@@ -1422,14 +1432,11 @@ with right_btn:
     const root    = document.getElementById('export-root');
     const recId   = document.body.dataset.rec || '';
 
-    // Build a share URL from the PARENT page (not the iframe)
     function buildShareUrl() {{
       let href = '';
       try {{
-        // Prefer parent (Streamlit host page)
         href = (window.parent && window.parent.location) ? window.parent.location.href : window.location.href;
       }} catch(e) {{
-        // Cross-origin fallback: iframe URL
         href = window.location.href;
       }}
       try {{
@@ -1437,19 +1444,19 @@ with right_btn:
         if (recId) u.searchParams.set('id', recId);
         return u.toString();
       }} catch(e) {{
-        return href; // very old browsers fallback
+        return href;
       }}
     }}
 
-    // --- COPY LINK ---
+    // COPY LINK
     copyBtn.addEventListener('click', async () => {{
       const share = buildShareUrl();
       try {{
         await navigator.clipboard.writeText(share);
+        const prev = copyBtn.textContent;
         copyBtn.textContent = '✅ Copied!';
-        setTimeout(() => copyBtn.textContent = '🔗 Copy link', 1500);
+        setTimeout(() => copyBtn.textContent = prev, 1500);
       }} catch (e) {{
-        // Fallback (selection trick)
         const ta = document.createElement('textarea');
         ta.value = share;
         ta.style.position='fixed'; ta.style.left='-9999px';
@@ -1459,7 +1466,29 @@ with right_btn:
       }}
     }});
 
-    // --- DOWNLOAD PNG ---
+    // Wait until all <img> inside root are decoded (QR in particular)
+    async function ensureImagesReady(node) {{
+      const imgs = Array.from(node.querySelectorAll('img'));
+      if (!imgs.length) return;
+      await Promise.all(imgs.map(img => {{
+        if (img.complete && img.naturalWidth > 0) {{
+          // try decode anyway for Safari race conditions
+          if (typeof img.decode === 'function') {{
+            return img.decode().catch(() => new Promise(r => setTimeout(r, 80)));
+          }}
+          return Promise.resolve();
+        }}
+        if (typeof img.decode === 'function') {{
+          return img.decode().catch(() => new Promise(r => setTimeout(r, 120)));
+        }}
+        return new Promise(res => {{
+          const done = () => {{ img.removeEventListener('load', done); img.removeEventListener('error', done); res(); }};
+          img.addEventListener('load', done, {{ once:true }});
+          img.addEventListener('error', done, {{ once:true }});
+        }});
+      }}));
+    }}
+
     async function downloadBlob(blob, name) {{
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -1470,12 +1499,38 @@ with right_btn:
 
     async function capture() {{
       try {{
+        // Give layout a frame
         await new Promise(r => requestAnimationFrame(r));
-        const rect = root.getBoundingClientRect();
-        const w = Math.ceil(rect.width), h = Math.ceil(rect.height);
+
+        // Make sure images (QR) are decoded/painted
+        await ensureImagesReady(root);
+
+        // Briefly bump opacity so some mobiles actually paint the node
+        const prevOpacity = root.style.opacity;
+        root.style.opacity = '0.01';
+
+        // Scale for sharpness
+        const rect  = root.getBoundingClientRect();
+        const w     = Math.ceil(rect.width);
+        const h     = Math.ceil(rect.height);
+        const scale = Math.max(1, window.devicePixelRatio || 1);
+
         const blob = await window.domtoimage.toBlob(root, {{
-          width: w, height: h, bgcolor: '#ffffff', quality: 1, cacheBust: true
+          width: w * scale,
+          height: h * scale,
+          bgcolor: '#ffffff',
+          quality: 1,
+          cacheBust: true,
+          style: {{
+            transform: 'scale(' + scale + ')',
+            transformOrigin: 'top left',
+            width: w + 'px',
+            height: h + 'px'
+          }}
         }});
+
+        root.style.opacity = prevOpacity;
+
         if (!blob || !blob.size) throw new Error('empty blob');
         await downloadBlob(blob, 'drifting_minds_profile.png');
       }} catch (e) {{
@@ -1483,7 +1538,8 @@ with right_btn:
         alert('Capture failed. Try refreshing the page or a different browser.');
       }}
     }}
-    dlBtn.addEventListener('click', capture);
+
+    document.getElementById('dmshot').addEventListener('click', capture);
   }})();
   </script>
 </body>
@@ -1491,6 +1547,7 @@ with right_btn:
     """,
     height=70
 )
+
 
 
 
