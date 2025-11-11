@@ -2260,7 +2260,9 @@ with c3:
         ax.text(1.0, -0.05, "high (100)", transform=ax.transAxes,
                 ha="right", va="top", fontsize=7.5)
         ax.set_position(AX_POS_YOU)  # ← lock baseline
+        st.markdown('<div class="dm-fig">', unsafe_allow_html=True)
         st.pyplot(fig, use_container_width=False)
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # --- Explanatory note below the three histograms ----------------------------
 st.markdown(
