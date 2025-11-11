@@ -25,9 +25,6 @@ from scipy.stats import gaussian_kde, truncnorm
 
 st.set_page_config(page_title="Drifting Minds — Profile", layout="centered")
 
-# Force desktop viewport on mobile
-st.markdown('<meta name="viewport" content="width=1100">', unsafe_allow_html=True)
-
 REDCAP_API_URL = st.secrets.get("REDCAP_API_URL")
 REDCAP_API_TOKEN = st.secrets.get("REDCAP_API_TOKEN")
 
@@ -167,7 +164,15 @@ header[data-testid="stHeader"]::before { content: none; }
   text-align: left;
 }
 
-
+/* Responsive tweaks */
+@media (min-width: 640px) {
+  .dm-icon { transform: translateX(8rem); } /* extra shift on desktop */
+  .dm-text { padding-left: 8rem; }
+}
+@media (max-width: 420px) {
+  .dm-icon { width: 110px; }
+  .dm-row  { gap: 0.9rem; }
+}
 
 /* ===============================
    Drifting Minds — Bars Styling
@@ -259,13 +264,17 @@ header[data-testid="stHeader"]::before { content: none; }
   font-size: 0.85rem; color:#666; margin-top: 0; line-height: 1;
 }
 
+@media (max-width: 640px){
+  .dm2-left { width: 148px; flex-basis:148px; }
+  .dm2-label { font-size: 1.05rem; top:-2px; padding-right: 6px; }
+}
+
 /* Reduce default left/right padding for main content */
 .block-container {
     padding-left: 5rem !important;
     padding-right: 5rem !important;
-    max-width: 1100px !important;
-    margin: 0 auto !important;
-    min-width: 1100px !important;  /* Prevent shrinking on mobile */
+    max-width: 1100px !important;   /* optional: widen usable area */
+    margin: 0 auto !important;      /* keep centered */
 }
 
 
@@ -274,38 +283,18 @@ header[data-testid="stHeader"]::before { content: none; }
 
 """, unsafe_allow_html=True)
 
-# --- Force light mode globally and prevent mobile column stacking ---
+# --- Force light mode globally (no dark mode on any device) ---
 st.markdown("""
 <style>
 html, body, [data-testid="stAppViewContainer"], [data-testid="stAppViewContainer"] > .main {
   background-color: #FFFFFF !important;
   color-scheme: light !important;
 }
-
-/* Scale down entire page on mobile to fit screen width */
-@media (max-width: 768px) {
-  body {
-    zoom: 0.35;
-    -moz-transform: scale(0.35);
-    -moz-transform-origin: 0 0;
-    overflow-x: hidden !important;
-  }
-}
 @media (prefers-color-scheme: dark) {
   html, body, [data-testid="stAppViewContainer"], [data-testid="stAppViewContainer"] > .main {
     background-color: #FFFFFF !important;
     color: #000000 !important;
   }
-}
-
-/* Prevent Streamlit from stacking columns on mobile */
-[data-testid="column"] {
-    flex-direction: row !important;
-    min-width: 0 !important;
-}
-
-div[data-testid="stHorizontalBlock"] {
-    flex-wrap: nowrap !important;
 }
 </style>
 """, unsafe_allow_html=True)
