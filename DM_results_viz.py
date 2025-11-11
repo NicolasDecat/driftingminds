@@ -567,6 +567,33 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# =====================
+# DESKTOP: restore tight top spacing for the title only
+# =====================
+st.markdown("""
+<style>
+@media (min-width: 641px){
+  /* Ensure the very first container doesn’t add top padding */
+  section.main > div.block-container:first-of-type,
+  .main .block-container:first-of-type {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  /* Prevent margin-collapsing above the title */
+  .dm-title {
+    margin-top: 0 !important;     /* title itself has no extra margin */
+    padding-top: 1px !important;  /* tiny padding breaks margin collapse */
+  }
+
+  /* Ensure the first content block after the title doesn't push the title down */
+  .dm-row:first-of-type {
+    margin-top: 0 !important;
+  }
+}
+</style>
+""", unsafe_allow_html=True)
+
 # --- Force light mode globally (no dark mode on any device) ---
 st.markdown("""
 <style>
