@@ -497,12 +497,6 @@ st.markdown("""
     display: inline !important; 
     margin: 0 !important; 
   }
-  .dm-subtitle-dynamics{
-    font-size: 22px !important;   /* tweak to taste */
-    line-height: 1.3 !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.2px;
-  }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -545,12 +539,30 @@ st.markdown("""
   /* Make "Dynamics of your experience" subtitle larger on mobile */
   div[data-testid="stMarkdownContainer"] > div:has(> div:contains("Dynamics of your experience")),
   div:has(> div:contains("Dynamics of your experience")) {
-    font-size: 40px !important;      /* increase size */
+    font-size: 20px !important;      /* increase size */
     line-height: 1.3 !important;
     font-weight: 600 !important;     /* slightly bolder */
     letter-spacing: 0.2px;
   }
   
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<style>
+@media (max-width: 640px){
+  /* FINAL: bump subtitle on phones, win over anything else */
+  .dm-subtitle-dynamics{
+    font-size: 22px !important;
+    line-height: 1.3 !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.2px;
+  }
+  /* belt-and-suspenders in case Streamlit wraps extra containers */
+  [data-testid="stMarkdownContainer"] .dm-subtitle-dynamics{
+    font-size: 22px !important;
+  }
 }
 </style>
 """, unsafe_allow_html=True)
