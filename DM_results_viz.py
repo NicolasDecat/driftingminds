@@ -532,17 +532,22 @@ st.markdown("""
 
 
 # =====================
-# EXTRA mobile spacing below title
+# EXTRA mobile spacing *after* the title
 # =====================
 st.markdown("""
 <style>
 @media screen and (max-width: 640px){
-  .dm-title {
-    margin-bottom: 40px !important;   /* add more breathing room below the title */
+
+  /* Add extra top spacing to the section that follows the title */
+  .dm-row:first-of-type,
+  .dm-lead:first-of-type,
+  .dm-key:first-of-type {
+    margin-top: 32px !important;   /* pushes the first content section lower */
   }
 }
 </style>
 """, unsafe_allow_html=True)
+
 
 
 # --- Force light mode globally (no dark mode on any device) ---
