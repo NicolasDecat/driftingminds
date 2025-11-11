@@ -427,6 +427,29 @@ st.markdown("""
     .dm2-wrap { margin-left: -10px !important; }
   }
   
+  /* Narrower label column + smaller gap between label and bar */
+ .dm2-row {
+   grid-template-columns: 120px 1fr !important;  /* was 160px 1fr */
+   column-gap: 4px !important;                   /* was 8px */
+   width: 100% !important;
+ }
+
+ /* Match the left column to 120px */
+ .dm2-left {
+   width: 120px !important;
+   flex-basis: 120px !important;
+ }
+
+ /* Remove the big spacer between label and bar */
+ .dm2-label {
+   padding-right: 4px !important;  /* was 40px; we keep a tiny gap */
+   text-align: left !important;    /* keep labels left-aligned on mobile */
+ }
+
+ /* Ensure the bars themselves don't add any extra left offset */
+ .dm2-wrap { margin-left: 0 !important; padding-left: 0 !important; }
+ .dm2-bar, .dm2-track { margin-left: 0 !important; padding-left: 0 !important; }
+  
 }
 
 /* Tiny phones: slightly smaller icon/name */
