@@ -501,6 +501,35 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# =====================
+# FINAL mobile-only title size override (wins the cascade)
+# =====================
+st.markdown("""
+<style>
+@media screen and (max-width: 640px){
+  /* If your title is a single element (no spans), this alone is enough */
+  .dm-title.dm-title{
+    font-size: clamp(18px, 5.5vw, 22px) !important;
+    line-height: 1.15 !important;
+    margin: 6px 0 12px !important;
+    text-align: left !important;  /* keep your mobile left align */
+  }
+
+  /* If you used the two-span markup, these also apply (harmless if spans don't exist) */
+  .dm-title-main.dm-title-main{
+    font-size: clamp(18px, 5.5vw, 22px) !important;
+    font-weight: 300 !important;
+    margin-bottom: 2px !important;
+  }
+  .dm-title-sub.dm-title-sub{
+    font-size: clamp(15px, 4.8vw, 18px) !important;
+    font-weight: 300 !important;
+    margin: 0 !important;
+  }
+}
+</style>
+""", unsafe_allow_html=True)
+
 
 
 
