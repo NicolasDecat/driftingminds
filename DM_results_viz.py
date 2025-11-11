@@ -1410,9 +1410,9 @@ with right_btn:
     left: 0; top: 0;
     width: 820px;
     background: #fff;
-    visibility: hidden;       /* hidden but keeps layout/paint pipeline */
-    pointer-events: none;     /* non-interactive */
-    will-change: transform;   /* hint for mobile GPU paint */
+    visibility: hidden;       /* hidden until capture */
+    pointer-events: none;
+    will-change: transform;
   }}
 </style>
 </head>
@@ -1462,7 +1462,7 @@ with right_btn:
       }}
     }});
 
-    // Ensure all <img> inside root are decoded (QR in particular)
+    // Ensure all <img> inside node are decoded
     async function ensureImagesReady(node) {{
       const imgs = Array.from(node.querySelectorAll('img'));
       if (!imgs.length) return;
@@ -1484,6 +1484,29 @@ with right_btn:
       }}));
     }}
 
+    // ✅ NEW: Rasterize all images to PNG data URLs to avoid iOS dropping them (esp. SVG/data-URIs)
+    async function rasterizeImages(node) {{
+      const imgs = Array.from(node.querySelectorAll('img'));
+      if (!imgs.length) return;
+      await Promise.all(imgs.map(img => new Promise((resolve) => {{
+        const w = img.naturalWidth  || img.width  || 0;
+        const h = img.naturalHeight || img.height || 0;
+        if (!w || !h) return resolve(); // skip tiny/empty
+        try {{
+          const c = document.createElement('canvas');
+          c.width = w; c.height = h;
+          const ctx = c.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          const data = c.toDataURL('image/png');
+          // Preserve dimensions on the element so layout stays identical
+          if (img.width && !img.style.width) img.style.width = img.width + 'px';
+          if (img.height && !img.style.height) img.style.height = img.height + 'px';
+          img.setAttribute('src', data);
+        }} catch(_) {{}}
+        resolve();
+      }})));
+    }}
+
     async function downloadBlob(blob, name) {{
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -1494,17 +1517,20 @@ with right_btn:
 
     async function capture() {{
       try {{
-        // Let layout settle; then make sure images (QR) are decoded
+        // Let layout settle
         await new Promise(r => requestAnimationFrame(r));
         await new Promise(r => requestAnimationFrame(r));
+
+        // Make sure images (QR) are decoded
         await ensureImagesReady(root);
 
-        // Show the export root just for the capture (opaque, visible, in-viewport)
+        // ✅ Rasterize images to PNG data URLs (fixes iOS dropping QR/SVG)
+        await rasterizeImages(root);
+
+        // Show the export root just for the capture
         const prevVis = root.style.visibility;
         root.style.visibility = 'visible';
-
-        // Force a reflow to commit paint on mobile engines
-        void root.offsetHeight;
+        void root.offsetHeight; // commit paint
 
         // Use scroll sizes to avoid 0×0 canvases
         const w = Math.ceil(root.scrollWidth  || root.getBoundingClientRect().width);
@@ -1518,7 +1544,6 @@ with right_btn:
           cacheBust: true
         }});
 
-        // Hide again immediately after capture
         root.style.visibility = prevVis;
 
         if (!blob || !blob.size) throw new Error('empty blob');
@@ -1537,6 +1562,7 @@ with right_btn:
     """,
     height=70
 )
+
 
 
 
