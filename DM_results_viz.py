@@ -1383,7 +1383,7 @@ with left_note:
 with right_btn:
     # keep the button in its own iframe so JS works; align it to the right
     components.html(
-        f"""
+    f"""
 <!doctype html>
 <html>
 <head>
@@ -1393,14 +1393,23 @@ with right_btn:
   body {{ margin:0; background:#fff; }}
   .wrap {{
     display:flex; justify-content:flex-end; align-items:flex-start;
-    padding-top:14px;  /* align with note's top margin */
+    gap:8px;                /* space between buttons */
+    padding-top:14px;
   }}
   .bar {{
-    display:inline-block; padding:10px 16px; border:none; border-radius:8px;
-    font-size:15px; cursor:pointer; background:#7B61FF; color:#fff;
+    display:inline-block;
+    padding:9px 14px;       /* smaller width for two buttons */
+    border:none;
+    border-radius:8px;
+    font-size:14px;
+    cursor:pointer;
+    background:#000;        /* black fill */
+    color:#fff;
     box-shadow: 0 2px 6px rgba(0,0,0,.08);
+    transition:background .2s ease;
   }}
-  /* Hidden mirror (off-screen) */
+  .bar:hover {{ background:#222; }}
+  .bar:active {{ background:#444; }}
   #export-root {{
     position: fixed; left: -10000px; top: 0;
     width: 820px; background:#fff;
@@ -1409,18 +1418,31 @@ with right_btn:
 </head>
 <body>
   <div class="wrap">
-    <button id="dmshot" class="bar">↓ Download your profile (PNG)</button>
+    <button id="copylink" class="bar">🔗 Copy link</button>
+    <button id="dmshot" class="bar">⬇️ Download</button>
   </div>
 
-  <!-- Hidden mirror of your section -->
   <div id="export-root">{DM_SHARE_HTML}</div>
 
   <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3.4.0/dist/dom-to-image-more.min.js"></script>
   <script>
   (function() {{
-    const btn = document.getElementById('dmshot');
+    const copyBtn = document.getElementById('copylink');
+    const dlBtn = document.getElementById('dmshot');
     const root = document.getElementById('export-root');
 
+    // --- COPY LINK ---
+    copyBtn.addEventListener('click', async () => {{
+      try {{
+        await navigator.clipboard.writeText(window.location.href);
+        copyBtn.textContent = '✅ Copied!';
+        setTimeout(() => copyBtn.textContent = '🔗 Copy link', 1500);
+      }} catch (e) {{
+        alert('Copy failed. Please copy manually.');
+      }}
+    }});
+
+    // --- DOWNLOAD PNG ---
     async function downloadBlob(blob, name) {{
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -1444,15 +1466,15 @@ with right_btn:
         alert('Capture failed. Try refreshing the page or a different browser.');
       }}
     }}
-
-    btn.addEventListener('click', capture);
+    dlBtn.addEventListener('click', capture);
   }})();
   </script>
 </body>
 </html>
-        """,
-        height=70
-    )
+    """,
+    height=70
+)
+
 
 
 
