@@ -536,6 +536,14 @@ st.markdown("""
   div.dm-center:has(> div > div:contains("YOUR EXPERIENCE")) {
     margin-top: 56px !important;
   }
+  /* Make "Dynamics of your experience" subtitle larger on mobile */
+  div[data-testid="stMarkdownContainer"] > div:has(> div:contains("Dynamics of your experience")),
+  div:has(> div:contains("Dynamics of your experience")) {
+    font-size: 20px !important;      /* increase size */
+    line-height: 1.3 !important;
+    font-weight: 600 !important;     /* slightly bolder */
+    letter-spacing: 0.2px;
+  }
   
 }
 </style>
