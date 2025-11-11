@@ -60,7 +60,7 @@ st.markdown(
     f"""
     <div style="
         position: absolute;
-        top: 60px;
+        top: 140px;
         right: 0px;
         text-align: center;
         font-size: 0.9rem;
@@ -688,7 +688,7 @@ st.markdown("""
   /* 0) Undo any global lifts you applied earlier to the first block to avoid double-shifting */
   section.main > div.block-container:first-of-type,
   .main .block-container:first-of-type {
-    margin-top: 0 !important;
+    margin-top: -120px !important;
     padding-top: 0 !important;
   }
 
