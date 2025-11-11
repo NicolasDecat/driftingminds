@@ -502,27 +502,29 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =====================
-# FINAL mobile-only title size override (wins the cascade)
+# FINAL mobile title tweak — slightly larger + break before "Study"
 # =====================
 st.markdown("""
 <style>
 @media screen and (max-width: 640px){
-  /* If your title is a single element (no spans), this alone is enough */
-  .dm-title.dm-title{
-    font-size: clamp(18px, 5.5vw, 22px) !important;
+
+  /* If title is a single element (no spans) */
+  .dm-title.dm-title {
+    font-size: clamp(22px, 6.5vw, 26px) !important;  /* slightly larger */
     line-height: 1.15 !important;
     margin: 6px 0 12px !important;
-    text-align: left !important;  /* keep your mobile left align */
+    text-align: left !important;
+    white-space: pre-line !important;                /* allows \n line break */
   }
 
-  /* If you used the two-span markup, these also apply (harmless if spans don't exist) */
-  .dm-title-main.dm-title-main{
-    font-size: clamp(18px, 5.5vw, 22px) !important;
+  /* If title uses two spans (recommended) */
+  .dm-title-main.dm-title-main {
+    font-size: clamp(22px, 6.5vw, 26px) !important;  /* slightly larger */
     font-weight: 300 !important;
     margin-bottom: 2px !important;
   }
-  .dm-title-sub.dm-title-sub{
-    font-size: clamp(15px, 4.8vw, 18px) !important;
+  .dm-title-sub.dm-title-sub {
+    font-size: clamp(18px, 5.5vw, 22px) !important;
     font-weight: 300 !important;
     margin: 0 !important;
   }
