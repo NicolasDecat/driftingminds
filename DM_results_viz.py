@@ -283,6 +283,38 @@ header[data-testid="stHeader"]::before { content: none; }
 
 """, unsafe_allow_html=True)
 
+
+# --- Mobile-only fix for profile header text (no desktop change) ---
+st.markdown("""
+<style>
+@media (max-width: 640px){
+  /* Header row: stop centering, let it start at the left */
+  .dm-row{ justify-content:flex-start; gap:12px; }
+
+  /* Icon: remove the right push and shrink a bit */
+  .dm-icon{ transform:none; width:96px; height:auto; margin:0; }
+
+  /* Text block: remove the big left padding so it starts at the left edge */
+  .dm-text{ padding-left:0; }
+
+  /* Keep name readable on small screens */
+  .dm-key{ font-size: clamp(24px, 8vw, 36px); }
+
+  /* Let description take full width */
+  .dm-desc{ max-width: 100%; }
+}
+
+/* Tiny phones: nudge sizes a touch more */
+@media (max-width: 420px){
+  .dm-icon{ width:84px; }
+  .dm-key{ font-size: clamp(22px, 7.2vw, 32px); }
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+
+
 # --- Force light mode globally (no dark mode on any device) ---
 st.markdown("""
 <style>
