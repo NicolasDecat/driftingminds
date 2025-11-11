@@ -1383,7 +1383,7 @@ with left_note:
 
 with right_btn:
     # keep the button in its own iframe so JS works; align it to the right
-    components.html(
+   components.html(
     f"""
 <!doctype html>
 <html>
@@ -1404,7 +1404,7 @@ with right_btn:
   .bar:hover {{ background:#222; }}
   .bar:active {{ background:#444; }}
 
-  /* ✅ Keep export root in-viewport so mobile paints it */
+  /* Keep export root in-viewport so mobile paints it */
   #export-root {{
     position: fixed;
     left: 0; top: 0;
@@ -1444,6 +1444,7 @@ with right_btn:
       }} catch(e) {{ return href; }}
     }}
 
+    // COPY LINK
     copyBtn.addEventListener('click', async () => {{
       const share = buildShareUrl();
       try {{
@@ -1461,14 +1462,14 @@ with right_btn:
       }}
     }});
 
-    // ✅ Ensure all images (QR included) are decoded before capture
+    // Ensure all <img> inside root are decoded (QR in particular)
     async function ensureImagesReady(node) {{
       const imgs = Array.from(node.querySelectorAll('img'));
       if (!imgs.length) return;
       await Promise.all(imgs.map(img => {{
         if (img.complete && img.naturalWidth > 0) {{
           if (typeof img.decode === 'function') {{
-            return img.decode().catch(() => new Promise(r => setTimeout(r, 80)));
+            return img.decode().catch(() => new Promise(r => setTimeout(r, 60)));
           }}
           return Promise.resolve();
         }}
@@ -1493,32 +1494,31 @@ with right_btn:
 
     async function capture() {{
       try {{
-        // Give layout one frame, then make sure images are ready
+        // Let layout settle (2 frames helps Safari)
         await new Promise(r => requestAnimationFrame(r));
+        await new Promise(r => requestAnimationFrame(r));
+
+        // Make sure images (QR) are decoded/painted
         await ensureImagesReady(root);
 
-        // Briefly bump opacity above 0 to force paint on some mobiles
+        // Briefly bump opacity so some mobiles actually paint the node
         const prevOpacity = root.style.opacity;
-        root.style.opacity = '0.01';
+        root.style.opacity = '0.05';
 
-        // Render at device pixel ratio for sharpness
-        const rect  = root.getBoundingClientRect();
-        const w     = Math.ceil(rect.width);
-        const h     = Math.ceil(rect.height);
-        const scale = Math.max(1, window.devicePixelRatio || 1);
+        // Force a reflow to commit paint
+        void root.offsetHeight;
+
+        // Use scroll size to avoid zero-height clones
+        const w = Math.ceil(root.scrollWidth  || root.getBoundingClientRect().width);
+        const h = Math.ceil(root.scrollHeight || root.getBoundingClientRect().height);
 
         const blob = await window.domtoimage.toBlob(root, {{
-          width:  w * scale,
-          height: h * scale,
+          width:  w,
+          height: h,
           bgcolor: '#ffffff',
           quality: 1,
-          cacheBust: true,
-          style: {{
-            transform: 'scale(' + scale + ')',
-            transformOrigin: 'top left',
-            width:  w + 'px',
-            height: h + 'px'
-          }}
+          cacheBust: true
+          // NOTE: no transform/scale overrides — reduces blank captures on mobile
         }});
 
         root.style.opacity = prevOpacity;
@@ -1539,7 +1539,6 @@ with right_btn:
     """,
     height=70
 )
-
 
 
 
