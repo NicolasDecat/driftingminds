@@ -502,37 +502,29 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =====================
-# FINAL mobile title tweak — slightly larger + break before "Study" (mobile only)
+# FINAL mobile-only title size override (wins the cascade)
 # =====================
 st.markdown("""
 <style>
-/* --- MOBILE (<=640px): smaller, left, and forced break --- */
 @media screen and (max-width: 640px){
-  .dm-title {
-    font-size: clamp(22px, 6.5vw, 26px) !important;
+  /* If your title is a single element (no spans), this alone is enough */
+  .dm-title.dm-title{
+    font-size: clamp(18px, 5.5vw, 22px) !important;
     line-height: 1.15 !important;
     margin: 6px 0 12px !important;
-    text-align: left !important;
+    text-align: left !important;  /* keep your mobile left align */
+  }
+
+  /* If you used the two-span markup, these also apply (harmless if spans don't exist) */
+  .dm-title-main.dm-title-main{
+    font-size: clamp(18px, 5.5vw, 22px) !important;
     font-weight: 300 !important;
+    margin-bottom: 2px !important;
   }
-
-  /* Force "Study" onto the next line only on phones */
-  .dm-break-mobile {
-    display: block !important;
-  }
-}
-
-/* --- DESKTOP (>=641px): keep one line, centered --- */
-@media screen and (min-width: 641px){
-  .dm-title {
-    text-align: center !important;
-    font-size: 2.5rem !important;     /* your original desktop size */
-    font-weight: 200 !important;
-  }
-
-  /* Inline display keeps "Drifting Minds Study" on one line */
-  .dm-break-mobile {
-    display: inline !important;
+  .dm-title-sub.dm-title-sub{
+    font-size: clamp(15px, 4.8vw, 18px) !important;
+    font-weight: 300 !important;
+    margin: 0 !important;
   }
 }
 </style>
@@ -1191,8 +1183,8 @@ def _data_uri(path: str) -> str:
 
 # Title
 st.markdown("""
-<div class="dm-title">
-  Drifting Minds <span class="dm-break-mobile">Study</span>
+<div class="dm-center">
+  <div class="dm-title">DRIFTING MINDS STUDY</div>
 </div>
 """, unsafe_allow_html=True)
 
