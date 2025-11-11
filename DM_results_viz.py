@@ -530,6 +530,20 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# =====================
+# MOBILE: add extra vertical space *after* the title (below it)
+# =====================
+st.markdown("""
+<style>
+@media screen and (max-width: 640px){
+  /* Add extra top margin to the first section after the title */
+  .dm-row:first-of-type {
+    margin-top: 36px !important;   /* pushes down "You drift into sleep like a" + icon + name + desc */
+  }
+}
+</style>
+""", unsafe_allow_html=True)
+
 
 
 
