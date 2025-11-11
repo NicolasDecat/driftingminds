@@ -1383,7 +1383,7 @@ with left_note:
 
 with right_btn:
     # keep the button in its own iframe so JS works; align it to the right
-   components.html(
+  components.html(
     f"""
 <!doctype html>
 <html>
@@ -1404,15 +1404,22 @@ with right_btn:
   .bar:hover {{ background:#222; }}
   .bar:active {{ background:#444; }}
 
-  /* Keep export root in viewport so mobile actually paints it; hide via visibility */
+  /* Export root: fixed width card, in-viewport but hidden (so iOS paints it) */
   #export-root {{
     position: fixed;
     left: 0; top: 0;
     width: 820px;
     background: #fff;
-    visibility: hidden;     /* hidden (not faded) until capture */
-    pointer-events: none;   /* never interactive */
-    z-index: -1;            /* keep it behind everything just in case */
+    visibility: hidden;     /* shown only during capture */
+    pointer-events: none;
+    box-sizing: border-box;
+    z-index: -1;
+  }}
+
+  /* Prevent any image from blowing up the layout */
+  #export-root img {{
+    max-width: 100%;
+    height: auto;
   }}
 </style>
 </head>
@@ -1433,24 +1440,17 @@ with right_btn:
     const root    = document.getElementById('export-root');
     const recId   = document.body.dataset.rec || '';
 
-    // Build share URL from the host page (parent) when possible
     function buildShareUrl() {{
       let href = '';
-      try {{
-        href = (window.parent && window.parent.location) ? window.parent.location.href : window.location.href;
-      }} catch(e) {{
-        href = window.location.href;
-      }}
+      try {{ href = (window.parent && window.parent.location) ? window.parent.location.href : window.location.href; }}
+      catch(e) {{ href = window.location.href; }}
       try {{
         const u = new URL(href);
         if (recId) u.searchParams.set('id', recId);
         return u.toString();
-      }} catch(e) {{
-        return href;
-      }}
+      }} catch(e) {{ return href; }}
     }}
 
-    // Copy link button
     copyBtn.addEventListener('click', async () => {{
       const share = buildShareUrl();
       try {{
@@ -1468,7 +1468,6 @@ with right_btn:
       }}
     }});
 
-    // Wait for all imgs in node to decode (incl. QR)
     async function ensureImagesReady(node) {{
       const imgs = Array.from(node.querySelectorAll('img'));
       if (!imgs.length) return;
@@ -1490,27 +1489,28 @@ with right_btn:
       }}));
     }}
 
-    // Rasterize all <img> to PNG data URLs using *rendered size* fallback (fixes iOS dropping SVG QR)
+    // Rasterize <img> to PNG using the *rendered* size to avoid layout blowups
     async function rasterizeImages(node) {{
       const imgs = Array.from(node.querySelectorAll('img'));
       if (!imgs.length) return;
 
       const loadImage = (src) => new Promise((resolve) => {{
         const im = new Image();
-        // If you ever load remote images, you may need: im.crossOrigin = 'anonymous';
         im.onload = () => resolve(im);
         im.onerror = () => resolve(null);
         im.src = src;
       }});
 
       await Promise.all(imgs.map(async (img) => {{
-        // Prefer natural size; fallback to computed size (needs to be VISIBLE to measure)
-        let w = img.naturalWidth  || img.width  || 0;
-        let h = img.naturalHeight || img.height || 0;
+        // Always prefer the rendered (CSS) size
+        let rect = img.getBoundingClientRect();
+        let w = Math.round(rect.width);
+        let h = Math.round(rect.height);
+
+        // Fallback to natural size if rect is 0 (rare, but safe)
         if (!w || !h) {{
-          const rect = img.getBoundingClientRect();
-          w = Math.max(1, Math.round(rect.width));
-          h = Math.max(1, Math.round(rect.height));
+          w = img.naturalWidth  || img.width  || 0;
+          h = img.naturalHeight || img.height || 0;
         }}
         if (!w || !h) return;
 
@@ -1525,12 +1525,14 @@ with right_btn:
           ctx.drawImage(bitmap, 0, 0, w, h);
           const data = c.toDataURL('image/png');
 
-          // Preserve layout size to avoid any reflow jank
-          if (!img.style.width)  img.style.width  = w + 'px';
-          if (!img.style.height) img.style.height = h + 'px';
+          // Lock the rendered dimensions so layout remains identical
+          img.style.width  = w + 'px';
+          img.style.height = h + 'px';
 
           img.setAttribute('src', data);
-        }} catch(_) {{}}
+        }} catch(_){{
+          /* ignore draw errors, keep original src */
+        }}
       }}));
     }}
 
@@ -1544,27 +1546,25 @@ with right_btn:
 
     async function capture() {{
       try {{
-        // Let layout settle (2 RAFs helps Safari)
+        // Let layout settle
         await new Promise(r => requestAnimationFrame(r));
         await new Promise(r => requestAnimationFrame(r));
 
-        // Make export root visible BEFORE measuring/rasterizing
+        // Make export root visible (must be visible to measure/rasterize correctly)
         const prevVis = root.style.visibility;
         root.style.visibility = 'visible';
-
-        // Commit paint
         void root.offsetHeight;
 
-        // Ensure images decoded
+        // Ensure images are decoded, then rasterize at rendered size
         await ensureImagesReady(root);
-
-        // Rasterize imgs (QR especially) so dom-to-image can't drop them
         await rasterizeImages(root);
 
-        // Measure using scroll sizes to avoid 0×0 canvases
-        const w = Math.ceil(root.scrollWidth  || root.getBoundingClientRect().width);
-        const h = Math.ceil(root.scrollHeight || root.getBoundingClientRect().height);
+        // Measure the final card size *as rendered*
+        const rect = root.getBoundingClientRect();
+        const w = Math.max(1, Math.round(rect.width));
+        const h = Math.max(1, Math.round(rect.height));
 
+        // Snapshot without extra scaling to avoid oversized outputs
         const blob = await window.domtoimage.toBlob(root, {{
           width:  w,
           height: h,
@@ -1573,7 +1573,6 @@ with right_btn:
           cacheBust: true
         }});
 
-        // Hide again immediately after capture
         root.style.visibility = prevVis;
 
         if (!blob || !blob.size) throw new Error('empty blob');
@@ -1592,6 +1591,7 @@ with right_btn:
     """,
     height=70
 )
+
 
 
 
