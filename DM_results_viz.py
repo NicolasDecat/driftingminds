@@ -1404,25 +1404,25 @@ with right_btn:
   .bar:hover {{ background:#222; }}
   .bar:active {{ background:#444; }}
 
-  /* Export root stays in-viewport (so mobile paints images), but hidden */
+  /* Keep export root in viewport so mobile actually paints it; hide via visibility */
   #export-root {{
     position: fixed;
     left: 0; top: 0;
     width: 820px;
     background: #fff;
-    visibility: hidden;       /* hidden until capture */
-    pointer-events: none;
-    will-change: transform;
+    visibility: hidden;     /* hidden (not faded) until capture */
+    pointer-events: none;   /* never interactive */
+    z-index: -1;            /* keep it behind everything just in case */
   }}
 </style>
 </head>
 <body data-rec="{record_id or ''}">
   <div class="wrap">
-    <button id="dmshot" class="bar">⬇️ Download</button>
+    <button id="dmshot"  class="bar">⬇️ Download</button>
     <button id="copylink" class="bar">🔗 Copy link</button>
   </div>
 
-  <!-- Hidden export mirror (fully opaque; visibility toggled only during capture) -->
+  <!-- Hidden, fully-opaque export mirror (toggled visible only during capture) -->
   <div id="export-root">{DM_SHARE_HTML}</div>
 
   <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3.4.0/dist/dom-to-image-more.min.js"></script>
@@ -1433,18 +1433,24 @@ with right_btn:
     const root    = document.getElementById('export-root');
     const recId   = document.body.dataset.rec || '';
 
+    // Build share URL from the host page (parent) when possible
     function buildShareUrl() {{
       let href = '';
-      try {{ href = (window.parent && window.parent.location) ? window.parent.location.href : window.location.href; }}
-      catch(e) {{ href = window.location.href; }}
+      try {{
+        href = (window.parent && window.parent.location) ? window.parent.location.href : window.location.href;
+      }} catch(e) {{
+        href = window.location.href;
+      }}
       try {{
         const u = new URL(href);
         if (recId) u.searchParams.set('id', recId);
         return u.toString();
-      }} catch(e) {{ return href; }}
+      }} catch(e) {{
+        return href;
+      }}
     }}
 
-    // COPY LINK
+    // Copy link button
     copyBtn.addEventListener('click', async () => {{
       const share = buildShareUrl();
       try {{
@@ -1462,7 +1468,7 @@ with right_btn:
       }}
     }});
 
-    // Ensure all <img> inside node are decoded
+    // Wait for all imgs in node to decode (incl. QR)
     async function ensureImagesReady(node) {{
       const imgs = Array.from(node.querySelectorAll('img'));
       if (!imgs.length) return;
@@ -1484,96 +1490,99 @@ with right_btn:
       }}));
     }}
 
-    // ✅ NEW: Rasterize all images to PNG data URLs to avoid iOS dropping them (esp. SVG/data-URIs)
-  async function rasterizeImages(node) {
-    const imgs = Array.from(node.querySelectorAll('img'));
-    if (!imgs.length) return;
+    // Rasterize all <img> to PNG data URLs using *rendered size* fallback (fixes iOS dropping SVG QR)
+    async function rasterizeImages(node) {{
+      const imgs = Array.from(node.querySelectorAll('img'));
+      if (!imgs.length) return;
 
-    // Helper: load an Image reliably (incl. SVG data URLs)
-    const loadImage = (src) => new Promise((resolve) => {
-      const im = new Image();
-      // allow data URLs & same-origin; if you ever use remote PNGs, add:
-      // im.crossOrigin = 'anonymous';
-      im.onload = () => resolve(im);
-      im.onerror = () => resolve(null);
-      im.src = src;
-    });
+      const loadImage = (src) => new Promise((resolve) => {{
+        const im = new Image();
+        // If you ever load remote images, you may need: im.crossOrigin = 'anonymous';
+        im.onload = () => resolve(im);
+        im.onerror = () => resolve(null);
+        im.src = src;
+      }});
 
-    // For each <img>, draw onto a canvas using either natural size or computed CSS size
-    await Promise.all(imgs.map(async (img) => {
-      // Prefer natural size; fallback to computed size (iOS SVG often reports 0×0)
-      let w = img.naturalWidth  || img.width  || 0;
-      let h = img.naturalHeight || img.height || 0;
+      await Promise.all(imgs.map(async (img) => {{
+        // Prefer natural size; fallback to computed size (needs to be VISIBLE to measure)
+        let w = img.naturalWidth  || img.width  || 0;
+        let h = img.naturalHeight || img.height || 0;
+        if (!w || !h) {{
+          const rect = img.getBoundingClientRect();
+          w = Math.max(1, Math.round(rect.width));
+          h = Math.max(1, Math.round(rect.height));
+        }}
+        if (!w || !h) return;
 
-      if (!w || !h) {
-        // Must be visible to measure! (we'll make root visible in capture())
-        const rect = img.getBoundingClientRect();
-        w = Math.max(1, Math.round(rect.width));
-        h = Math.max(1, Math.round(rect.height));
-      }
+        const src = img.currentSrc || img.src;
+        const bitmap = await loadImage(src);
+        if (!bitmap) return;
 
-      if (!w || !h) return; // still nothing to draw, skip
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        const ctx = c.getContext('2d');
+        try {{
+          ctx.drawImage(bitmap, 0, 0, w, h);
+          const data = c.toDataURL('image/png');
 
-      // Ensure the bitmap source is loaded (works for PNG/JPG/SVG data URLs)
-      const bitmap = await loadImage(img.currentSrc || img.src);
-      if (!bitmap) return;
+          // Preserve layout size to avoid any reflow jank
+          if (!img.style.width)  img.style.width  = w + 'px';
+          if (!img.style.height) img.style.height = h + 'px';
 
-      // Draw onto a canvas at the measured size
-      const c = document.createElement('canvas');
-      c.width = w; c.height = h;
-      const ctx = c.getContext('2d');
-      ctx.drawImage(bitmap, 0, 0, w, h);
-
-      // Swap the <img> to a plain PNG data URL so dom-to-image can’t drop it
-      const data = c.toDataURL('image/png');
-      // Preserve layout dimensions to prevent reflow
-      if (!img.style.width)  img.style.width  = w + 'px';
-      if (!img.style.height) img.style.height = h + 'px';
-      img.setAttribute('src', data);
-    }));
-  }
-
-  // Replace your existing capture() with this ordering
-  async function capture() {
-    try {
-      // 1) Let layout settle
-      await new Promise(r => requestAnimationFrame(r));
-      await new Promise(r => requestAnimationFrame(r));
-
-      // 2) Make the export root visible BEFORE measuring/rasterizing
-      const prevVis = root.style.visibility;
-      root.style.visibility = 'visible';
-
-      // 3) Commit paint, then ensure images decode
-      void root.offsetHeight;
-      await ensureImagesReady(root);
-
-      // 4) Rasterize all <img>, using computed size fallback (fixes QR on iOS)
-      await rasterizeImages(root);
-
-      // 5) Measure (use scroll sizes to avoid 0×0)
-      const w = Math.ceil(root.scrollWidth  || root.getBoundingClientRect().width);
-      const h = Math.ceil(root.scrollHeight || root.getBoundingClientRect().height);
-
-      // 6) Snapshot
-      const blob = await window.domtoimage.toBlob(root, {
-        width:  w,
-        height: h,
-        bgcolor: '#ffffff',
-        quality: 1,
-        cacheBust: true
-      });
-
-      // 7) Hide again
-      root.style.visibility = prevVis;
-
-      if (!blob || !blob.size) throw new Error('empty blob');
-      await downloadBlob(blob, 'drifting_minds_profile.png');
-    } catch (e) {
-      console.error(e);
-      alert('Capture failed. Try refreshing the page or a different browser.');
+          img.setAttribute('src', data);
+        }} catch(_) {{}}
+      }}));
     }}
-  }}
+
+    async function downloadBlob(blob, name) {{
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = name;
+      document.body.appendChild(a); a.click();
+      setTimeout(() => {{ URL.revokeObjectURL(url); a.remove(); }}, 400);
+    }}
+
+    async function capture() {{
+      try {{
+        // Let layout settle (2 RAFs helps Safari)
+        await new Promise(r => requestAnimationFrame(r));
+        await new Promise(r => requestAnimationFrame(r));
+
+        // Make export root visible BEFORE measuring/rasterizing
+        const prevVis = root.style.visibility;
+        root.style.visibility = 'visible';
+
+        // Commit paint
+        void root.offsetHeight;
+
+        // Ensure images decoded
+        await ensureImagesReady(root);
+
+        // Rasterize imgs (QR especially) so dom-to-image can't drop them
+        await rasterizeImages(root);
+
+        // Measure using scroll sizes to avoid 0×0 canvases
+        const w = Math.ceil(root.scrollWidth  || root.getBoundingClientRect().width);
+        const h = Math.ceil(root.scrollHeight || root.getBoundingClientRect().height);
+
+        const blob = await window.domtoimage.toBlob(root, {{
+          width:  w,
+          height: h,
+          bgcolor: '#ffffff',
+          quality: 1,
+          cacheBust: true
+        }});
+
+        // Hide again immediately after capture
+        root.style.visibility = prevVis;
+
+        if (!blob || !blob.size) throw new Error('empty blob');
+        await downloadBlob(blob, 'drifting_minds_profile.png');
+      }} catch (e) {{
+        console.error(e);
+        alert('Capture failed. Try refreshing the page or a different browser.');
+      }}
+    }}
 
     dlBtn.addEventListener('click', capture);
   }})();
@@ -1583,6 +1592,7 @@ with right_btn:
     """,
     height=70
 )
+
 
 
 
