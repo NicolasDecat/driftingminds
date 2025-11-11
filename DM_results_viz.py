@@ -460,30 +460,33 @@ st.markdown("""
 
 /* Mobile-only: stack "Drifting Minds" and "Study" vertically */
 .dm-title {
-  text-align: left !important;
-  margin: 6px 0 14px 0 !important;
-  padding: 0 !important;
-  line-height: 1.1 !important;
-}
-
-/* On phones: show as two stacked lines */
-@media (max-width: 640px) {
+    text-align: left !important;
+    margin: 6px 0 14px 0 !important;
+    padding: 0 !important;
+    line-height: 1.1 !important;
+  }
   .dm-title-main,
   .dm-title-sub {
-    display: block !important;     /* stacked vertically */
+    display: block !important;                 /* stack vertically */
   }
-
   .dm-title-main {
     font-size: clamp(28px, 8vw, 32px) !important;
     font-weight: 300 !important;
     margin-bottom: 2px !important;
   }
-
   .dm-title-sub {
     font-size: clamp(22px, 7vw, 28px) !important;
     font-weight: 300 !important;
     margin: 0 !important;
   }
+}
+
+/* --- DESKTOP (>=641px): restore your original centered, single line --- */
+@media (min-width: 641px){
+  .dm-title       { text-align: center !important; }
+  .dm-title-main,
+  .dm-title-sub   { display: inline !important; margin: 0 !important; }
+}
 
 
 </style>
