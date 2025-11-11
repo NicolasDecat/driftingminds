@@ -497,6 +497,12 @@ st.markdown("""
     display: inline !important; 
     margin: 0 !important; 
   }
+  .dm-subtitle-dynamics{
+    font-size: 22px !important;   /* tweak to taste */
+    line-height: 1.3 !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.2px;
+  }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -2724,9 +2730,9 @@ for i, items in bin_items.items():
 with exp_right:
     
     st.markdown(
-    "<div style='font-size:18px; color:#222; text-align:center; margin-bottom:6px;'>Dynamics of your experience</div>",
+    "<div class='dm-subtitle-dynamics' style='color:#222; text-align:center; margin-bottom:6px;'>Dynamics of your experience</div>",
     unsafe_allow_html=True
-    )
+)
     
     # keep it slightly lowered on the page
     st.markdown("<div style='height:1px;'></div>", unsafe_allow_html=True)
