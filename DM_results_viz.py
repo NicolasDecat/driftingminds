@@ -1404,15 +1404,15 @@ with right_btn:
   .bar:hover {{ background:#222; }}
   .bar:active {{ background:#444; }}
 
-  /* Keep export root in-viewport so mobile paints it */
+  /* Export root stays in-viewport (so mobile paints images), but hidden */
   #export-root {{
     position: fixed;
     left: 0; top: 0;
     width: 820px;
     background: #fff;
-    opacity: 0.001;           /* invisible but rendered */
+    visibility: hidden;       /* hidden but keeps layout/paint pipeline */
     pointer-events: none;     /* non-interactive */
-    transform: translateZ(0); /* nudge GPU paint on mobile */
+    will-change: transform;   /* hint for mobile GPU paint */
   }}
 </style>
 </head>
@@ -1422,7 +1422,7 @@ with right_btn:
     <button id="copylink" class="bar">🔗 Copy link</button>
   </div>
 
-  <!-- Painted (but invisible) export mirror -->
+  <!-- Hidden export mirror (fully opaque; visibility toggled only during capture) -->
   <div id="export-root">{DM_SHARE_HTML}</div>
 
   <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3.4.0/dist/dom-to-image-more.min.js"></script>
@@ -1494,21 +1494,19 @@ with right_btn:
 
     async function capture() {{
       try {{
-        // Let layout settle (2 frames helps Safari)
+        // Let layout settle; then make sure images (QR) are decoded
         await new Promise(r => requestAnimationFrame(r));
         await new Promise(r => requestAnimationFrame(r));
-
-        // Make sure images (QR) are decoded/painted
         await ensureImagesReady(root);
 
-        // Briefly bump opacity so some mobiles actually paint the node
-        const prevOpacity = root.style.opacity;
-        root.style.opacity = '0.05';
+        // Show the export root just for the capture (opaque, visible, in-viewport)
+        const prevVis = root.style.visibility;
+        root.style.visibility = 'visible';
 
-        // Force a reflow to commit paint
+        // Force a reflow to commit paint on mobile engines
         void root.offsetHeight;
 
-        // Use scroll size to avoid zero-height clones
+        // Use scroll sizes to avoid 0×0 canvases
         const w = Math.ceil(root.scrollWidth  || root.getBoundingClientRect().width);
         const h = Math.ceil(root.scrollHeight || root.getBoundingClientRect().height);
 
@@ -1518,10 +1516,10 @@ with right_btn:
           bgcolor: '#ffffff',
           quality: 1,
           cacheBust: true
-          // NOTE: no transform/scale overrides — reduces blank captures on mobile
         }});
 
-        root.style.opacity = prevOpacity;
+        // Hide again immediately after capture
+        root.style.visibility = prevVis;
 
         if (!blob || !blob.size) throw new Error('empty blob');
         await downloadBlob(blob, 'drifting_minds_profile.png');
@@ -1539,7 +1537,6 @@ with right_btn:
     """,
     height=70
 )
-
 
 
 
