@@ -60,7 +60,7 @@ st.markdown(
     f"""
     <div style="
         position: absolute;
-        top: 120x;
+        top: 60px;
         right: 0px;
         text-align: center;
         font-size: 0.9rem;
