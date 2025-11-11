@@ -28,6 +28,36 @@ st.markdown('<div id="dm-share-card">', unsafe_allow_html=True)
 
 st.set_page_config(page_title="Drifting Minds — Profile", layout="centered")
 
+# --- Freeze desktop layout width and scale it on phones ---
+st.markdown("""
+<meta name="viewport" content="width=1100, initial-scale=1">
+<style>
+  :root { --dm-desktop: 1100px; }
+
+  /* Wrap the whole page content so we can scale it as one block */
+  #dm-fixed-desktop {
+    width: var(--dm-desktop);
+    margin: 0 auto;
+  }
+
+  /* On narrow screens, scale the entire app to fit the viewport width */
+  @media (max-width: 1099px) {
+    html, body { overflow-x: hidden; }
+    #dm-fixed-desktop {
+      transform-origin: top left;
+      transform: scale(calc(100vw / var(--dm-desktop)));
+    }
+    /* Ensure Streamlit's inner container doesn't fight our width */
+    [data-testid="stAppViewContainer"] > .main > div {
+      width: var(--dm-desktop) !important;
+      max-width: var(--dm-desktop) !important;
+    }
+  }
+</style>
+<div id="dm-fixed-desktop">
+""", unsafe_allow_html=True)
+
+
 REDCAP_API_URL = st.secrets.get("REDCAP_API_URL")
 REDCAP_API_TOKEN = st.secrets.get("REDCAP_API_TOKEN")
 
@@ -2415,7 +2445,8 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-
+# Close the fixed-desktop wrapper
+st.markdown("</div>", unsafe_allow_html=True)
 
 
 # ==============
