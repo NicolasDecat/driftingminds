@@ -572,6 +572,28 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+st.markdown("""
+<style>
+/* Default (desktop) — slightly larger, same style as Dynamics */
+.dm-subtitle-trajectory{
+  font-size: 20px !important;   /* up from 18px */
+  line-height: 1.3 !important;
+  font-weight: 550 !important;
+  letter-spacing: 0.1px;
+}
+
+/* Mobile — larger, but lighter weight for visual balance */
+@media (max-width: 640px){
+  .dm-subtitle-trajectory{
+    font-size: 24px !important;
+    line-height: 1.28 !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.15px;
+  }
+}
+</style>
+""", unsafe_allow_html=True)
+
 
 # =====================
 # MOBILE-ONLY SPACERS (extra gaps before sections)
@@ -2547,8 +2569,10 @@ img_name = traj_map.get(traj_val)
 
 with exp_left:
     # mini-title to match histo titles
-    st.markdown("<div style='font-size:18px; color:#222; text-align:center; margin:2px 0 6px 0;'>Your trajectory</div>", unsafe_allow_html=True)
-
+    st.markdown(
+        "<div class='dm-subtitle-trajectory' style='color:#222; text-align:center; margin:2px 0 6px 0;'>Your trajectory</div>",
+        unsafe_allow_html=True
+    )
     if img_name:
         img_path = os.path.join("assets", img_name)
         try:
