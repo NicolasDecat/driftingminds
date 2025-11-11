@@ -1184,6 +1184,7 @@ export_title_html = """
 
 # Header (icon + text)
 export_icon_html = f'<img class="dm-icon" src="{icon_src}" alt="profile icon"/>' if has_icon else ""
+
 export_header_html = f"""
 <div class="dm-center">
   <div class="dm-row">
@@ -1191,11 +1192,12 @@ export_header_html = f"""
     <div class="dm-text">
       <p class="dm-lead">You drift into sleep like a</p>
       <div class="dm-key">{prof_name}</div>
-      <p class="dm-desc">{prof_desc or "&nbsp;"}</p>
+      <p class="dm-desc">{prof_desc_ext or "&nbsp;"}</p>
     </div>
   </div>
 </div>
 """
+
 
 # Bars (same values you computed above)
 export_bars_html = ["<div class='dm2-outer'><div class='dm2-bars'>"]
