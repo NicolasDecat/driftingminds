@@ -472,12 +472,12 @@ st.markdown("""
     display: block !important;
   }
   .dm-title-main {
-    font-size: clamp(18, 6vw, 24px) !important;  /* ↓ smaller on mobile */
+    font-size: clamp(18px, 6vw, 24px) !important;  /* ↓ smaller on mobile */
     font-weight: 300 !important;
     margin-bottom: 2px !important;
   }
   .dm-title-sub {
-    font-size: clamp(16, 5.5vw, 20px) !important;  /* ↓ smaller on mobile */
+    font-size: clamp(16px, 5.5vw, 20px) !important;  /* ↓ smaller on mobile */
     font-weight: 300 !important;
     margin: 0 !important;
   }
