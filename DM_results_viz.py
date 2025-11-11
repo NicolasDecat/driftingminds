@@ -412,7 +412,7 @@ st.markdown("""
 
   /* If the bars are wrapped in .dm2-wrap, adjust that too */
   .dm2-wrap {
-    margin-left: -8px !important;   /* bring bars closer to the label column */
+    margin-left: -12px !important;   /* bring bars closer to the label column */
     padding-left: 0 !important;
   }
 
