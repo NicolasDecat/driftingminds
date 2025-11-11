@@ -380,27 +380,32 @@ st.markdown("""
     height: auto !important;
   }
   
-  /* 7) Horizontal bars: remove the extra left indent on phones */
-  /* If your bars are Matplotlib images, Streamlit centers them by default. */
-  [data-testid="stImage"] { text-align: left !important; }                 /* un-center */
-  [data-testid="stImage"] img { margin-left: 0 !important; }               /* flush-left */
+  /* If you have a labels container (add this class if not yet) */
+  .dm-hbar-labels, .dm-hbar-label {
+    text-align: left !important;
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    width: auto !important;
+  }
 
-  /* If bars are Plotly/Altair/SVG/canvas, strip left margins too */
-  [data-testid="stPlotlyChart"] > div,
-  .js-plotly-plot, 
-  svg, 
-  canvas {
+  /* Streamlit column blocks sometimes keep inner padding—kill it */
+  [data-testid="column"] > div:has(.dm-hbar-label),
+  [data-testid="column"] > div:has(.dm-hbar-labels) {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+  }
+
+  /* In case labels are plain paragraphs/spans inside the bar section */
+  .dm-bars p, .dm-bars span, .dm-bars div {
+    text-align: left !important;
     margin-left: 0 !important;
     padding-left: 0 !important;
   }
 
-  /* If you wrapped the bars/labels section yourself, these help too */
-  .dm-bars,
-  .dm-hbar-wrap,
-  .dm-hbar-labels,
-  .dm-hbar-label {
-    margin-left: 0 !important;
-    padding-left: 0 !important;
+  /* Finally, un-center any Streamlit column content holding labels */
+  [data-testid="column"] p,
+  [data-testid="column"] span,
+  [data-testid="column"] div {
     text-align: left !important;
   }
   
