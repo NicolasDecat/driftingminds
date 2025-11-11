@@ -1229,7 +1229,7 @@ for b in bars:
     if name.lower() in ("perception", "vivid") and (med_left_clamped is not None):
         overlap = (score_txt != "NA" and abs(width_clamped - med_left_clamped) <= 6.0)
         mediantag_class = "dm2-mediantag below" if overlap else "dm2-mediantag"
-        mediantag_html = f"<div class='{mediantag_class}' style='left:{med_left_clamped}%;'>world</div>"
+        mediantag_html = f"<div class='{mediantag_class}' style='left:{med_left_clamped}%;'>world average</div>"
 
     scoretag_html = "" if score_txt == "NA" else f"<div class='dm2-scoretag' style='left:{width_clamped}%;'>{score_txt}</div>"
 
@@ -1373,7 +1373,7 @@ with left_note:
             <strong>Immersive</strong>: how deeply absorbed you are in your mental content. 
             <strong>Spontaneous</strong>: how much the content comes to you on its own, without deliberate control. 
             <strong>Emotional</strong>: how strongly you felt emotions.<br>
-            "World” represents the average scores from 1,000 people worldwide.
+            ⚫️ "World average”: represents the average scores from 1,000 people worldwide.
             </p>
         </div>
         """,
