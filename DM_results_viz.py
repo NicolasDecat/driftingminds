@@ -1392,43 +1392,46 @@ with right_btn:
 <style>
   body {{ margin:0; background:#fff; }}
   .wrap {{
-    display:flex; justify-content:flex-end; align-items:flex-start;
-    gap:8px;                /* space between buttons */
+    display:flex;
+    justify-content:flex-end;
+    align-items:flex-start;
+    gap:8px;                  /* space between buttons */
     padding-top:14px;
   }}
   .bar {{
     display:inline-block;
-    padding:9px 14px;       /* smaller width for two buttons */
+    padding:9px 14px;
     border:none;
     border-radius:8px;
     font-size:14px;
     cursor:pointer;
-    background:#000;        /* black fill */
+    background:#000;          /* black fill */
     color:#fff;
-    box-shadow: 0 2px 6px rgba(0,0,0,.08);
+    box-shadow:0 2px 6px rgba(0,0,0,.08);
     transition:background .2s ease;
   }}
   .bar:hover {{ background:#222; }}
   .bar:active {{ background:#444; }}
   #export-root {{
-    position: fixed; left: -10000px; top: 0;
-    width: 820px; background:#fff;
+    position:fixed; left:-10000px; top:0;
+    width:820px; background:#fff;
   }}
 </style>
 </head>
 <body>
   <div class="wrap">
-    <button id="copylink" class="bar">🔗 Copy link</button>
     <button id="dmshot" class="bar">⬇️ Download</button>
+    <button id="copylink" class="bar">🔗 Copy link</button>
   </div>
 
+  <!-- Hidden export mirror -->
   <div id="export-root">{DM_SHARE_HTML}</div>
 
   <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3.4.0/dist/dom-to-image-more.min.js"></script>
   <script>
   (function() {{
-    const copyBtn = document.getElementById('copylink');
     const dlBtn = document.getElementById('dmshot');
+    const copyBtn = document.getElementById('copylink');
     const root = document.getElementById('export-root');
 
     // --- COPY LINK ---
@@ -1474,7 +1477,6 @@ with right_btn:
     """,
     height=70
 )
-
 
 
 
