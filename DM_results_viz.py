@@ -567,27 +567,15 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# =====================
-# DESKTOP: restore tight top spacing for the title only
-# =====================
+# ==============
+# DESKTOP: nudge the title upward (only on >=641px)
+# ==============
 st.markdown("""
 <style>
 @media (min-width: 641px){
-  /* Ensure the very first container doesn’t add top padding */
-  section.main > div.block-container:first-of-type,
-  .main .block-container:first-of-type {
-    padding-top: 0 !important;
-    margin-top: 0 !important;
-  }
-
-  /* Prevent margin-collapsing above the title */
-  .dm-title {
-    margin-top: 0 !important;     /* title itself has no extra margin */
-    padding-top: 1px !important;  /* tiny padding breaks margin collapse */
-  }
-
-  /* Ensure the first content block after the title doesn't push the title down */
-  .dm-row:first-of-type {
+  .dm-title{
+    position: relative !important;
+    top: -16px !important;   /* adjust: -12px/-20px if you want more/less */
     margin-top: 0 !important;
   }
 }
