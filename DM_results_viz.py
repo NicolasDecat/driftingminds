@@ -709,6 +709,20 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
+# Smaller graphs on mobile
+st.markdown("""
+<style>
+/* Mobile-only: gently shrink charts */
+@media (max-width: 640px){
+  .dm-fig {
+    transform: scale(0.92);
+    transform-origin: top center;
+    /* compensate for scale so layout flow stays tidy */
+    margin-bottom: -10px;
+  }
+}
+</style>
+""", unsafe_allow_html=True)
 
 # --- Force light mode globally (no dark mode on any device) ---
 st.markdown("""
@@ -2209,9 +2223,9 @@ with c1:
 
     # maintain alignment
     ax.set_position(AX_POS_YOU)
+    st.markdown('<div class="dm-fig">', unsafe_allow_html=True)
     st.pyplot(fig, use_container_width=False)
-
-
+    st.markdown('</div>', unsafe_allow_html=True)
 
 
 
