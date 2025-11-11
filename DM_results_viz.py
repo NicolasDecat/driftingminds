@@ -284,30 +284,55 @@ header[data-testid="stHeader"]::before { content: none; }
 """, unsafe_allow_html=True)
 
 
-# --- Mobile-only fix for profile header text (no desktop change) ---
+# =====================
+# Mobile-only layout fix (profile header text, stronger left alignment)
+# =====================
 st.markdown("""
 <style>
 @media (max-width: 640px){
-  /* Header row: stop centering, let it start at the left */
-  .dm-row{ justify-content:flex-start; gap:12px; }
+  /* Align the entire header section to the left edge */
+  .dm-row{
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+  }
 
-  /* Icon: remove the right push and shrink a bit */
-  .dm-icon{ transform:none; width:96px; height:auto; margin:0; }
+  /* Icon stays small and doesn’t push text */
+  .dm-icon{
+    transform: none !important;
+    width: 90px !important;
+    height: auto !important;
+    margin: 0 !important;
+  }
 
-  /* Text block: remove the big left padding so it starts at the left edge */
-  .dm-text{ padding-left:0; }
+  /* Text container fully flush to the left */
+  .dm-text{
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+    text-align: left !important;
+  }
 
-  /* Keep name readable on small screens */
-  .dm-key{ font-size: clamp(24px, 8vw, 36px); }
+  /* Profile name (key) */
+  .dm-key{
+    font-size: clamp(24px, 8vw, 36px) !important;
+    margin: 0 0 4px 0 !important;
+    text-align: left !important;
+  }
 
-  /* Let description take full width */
-  .dm-desc{ max-width: 100%; }
+  /* Profile description */
+  .dm-desc{
+    max-width: 100% !important;
+    text-align: left !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
 }
 
-/* Tiny phones: nudge sizes a touch more */
 @media (max-width: 420px){
-  .dm-icon{ width:84px; }
-  .dm-key{ font-size: clamp(22px, 7.2vw, 32px); }
+  .dm-icon{ width:80px !important; }
+  .dm-key{ font-size: clamp(22px, 7.2vw, 32px) !important; }
 }
 </style>
 """, unsafe_allow_html=True)
