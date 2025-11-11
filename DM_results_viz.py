@@ -556,16 +556,16 @@ st.markdown("""
 .dm-subtitle-dynamics{
   font-size: 20px !important;   /* up from 18px */
   line-height: 1.3 !important;
-  font-weight: 300 !important;  /* semi-bold */
+  font-weight: 400 !important;  /* semi-bold */
   letter-spacing: 0.1px;
 }
 
 /* Mobile tweak — even bigger but lighter */
 @media (max-width: 640px){
   .dm-subtitle-dynamics{
-    font-size: 24px !important;   /* larger for phone readability */
+    font-size: 30px !important;   /* larger for phone readability */
     line-height: 1.28 !important;
-    font-weight: 300 !important;  /* slightly lighter than desktop */
+    font-weight: 400 !important;  /* slightly lighter than desktop */
     letter-spacing: 0.15px;
   }
 }
