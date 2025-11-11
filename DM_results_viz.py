@@ -614,19 +614,35 @@ st.markdown("""
 # Page starts higher up
 st.markdown("""
 <style>
-/* === Lift all main content upward (except QR code) === */
+/* === Remove all top padding/margin so content starts higher (affects desktop + mobile) === */
 
-/* Apply to all screen sizes */
-[data-testid="stAppViewContainer"] > .main > div {
-  margin-top: -60px !important;   /* adjust this value for how much you want to lift (−40 to −100 works well) */
+/* Remove padding Streamlit adds around main container */
+section.main > div.block-container {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
 }
 
-/* Ensure the QR code (absolutely positioned) stays where it is */
-div[style*="position: absolute"][style*="qr_code_DM.png"] {
+/* Remove all default padding/margins for inner layout */
+[data-testid="stAppViewContainer"],
+[data-testid="stAppViewContainer"] > .main,
+[data-testid="stAppViewContainer"] > .main > div {
+  padding-top: 0 !important;
   margin-top: 0 !important;
+}
+
+/* Slight upward shift for entire page (optional fine-tune) */
+[data-testid="stAppViewContainer"] > .main > div {
+  transform: translateY(-50px);   /* raise everything 50px up */
+}
+
+/* Keep QR code fixed in its intended place */
+div[style*="qr_code_DM.png"],
+div[style*="Participate!"] {
+  transform: none !important;
 }
 </style>
 """, unsafe_allow_html=True)
+
 
 
 # =====================
