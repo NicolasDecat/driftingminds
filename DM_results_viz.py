@@ -526,6 +526,20 @@ st.markdown("""
     font-weight: 300 !important;
     margin: 0 !important;
   }
+  
+  /* 1) Reduce space ABOVE the title */
+  .dm-title {
+    margin-top: 4px !important;     /* was higher, now closer to top */
+  }
+
+  /* 2) Reduce gap between "You drift into sleep like a" (lead) and profile name */
+  .dm-lead {
+    margin-bottom: 4px !important;  /* tighten the gap below the lead line */
+  }
+
+  .dm-key {
+    margin-top: 0 !important;       /* prevent extra gap above profile name */
+  }
 }
 </style>
 """, unsafe_allow_html=True)
