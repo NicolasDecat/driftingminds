@@ -556,7 +556,7 @@ st.markdown("""
 .dm-subtitle-dynamics{
   font-size: 20px !important;   /* up from 18px */
   line-height: 1.3 !important;
-  font-weight: 550 !important;  /* semi-bold */
+  font-weight: 300 !important;  /* semi-bold */
   letter-spacing: 0.1px;
 }
 
@@ -565,7 +565,7 @@ st.markdown("""
   .dm-subtitle-dynamics{
     font-size: 24px !important;   /* larger for phone readability */
     line-height: 1.28 !important;
-    font-weight: 500 !important;  /* slightly lighter than desktop */
+    font-weight: 300 !important;  /* slightly lighter than desktop */
     letter-spacing: 0.15px;
   }
 }
