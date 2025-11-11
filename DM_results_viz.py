@@ -461,8 +461,8 @@ st.markdown("""
 /* Drifting Minds Study title — smaller and left-aligned */
   .dm-title {
     text-align: left !important;                     /* align with page content */
-    font-size: clamp(20px, 6vw, 28px) !important;    /* smaller and responsive */
-    font-weight: 500 !important;                     /* keep some presence but lighter */
+    font-size: clamp(30px, 9vw, 32px) !important;    /* smaller and responsive */
+    font-weight: 300 !important;                     /* keep some presence but lighter */
     line-height: 1.2 !important;
     margin: 6px 0 14px 0 !important;                 /* tight vertical spacing */
     padding: 0 !important;
