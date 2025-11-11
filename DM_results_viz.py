@@ -458,20 +458,32 @@ st.markdown("""
   .dm-key{ font-size: clamp(22px, 7.2vw, 32px) !important; }
  }
 
-/* Drifting Minds Study title — smaller, left, auto-split into two lines */
+/* Mobile-only: stack "Drifting Minds" and "Study" vertically */
 .dm-title {
-  text-align: left !important;                      /* align with page content */
-  font-size: clamp(30px, 9vw, 32px) !important;     /* smaller but still prominent */
-  font-weight: 300 !important;                      /* lighter for mobile */
-  line-height: 1.15 !important;
-  margin: 6px 0 14px 0 !important;                  /* tighter spacing */
+  text-align: left !important;
+  margin: 6px 0 14px 0 !important;
   padding: 0 !important;
-  display: inline-block !important;
-  max-width: 90% !important;                        /* allow wrapping at "Study" */
-  word-break: break-word !important;                /* break if space allows */
-  white-space: normal !important;                   /* let words wrap naturally */
+  line-height: 1.1 !important;
 }
 
+/* On phones: show as two stacked lines */
+@media (max-width: 640px) {
+  .dm-title-main,
+  .dm-title-sub {
+    display: block !important;     /* stacked vertically */
+  }
+
+  .dm-title-main {
+    font-size: clamp(28px, 8vw, 32px) !important;
+    font-weight: 300 !important;
+    margin-bottom: 2px !important;
+  }
+
+  .dm-title-sub {
+    font-size: clamp(22px, 7vw, 28px) !important;
+    font-weight: 300 !important;
+    margin: 0 !important;
+  }
 
 
 </style>
