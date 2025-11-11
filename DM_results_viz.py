@@ -458,16 +458,16 @@ st.markdown("""
   .dm-key{ font-size: clamp(22px, 7.2vw, 32px) !important; }
  }
 
-/* Drifting Minds Study title — smaller and left-aligned */
+/* Drifting Minds Study title — smaller, left, and split into two lines */
   .dm-title {
-    text-align: left !important;                     /* align with page content */
-    font-size: clamp(30px, 9vw, 32px) !important;    /* smaller and responsive */
-    font-weight: 300 !important;                     /* keep some presence but lighter */
-    line-height: 1.2 !important;
-    margin: 6px 0 14px 0 !important;                 /* tight vertical spacing */
+    text-align: left !important;                      /* align with page content */
+    font-size: clamp(30px, 9vw, 32px) !important;     /* smaller but still prominent */
+    font-weight: 300 !important;                      /* lighter for mobile */
+    line-height: 1.15 !important;
+    margin: 6px 0 14px 0 !important;                  /* tighter spacing */
     padding: 0 !important;
+    white-space: pre-line !important;                 /* preserve line breaks */
   }
-
 
 
 </style>
