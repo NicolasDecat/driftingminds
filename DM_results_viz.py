@@ -450,13 +450,26 @@ st.markdown("""
  .dm2-wrap { margin-left: 0 !important; padding-left: 0 !important; }
  .dm2-bar, .dm2-track { margin-left: 0 !important; padding-left: 0 !important; }
   
-}
+ }
 
 /* Tiny phones: slightly smaller icon/name */
 @media (max-width: 420px){
   .dm-icon{ width:72px !important; }
   .dm-key{ font-size: clamp(22px, 7.2vw, 32px) !important; }
-}
+ }
+
+/* Drifting Minds Study title — smaller and left-aligned */
+  .dm-title {
+    text-align: left !important;                     /* align with page content */
+    font-size: clamp(20px, 6vw, 28px) !important;    /* smaller and responsive */
+    font-weight: 500 !important;                     /* keep some presence but lighter */
+    line-height: 1.2 !important;
+    margin: 6px 0 14px 0 !important;                 /* tight vertical spacing */
+    padding: 0 !important;
+  }
+
+
+
 </style>
 """, unsafe_allow_html=True)
 
