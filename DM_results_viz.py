@@ -285,53 +285,63 @@ header[data-testid="stHeader"]::before { content: none; }
 
 
 # =====================
-# Mobile-only layout fix (profile header text, stronger left alignment)
+# Mobile-only layout fix — full flush left
 # =====================
 st.markdown("""
 <style>
 @media (max-width: 640px){
-  /* Align the entire header section to the left edge */
+  /* Container */
   .dm-row{
     justify-content: flex-start !important;
     align-items: flex-start !important;
     gap: 10px !important;
-    margin-left: 0 !important;
-    padding-left: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
   }
 
-  /* Icon stays small and doesn’t push text */
+  /* Icon: anchored hard left */
   .dm-icon{
     transform: none !important;
-    width: 90px !important;
+    width: 84px !important;
     height: auto !important;
     margin: 0 !important;
+    padding: 0 !important;
   }
 
-  /* Text container fully flush to the left */
+  /* Text wrapper: flush left, no indent */
   .dm-text{
-    padding-left: 0 !important;
-    margin-left: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
     text-align: left !important;
+    width: calc(100% - 84px) !important;
   }
 
-  /* Profile name (key) */
+  /* Profile name */
   .dm-key{
     font-size: clamp(24px, 8vw, 36px) !important;
     margin: 0 0 4px 0 !important;
+    padding: 0 !important;
     text-align: left !important;
   }
 
   /* Profile description */
   .dm-desc{
     max-width: 100% !important;
-    text-align: left !important;
     margin: 0 !important;
     padding: 0 !important;
+    text-align: left !important;
+  }
+
+  /* Make sure parent container doesn’t center the block */
+  [data-testid="stVerticalBlock"] > div{
+    margin-left: 0 !important;
+    padding-left: 0 !important;
   }
 }
 
 @media (max-width: 420px){
-  .dm-icon{ width:80px !important; }
+  .dm-icon{ width:72px !important; }
   .dm-key{ font-size: clamp(22px, 7.2vw, 32px) !important; }
 }
 </style>
