@@ -536,6 +536,25 @@ st.markdown("""
   div.dm-center:has(> div > div:contains("YOUR EXPERIENCE")) {
     margin-top: 56px !important;
   }
+  
+}
+</style>
+""", unsafe_allow_html=True)
+
+# =====================
+# MOBILE-ONLY SPACERS (extra gaps before sections)
+# =====================
+st.markdown("""
+<style>
+@media (max-width: 640px){
+  .dm-spacer-you    { height: 36px; }
+  .dm-spacer-sleep  { height: 56px; }
+  .dm-spacer-exp    { height: 56px; }
+}
+@media (min-width: 641px){
+  .dm-spacer-you,
+  .dm-spacer-sleep,
+  .dm-spacer-exp { height: 0; }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -1936,6 +1955,8 @@ AX_POS_SLEEP = [0.14, 0.24, 0.82, 0.66]   # used by Your sleep: latency/duration
 # "You" — Imagery · Creativity · Anxiety (final alignment + clean title line)
 # ==============
 
+st.markdown('<div class="dm-spacer-you"></div>', unsafe_allow_html=True)
+
 # --- Centered title for "You" (thinner black line) -----------------
 st.markdown(
     """
@@ -2171,6 +2192,8 @@ st.markdown(
 # ==============
 # "Your sleep" — Latency · Duration · Chronotype & Dream recall (final visual alignment)
 # ==============
+
+st.markdown('<div class="dm-spacer-sleep"></div>', unsafe_allow_html=True)
 
 # --- Centered title for "Your sleep" (thinner black line, one line text) -----
 st.markdown(
@@ -2448,6 +2471,7 @@ with col_right:
     )
 
 
+st.markdown('<div class="dm-spacer-exp"></div>', unsafe_allow_html=True)
 
 # ==============
 # Your experience — Section header + 3-column layout (image left, radar middle)
