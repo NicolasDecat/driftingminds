@@ -22,7 +22,7 @@ from streamlit.components.v1 import html as components_html
 
 # ==============
 # App config
-# ==============`
+# ==============
 
 st.set_page_config(page_title="Drifting Minds — Profile", layout="centered")
 
@@ -2448,10 +2448,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Close the fixed-desktop wrapper
-st.markdown("</div>", unsafe_allow_html=True)  # closes #dm-share-card
-st.markdown("</div>", unsafe_allow_html=True)  # closes #dm-fixed-desktop
-
 
 # ==============
 # Profile distribution across the N=1000 population
@@ -2513,4 +2509,8 @@ else:
     plt.tight_layout()
     st.pyplot(fig, use_container_width=True)
 
+
+# Close the fixed-desktop wrapper
+st.markdown("</div>", unsafe_allow_html=True)  # closes #dm-share-card
+st.markdown("</div>", unsafe_allow_html=True)  # closes #dm-fixed-desktop
 
