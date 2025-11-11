@@ -26,7 +26,7 @@ from scipy.stats import gaussian_kde, truncnorm
 st.set_page_config(page_title="Drifting Minds — Profile", layout="centered")
 
 # Force desktop viewport on mobile
-st.markdown('<meta name="viewport" content="width=1100, initial-scale=1.0, minimum-scale=0.1, maximum-scale=3.0, user-scalable=yes">', unsafe_allow_html=True)
+st.markdown('<meta name="viewport" content="width=1100">', unsafe_allow_html=True)
 
 REDCAP_API_URL = st.secrets.get("REDCAP_API_URL")
 REDCAP_API_TOKEN = st.secrets.get("REDCAP_API_TOKEN")
