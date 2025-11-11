@@ -531,7 +531,18 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-
+# =====================
+# EXTRA mobile spacing below title
+# =====================
+st.markdown("""
+<style>
+@media screen and (max-width: 640px){
+  .dm-title {
+    margin-bottom: 40px !important;   /* add more breathing room below the title */
+  }
+}
+</style>
+""", unsafe_allow_html=True)
 
 
 # --- Force light mode globally (no dark mode on any device) ---
