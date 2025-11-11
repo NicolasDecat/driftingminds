@@ -1485,74 +1485,95 @@ with right_btn:
     }}
 
     // ✅ NEW: Rasterize all images to PNG data URLs to avoid iOS dropping them (esp. SVG/data-URIs)
-    async function rasterizeImages(node) {{
-      const imgs = Array.from(node.querySelectorAll('img'));
-      if (!imgs.length) return;
-      await Promise.all(imgs.map(img => new Promise((resolve) => {{
-        const w = img.naturalWidth  || img.width  || 0;
-        const h = img.naturalHeight || img.height || 0;
-        if (!w || !h) return resolve(); // skip tiny/empty
-        try {{
-          const c = document.createElement('canvas');
-          c.width = w; c.height = h;
-          const ctx = c.getContext('2d');
-          ctx.drawImage(img, 0, 0, w, h);
-          const data = c.toDataURL('image/png');
-          // Preserve dimensions on the element so layout stays identical
-          if (img.width && !img.style.width) img.style.width = img.width + 'px';
-          if (img.height && !img.style.height) img.style.height = img.height + 'px';
-          img.setAttribute('src', data);
-        }} catch(_) {{}}
-        resolve();
-      }})));
-    }}
+  async function rasterizeImages(node) {
+    const imgs = Array.from(node.querySelectorAll('img'));
+    if (!imgs.length) return;
 
-    async function downloadBlob(blob, name) {{
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = name;
-      document.body.appendChild(a); a.click();
-      setTimeout(() => {{ URL.revokeObjectURL(url); a.remove(); }}, 400);
-    }}
+    // Helper: load an Image reliably (incl. SVG data URLs)
+    const loadImage = (src) => new Promise((resolve) => {
+      const im = new Image();
+      // allow data URLs & same-origin; if you ever use remote PNGs, add:
+      // im.crossOrigin = 'anonymous';
+      im.onload = () => resolve(im);
+      im.onerror = () => resolve(null);
+      im.src = src;
+    });
 
-    async function capture() {{
-      try {{
-        // Let layout settle
-        await new Promise(r => requestAnimationFrame(r));
-        await new Promise(r => requestAnimationFrame(r));
+    // For each <img>, draw onto a canvas using either natural size or computed CSS size
+    await Promise.all(imgs.map(async (img) => {
+      // Prefer natural size; fallback to computed size (iOS SVG often reports 0×0)
+      let w = img.naturalWidth  || img.width  || 0;
+      let h = img.naturalHeight || img.height || 0;
 
-        // Make sure images (QR) are decoded
-        await ensureImagesReady(root);
+      if (!w || !h) {
+        // Must be visible to measure! (we'll make root visible in capture())
+        const rect = img.getBoundingClientRect();
+        w = Math.max(1, Math.round(rect.width));
+        h = Math.max(1, Math.round(rect.height));
+      }
 
-        // ✅ Rasterize images to PNG data URLs (fixes iOS dropping QR/SVG)
-        await rasterizeImages(root);
+      if (!w || !h) return; // still nothing to draw, skip
 
-        // Show the export root just for the capture
-        const prevVis = root.style.visibility;
-        root.style.visibility = 'visible';
-        void root.offsetHeight; // commit paint
+      // Ensure the bitmap source is loaded (works for PNG/JPG/SVG data URLs)
+      const bitmap = await loadImage(img.currentSrc || img.src);
+      if (!bitmap) return;
 
-        // Use scroll sizes to avoid 0×0 canvases
-        const w = Math.ceil(root.scrollWidth  || root.getBoundingClientRect().width);
-        const h = Math.ceil(root.scrollHeight || root.getBoundingClientRect().height);
+      // Draw onto a canvas at the measured size
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(bitmap, 0, 0, w, h);
 
-        const blob = await window.domtoimage.toBlob(root, {{
-          width:  w,
-          height: h,
-          bgcolor: '#ffffff',
-          quality: 1,
-          cacheBust: true
-        }});
+      // Swap the <img> to a plain PNG data URL so dom-to-image can’t drop it
+      const data = c.toDataURL('image/png');
+      // Preserve layout dimensions to prevent reflow
+      if (!img.style.width)  img.style.width  = w + 'px';
+      if (!img.style.height) img.style.height = h + 'px';
+      img.setAttribute('src', data);
+    }));
+  }
 
-        root.style.visibility = prevVis;
+  // Replace your existing capture() with this ordering
+  async function capture() {
+    try {
+      // 1) Let layout settle
+      await new Promise(r => requestAnimationFrame(r));
+      await new Promise(r => requestAnimationFrame(r));
 
-        if (!blob || !blob.size) throw new Error('empty blob');
-        await downloadBlob(blob, 'drifting_minds_profile.png');
-      }} catch (e) {{
-        console.error(e);
-        alert('Capture failed. Try refreshing the page or a different browser.');
-      }}
-    }}
+      // 2) Make the export root visible BEFORE measuring/rasterizing
+      const prevVis = root.style.visibility;
+      root.style.visibility = 'visible';
+
+      // 3) Commit paint, then ensure images decode
+      void root.offsetHeight;
+      await ensureImagesReady(root);
+
+      // 4) Rasterize all <img>, using computed size fallback (fixes QR on iOS)
+      await rasterizeImages(root);
+
+      // 5) Measure (use scroll sizes to avoid 0×0)
+      const w = Math.ceil(root.scrollWidth  || root.getBoundingClientRect().width);
+      const h = Math.ceil(root.scrollHeight || root.getBoundingClientRect().height);
+
+      // 6) Snapshot
+      const blob = await window.domtoimage.toBlob(root, {
+        width:  w,
+        height: h,
+        bgcolor: '#ffffff',
+        quality: 1,
+        cacheBust: true
+      });
+
+      // 7) Hide again
+      root.style.visibility = prevVis;
+
+      if (!blob || !blob.size) throw new Error('empty blob');
+      await downloadBlob(blob, 'drifting_minds_profile.png');
+    } catch (e) {
+      console.error(e);
+      alert('Capture failed. Try refreshing the page or a different browser.');
+    }
+  }
 
     dlBtn.addEventListener('click', capture);
   }})();
