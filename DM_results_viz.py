@@ -699,7 +699,7 @@ st.markdown("""
   div.block-container:first-of-type,
   [data-testid="stVerticalBlock"]:has(.dm-title),
   [data-testid="stVerticalBlock"] .dm-title {
-    margin-top: -40px !important;     /* pull up the block containing the title */
+    margin-top: -50px !important;     /* pull up the block containing the title */
     padding-top: 0 !important;
   }
 
@@ -740,6 +740,19 @@ st.markdown("""
   .dm-title {
     margin-top: 0 !important;
     padding-top: 0 !important;
+  }
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+
+st.markdown("""
+<style>
+/* --- Move QR code up on mobile only --- */
+@media (max-width: 640px) {
+  div[style*="position: absolute"][style*="Participate"] {
+    top: 40px !important;   /* ← Adjust this: try 20px, 30px, 40px, 50px */
   }
 }
 </style>
