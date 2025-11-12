@@ -1397,7 +1397,6 @@ def assign_profile_from_record(record):
     return best_name, scores
 
 
-
 # ==============
 # Title + Profile header (icon + text)
 # ==============
@@ -3074,3 +3073,45 @@ else:
     st.pyplot(fig, use_container_width=True)
 
 
+
+
+
+def dbg_feature_score(name, f, rec):
+    # Compute normalized value v, target t, weight w, and penalty p exactly as your scorer does
+    # (Mirror your real scoring logic here!)
+    t, w = f["target"], f["weight"]
+    # 1) Get raw value
+    key = f["key"][0]
+    raw = rec.get(key, None)
+    # 2) Normalize (mirror your actual norm)
+    v = f["norm"](raw, **f.get("norm_kwargs", {}))
+    # 3) Apply hit_op if present
+    hop = f.get("hit_op")
+    if hop == "lte":
+        # zero penalty when v <= t, otherwise distance above target
+        dist = max(0.0, v - t)
+    elif hop == "gte":
+        dist = max(0.0, t - v)
+    else:
+        # default to absolute distance
+        dist = abs(v - t)
+    p = w * dist
+    return {"feature": name, "raw": raw, "norm": v, "target": t, "weight": w, "dist": dist, "penalty": p}
+
+def debug_profile_breakdown(rec, profiles):
+    out = {}
+    for pname, spec in profiles.items():
+        feats = [dbg_feature_score(f'{i}:{f["key"][0]}', f, rec) for i,f in enumerate(spec["features"])]
+        total = sum(x["penalty"] for x in feats)
+        out[pname] = {"total_penalty": total, "features": feats}
+    return out
+
+# Example:
+rec148 = pop_data.loc[pop_data["record_id"] == 148].iloc[0].to_dict()
+bd = debug_profile_breakdown(rec148, PROFILES)  # PROFILES is your profiles dict
+# Print nicely:
+for pname, info in sorted(bd.items(), key=lambda x: x[1]["total_penalty"]):
+    print(f'\n== {pname}: total_penalty={info["total_penalty"]:.3f}')
+    for f in info["features"]:
+        print(f'  {f["feature"]}: raw={f["raw"]} -> norm={f["norm"]:.3f}, '
+              f'target={f["target"]}, w={f["weight"]}, dist={f["dist"]:.3f}, penalty={f["penalty"]:.3f}')
