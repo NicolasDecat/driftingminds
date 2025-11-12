@@ -688,7 +688,7 @@ st.markdown("""
   /* 0) Undo any global lifts you applied earlier to the first block to avoid double-shifting */
   section.main > div.block-container:first-of-type,
   .main .block-container:first-of-type {
-    margin-top: -40px !important;
+    margin-top: -10px !important;
     padding-top: 0 !important;
   }
 
