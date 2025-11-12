@@ -1300,8 +1300,8 @@ def _weighted_nanaware_distance(values, targets, weights):
     wsum = np.sum(w[mask])
     if wsum <= 0:
         return np.inf
-    mse = np.sum(w[mask] * d * d) / wsum         # ← average (per-feature) weighted error
-    return np.sqrt(mse)                           # ← RMSE
+    mse = np.sum(w[mask] * d * d) / wsum
+    return np.sqrt(mse)
 
 
 # --- AND-ish coherence helpers --------------------------------------
