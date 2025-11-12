@@ -3216,3 +3216,76 @@ with st.expander("Show scoring debug", expanded=False):
                     st.dataframe(df_feat, hide_index=True, use_container_width=True)
                 else:
                     st.info("No features defined for this profile.")
+
+# ================= STREAMLIT SCORER TRACE (drop-in) =================
+import pandas as pd
+import numpy as np
+import streamlit as st
+
+def scorer_trace_for_record(rec, profiles, K_RATIO=0.6, GAMMA=1.5):
+    """Replicates assign_profile_from_record() but logs internals per profile."""
+    rows = []
+    for name, cfg in profiles.items():
+        feats = cfg.get("features", [])
+        if not feats:
+            continue
+
+        vals, targs, wts = [], [], []
+        tmp_vals = []
+        hits, eligible = 0, 0
+
+        # collect normalized values + targets/weights
+        for f in feats:
+            v   = _feature_value_from_record(rec, {}, f)   # uses your existing helper
+            tgt = float(f.get("target", np.nan))
+            wt  = float(f.get("weight", 1.0))
+            tmp_vals.append((f, v))
+            vals.append(v); targs.append(tgt); wts.append(wt)
+
+        # hit counting with eligibility (respects only_if)
+        for f, v in tmp_vals:
+            h = _feature_hit(rec, f, v)  # uses your existing helper
+            if h is None:
+                continue
+            eligible += 1
+            hits     += h
+
+        # raw distance (before coherence penalty)
+        raw_d = _weighted_nanaware_distance(vals, targs, wts)
+
+        # AND-ish penalty multiplier
+        mult = 1.0
+        K = None
+        if eligible > 0:
+            K = max(1, int(np.ceil(K_RATIO * eligible)))
+            if hits < K:
+                mult = ((K / max(hits, 1)) ** GAMMA)
+
+        final_d = raw_d * mult
+
+        rows.append({
+            "profile": name,
+            "raw_distance": raw_d,
+            "hits": int(hits),
+            "eligible": int(eligible),
+            "K_required": (None if K is None else int(K)),
+            "penalty_multiplier": mult,
+            "final_distance": final_d,
+        })
+
+    return pd.DataFrame(rows)
+
+# --------- UI: show internals for the *current* record ----------
+with st.expander("🔧 Scorer internals (this record)", expanded=False):
+    # If you want to peek another ID without changing URL, uncomment:
+    # rid = st.number_input("Record ID", min_value=1, step=1, value=int(record.get("record_id", 148)))
+    # rec_dbg = record if str(record.get("record_id")) == str(rid) else fetch_by_record_id(str(rid))
+    rec_dbg = record  # current page's record (?id=...)
+    if rec_dbg is None:
+        st.error("No record loaded.")
+    else:
+        # Use the same K_RATIO and GAMMA as your scorer
+        df_trace = scorer_trace_for_record(rec_dbg, PROFILES, K_RATIO=0.6, GAMMA=1.5)
+        st.markdown("**Per-profile distances (sorted by final distance; lower wins):**")
+        st.dataframe(df_trace.sort_values("final_distance").reset_index(drop=True),
+                     hide_index=True, use_container_width=True)
