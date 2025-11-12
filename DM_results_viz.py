@@ -978,16 +978,31 @@ PROFILES = {
     # Fantasizer
     # =====================================================================
     "Fantasizer": {
-    "features": [
-        {"type": "var","key": ["freq_scenario"],       "norm": norm_1_6, "norm_kwargs": {}, "target": 0.90, "weight": 1},
-        {"type":"var","key":["anytime_20"],            "norm": norm_bool, "target": 1.0, "weight": 1},         
-        {"type": "var","key": ["freq_positive"],       "norm": norm_1_6, "norm_kwargs": {},"target": 0.70, "weight": 0.6,
-         "only_if": {"key": ["timequest_positive"],    "norm": norm_1_100,"norm_kwargs": {},"op": "between","bounds": [0, 0.50]}
-        },
+        "features": [
+            # Core: frequent scenario-building
+            {"type": "var", "key": ["freq_scenario"],
+             "norm": norm_1_6, "norm_kwargs": {}, "target": 0.80, "weight": 1.4},
+    
+            # Support: can slip into scenarios anytime (percentage / propensity)
+            {"type": "var", "key": ["anytime_20"],
+             "norm": norm_1_100, "norm_kwargs": {}, "target": 0.60, "weight": 0.9},
+    
+            # Support: vivid imagery
+            {"type": "var", "key": ["degreequest_vividness"],
+             "norm": norm_1_6, "norm_kwargs": {}, "target": 0.65, "weight": 0.9},
+    
+            # Support: immersive absorption
+            {"type": "var", "key": ["degreequest_immersive"],
+             "norm": norm_1_6, "norm_kwargs": {}, "target": 0.60, "weight": 0.8},
+    
+            # Optional flavor: a touch of bizarreness helps but isn’t required
+            {"type": "var", "key": ["degreequest_bizarre"],
+             "norm": norm_1_6, "norm_kwargs": {}, "target": 0.55, "weight": 0.5},
     ],
-    "description": "Your mind drifts into imagined stories; vivid, intentional scenarios that feel like daydreams easing you into sleep.",
-    "icon": "dolphin.svg",
+    "description": "You tend to drift into constructed scenes or stories, with richer imagery and absorption.",
+    "icon": "seahorse.svg",
     },
+
     
     # =====================================================================
     # Archivist
@@ -1011,17 +1026,33 @@ PROFILES = {
     # =====================================================================
     "Ruminator": {
         "features": [
-            {"type": "var", "key": ["freq_ruminate"],                   "norm": norm_1_6,   "norm_kwargs": {}, "target": 0.80, "weight": 1.3},  
-            {"type": "var", "key": ["freq_negative"],                   "norm": norm_1_6,   "norm_kwargs": {}, "target": 0.70, "weight": 0.80},  
-            {"type": "var", "key": ["anxiety"],                         "norm": norm_1_100, "norm_kwargs": {}, "target": 0.70, "weight": 0.80},  
-            {"type": "var", "key": ["sleep_latency"],                   "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.90, "weight": 1.1},
-            {"type": "var", "key": ["degreequest_emotionality"],        "norm": norm_1_6,   "norm_kwargs": {}, "target": 0.30, "weight": 0.70},  
-
-        ],
-        "description": "You replay or analyze the day, with longer latency and tension.",
-        "icon": "cow.svg",
+            # Core — frequent ruminative thoughts
+            {"type": "var", "key": ["freq_ruminate"], 
+             "norm": norm_1_6, "norm_kwargs": {}, "target": 0.85, "weight": 1.4},
+    
+            # Often accompanied by negative tone or worry
+            {"type": "var", "key": ["freq_negative"], 
+             "norm": norm_1_6, "norm_kwargs": {}, "target": 0.70, "weight": 0.9},
+    
+            # Higher trait anxiety or tension
+            {"type": "var", "key": ["anxiety"], 
+             "norm": norm_1_100, "norm_kwargs": {}, "target": 0.70, "weight": 0.9},
+    
+            # Longer sleep latency — mind keeps spinning before switching off
+            {"type": "var", "key": ["sleep_latency"], 
+             "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.35, "weight": 1.1},
+    
+            # Emotional involvement (often high)
+            {"type": "var", "key": ["degreequest_emotionality"], 
+             "norm": norm_1_6, "norm_kwargs": {}, "target": 0.65, "weight": 0.8},
+    
+            # Low spontaneity helps differentiate from Freewheeler
+            {"type": "var", "key": ["degreequest_spontaneity"], 
+             "norm": norm_1_6, "norm_kwargs": {}, "target": 0.40, "weight": 0.6},
+    ],
+    "description": "Your mind keeps turning over thoughts, often with tension or analysis before sleep. Longer latency and emotional charge reflect a tendency to ruminate.",
+    "icon": "cow.svg",
     },
-
     # =====================================================================
     # Creative
     # =====================================================================
@@ -1054,15 +1085,25 @@ PROFILES = {
     # =====================================================================
     "Quiet Mind": {
         "features": [
-            {"type": "var", "key": ["degreequest_vividness"],      "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 0.80},  
-            {"type": "var", "key": ["degreequest_distinctness"],   "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 0.80},  
-            {"type": "var", "key": ["degreequest_immersiveness"],  "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 0.80},  
-            {"type": "var", "key": ["degreequest_bizarreness"],    "norm": norm_1_6, "norm_kwargs": {}, "target": 0.20, "weight": 0.80},  
-            {"type": "var", "key": ["degreequest_emotionality"],   "norm": norm_1_6, "norm_kwargs": {}, "target": 0.50, "weight": 0.80},  
-        ],
-        "description": "You fall asleep with little mental content — soft, quiet onset.",
-        "icon": "sloth.svg",
+            # Low intensity across core dimensions (note the lte ops)
+            {"type": "var", "key": ["degreequest_vividness"],
+             "norm": norm_1_6, "norm_kwargs": {}, "target": 0.25, "weight": 1.0, "hit_op": "lte"},
+    
+            {"type": "var", "key": ["degreequest_bizarre"],
+             "norm": norm_1_6, "norm_kwargs": {}, "target": 0.25, "weight": 1.0, "hit_op": "lte"},
+    
+            {"type": "var", "key": ["degreequest_immersive"],
+             "norm": norm_1_6, "norm_kwargs": {}, "target": 0.30, "weight": 0.9, "hit_op": "lte"},
+    
+            # Often settles a bit faster (soft cue)
+            {"type": "var", "key": ["sleep_latency"],
+             "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN},
+             "target": 0.18, "weight": 0.5, "hit_op": "lte"},
+    ],
+    "description": "Your mental field stays relatively quiet at lights-out—less vivid, less odd, less all-absorbing.",
+    "icon": "cat.svg",
     },
+
     
     # =====================================================================
     # Radio Tuner
@@ -1290,18 +1331,14 @@ def _feature_value_from_record(record, scores_unused, feat):
 
 
 def _weighted_nanaware_distance(values, targets, weights):
-    a = np.asarray(values, float)
-    b = np.asarray(targets, float)
-    w = np.asarray(weights, float)
+    a = np.asarray(values, float); b = np.asarray(targets, float); w = np.asarray(weights, float)
     mask = ~(np.isnan(a) | np.isnan(b))
     if not np.any(mask):
         return np.inf
-    d = a[mask] - b[mask]
-    wsum = np.sum(w[mask])
-    if wsum <= 0:
-        return np.inf
-    mse = np.sum(w[mask] * d * d) / wsum
-    return np.sqrt(mse)
+    d2 = np.sum(w[mask] * (a[mask] - b[mask])**2)
+    W  = np.sum(w[mask])
+    # Root-mean-weighted-square error (comparable across profiles)
+    return np.sqrt(d2 / max(W, 1e-9))
 
 
 # --- AND-ish coherence helpers --------------------------------------
@@ -1320,28 +1357,52 @@ def _passes_only_if(rec, cond):
         return float(n) == float(cond["value"])
     return False
 
-def _feature_hit(rec, f, value, tol=0.98):
+def _eligible_for_hit(record, feat):
     """
-    Returns 1 if feature 'hits' its target, 0 if not, None if ineligible.
-    hit_op:
-      - "gte" (default): value >= target * tol
-      - "lte":           value <= target / tol
+    Return True if the feature should count toward the AND-penalty
+    (i.e., same gating you use when computing the feature value).
     """
-    if not _passes_only_if(rec, f.get("only_if")):
-        return None
-    tgt = float(f.get("target", np.nan))
-    try:
-        if value is None or (isinstance(value, float) and np.isnan(value)):
-            return 0
-        op = f.get("hit_op", "gte").lower()
-        v = float(value)
-        if op == "lte":
-            return 1 if v <= (tgt / tol) else 0
-        else:  # "gte"
-            return 1 if v >= (tgt * tol) else 0
-    except:
-        return 0
+    # single condition
+    if "only_if" in feat and not _eval_condition(record, feat["only_if"]):
+        return False
 
+    # all-of conditions
+    if feat.get("only_if_all"):
+        for c in feat["only_if_all"]:
+            if not _eval_condition(record, c):
+                return False
+
+    # any-of conditions
+    if feat.get("only_if_any"):
+        if not any(_eval_condition(record, c) for c in feat["only_if_any"]):
+            return False
+
+    return True
+
+
+def _feature_hit(record, feat, value, tol=0.95):
+    """
+    Returns:
+      1  → eligible + hit
+      0  → eligible + miss
+      None → ineligible (doesn't count toward K nor against it)
+    """
+    # 2a) same gating as value computation
+    if not _eligible_for_hit(record, feat):
+        return None
+
+    # 2b) missing value = ineligible (don’t punish missing data)
+    if value is None or (isinstance(value, float) and np.isnan(value)):
+        return None
+
+    tgt = float(feat.get("target", float("nan")))
+    op  = (feat.get("hit_op") or "gte").lower()
+    v   = float(value)
+
+    if op == "lte":
+        return 1 if v <= (tgt / tol) else 0
+    else:  # default: gte
+        return 1 if v >= (tgt * tol) else 0
 
 
 
@@ -1362,25 +1423,32 @@ def assign_profile_from_record(record):
         feats = cfg.get("features", [])
         if not feats:
             continue
+        
+        # NEW — pre-filter by must/veto
+        if any(not _eval_guard(record, r) for r in cfg.get("must", [])):   # fails any must → skip
+            continue
+        if any(_eval_guard(record, r) for r in cfg.get("veto", [])):       # triggers any veto → skip
+            continue
 
         vals, targs, wts = [], [], []
         hits, eligible = 0, 0
-        tmp_vals = []  # keep raw values to evaluate hits
+        tmp_vals = []
 
         for f in feats:
-            v   = _feature_value_from_record(record, scores, f)  # already normalized
+            # 1️⃣ Compute the feature value (as you already did)
+            v   = _feature_value_from_record(record, scores, f)
             tgt = float(f.get("target", np.nan))
             wt  = float(f.get("weight", 1.0))
+            vals.append(v)
+            targs.append(tgt)
+            wts.append(wt)
             tmp_vals.append((f, v))
-            vals.append(v); targs.append(tgt); wts.append(wt)
 
-        # compute hit count (respecting only_if)
-        for f, v in tmp_vals:
-            h = _feature_hit(record, f, v)
-            if h is None:
-                continue  # not eligible due to only_if
-            eligible += 1
-            hits     += h
+            # 2️⃣ New eligibility-aware hit logic
+            h = _feature_hit(record, f, v)   # ← uses the new version below
+            if h is not None:
+                eligible += 1
+                hits += int(h)
 
         # --- per-feature distance (RMSE) so fewer-criteria profiles aren't advantaged
         d = _weighted_nanaware_distance(vals, targs, wts)
@@ -1400,6 +1468,23 @@ def assign_profile_from_record(record):
 
     return best_name, scores
 
+# ---- MUST/VETO guard evaluation --------------------------------------------
+def _eval_guard(record, rule):
+    """
+    Evaluates a guard 'rule' that can be:
+      - a single condition dict compatible with your _eval_condition()
+      - {"all": [cond1, cond2, ...]}  -> AND
+      - {"any": [cond1, cond2, ...]}  -> OR
+    Returns True/False.
+    """
+    if rule is None:
+        return True
+    if "all" in rule:
+        return all(_eval_condition(record, c) for c in rule["all"])
+    if "any" in rule:
+        return any(_eval_condition(record, c) for c in rule["any"])
+    # single condition
+    return _eval_condition(record, rule)
 
 
 # ==============
