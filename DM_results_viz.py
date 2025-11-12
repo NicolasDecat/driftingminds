@@ -649,7 +649,7 @@ st.markdown("""
   
   /* Lift the QR code up on mobile */
   div[style*="Participate!"] {
-    top: 20px !important;  /* Adjust this value - try 10px, 20px, 30px */
+    top: 80px !important;  /* Adjust this value - try 10px, 20px, 30px */
   }
 }
 </style>
