@@ -617,7 +617,7 @@ st.markdown("""
 /* --- Move QR code further down so main content can sit higher --- */
 div[style*="qr_code_DM.png"],
 div[style*="Participate!"] {
-  top: 160px !important;   /* was 60px — move it lower */
+  top: 200px !important;   /* was 60px — move it lower */
 }
 </style>
 """, unsafe_allow_html=True)
