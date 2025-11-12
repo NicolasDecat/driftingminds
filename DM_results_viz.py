@@ -1354,8 +1354,8 @@ def assign_profile_from_record(record):
     best_name, best_dist, best_r = None, np.inf, -1.0
 
     # AND-ish knobs:
-    K_RATIO = 0.40   # need ~60% of eligible criteria to be met
-    GAMMA   = 1.2    # >1 increases penalty steepness
+    K_RATIO = 0.20   # need ~60% of eligible criteria to be met
+    GAMMA   = 0.8    # >1 increases penalty steepness
     CAP     = 3.0    # max multiplicative penalty
 
     for name, cfg in PROFILES.items():
