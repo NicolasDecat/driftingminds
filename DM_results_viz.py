@@ -1297,7 +1297,12 @@ def _weighted_nanaware_distance(values, targets, weights):
     if not np.any(mask):
         return np.inf
     d = a[mask] - b[mask]
-    return np.sqrt(np.sum(w[mask] * d * d))
+    wsum = np.sum(w[mask])
+    if wsum <= 0:
+        return np.inf
+    mse = np.sum(w[mask] * d * d) / wsum         # ← average (per-feature) weighted error
+    return np.sqrt(mse)                           # ← RMSE
+
 
 # --- AND-ish coherence helpers --------------------------------------
 def _passes_only_if(rec, cond):
@@ -1346,11 +1351,12 @@ def assign_profile_from_record(record):
     Returns (best_profile_name, {}).
     """
     scores = {}  # kept for compatibility with caller
-    best_name, best_dist = None, np.inf
+    best_name, best_dist, best_r = None, np.inf, -1.0
 
     # AND-ish knobs:
-    K_RATIO = 0.6   # need ~60% of eligible criteria to be met
-    GAMMA   = 1.5   # >1 increases penalty steepness
+    K_RATIO = 0.40   # need ~60% of eligible criteria to be met
+    GAMMA   = 1.2    # >1 increases penalty steepness
+    CAP     = 3.0    # max multiplicative penalty
 
     for name, cfg in PROFILES.items():
         feats = cfg.get("features", [])
@@ -1358,12 +1364,11 @@ def assign_profile_from_record(record):
             continue
 
         vals, targs, wts = [], [], []
-
-        # --- collect values AND count how many criteria are hit simultaneously
         hits, eligible = 0, 0
         tmp_vals = []  # keep raw values to evaluate hits
+
         for f in feats:
-            v   = _feature_value_from_record(record, scores, f)  # already normalized by your code
+            v   = _feature_value_from_record(record, scores, f)  # already normalized
             tgt = float(f.get("target", np.nan))
             wt  = float(f.get("weight", 1.0))
             tmp_vals.append((f, v))
@@ -1373,28 +1378,28 @@ def assign_profile_from_record(record):
         for f, v in tmp_vals:
             h = _feature_hit(record, f, v)
             if h is None:
-                continue           # not eligible due to only_if
+                continue  # not eligible due to only_if
             eligible += 1
             hits     += h
 
-        # --- raw distance
+        # --- per-feature distance (RMSE) so fewer-criteria profiles aren't advantaged
         d = _weighted_nanaware_distance(vals, targs, wts)
 
-        # --- AND-ish penalty: if not enough criteria are met, inflate distance
+        # --- AND-ish: smooth proportional penalty based on fraction hit, capped
         if eligible > 0:
-            K = max(1, int(np.ceil(K_RATIO * eligible)))
-            if hits < K:
-                # penalty grows as hits fall short of K
-                shortfall = max(K - hits, 0)
-                # multiplicative inflation; e.g., misses double/triple distance depending on GAMMA
-                penalty = ((K / max(hits, 1)) ** GAMMA)  # if hits=0, uses 1 to avoid div/0
-                d *= penalty
+            r = hits / float(eligible)
+            if r < K_RATIO:
+                penalty = (K_RATIO / max(r, 1e-6)) ** GAMMA
+                d *= min(penalty, CAP)
 
-        # keep best
-        if d < best_dist:
-            best_name, best_dist = name, d
+        # --- keep best — break near-ties by favoring higher hit ratio
+        r = (hits / float(eligible)) if eligible > 0 else 0.0
+        EPS = 1e-6
+        if (d + EPS) < best_dist or (abs(d - best_dist) <= EPS and r > best_r):
+            best_name, best_dist, best_r = name, d, r
 
     return best_name, scores
+
 
 
 # ==============
