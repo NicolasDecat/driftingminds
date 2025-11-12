@@ -3098,20 +3098,121 @@ def dbg_feature_score(name, f, rec):
     p = w * dist
     return {"feature": name, "raw": raw, "norm": v, "target": t, "weight": w, "dist": dist, "penalty": p}
 
+# ============== DEBUGGING: profile breakdown for a given record ==============
+import numpy as np
+import pandas as pd
+import streamlit as st
+
+def dbg_feature_score(name, f, rec):
+    """Mirror your scoring: normalized value, target, weight, hit_op distance, penalty."""
+    t = float(f.get("target", np.nan))
+    w = float(f.get("weight", 1.0))
+    hop = f.get("hit_op")  # 'lte' or 'gte'/None
+
+    # 1) raw value (first existing key)
+    key = f["key"][0] if isinstance(f.get("key"), (list, tuple)) else f.get("key")
+    raw = rec.get(key, None)
+
+    # 2) normalize exactly like your pipeline
+    norm_fn = f.get("norm")
+    kwargs  = f.get("norm_kwargs", {}) or {}
+    if norm_fn is None:
+        try:
+            v = float(raw)
+            v = np.clip(v, 0.0, 1.0)
+        except Exception:
+            v = np.nan
+    else:
+        try:
+            v = norm_fn(raw, **kwargs)
+        except TypeError:
+            v = norm_fn(raw)
+
+    # 3) distance per hit_op
+    if hop == "lte":
+        dist = max(0.0, float(v) - t) if (v is not None and not np.isnan(v)) else np.nan
+    elif hop == "gte":
+        dist = max(0.0, t - float(v)) if (v is not None and not np.isnan(v)) else np.nan
+    else:
+        # default: absolute distance (safe when no specific direction intended)
+        dist = abs(float(v) - t) if (v is not None and not np.isnan(v)) else np.nan
+
+    penalty = (w * dist) if (dist is not None and not np.isnan(dist)) else np.nan
+    return {"feature": name, "raw": raw, "norm": v, "target": t, "weight": w, "dist": dist, "penalty": penalty, "key": key}
+
 def debug_profile_breakdown(rec, profiles):
     out = {}
     for pname, spec in profiles.items():
-        feats = [dbg_feature_score(f'{i}:{f["key"][0]}', f, rec) for i,f in enumerate(spec["features"])]
-        total = sum(x["penalty"] for x in feats)
+        feats = [dbg_feature_score(f'{i}:{f["key"][0] if isinstance(f["key"], (list, tuple)) else f["key"]}', f, rec)
+                 for i, f in enumerate(spec.get("features", []))]
+        # sum penalties ignoring NaN
+        total = float(np.nansum([x["penalty"] for x in feats])) if feats else np.inf
         out[pname] = {"total_penalty": total, "features": feats}
     return out
 
-# Example:
-rec148 = pop_data.loc[pop_data["record_id"] == 148].iloc[0].to_dict()
-bd = debug_profile_breakdown(rec148, PROFILES)  # PROFILES is your profiles dict
-# Print nicely:
-for pname, info in sorted(bd.items(), key=lambda x: x[1]["total_penalty"]):
-    print(f'\n== {pname}: total_penalty={info["total_penalty"]:.3f}')
-    for f in info["features"]:
-        print(f'  {f["feature"]}: raw={f["raw"]} -> norm={f["norm"]:.3f}, '
-              f'target={f["target"]}, w={f["weight"]}, dist={f["dist"]:.3f}, penalty={f["penalty"]:.3f}')
+def _fmt_safe(x, nd=3):
+    try:
+        if x is None or (isinstance(x, float) and np.isnan(x)): return "NA"
+        return f"{float(x):.{nd}f}"
+    except Exception:
+        # strings for raw, etc.
+        return str(x)
+
+# ---- UI: toggle and record selection ----------------------------------------
+st.markdown("### 🔍 Debug: profile scoring breakdown")
+
+with st.expander("Show scoring debug", expanded=False):
+    # pick a record: use current 'record' from query param if it matches, else pull from pop_data
+    default_id = None
+    try:
+        default_id = int(str(record.get("record_id")).strip())
+    except Exception:
+        pass
+
+    rid = st.number_input("Record ID to inspect", min_value=1, step=1,
+                          value=(default_id if default_id else 148))
+
+    # try live record first
+    rec_dbg = None
+    if record and str(record.get("record_id", "")) == str(rid):
+        rec_dbg = record
+    elif "pop_data" in globals() and isinstance(pop_data, pd.DataFrame) and "record_id" in pop_data.columns:
+        try:
+            rec_dbg = pop_data.loc[pop_data["record_id"] == rid].iloc[0].to_dict()
+        except Exception:
+            rec_dbg = None
+    if rec_dbg is None and "fetch_by_record_id" in globals():
+        rec_dbg = fetch_by_record_id(str(rid))
+
+    if rec_dbg is None:
+        st.error("Could not find that record in `record`, `pop_data`, or REDCap.")
+    else:
+        bd = debug_profile_breakdown(rec_dbg, PROFILES)
+
+        # Summary table (sorted by total penalty, best first)
+        rows = [{"profile": p, "total_penalty": info["total_penalty"]}
+                for p, info in bd.items()]
+        df_summary = pd.DataFrame(rows).sort_values("total_penalty", ascending=True, ignore_index=True)
+        st.markdown("**Summary — total penalty by profile (lower = better):**")
+        st.dataframe(df_summary, hide_index=True, use_container_width=True)
+
+        # Per-profile expanders with a tidy table
+        for pname, info in sorted(bd.items(), key=lambda x: x[1]["total_penalty"]):
+            with st.expander(f"{pname} — total_penalty={_fmt_safe(info['total_penalty'], 3)}", expanded=False):
+                feat_rows = []
+                for f in info["features"]:
+                    feat_rows.append({
+                        "feature": f["feature"],
+                        "key": f["key"],
+                        "raw": _fmt_safe(f["raw"], 3),
+                        "norm": _fmt_safe(f["norm"], 3),
+                        "target": _fmt_safe(f["target"], 3),
+                        "weight": _fmt_safe(f["weight"], 3),
+                        "dist": _fmt_safe(f["dist"], 3),
+                        "penalty": _fmt_safe(f["penalty"], 3),
+                    })
+                if feat_rows:
+                    df_feat = pd.DataFrame(feat_rows)
+                    st.dataframe(df_feat, hide_index=True, use_container_width=True)
+                else:
+                    st.info("No features defined for this profile.")
