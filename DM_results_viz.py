@@ -752,7 +752,7 @@ st.markdown("""
 /* --- Move QR code up on mobile only --- */
 @media (max-width: 640px) {
   div[style*="position: absolute"][style*="Participate"] {
-    top: 40px !important;   /* ← Adjust this: try 20px, 30px, 40px, 50px */
+    top: 20px !important;   /* ← Adjust this: try 20px, 30px, 40px, 50px */
   }
 }
 </style>
