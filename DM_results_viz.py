@@ -623,6 +623,39 @@ div[style*="Participate!"] {
 """, unsafe_allow_html=True)
 
 
+st.markdown("""
+<style>
+@media (max-width: 640px) {
+  /* Remove top padding/margin from the main container on mobile */
+  [data-testid="stAppViewContainer"] > .main,
+  section.main > div.block-container,
+  .main .block-container,
+  div.block-container {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+  }
+  
+  /* Also remove any top margin from the first element */
+  [data-testid="stVerticalBlock"]:first-child {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+  
+  /* Lift the title up on mobile */
+  .dm-title {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+  
+  /* Lift the QR code up on mobile */
+  div[style*="Participate!"] {
+    top: 20px !important;  /* Adjust this value - try 10px, 20px, 30px */
+  }
+}
+</style>
+""", unsafe_allow_html=True)
+
+
 # =====================
 # MOBILE-ONLY SPACERS (extra gaps before sections)
 # =====================
