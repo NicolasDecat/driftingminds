@@ -699,7 +699,7 @@ st.markdown("""
   /* 1) Lift the ACTUAL block container that holds the title */
   section.main div.block-container:has(.dm-title),
   [data-testid="stVerticalBlock"]:has(.dm-title) {
-    margin-top: -100px !important;   /* tweak: -40 / -56 / -72 as you prefer */
+    margin-top: -120px !important;   /* tweak: -40 / -56 / -72 as you prefer */
     padding-top: 0 !important;
   }
 
