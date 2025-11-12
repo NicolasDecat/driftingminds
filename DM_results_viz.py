@@ -1299,19 +1299,6 @@ def _weighted_nanaware_distance(values, targets, weights):
     d = a[mask] - b[mask]
     return np.sqrt(np.sum(w[mask] * d * d))
 
-def _weighted_rmse(values, targets, weights):
-    """Weighted RMSE so profiles with more features don't get inflated distances."""
-    a = np.asarray(values, float)
-    b = np.asarray(targets, float)
-    w = np.asarray(weights, float)
-    mask = ~(np.isnan(a) | np.isnan(b))
-    if not np.any(mask):
-        return np.inf
-    d2 = (a[mask] - b[mask]) ** 2
-    w_ = w[mask]
-    return np.sqrt(np.sum(w_ * d2) / max(np.sum(w_), 1e-9))
-
-
 # --- AND-ish coherence helpers --------------------------------------
 def _passes_only_if(rec, cond):
     if not cond:
@@ -1351,71 +1338,19 @@ def _feature_hit(rec, f, value, tol=0.98):
         return 0
 
 
-# def assign_profile_from_record(record):
-#     """
-#     For each profile, compute a weighted distance using only 'var' features.
-#     Returns (best_profile_name, {}).
-#     """
-#     scores = {}  # kept for compatibility with caller
-#     best_name, best_dist = None, np.inf
 
-#     # AND-ish knobs:
-#     K_RATIO = 0.6   # need ~60% of eligible criteria to be met
-#     GAMMA   = 1.5   # >1 increases penalty steepness
 
-#     for name, cfg in PROFILES.items():
-#         feats = cfg.get("features", [])
-#         if not feats:
-#             continue
-
-#         vals, targs, wts = [], [], []
-
-#         # --- collect values AND count how many criteria are hit simultaneously
-#         hits, eligible = 0, 0
-#         tmp_vals = []  # keep raw values to evaluate hits
-#         for f in feats:
-#             v   = _feature_value_from_record(record, scores, f)  # already normalized by your code
-#             tgt = float(f.get("target", np.nan))
-#             wt  = float(f.get("weight", 1.0))
-#             tmp_vals.append((f, v))
-#             vals.append(v); targs.append(tgt); wts.append(wt)
-
-#         # compute hit count (respecting only_if)
-#         for f, v in tmp_vals:
-#             h = _feature_hit(record, f, v)
-#             if h is None:
-#                 continue           # not eligible due to only_if
-#             eligible += 1
-#             hits     += h
-
-#         # --- raw distance
-#         d = _weighted_nanaware_distance(vals, targs, wts)
-
-#         # --- AND-ish penalty: if not enough criteria are met, inflate distance
-#         if eligible > 0:
-#             K = max(1, int(np.ceil(K_RATIO * eligible)))
-#             if hits < K:
-#                 # penalty grows as hits fall short of K
-#                 shortfall = max(K - hits, 0)
-#                 # multiplicative inflation; e.g., misses double/triple distance depending on GAMMA
-#                 penalty = ((K / max(hits, 1)) ** GAMMA)  # if hits=0, uses 1 to avoid div/0
-#                 d *= penalty
-
-#         # keep best
-#         if d < best_dist:
-#             best_name, best_dist = name, d
-
-#     return best_name, scores
-
-def assign_profile_from_record_soft(record):
+def assign_profile_from_record(record):
     """
-    Softer version: uses weighted RMSE + additive miss penalty.
+    For each profile, compute a weighted distance using only 'var' features.
+    Returns (best_profile_name, {}).
     """
-    scores = {}
+    scores = {}  # kept for compatibility with caller
     best_name, best_dist = None, np.inf
 
-    K_RATIO = 0.6   # keep your threshold (tweak to taste)
-    LAMBDA  = 0.35  # softness of the AND-ish penalty (try 0.25–0.50)
+    # AND-ish knobs:
+    K_RATIO = 0.6   # need ~60% of eligible criteria to be met
+    GAMMA   = 1.5   # >1 increases penalty steepness
 
     for name, cfg in PROFILES.items():
         feats = cfg.get("features", [])
@@ -1423,35 +1358,39 @@ def assign_profile_from_record_soft(record):
             continue
 
         vals, targs, wts = [], [], []
-        tmp_vals = []
-        hits, eligible = 0, 0
 
-        # collect normalized values exactly like before
+        # --- collect values AND count how many criteria are hit simultaneously
+        hits, eligible = 0, 0
+        tmp_vals = []  # keep raw values to evaluate hits
         for f in feats:
-            v   = _feature_value_from_record(record, scores, f)
+            v   = _feature_value_from_record(record, scores, f)  # already normalized by your code
             tgt = float(f.get("target", np.nan))
             wt  = float(f.get("weight", 1.0))
             tmp_vals.append((f, v))
             vals.append(v); targs.append(tgt); wts.append(wt)
 
-        # hit counting (respects only_if) using your existing helper
+        # compute hit count (respecting only_if)
         for f, v in tmp_vals:
             h = _feature_hit(record, f, v)
             if h is None:
-                continue
+                continue           # not eligible due to only_if
             eligible += 1
             hits     += h
 
-        # --- normalized distance (replaces _weighted_nanaware_distance)
-        d = _weighted_rmse(vals, targs, wts)
+        # --- raw distance
+        d = _weighted_nanaware_distance(vals, targs, wts)
 
-        # --- soft additive penalty for not meeting K (replaces multiplicative)
+        # --- AND-ish penalty: if not enough criteria are met, inflate distance
         if eligible > 0:
             K = max(1, int(np.ceil(K_RATIO * eligible)))
-            short = max(K - hits, 0)
-            miss_ratio = short / float(K)   # 0..1
-            d = d + LAMBDA * miss_ratio
+            if hits < K:
+                # penalty grows as hits fall short of K
+                shortfall = max(K - hits, 0)
+                # multiplicative inflation; e.g., misses double/triple distance depending on GAMMA
+                penalty = ((K / max(hits, 1)) ** GAMMA)  # if hits=0, uses 1 to avoid div/0
+                d *= penalty
 
+        # keep best
         if d < best_dist:
             best_name, best_dist = name, d
 
@@ -1476,7 +1415,7 @@ st.markdown("""
 
 
 # Assign profile + get text/icon
-prof_name, scores = assign_profile_from_record_soft(record)
+prof_name, scores = assign_profile_from_record(record)
 prof_cfg = PROFILES.get(prof_name, {})
 prof_desc = prof_cfg.get("description", "")
 icon_file = prof_cfg.get("icon")
@@ -3084,7 +3023,7 @@ else:
     # Assign a best profile to each participant
     prof_names = []
     for _, row in pop_data.iterrows():
-        name, _ = assign_profile_from_record_soft(row.to_dict())
+        name, _ = assign_profile_from_record(row.to_dict())
         prof_names.append(name if name is not None else "Unassigned")
 
     # Tally counts in the order of your PROFILES dict for readability
