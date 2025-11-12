@@ -699,7 +699,7 @@ st.markdown("""
   div.block-container:first-of-type,
   [data-testid="stVerticalBlock"]:has(.dm-title),
   [data-testid="stVerticalBlock"] .dm-title {
-    margin-top: -60px !important;     /* pull up the block containing the title */
+    margin-top: -40px !important;     /* pull up the block containing the title */
     padding-top: 0 !important;
   }
 
