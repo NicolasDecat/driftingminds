@@ -685,10 +685,15 @@ st.markdown("""
 <style>
 @media (min-width: 641px){
 
-  /* 0) Undo any global lifts you applied earlier to the first block to avoid double-shifting */
-  section.main > div.block-container:first-of-type,
-  .main .block-container:first-of-type {
-    margin-top: -90px !important;
+  /* Instead, directly target the title's parent container */
+  [data-testid="stVerticalBlock"]:has(.dm-title) {
+    margin-top: -40px !important;  /* Adjust this value as needed */
+    padding-top: 0 !important;
+  }
+
+  /* Ensure the title itself doesn't add spacing back */
+  .dm-title {
+    margin-top: 0 !important;
     padding-top: 0 !important;
   }
 
