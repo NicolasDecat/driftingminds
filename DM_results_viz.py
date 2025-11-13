@@ -970,7 +970,7 @@ PROFILES = {
             {"type":"var","key":["trajectories"],                       "norm": norm_eq, "norm_kwargs": {"value": 2}, "target": 1.0, "weight": 1.2}
         ],
         "description": "You fall asleep quickly, especially when you already feel sleepy.",
-        "icon": "bear.svg",
+        "icon": "dolphin.svg",
     },
     
        
@@ -1000,7 +1000,7 @@ PROFILES = {
              "norm": norm_1_6, "norm_kwargs": {}, "target": 0.55, "weight": 0.5},
     ],
     "description": "You tend to drift into constructed scenes or stories, with richer imagery and absorption.",
-    "icon": "dolphin.svg",
+    "icon": "monkey.svg",
     },
 
     
@@ -1018,7 +1018,7 @@ PROFILES = {
         },
     ],
     "description": "You mentally revisit the past as you fall asleep — replaying moments, conversations, or scenes that linger from the day, like an archivist sorting through memories before rest.",
-    "icon": "salmon.svg",
+    "icon": "elephant.svg",
     },
     
     # =====================================================================
@@ -1051,7 +1051,7 @@ PROFILES = {
              "norm": norm_1_6, "norm_kwargs": {}, "target": 0.40, "weight": 0.6},
     ],
     "description": "Your mind keeps turning over thoughts, often with tension or analysis before sleep. Longer latency and emotional charge reflect a tendency to ruminate.",
-    "icon": "cow.svg",
+    "icon": "sheep.svg",
     },
 
 
@@ -1091,7 +1091,7 @@ PROFILES = {
              "target": 0.18, "weight": 0.5, "hit_op": "lte"},
     ],
     "description": "Your mental field stays relatively quiet at lights-out—less vivid, less odd, less all-absorbing.",
-    "icon": "cat.svg",
+    "icon": "sloth.svg",
     },
 
     
