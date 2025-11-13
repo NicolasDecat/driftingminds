@@ -2654,13 +2654,15 @@ with col_right:
         DREAMRECALL_LBL = {
             1: "<1/month",
             2: "1-2/month",
-            3: "several/week",
-            4: "every day",
+            3: "1/week",
+            4: "several/week",
+            5: "every day",
         }
 
         # ---------------------------------------------------------------------
         # Population distributions
         # ---------------------------------------------------------------------
+        # Chronotype: 1–3
         chrono_series = pd.to_numeric(pop_data.get("chronotype"), errors="coerce")
         chrono_counts = (
             chrono_series.value_counts(dropna=True)
@@ -2669,42 +2671,26 @@ with col_right:
         )
         chrono_x = np.arange(1, 4)
 
+        # Dream recall: full 1–5 scale
         recall_raw = pd.to_numeric(pop_data.get("dream_recall"), errors="coerce")
-
-        def _map_recall(v):
-            if pd.isna(v): return np.nan
-            v = int(v)
-            if v == 1: return 1
-            if v == 2: return 2
-            if v in (3, 4): return 3
-            if v >= 5: return 4
-            return np.nan
-
-        recall_mapped = recall_raw.map(_map_recall)
         recall_counts = (
-            recall_mapped.value_counts(dropna=True)
-            .reindex([1, 2, 3, 4], fill_value=0)
+            recall_raw.value_counts(dropna=True)
+            .reindex([1, 2, 3, 4, 5], fill_value=0)
             .astype(float)
         )
-        recall_x = np.arange(1, 5)
-
-        # Participant value
-        dreamrec_val = None
-        if dreamrec_val_raw is not None:
-            if dreamrec_val_raw == 1: dreamrec_val = 1
-            elif dreamrec_val_raw == 2: dreamrec_val = 2
-            elif dreamrec_val_raw in (3, 4): dreamrec_val = 3
-            elif dreamrec_val_raw >= 5: dreamrec_val = 4
+        recall_x = np.arange(1, 6)
 
         # Normalize
-        if chrono_counts.sum() > 0: chrono_counts /= chrono_counts.sum()
-        if recall_counts.sum() > 0: recall_counts /= recall_counts.sum()
+        if chrono_counts.sum() > 0:
+            chrono_counts /= chrono_counts.sum()
+        if recall_counts.sum() > 0:
+            recall_counts /= recall_counts.sum()
 
         # ---------------------------------------------------------------------
-        # FIGURE: Slightly flatter graphs
+        # FIGURE: slightly less flat than before
         # ---------------------------------------------------------------------
         fig, (ax1, ax2) = plt.subplots(
-            nrows=2, ncols=1, figsize=(2.7, 2.6)  # <-- slightly flatter
+            nrows=2, ncols=1, figsize=(2.7, 2.8)  # was 2.6 → a bit taller
         )
         fig.patch.set_alpha(0)
 
@@ -2738,9 +2724,19 @@ with col_right:
                 edgecolor="white", align="center"
             )
 
+        # Dynamic title based on participant’s type
+        if chronotype_val == 1:
+            chrono_title = "You are a morning type"
+        elif chronotype_val == 2:
+            chrono_title = "You are an evening type"
+        elif chronotype_val == 3:
+            chrono_title = "You have no preference"
+        else:
+            chrono_title = "Chronotype"
+
         ax1.set_title(
-            "Chronotype",
-            fontsize=9,        # <-- slightly reduced title size
+            chrono_title,
+            fontsize=8.5,      # slightly reduced vs previous 9–10
             pad=7,
             color="#222222",
         )
@@ -2749,7 +2745,7 @@ with col_right:
         ax1.set_xticklabels(
             [CHRONO_LBL[i] for i in [1, 2, 3]],
             fontsize=8,
-            rotation=0,        # <-- stays horizontal
+            rotation=0,
             ha="center",
         )
 
@@ -2764,34 +2760,48 @@ with col_right:
             edgecolor="white", align="center"
         )
 
-        if dreamrec_val in [1, 2, 3, 4]:
-            idx = dreamrec_val - 1
+        if dreamrec_val_raw in [1, 2, 3, 4, 5]:
+            idx = dreamrec_val_raw - 1  # 0-based index for bar position
             ax2.bar(
                 recall_x[idx], recall_counts.values[idx],
                 width=width, color=HL_RGB,
                 edgecolor="white", align="center"
             )
 
+        # Dynamic title based on participant’s recall frequency
+        if dreamrec_val_raw == 1:
+            dr_title = "You recall your dreams\nless than once a month"
+        elif dreamrec_val_raw == 2:
+            dr_title = "You recall your dreams\nonce or twice a month"
+        elif dreamrec_val_raw == 3:
+            dr_title = "You recall your dreams\nonce a week"
+        elif dreamrec_val_raw == 4:
+            dr_title = "You recall your dreams\nseveral times a week"
+        elif dreamrec_val_raw == 5:
+            dr_title = "You recall your dreams\nevery day"
+        else:
+            dr_title = "Dream recall"
+
         ax2.set_title(
-            "Dream recall",
-            fontsize=9,        # <-- slightly reduced title size
+            dr_title,
+            fontsize=8.5,      # slightly reduced
             pad=7,
             color="#222222",
         )
 
         ax2.set_xticks(recall_x)
         ax2.set_xticklabels(
-            [DREAMRECALL_LBL[i] for i in [1, 2, 3, 4]],
+            [DREAMRECALL_LBL[i] for i in [1, 2, 3, 4, 5]],
             fontsize=8,
-            rotation=18,       # <-- ONLY this one gets tilted
+            rotation=18,       # tilt ONLY for dream recall
             ha="right",
         )
 
         # ---------------------------------------------------------------------
-        # MORE VERTICAL SPACING BETWEEN SUBPLOTS
+        # SPACING BETWEEN SUBPLOTS
         # ---------------------------------------------------------------------
         fig.subplots_adjust(
-            hspace=1.15,    # <-- more spacing between the two charts
+            hspace=1.15,
             left=0.20,
             right=0.98,
             bottom=0.18,
@@ -2799,6 +2809,7 @@ with col_right:
         )
 
         st.pyplot(fig, use_container_width=False)
+
 
 
 
