@@ -2628,58 +2628,163 @@ with col_mid:
 
 
 # =============================================================================
-# RIGHT: Chronotype + Dream recall (pushed further down)
+# RIGHT: Chronotype + Dream recall — population bars with your bin in purple
 # =============================================================================
 with col_right:
-    raw_chrono = record.get("chronotype", None)
-    raw_recall = record.get("dream_recall", None)
+    if pop_data is None or pop_data.empty:
+        st.info("Population data unavailable.")
+    else:
+        # --- Participant values ------------------------------------------------
+        def _to_int(x):
+            try:
+                return int(str(x).strip())
+            except Exception:
+                return None
 
-    def _to_int(x):
-        try:
-            return int(str(x).strip())
-        except Exception:
-            return None
+        raw_chrono = record.get("chronotype", None)
+        raw_recall = record.get("dream_recall", None)
 
-    chronotype_val = _to_int(raw_chrono)
-    dreamrec_val   = _to_int(raw_recall)
+        chronotype_val = _to_int(raw_chrono)
+        dreamrec_val   = _to_int(raw_recall)
 
-    CHRONO_LBL = {
-        1: "Morning type",
-        2: "Evening type",
-        3: "No preference",
-        4: "None",
-    }
-    DREAMRECALL_LBL = {
-        1: "Less than once a month",
-        2: "1 to 2 times a month",
-        3: "Once a week",
-        4: "Several times a week",
-        5: "Every day",
-    }
+        CHRONO_LBL = {
+            1: "Morning type",
+            2: "Evening type",
+            3: "No preference",
+        }
+        DREAMRECALL_LBL = {
+            1: "Less than once a month",
+            2: "1 to 2 times a month",
+            3: "Once a week",
+            4: "Several times a week",
+            5: "Every day",
+        }
 
-    chrono_txt = CHRONO_LBL.get(chronotype_val, "—")
-    recall_txt = DREAMRECALL_LBL.get(dreamrec_val, "—")
+        # --- Population distributions -----------------------------------------
+        # Chronotype: 1–3
+        chrono_series = pd.to_numeric(pop_data.get("chronotype"), errors="coerce")
+        chrono_counts = (
+            chrono_series.value_counts(dropna=True)
+            .reindex([1, 2, 3], fill_value=0)
+            .astype(float)
+        )
+        chrono_x = np.arange(1, 4)
 
-    # Larger spacer (really more down)
-    st.markdown("<div style='height:90px;'></div>", unsafe_allow_html=True)
-    st.markdown(
-        f"""
-        <div class="dm-center" style="max-width:320px; margin:0 auto;">
-          <div style="
-              border:1px solid rgba(0,0,0,0.15);
-              border-radius:12px;
-              padding:16px 18px;
-              background:rgba(255,255,255,0.02);
-            ">
-            <div style="font-size:0.95rem; line-height:1.6; color:#111;">
-              <div><span style="opacity:0.8;">Chronotype:</span> <strong>{chrono_txt}</strong></div>
-              <div><span style="opacity:0.8;">Dream recall:</span> <strong>{recall_txt}</strong></div>
-            </div>
-          </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+        # Dream recall: 1–5
+        recall_series = pd.to_numeric(pop_data.get("dream_recall"), errors="coerce")
+        recall_counts = (
+            recall_series.value_counts(dropna=True)
+            .reindex([1, 2, 3, 4, 5], fill_value=0)
+            .astype(float)
+        )
+        recall_x = np.arange(1, 6)
+
+        # Avoid all-zero edge cases
+        if chrono_counts.sum() == 0 and recall_counts.sum() == 0:
+            st.info("Population data for chronotype and dream recall unavailable.")
+        else:
+            # Normalize to densities (like the other histograms)
+            if chrono_counts.sum() > 0:
+                chrono_counts = chrono_counts / chrono_counts.sum()
+            if recall_counts.sum() > 0:
+                recall_counts = recall_counts / recall_counts.sum()
+
+            fig, (ax1, ax2) = plt.subplots(
+                nrows=2, ncols=1, figsize=(2.4, 4.6), sharex=False
+            )
+            fig.patch.set_alpha(0)
+
+            # Common styling helper
+            def _style_cat_axis(ax):
+                ax.set_facecolor("none")
+                # Remove y-axis
+                ax.set_ylabel("")
+                ax.get_yaxis().set_visible(False)
+                # Thin x-axis baseline
+                ax.spines["bottom"].set_linewidth(0.3)
+                for side in ("left", "right", "top"):
+                    ax.spines[side].set_visible(False)
+                ax.margins(y=0)
+
+            # --- Chronotype subplot -------------------------------------------
+            _style_cat_axis(ax1)
+            width = 0.8
+
+            # base grey bars
+            ax1.bar(
+                chrono_x,
+                chrono_counts.values,
+                width=width,
+                color="#D9D9D9",
+                edgecolor="white",
+                align="center",
+            )
+
+            # highlight participant bin
+            if chronotype_val in [1, 2, 3]:
+                idx = chronotype_val - 1
+                ax1.bar(
+                    chrono_x[idx],
+                    chrono_counts.values[idx],
+                    width=width,
+                    color=HL_RGB,
+                    edgecolor="white",
+                    align="center",
+                )
+
+            ax1.set_title(
+                "Chronotype in the world (N = 1000)",
+                fontsize=8,
+                pad=6,
+                color="#222222",
+            )
+            ax1.set_xticks(chrono_x)
+            ax1.set_xticklabels(
+                [CHRONO_LBL[i] for i in [1, 2, 3]],
+                rotation=20,
+                ha="right",
+                fontsize=7.5,
+            )
+
+            # --- Dream recall subplot ----------------------------------------
+            _style_cat_axis(ax2)
+
+            ax2.bar(
+                recall_x,
+                recall_counts.values,
+                width=width,
+                color="#D9D9D9",
+                edgecolor="white",
+                align="center",
+            )
+
+            if dreamrec_val in [1, 2, 3, 4, 5]:
+                idx = dreamrec_val - 1
+                ax2.bar(
+                    recall_x[idx],
+                    recall_counts.values[idx],
+                    width=width,
+                    color=HL_RGB,
+                    edgecolor="white",
+                    align="center",
+                )
+
+            ax2.set_title(
+                "Dream recall in the world (N = 1000)",
+                fontsize=8,
+                pad=6,
+                color="#222222",
+            )
+            ax2.set_xticks(recall_x)
+            ax2.set_xticklabels(
+                [DREAMRECALL_LBL[i] for i in [1, 2, 3, 4, 5]],
+                rotation=20,
+                ha="right",
+                fontsize=7.0,
+            )
+
+            plt.tight_layout(pad=0.7)
+            st.pyplot(fig, use_container_width=False)
 
 
 st.markdown('<div class="dm-spacer-exp"></div>', unsafe_allow_html=True)
