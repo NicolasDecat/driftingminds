@@ -3187,7 +3187,7 @@ st.markdown(
         margin: 50px 0;
     ">
         <img src="data:image/png;base64,{all_dms_b64}" 
-             style="max-width: 70%; height: auto; border-radius: 8px;">
+             style="max-width: 90%; height: auto; border-radius: 8px;">
     </div>
     """,
     unsafe_allow_html=True
