@@ -3187,7 +3187,7 @@ st.markdown(
         margin: 50px 0;
     ">
         <img src="data:image/png;base64,{all_dms_b64}" 
-             style="max-width: 90%; height: auto; border-radius: 8px;">
+             style="max-width: 95%; height: auto; border-radius: 8px;">
     </div>
     """,
     unsafe_allow_html=True
@@ -3202,7 +3202,7 @@ st.markdown(
     """
     <div style="
         max-width:740px;
-        margin:40px auto 0 auto;    /* auto centers horizontally */
+        margin:20px auto 0 auto;    /* auto centers horizontally */
         text-align:center;          /* centers text */
         font-size:0.85rem;
         color:#444;
