@@ -2736,7 +2736,7 @@ with col_right:
 
         ax1.set_title(
             chrono_title,
-            fontsize=8.5,      # slightly reduced vs previous 9–10
+            fontsize=9.5,      # slightly reduced vs previous 9–10
             pad=7,
             color="#222222",
         )
@@ -2784,7 +2784,7 @@ with col_right:
 
         ax2.set_title(
             dr_title,
-            fontsize=8.5,      # slightly reduced
+            fontsize=9.5,      # slightly reduced
             pad=7,
             color="#222222",
         )
@@ -2801,7 +2801,7 @@ with col_right:
         # SPACING BETWEEN SUBPLOTS
         # ---------------------------------------------------------------------
         fig.subplots_adjust(
-            hspace=1.15,
+            hspace=1.25,
             left=0.20,
             right=0.98,
             bottom=0.18,
