@@ -2672,8 +2672,7 @@ with col_right:
         recall_raw = pd.to_numeric(pop_data.get("dream_recall"), errors="coerce")
 
         def _map_recall(v):
-            if pd.isna(v):
-                return np.nan
+            if pd.isna(v): return np.nan
             v = int(v)
             if v == 1: return 1
             if v == 2: return 2
@@ -2689,7 +2688,7 @@ with col_right:
         )
         recall_x = np.arange(1, 5)
 
-        # Participant dream recall bin
+        # Participant value
         dreamrec_val = None
         if dreamrec_val_raw is not None:
             if dreamrec_val_raw == 1: dreamrec_val = 1
@@ -2697,14 +2696,15 @@ with col_right:
             elif dreamrec_val_raw in (3, 4): dreamrec_val = 3
             elif dreamrec_val_raw >= 5: dreamrec_val = 4
 
+        # Normalize
         if chrono_counts.sum() > 0: chrono_counts /= chrono_counts.sum()
         if recall_counts.sum() > 0: recall_counts /= recall_counts.sum()
 
         # ---------------------------------------------------------------------
-        # FIGURE: flatter, wider, bigger titles, more spacing
+        # FIGURE: Slightly flatter graphs
         # ---------------------------------------------------------------------
         fig, (ax1, ax2) = plt.subplots(
-            nrows=2, ncols=1, figsize=(2.7, 2.8)
+            nrows=2, ncols=1, figsize=(2.7, 2.6)  # <-- slightly flatter
         )
         fig.patch.set_alpha(0)
 
@@ -2740,15 +2740,16 @@ with col_right:
 
         ax1.set_title(
             "Chronotype",
-            fontsize=10,        # BIGGER title
-            pad=8,
+            fontsize=9,        # <-- slightly reduced title size
+            pad=7,
             color="#222222",
         )
+
         ax1.set_xticks(chrono_x)
         ax1.set_xticklabels(
             [CHRONO_LBL[i] for i in [1, 2, 3]],
-            fontsize=8,         # same as other histos
-            rotation=0,         # ← no tilt
+            fontsize=8,
+            rotation=0,        # <-- stays horizontal
             ha="center",
         )
 
@@ -2773,23 +2774,24 @@ with col_right:
 
         ax2.set_title(
             "Dream recall",
-            fontsize=10,        # BIGGER title
-            pad=8,
+            fontsize=9,        # <-- slightly reduced title size
+            pad=7,
             color="#222222",
         )
+
         ax2.set_xticks(recall_x)
         ax2.set_xticklabels(
             [DREAMRECALL_LBL[i] for i in [1, 2, 3, 4]],
             fontsize=8,
-            rotation=0,         # ← no tilt
-            ha="center",
+            rotation=18,       # <-- ONLY this one gets tilted
+            ha="right",
         )
 
         # ---------------------------------------------------------------------
-        # EXTRA SPACING BETWEEN SUBPLOTS
+        # MORE VERTICAL SPACING BETWEEN SUBPLOTS
         # ---------------------------------------------------------------------
         fig.subplots_adjust(
-            hspace=1.0,      # ← BIGGER spacing between the two bar charts
+            hspace=1.15,    # <-- more spacing between the two charts
             left=0.20,
             right=0.98,
             bottom=0.18,
@@ -2797,8 +2799,6 @@ with col_right:
         )
 
         st.pyplot(fig, use_container_width=False)
-
-
 
 
 
