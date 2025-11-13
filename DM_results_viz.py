@@ -2270,9 +2270,9 @@ cre_counts, _ = np.histogram(cre_vals, bins=cre_edges, density=True) if cre_vals
 cre_part  = _participant_value(record, "creativity_trait")
 cre_hidx  = int(np.clip(np.digitize(cre_part, cre_edges) - 1, 0, len(cre_counts)-1)) if cre_counts.size else 0
 
-# 3) Anxiety 1–100, 5-point bins
+# 3) Anxiety 1–100, 10-point bins  ← fewer bins
 anx_vals  = _col_values(pop_data, "anxiety")
-anx_edges = np.arange(0.5, 100.5 + 5, 5)
+anx_edges = np.arange(0.5, 100.5 + 10, 10)  # 0.5 → 110.5, step 10 → ~10 bins
 anx_counts, _ = np.histogram(anx_vals, bins=anx_edges, density=True) if anx_vals.size else (np.array([]), anx_edges)
 anx_part  = _participant_value(record, "anxiety")
 anx_hidx  = int(np.clip(np.digitize(anx_part, anx_edges) - 1, 0, len(anx_counts)-1)) if anx_counts.size else 0
@@ -2367,6 +2367,7 @@ with c3:
     else:
         fig, ax = plt.subplots(figsize=FIGSIZE_STANDARD)
         fig.patch.set_alpha(0); ax.set_facecolor("none")
+        
         _mini_hist(ax, anx_counts, anx_edges, anx_hidx,
            f"Your self-rated anxiety: {int(round(anx_part))}")
         # Replace default x-labels
