@@ -1000,7 +1000,7 @@ PROFILES = {
              "norm": norm_1_6, "norm_kwargs": {}, "target": 0.55, "weight": 0.5},
     ],
     "description": "You tend to drift into constructed scenes or stories, with richer imagery and absorption.",
-    "icon": "seahorse.svg",
+    "icon": "dolphin.svg",
     },
 
     
