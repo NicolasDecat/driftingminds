@@ -2634,7 +2634,6 @@ with col_right:
     if pop_data is None or pop_data.empty:
         st.info("Population data unavailable.")
     else:
-        # --- Participant values ------------------------------------------------
         def _to_int(x):
             try:
                 return int(str(x).strip())
@@ -2648,9 +2647,9 @@ with col_right:
         dreamrec_val_raw  = _to_int(raw_recall)
 
         CHRONO_LBL = {
-            1: "Morning type",
-            2: "Evening type",
-            3: "No preference",
+            1: "morning",
+            2: "evening",
+            3: "no type",
         }
         DREAMRECALL_LBL = {
             1: "<1/month",
@@ -2659,8 +2658,9 @@ with col_right:
             4: "every day",
         }
 
-        # --- Population distributions -----------------------------------------
-        # Chronotype: 1–3
+        # ---------------------------------------------------------------------
+        # Population distributions
+        # ---------------------------------------------------------------------
         chrono_series = pd.to_numeric(pop_data.get("chronotype"), errors="coerce")
         chrono_counts = (
             chrono_series.value_counts(dropna=True)
@@ -2669,25 +2669,16 @@ with col_right:
         )
         chrono_x = np.arange(1, 4)
 
-        # Dream recall: map 1–5 → 4 bins
-        # 1 → 1 (<1/month)
-        # 2 → 2 (1–2/month)
-        # 3 or 4 → 3 (several/week)
-        # 5 → 4 (every day)
         recall_raw = pd.to_numeric(pop_data.get("dream_recall"), errors="coerce")
 
         def _map_recall(v):
             if pd.isna(v):
                 return np.nan
             v = int(v)
-            if v == 1:
-                return 1
-            if v == 2:
-                return 2
-            if v in (3, 4):
-                return 3
-            if v >= 5:
-                return 4
+            if v == 1: return 1
+            if v == 2: return 2
+            if v in (3, 4): return 3
+            if v >= 5: return 4
             return np.nan
 
         recall_mapped = recall_raw.map(_map_recall)
@@ -2698,138 +2689,115 @@ with col_right:
         )
         recall_x = np.arange(1, 5)
 
-        # Participant mapped value for highlight
+        # Participant dream recall bin
         dreamrec_val = None
         if dreamrec_val_raw is not None:
-            if dreamrec_val_raw == 1:
-                dreamrec_val = 1
-            elif dreamrec_val_raw == 2:
-                dreamrec_val = 2
-            elif dreamrec_val_raw in (3, 4):
-                dreamrec_val = 3
-            elif dreamrec_val_raw >= 5:
-                dreamrec_val = 4
+            if dreamrec_val_raw == 1: dreamrec_val = 1
+            elif dreamrec_val_raw == 2: dreamrec_val = 2
+            elif dreamrec_val_raw in (3, 4): dreamrec_val = 3
+            elif dreamrec_val_raw >= 5: dreamrec_val = 4
 
-        # Avoid all-zero edge cases
-        if chrono_counts.sum() == 0 and recall_counts.sum() == 0:
-            st.info("Population data for chronotype and dream recall unavailable.")
-        else:
-            # Normalize to densities (like other histos)
-            if chrono_counts.sum() > 0:
-                chrono_counts = chrono_counts / chrono_counts.sum()
-            if recall_counts.sum() > 0:
-                recall_counts = recall_counts / recall_counts.sum()
+        if chrono_counts.sum() > 0: chrono_counts /= chrono_counts.sum()
+        if recall_counts.sum() > 0: recall_counts /= recall_counts.sum()
 
-            # Flatter overall figure so total vertical space ~ other histos
-            fig, (ax1, ax2) = plt.subplots(
-                nrows=2, ncols=1, figsize=(2.6, 2.6), sharex=False
-            )
-            fig.patch.set_alpha(0)
+        # ---------------------------------------------------------------------
+        # FIGURE: flatter, wider, bigger titles, more spacing
+        # ---------------------------------------------------------------------
+        fig, (ax1, ax2) = plt.subplots(
+            nrows=2, ncols=1, figsize=(2.7, 2.8)
+        )
+        fig.patch.set_alpha(0)
 
-            def _style_cat_axis(ax):
-                ax.set_facecolor("none")
-                ax.set_ylabel("")
-                ax.get_yaxis().set_visible(False)
-                # Thin x-axis baseline
-                ax.spines["bottom"].set_linewidth(0.3)
-                for side in ("left", "right", "top"):
-                    ax.spines[side].set_visible(False)
-                ax.margins(y=0.05)
+        def _style_cat_axis(ax):
+            ax.set_facecolor("none")
+            ax.set_ylabel("")
+            ax.get_yaxis().set_visible(False)
+            ax.spines["bottom"].set_linewidth(0.3)
+            for side in ("left", "right", "top"):
+                ax.spines[side].set_visible(False)
+            ax.margins(y=0.08)
 
-            width = 0.85
+        width = 0.85
 
-            # --- Chronotype subplot -------------------------------------------
-            _style_cat_axis(ax1)
+        # ---------------------------------------------------------------------
+        # CHRONOTYPE
+        # ---------------------------------------------------------------------
+        _style_cat_axis(ax1)
 
-            # base grey bars
+        ax1.bar(
+            chrono_x, chrono_counts.values,
+            width=width, color="#D9D9D9",
+            edgecolor="white", align="center"
+        )
+
+        if chronotype_val in [1, 2, 3]:
+            idx = chronotype_val - 1
             ax1.bar(
-                chrono_x,
-                chrono_counts.values,
-                width=width,
-                color="#D9D9D9",
-                edgecolor="white",
-                align="center",
+                chrono_x[idx], chrono_counts.values[idx],
+                width=width, color=HL_RGB,
+                edgecolor="white", align="center"
             )
 
-            # highlight participant bin
-            if chronotype_val in [1, 2, 3]:
-                idx = chronotype_val - 1
-                ax1.bar(
-                    chrono_x[idx],
-                    chrono_counts.values[idx],
-                    width=width,
-                    color=HL_RGB,
-                    edgecolor="white",
-                    align="center",
-                )
+        ax1.set_title(
+            "Chronotype",
+            fontsize=10,        # BIGGER title
+            pad=8,
+            color="#222222",
+        )
+        ax1.set_xticks(chrono_x)
+        ax1.set_xticklabels(
+            [CHRONO_LBL[i] for i in [1, 2, 3]],
+            fontsize=8,         # same as other histos
+            rotation=0,         # ← no tilt
+            ha="center",
+        )
 
-            ax1.set_title(
-                "Chronotype",
-                fontsize=8,        # match other sleep titles
-                pad=6,
-                color="#222222",
-            )
-            ax1.set_xticks(chrono_x)
-            ax1.set_xticklabels(
-                [CHRONO_LBL[i] for i in [1, 2, 3]],
-                rotation=18,
-                ha="right",
-            )
-            ax1.tick_params(axis="x", labelsize=7.5)
-            for label in ax1.get_xticklabels():
-                label.set_fontweight("normal")
-                label.set_fontfamily("Inter")  # match rest of UI
+        # ---------------------------------------------------------------------
+        # DREAM RECALL
+        # ---------------------------------------------------------------------
+        _style_cat_axis(ax2)
 
-            # --- Dream recall subplot ----------------------------------------
-            _style_cat_axis(ax2)
+        ax2.bar(
+            recall_x, recall_counts.values,
+            width=width, color="#D9D9D9",
+            edgecolor="white", align="center"
+        )
 
+        if dreamrec_val in [1, 2, 3, 4]:
+            idx = dreamrec_val - 1
             ax2.bar(
-                recall_x,
-                recall_counts.values,
-                width=width,
-                color="#D9D9D9",
-                edgecolor="white",
-                align="center",
+                recall_x[idx], recall_counts.values[idx],
+                width=width, color=HL_RGB,
+                edgecolor="white", align="center"
             )
 
-            if dreamrec_val in [1, 2, 3, 4]:
-                idx = dreamrec_val - 1
-                ax2.bar(
-                    recall_x[idx],
-                    recall_counts.values[idx],
-                    width=width,
-                    color=HL_RGB,
-                    edgecolor="white",
-                    align="center",
-                )
+        ax2.set_title(
+            "Dream recall",
+            fontsize=10,        # BIGGER title
+            pad=8,
+            color="#222222",
+        )
+        ax2.set_xticks(recall_x)
+        ax2.set_xticklabels(
+            [DREAMRECALL_LBL[i] for i in [1, 2, 3, 4]],
+            fontsize=8,
+            rotation=0,         # ← no tilt
+            ha="center",
+        )
 
-            ax2.set_title(
-                "Dream recall",
-                fontsize=8,       # same as others
-                pad=6,
-                color="#222222",
-            )
-            ax2.set_xticks(recall_x)
-            ax2.set_xticklabels(
-                [DREAMRECALL_LBL[i] for i in [1, 2, 3, 4]],
-                rotation=18,
-                ha="right",
-            )
-            ax2.tick_params(axis="x", labelsize=7.5)
-            for label in ax2.get_xticklabels():
-                label.set_fontweight("normal")
-                label.set_fontfamily("Inter")
+        # ---------------------------------------------------------------------
+        # EXTRA SPACING BETWEEN SUBPLOTS
+        # ---------------------------------------------------------------------
+        fig.subplots_adjust(
+            hspace=1.0,      # ← BIGGER spacing between the two bar charts
+            left=0.20,
+            right=0.98,
+            bottom=0.18,
+            top=0.95,
+        )
 
-            # More vertical breathing room between the two subplots
-            fig.subplots_adjust(
-                left=0.18,
-                right=0.98,
-                bottom=0.20,
-                top=0.96,
-                hspace=0.75,   # <-- space between Chronotype & Dream recall
-            )
+        st.pyplot(fig, use_container_width=False)
 
-            st.pyplot(fig, use_container_width=False)
 
 
 
