@@ -2351,7 +2351,7 @@ with c2:
         fig, ax = plt.subplots(figsize=FIGSIZE_STANDARD)
         fig.patch.set_alpha(0); ax.set_facecolor("none")
         _mini_hist(ax, cre_counts, cre_edges, cre_hidx,
-           f"Your level of creativity: {int(round(cre_part))}")
+           f"Your self-rated creativity: {int(round(cre_part))}")
         # Replace default x-labels
         ax.text(0.0, -0.05, "low (1)",  transform=ax.transAxes,
                 ha="left", va="top", fontsize=7.5)
@@ -2368,7 +2368,7 @@ with c3:
         fig, ax = plt.subplots(figsize=FIGSIZE_STANDARD)
         fig.patch.set_alpha(0); ax.set_facecolor("none")
         _mini_hist(ax, anx_counts, anx_edges, anx_hidx,
-           f"Your level of anxiety: {int(round(anx_part))}")
+           f"Your self-rated anxiety: {int(round(anx_part))}")
         # Replace default x-labels
         ax.text(0.0, -0.05, "low (1)",  transform=ax.transAxes,
                 ha="left", va="top", fontsize=7.5)
