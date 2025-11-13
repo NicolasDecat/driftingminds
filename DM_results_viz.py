@@ -2805,7 +2805,7 @@ with col_right:
             left=0.20,
             right=0.98,
             bottom=0.18,
-            top=0.95,
+            top=0.105,
         )
 
         st.pyplot(fig, use_container_width=False)
