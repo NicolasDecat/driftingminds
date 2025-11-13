@@ -2644,8 +2644,8 @@ with col_right:
         raw_chrono = record.get("chronotype", None)
         raw_recall = record.get("dream_recall", None)
 
-        chronotype_val = _to_int(raw_chrono)
-        dreamrec_val_raw = _to_int(raw_recall)
+        chronotype_val    = _to_int(raw_chrono)
+        dreamrec_val_raw  = _to_int(raw_recall)
 
         CHRONO_LBL = {
             1: "Morning type",
@@ -2669,7 +2669,7 @@ with col_right:
         )
         chrono_x = np.arange(1, 4)
 
-        # Dream recall: recode 1–5 → 1–4 bins
+        # Dream recall: map 1–5 → 4 bins
         # 1 → 1 (<1/month)
         # 2 → 2 (1–2/month)
         # 3 or 4 → 3 (several/week)
@@ -2714,19 +2714,18 @@ with col_right:
         if chrono_counts.sum() == 0 and recall_counts.sum() == 0:
             st.info("Population data for chronotype and dream recall unavailable.")
         else:
-            # Normalize to densities (like the other histograms)
+            # Normalize to densities (like other histos)
             if chrono_counts.sum() > 0:
                 chrono_counts = chrono_counts / chrono_counts.sum()
             if recall_counts.sum() > 0:
                 recall_counts = recall_counts / recall_counts.sum()
 
-            # Flatter & wider figure so it visually matches left histograms
+            # Flatter overall figure so total vertical space ~ other histos
             fig, (ax1, ax2) = plt.subplots(
-                nrows=2, ncols=1, figsize=(3.4, 3.0), sharex=False
+                nrows=2, ncols=1, figsize=(2.6, 2.6), sharex=False
             )
             fig.patch.set_alpha(0)
 
-            # Common styling helper
             def _style_cat_axis(ax):
                 ax.set_facecolor("none")
                 ax.set_ylabel("")
@@ -2766,8 +2765,8 @@ with col_right:
 
             ax1.set_title(
                 "Chronotype",
-                fontsize=8.5,
-                pad=5,
+                fontsize=8,        # match other sleep titles
+                pad=6,
                 color="#222222",
             )
             ax1.set_xticks(chrono_x)
@@ -2775,8 +2774,11 @@ with col_right:
                 [CHRONO_LBL[i] for i in [1, 2, 3]],
                 rotation=18,
                 ha="right",
-                fontsize=7.5,
             )
+            ax1.tick_params(axis="x", labelsize=7.5)
+            for label in ax1.get_xticklabels():
+                label.set_fontweight("normal")
+                label.set_fontfamily("Inter")  # match rest of UI
 
             # --- Dream recall subplot ----------------------------------------
             _style_cat_axis(ax2)
@@ -2803,8 +2805,8 @@ with col_right:
 
             ax2.set_title(
                 "Dream recall",
-                fontsize=8.5,
-                pad=5,
+                fontsize=8,       # same as others
+                pad=6,
                 color="#222222",
             )
             ax2.set_xticks(recall_x)
@@ -2812,11 +2814,22 @@ with col_right:
                 [DREAMRECALL_LBL[i] for i in [1, 2, 3, 4]],
                 rotation=18,
                 ha="right",
-                fontsize=7.0,
+            )
+            ax2.tick_params(axis="x", labelsize=7.5)
+            for label in ax2.get_xticklabels():
+                label.set_fontweight("normal")
+                label.set_fontfamily("Inter")
+
+            # More vertical breathing room between the two subplots
+            fig.subplots_adjust(
+                left=0.18,
+                right=0.98,
+                bottom=0.20,
+                top=0.96,
+                hspace=0.75,   # <-- space between Chronotype & Dream recall
             )
 
-            plt.tight_layout(pad=0.4)
-            st.pyplot(fig, use_container_width=True)
+            st.pyplot(fig, use_container_width=False)
 
 
 
