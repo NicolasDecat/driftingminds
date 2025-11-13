@@ -2652,12 +2652,12 @@ with col_right:
             2: "Evening type",
             3: "No preference",
         }
-        DREAMRECALL_LBL = {
-            1: "Less than once a month",
-            2: "1 to 2 times a month",
-            3: "Once a week",
-            4: "Several times a week",
-            5: "Every day",
+        DREAMRECALL_LBL_SHORT = {
+            1: "<1/month",
+            2: "1–2/month",
+            3: "once/week",
+            4: "several/week",
+            5: "every day",
         }
 
         # --- Population distributions -----------------------------------------
@@ -2689,8 +2689,9 @@ with col_right:
             if recall_counts.sum() > 0:
                 recall_counts = recall_counts / recall_counts.sum()
 
+            # Flatter + wider figure so it visually matches the other histos
             fig, (ax1, ax2) = plt.subplots(
-                nrows=2, ncols=1, figsize=(2.4, 4.6), sharex=False
+                nrows=2, ncols=1, figsize=(3.2, 2.6), sharex=False
             )
             fig.patch.set_alpha(0)
 
@@ -2704,11 +2705,12 @@ with col_right:
                 ax.spines["bottom"].set_linewidth(0.3)
                 for side in ("left", "right", "top"):
                     ax.spines[side].set_visible(False)
-                ax.margins(y=0)
+                ax.margins(y=0.02)
+
+            width = 0.8
 
             # --- Chronotype subplot -------------------------------------------
             _style_cat_axis(ax1)
-            width = 0.8
 
             # base grey bars
             ax1.bar(
@@ -2733,58 +2735,11 @@ with col_right:
                 )
 
             ax1.set_title(
-                "Chronotype in the world (N = 1000)",
-                fontsize=8,
-                pad=6,
-                color="#222222",
-            )
-            ax1.set_xticks(chrono_x)
-            ax1.set_xticklabels(
-                [CHRONO_LBL[i] for i in [1, 2, 3]],
-                rotation=20,
-                ha="right",
-                fontsize=7.5,
-            )
+                "Chronotype",
+                fontsize=8.5,
+                pad=4,
+                color="#222222
 
-            # --- Dream recall subplot ----------------------------------------
-            _style_cat_axis(ax2)
-
-            ax2.bar(
-                recall_x,
-                recall_counts.values,
-                width=width,
-                color="#D9D9D9",
-                edgecolor="white",
-                align="center",
-            )
-
-            if dreamrec_val in [1, 2, 3, 4, 5]:
-                idx = dreamrec_val - 1
-                ax2.bar(
-                    recall_x[idx],
-                    recall_counts.values[idx],
-                    width=width,
-                    color=HL_RGB,
-                    edgecolor="white",
-                    align="center",
-                )
-
-            ax2.set_title(
-                "Dream recall in the world (N = 1000)",
-                fontsize=8,
-                pad=6,
-                color="#222222",
-            )
-            ax2.set_xticks(recall_x)
-            ax2.set_xticklabels(
-                [DREAMRECALL_LBL[i] for i in [1, 2, 3, 4, 5]],
-                rotation=20,
-                ha="right",
-                fontsize=7.0,
-            )
-
-            plt.tight_layout(pad=0.7)
-            st.pyplot(fig, use_container_width=False)
 
 
 st.markdown('<div class="dm-spacer-exp"></div>', unsafe_allow_html=True)
