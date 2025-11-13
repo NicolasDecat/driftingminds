@@ -961,9 +961,9 @@ PROFILES = {
 
 
     # =====================================================================
-    # Switch-Off
+    # Quick Diver
     # =====================================================================
-    "The Switch-Off": {
+    "Quick Diver": {
         "features": [
             {"type": "var", "key": ["sleep_latency"],                   "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.05, "weight": 1.2,  "hit_op": "lte"},
             {"type": "var", "key": ["degreequest_sleepiness"],          "norm": norm_1_6, "norm_kwargs": {}, "target": 0.60, "weight": 0.8},
@@ -1022,9 +1022,9 @@ PROFILES = {
     },
     
     # =====================================================================
-    # Ruminator
+    # Worrier
     # =====================================================================
-    "Ruminator": {
+    "Worrier": {
         "features": [
             # Core — frequent ruminative thoughts
             {"type": "var", "key": ["freq_ruminate"], 
@@ -1053,16 +1053,6 @@ PROFILES = {
     "description": "Your mind keeps turning over thoughts, often with tension or analysis before sleep. Longer latency and emotional charge reflect a tendency to ruminate.",
     "icon": "cow.svg",
     },
-    # =====================================================================
-    # Creative
-    # =====================================================================
-    # "Creative": {
-    #     "features": [
-    #         {"type": "var","key": ["freq_creat"],           "norm": norm_1_6, "norm_kwargs": {}, "target": 0.95, "weight": 1},
-    #     ],
-    #     "description": "Ideas spark at the edge of sleep — you drift off with creativity alive.",
-    #     "icon":        "octopus.svg",
-    # },
 
 
     # =====================================================================
@@ -1515,10 +1505,10 @@ has_icon = bool(icon_path and os.path.exists(icon_path))
 # --- Add population percentage at the end of the profile description ---
 POP_PERC = {
     "Dreamweaver": 4,
-    "The Switch-Off": 14,
+    "Quick Diver": 14,
     "Fantasizer": 5,
     "Archivist": 9,
-    "Ruminator": 6,
+    "Worrier": 6,
     "Freewheeler": 7,
     "Quiet Mind": 8,
     "Radio Tuner": 9,
