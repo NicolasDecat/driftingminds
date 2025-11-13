@@ -2645,19 +2645,18 @@ with col_right:
         raw_recall = record.get("dream_recall", None)
 
         chronotype_val = _to_int(raw_chrono)
-        dreamrec_val   = _to_int(raw_recall)
+        dreamrec_val_raw = _to_int(raw_recall)
 
         CHRONO_LBL = {
             1: "Morning type",
             2: "Evening type",
             3: "No preference",
         }
-        DREAMRECALL_LBL_SHORT = {
+        DREAMRECALL_LBL = {
             1: "<1/month",
-            2: "1–2/month",
-            3: "once/week",
-            4: "several/week",
-            5: "every day",
+            2: "1-2/month",
+            3: "several/week",
+            4: "every day",
         }
 
         # --- Population distributions -----------------------------------------
@@ -2670,14 +2669,46 @@ with col_right:
         )
         chrono_x = np.arange(1, 4)
 
-        # Dream recall: 1–5
-        recall_series = pd.to_numeric(pop_data.get("dream_recall"), errors="coerce")
+        # Dream recall: recode 1–5 → 1–4 bins
+        # 1 → 1 (<1/month)
+        # 2 → 2 (1–2/month)
+        # 3 or 4 → 3 (several/week)
+        # 5 → 4 (every day)
+        recall_raw = pd.to_numeric(pop_data.get("dream_recall"), errors="coerce")
+
+        def _map_recall(v):
+            if pd.isna(v):
+                return np.nan
+            v = int(v)
+            if v == 1:
+                return 1
+            if v == 2:
+                return 2
+            if v in (3, 4):
+                return 3
+            if v >= 5:
+                return 4
+            return np.nan
+
+        recall_mapped = recall_raw.map(_map_recall)
         recall_counts = (
-            recall_series.value_counts(dropna=True)
-            .reindex([1, 2, 3, 4, 5], fill_value=0)
+            recall_mapped.value_counts(dropna=True)
+            .reindex([1, 2, 3, 4], fill_value=0)
             .astype(float)
         )
-        recall_x = np.arange(1, 6)
+        recall_x = np.arange(1, 5)
+
+        # Participant mapped value for highlight
+        dreamrec_val = None
+        if dreamrec_val_raw is not None:
+            if dreamrec_val_raw == 1:
+                dreamrec_val = 1
+            elif dreamrec_val_raw == 2:
+                dreamrec_val = 2
+            elif dreamrec_val_raw in (3, 4):
+                dreamrec_val = 3
+            elif dreamrec_val_raw >= 5:
+                dreamrec_val = 4
 
         # Avoid all-zero edge cases
         if chrono_counts.sum() == 0 and recall_counts.sum() == 0:
@@ -2689,25 +2720,24 @@ with col_right:
             if recall_counts.sum() > 0:
                 recall_counts = recall_counts / recall_counts.sum()
 
-            # Flatter + wider figure so it visually matches the other histos
+            # Flatter & wider figure so it visually matches left histograms
             fig, (ax1, ax2) = plt.subplots(
-                nrows=2, ncols=1, figsize=(3.2, 2.6), sharex=False
+                nrows=2, ncols=1, figsize=(3.4, 3.0), sharex=False
             )
             fig.patch.set_alpha(0)
 
             # Common styling helper
             def _style_cat_axis(ax):
                 ax.set_facecolor("none")
-                # Remove y-axis
                 ax.set_ylabel("")
                 ax.get_yaxis().set_visible(False)
                 # Thin x-axis baseline
                 ax.spines["bottom"].set_linewidth(0.3)
                 for side in ("left", "right", "top"):
                     ax.spines[side].set_visible(False)
-                ax.margins(y=0.02)
+                ax.margins(y=0.05)
 
-            width = 0.8
+            width = 0.85
 
             # --- Chronotype subplot -------------------------------------------
             _style_cat_axis(ax1)
@@ -2737,8 +2767,57 @@ with col_right:
             ax1.set_title(
                 "Chronotype",
                 fontsize=8.5,
-                pad=4,
-                color="#222222
+                pad=5,
+                color="#222222",
+            )
+            ax1.set_xticks(chrono_x)
+            ax1.set_xticklabels(
+                [CHRONO_LBL[i] for i in [1, 2, 3]],
+                rotation=18,
+                ha="right",
+                fontsize=7.5,
+            )
+
+            # --- Dream recall subplot ----------------------------------------
+            _style_cat_axis(ax2)
+
+            ax2.bar(
+                recall_x,
+                recall_counts.values,
+                width=width,
+                color="#D9D9D9",
+                edgecolor="white",
+                align="center",
+            )
+
+            if dreamrec_val in [1, 2, 3, 4]:
+                idx = dreamrec_val - 1
+                ax2.bar(
+                    recall_x[idx],
+                    recall_counts.values[idx],
+                    width=width,
+                    color=HL_RGB,
+                    edgecolor="white",
+                    align="center",
+                )
+
+            ax2.set_title(
+                "Dream recall",
+                fontsize=8.5,
+                pad=5,
+                color="#222222",
+            )
+            ax2.set_xticks(recall_x)
+            ax2.set_xticklabels(
+                [DREAMRECALL_LBL[i] for i in [1, 2, 3, 4]],
+                rotation=18,
+                ha="right",
+                fontsize=7.0,
+            )
+
+            plt.tight_layout(pad=0.4)
+            st.pyplot(fig, use_container_width=True)
+
 
 
 
