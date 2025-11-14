@@ -3270,8 +3270,8 @@ try:
         x = np.arange(len(names_sorted))
 
         # Gradient from dark purple (left) → light purple (right)
-        dark_rgb  = np.array([0x5B/255, 0x21/255, 0xB6/255])   # same purple as timeline
-        light_rgb = np.array([0.94, 0.90, 0.99])               # very light lilac
+        dark_rgb  = np.array([0x7C/255, 0x62/255, 0xFF/255])   # #7C62FF
+        light_rgb = np.array([0xC9/255, 0xBD/255, 0xFF/255])   # #C9BDFF             # very light lilac
 
         if len(names_sorted) > 1:
             cols = np.linspace(dark_rgb, light_rgb, len(names_sorted))
@@ -3338,7 +3338,7 @@ try:
                     im = OffsetImage(img, zoom=0.06)  # tweak zoom if icons too big/small
 
                     # Place icon a bit above the bar
-                    icon_y = p + (y_max - y_min) * 0.03
+                    icon_y = p + (y_max - y_min) * 0.08
                     ab = AnnotationBbox(im, (xi, icon_y), frameon=False)
                     ax.add_artist(ab)
                 except Exception:
