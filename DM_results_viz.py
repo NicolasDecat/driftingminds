@@ -3304,7 +3304,7 @@ try:
         # Only "low" (min) and "high" (max) as y-axis labels
         ax.set_yticks([y_min, y_max])
         ax.set_yticklabels(["low", "high"], fontsize=8)
-        ax.set_ylabel("Matching level", fontsize=8, labelpad=2)
+        ax.set_ylabel("Matching strength", fontsize=8, labelpad=2)
 
 
         # Title = more understandable than "profile likelihood"
