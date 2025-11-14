@@ -3429,391 +3429,391 @@ st.markdown(
 # ==============
 # Profile distribution across the N=1400 population
 # ==============
-st.markdown("<div style='height:120px;'></div>", unsafe_allow_html=True)
+# st.markdown("<div style='height:120px;'></div>", unsafe_allow_html=True)
 
-if pop_data is None or pop_data.empty:
-    st.info("Population data unavailable.")
-else:
-    # Assign a best profile to each participant
-    prof_names = []
-    for _, row in pop_data.iterrows():
-        name, _ = assign_profile_from_record(row.to_dict())
-        prof_names.append(name if name is not None else "Unassigned")
+# if pop_data is None or pop_data.empty:
+#     st.info("Population data unavailable.")
+# else:
+#     # Assign a best profile to each participant
+#     prof_names = []
+#     for _, row in pop_data.iterrows():
+#         name, _ = assign_profile_from_record(row.to_dict())
+#         prof_names.append(name if name is not None else "Unassigned")
 
-    # Tally counts in the order of your PROFILES dict for readability
-    order = list(PROFILES.keys())
-    ser = pd.Series(prof_names, name="profile")
-    counts = ser.value_counts().reindex(order, fill_value=0)
+#     # Tally counts in the order of your PROFILES dict for readability
+#     order = list(PROFILES.keys())
+#     ser = pd.Series(prof_names, name="profile")
+#     counts = ser.value_counts().reindex(order, fill_value=0)
 
-    total_n = int(counts.sum())
-    perc = (counts / max(total_n, 1) * 100).round(1)
-    dist_df = pd.DataFrame({
-        "profile": counts.index,
-        "count": counts.values,
-        "percent": perc.values
-    }).reset_index(drop=True)
+#     total_n = int(counts.sum())
+#     perc = (counts / max(total_n, 1) * 100).round(1)
+#     dist_df = pd.DataFrame({
+#         "profile": counts.index,
+#         "count": counts.values,
+#         "percent": perc.values
+#     }).reset_index(drop=True)
 
-    # --- Issue checks (keep diagnostic feedback)
-    zero_profiles = dist_df.loc[dist_df["count"] == 0, "profile"].tolist()
-    over_profiles = dist_df.loc[dist_df["percent"] > 30.0, "profile"].tolist()
+#     # --- Issue checks (keep diagnostic feedback)
+#     zero_profiles = dist_df.loc[dist_df["count"] == 0, "profile"].tolist()
+#     over_profiles = dist_df.loc[dist_df["percent"] > 30.0, "profile"].tolist()
 
-    if zero_profiles:
-        st.error("Profiles with **0%** representation: " + ", ".join(zero_profiles))
-    if over_profiles:
-        st.warning("Profiles above **30%** of the sample: " + ", ".join(over_profiles))
+#     if zero_profiles:
+#         st.error("Profiles with **0%** representation: " + ", ".join(zero_profiles))
+#     if over_profiles:
+#         st.warning("Profiles above **30%** of the sample: " + ", ".join(over_profiles))
 
-    # --- Bar chart (clean, minimal, consistent look)
-    fig, ax = plt.subplots(figsize=(7.0, 3.4))
-    fig.patch.set_alpha(0)
-    ax.set_facecolor("none")
+#     # --- Bar chart (clean, minimal, consistent look)
+#     fig, ax = plt.subplots(figsize=(7.0, 3.4))
+#     fig.patch.set_alpha(0)
+#     ax.set_facecolor("none")
 
-    x = np.arange(len(dist_df))
-    ax.bar(x, dist_df["percent"].values, width=0.6, color=PURPLE_HEX, edgecolor="white")
+#     x = np.arange(len(dist_df))
+#     ax.bar(x, dist_df["percent"].values, width=0.6, color=PURPLE_HEX, edgecolor="white")
 
-    ax.set_xticks(x)
-    ax.set_xticklabels(dist_df["profile"], rotation=20, ha="right", fontsize=9)
-    ax.set_ylabel("Participants (%)", fontsize=10)
-    ax.set_title(f"Profile distribution (N = {total_n})", fontsize=11, pad=8)
+#     ax.set_xticks(x)
+#     ax.set_xticklabels(dist_df["profile"], rotation=20, ha="right", fontsize=9)
+#     ax.set_ylabel("Participants (%)", fontsize=10)
+#     ax.set_title(f"Profile distribution (N = {total_n})", fontsize=11, pad=8)
 
-    ax.grid(axis="y", linestyle=":", linewidth=0.6, alpha=0.5)
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
+#     ax.grid(axis="y", linestyle=":", linewidth=0.6, alpha=0.5)
+#     ax.spines["top"].set_visible(False)
+#     ax.spines["right"].set_visible(False)
 
-    # Add value labels above bars
-    for xi, p in zip(x, dist_df["percent"].values):
-        ax.text(xi, p + 0.8, f"{p:.1f}%", ha="center", va="bottom", fontsize=8, color="#111")
+#     # Add value labels above bars
+#     for xi, p in zip(x, dist_df["percent"].values):
+#         ax.text(xi, p + 0.8, f"{p:.1f}%", ha="center", va="bottom", fontsize=8, color="#111")
 
-    plt.tight_layout()
-    st.pyplot(fig, use_container_width=True)
-
-
+#     plt.tight_layout()
+#     st.pyplot(fig, use_container_width=True)
 
 
-# ================= DEBUG HELPERS (mirror scorer v2) =================
-import numpy as np
-import pandas as pd
-import streamlit as st
 
-# If you haven't added these already elsewhere:
-def _weighted_nanaware_distance(values, targets, weights):
-    a = np.asarray(values, float)
-    b = np.asarray(targets, float)
-    w = np.asarray(weights, float)
-    mask = ~(np.isnan(a) | np.isnan(b))
-    if not np.any(mask):
-        return np.inf
-    d2 = np.sum(w[mask] * (a[mask] - b[mask])**2)
-    W  = np.sum(w[mask])
-    return np.sqrt(d2 / max(W, 1e-9))
 
-def _eligible_for_hit(record, feat):
-    # Mirrors value gating: only_if / only_if_all / only_if_any
-    if "only_if" in feat and not _eval_condition(record, feat["only_if"]):
-        return False
-    if feat.get("only_if_all"):
-        for c in feat["only_if_all"]:
-            if not _eval_condition(record, c):
-                return False
-    if feat.get("only_if_any"):
-        if not any(_eval_condition(record, c) for c in feat["only_if_any"]):
-            return False
-    return True
+# # ================= DEBUG HELPERS (mirror scorer v2) =================
+# import numpy as np
+# import pandas as pd
+# import streamlit as st
 
-def _feature_hit(record, feat, value, tol=0.95):
-    # Returns 1 (hit), 0 (miss), None (ineligible/missing)
-    if not _eligible_for_hit(record, feat):
-        return None
-    if value is None or (isinstance(value, float) and np.isnan(value)):
-        return None
-    tgt = float(feat.get("target", float("nan")))
-    op  = (feat.get("hit_op") or "gte").lower()
-    v   = float(value)
-    if op == "lte":
-        return 1 if v <= (tgt / tol) else 0
-    else:  # default gte
-        return 1 if v >= (tgt * tol) else 0
+# # If you haven't added these already elsewhere:
+# def _weighted_nanaware_distance(values, targets, weights):
+#     a = np.asarray(values, float)
+#     b = np.asarray(targets, float)
+#     w = np.asarray(weights, float)
+#     mask = ~(np.isnan(a) | np.isnan(b))
+#     if not np.any(mask):
+#         return np.inf
+#     d2 = np.sum(w[mask] * (a[mask] - b[mask])**2)
+#     W  = np.sum(w[mask])
+#     return np.sqrt(d2 / max(W, 1e-9))
 
-def _safe_first_key(f):
-    return f["key"][0] if isinstance(f.get("key"), (list, tuple)) else f.get("key")
+# def _eligible_for_hit(record, feat):
+#     # Mirrors value gating: only_if / only_if_all / only_if_any
+#     if "only_if" in feat and not _eval_condition(record, feat["only_if"]):
+#         return False
+#     if feat.get("only_if_all"):
+#         for c in feat["only_if_all"]:
+#             if not _eval_condition(record, c):
+#                 return False
+#     if feat.get("only_if_any"):
+#         if not any(_eval_condition(record, c) for c in feat["only_if_any"]):
+#             return False
+#     return True
 
-def _fmt_safe(x, nd=3):
-    try:
-        if x is None or (isinstance(x, float) and np.isnan(x)): return "NA"
-        return f"{float(x):.{nd}f}"
-    except Exception:
-        return str(x)
+# def _feature_hit(record, feat, value, tol=0.95):
+#     # Returns 1 (hit), 0 (miss), None (ineligible/missing)
+#     if not _eligible_for_hit(record, feat):
+#         return None
+#     if value is None or (isinstance(value, float) and np.isnan(value)):
+#         return None
+#     tgt = float(feat.get("target", float("nan")))
+#     op  = (feat.get("hit_op") or "gte").lower()
+#     v   = float(value)
+#     if op == "lte":
+#         return 1 if v <= (tgt / tol) else 0
+#     else:  # default gte
+#         return 1 if v >= (tgt * tol) else 0
 
-# ---- Per-feature mirror (value, eligibility, hit, contributions) ------------
-def dbg_feature_score(name, f, rec, tol=0.95):
-    """
-    Mirrors the scoring pipeline for one feature:
-      - raw and normalized value
-      - eligibility + hit
-      - hit_op-aware signed distance (for human reading)
-      - contribution to RMSE distance (w * (v-t)^2) and to sum-penalty (w*|delta|)
-    """
-    t = float(f.get("target", np.nan))
-    w = float(f.get("weight", 1.0))
-    hop = (f.get("hit_op") or "gte").lower()
-    key = _safe_first_key(f)
+# def _safe_first_key(f):
+#     return f["key"][0] if isinstance(f.get("key"), (list, tuple)) else f.get("key")
 
-    # Normalize
-    raw = rec.get(key, None)
-    norm_fn = f.get("norm")
-    kwargs  = f.get("norm_kwargs", {}) or {}
-    if norm_fn is None:
-        try:
-            v = float(raw)
-        except Exception:
-            v = np.nan
-    else:
-        try:
-            v = norm_fn(raw, **kwargs)
-        except TypeError:
-            v = norm_fn(raw)
-        except Exception:
-            v = np.nan
+# def _fmt_safe(x, nd=3):
+#     try:
+#         if x is None or (isinstance(x, float) and np.isnan(x)): return "NA"
+#         return f"{float(x):.{nd}f}"
+#     except Exception:
+#         return str(x)
 
-    # Eligibility + hit
-    eligible = _eligible_for_hit(rec, f)
-    hit = _feature_hit(rec, f, v, tol=tol) if eligible else None
+# # ---- Per-feature mirror (value, eligibility, hit, contributions) ------------
+# def dbg_feature_score(name, f, rec, tol=0.95):
+#     """
+#     Mirrors the scoring pipeline for one feature:
+#       - raw and normalized value
+#       - eligibility + hit
+#       - hit_op-aware signed distance (for human reading)
+#       - contribution to RMSE distance (w * (v-t)^2) and to sum-penalty (w*|delta|)
+#     """
+#     t = float(f.get("target", np.nan))
+#     w = float(f.get("weight", 1.0))
+#     hop = (f.get("hit_op") or "gte").lower()
+#     key = _safe_first_key(f)
 
-    # Distances
-    if v is None or (isinstance(v, float) and np.isnan(v)):
-        delta = np.nan
-        absdist = np.nan
-        sq_term = np.nan
-    else:
-        delta = float(v) - t
-        # Directional human-readable distance wrt hit_op
-        if hop == "lte":
-            # positive means "above target" (undesired for lte)
-            absdist = max(0.0, delta)
-        else:  # gte
-            # positive means "below target" (undesired for gte)
-            absdist = max(0.0, -delta)
-        sq_term = w * (delta**2)  # contribution to RMSE numerator
+#     # Normalize
+#     raw = rec.get(key, None)
+#     norm_fn = f.get("norm")
+#     kwargs  = f.get("norm_kwargs", {}) or {}
+#     if norm_fn is None:
+#         try:
+#             v = float(raw)
+#         except Exception:
+#             v = np.nan
+#     else:
+#         try:
+#             v = norm_fn(raw, **kwargs)
+#         except TypeError:
+#             v = norm_fn(raw)
+#         except Exception:
+#             v = np.nan
 
-    return {
-        "feature": name,
-        "key": key,
-        "raw": raw,
-        "norm": v,
-        "target": t,
-        "weight": w,
-        "hit_op": hop,
-        "eligible": eligible,
-        "hit": (None if hit is None else bool(hit)),
-        "dir_dist": absdist,              # directional distance by hit_op (>=0)
-        "sum_penalty_contrib": (w * absdist) if absdist is not None and not np.isnan(absdist) else np.nan,
-        "rmse_sq_contrib": sq_term,       # goes into weighted RMSE
-        "delta": delta,                    # signed v - t (useful to see bias)
-    }
+#     # Eligibility + hit
+#     eligible = _eligible_for_hit(rec, f)
+#     hit = _feature_hit(rec, f, v, tol=tol) if eligible else None
 
-# ---- Profile-level breakdown (features + RMSE + AND-penalty + guards) -------
-def debug_profile_breakdown(rec, profiles, K_RATIO=0.6, GAMMA=1.5, tol=0.95):
-    """
-    For each profile:
-      - run must/veto guards
-      - collect per-feature details
-      - compute RMSE distance (weighted_nanaware)
-      - compute AND-ish multiplier from hits/eligible
-      - final distance = rmse * multiplier
-    """
-    out = {}
-    for pname, spec in profiles.items():
-        feats_spec = spec.get("features", [])
-        if not feats_spec:
-            out[pname] = {"guard": "no-features", "blocked": False, "rows": [], "raw_distance": np.inf,
-                          "hits": 0, "eligible": 0, "K": None, "multiplier": 1.0, "final_distance": np.inf}
-            continue
+#     # Distances
+#     if v is None or (isinstance(v, float) and np.isnan(v)):
+#         delta = np.nan
+#         absdist = np.nan
+#         sq_term = np.nan
+#     else:
+#         delta = float(v) - t
+#         # Directional human-readable distance wrt hit_op
+#         if hop == "lte":
+#             # positive means "above target" (undesired for lte)
+#             absdist = max(0.0, delta)
+#         else:  # gte
+#             # positive means "below target" (undesired for gte)
+#             absdist = max(0.0, -delta)
+#         sq_term = w * (delta**2)  # contribution to RMSE numerator
 
-        # Guards
-        blocked = False
-        guard_note = "ok"
-        if "must" in spec:
-            for r in spec["must"]:
-                try:
-                    if not _eval_guard(rec, r):
-                        blocked = True; guard_note = "fail-must"; break
-                except Exception:
-                    pass
-        if not blocked and "veto" in spec:
-            for r in spec["veto"]:
-                try:
-                    if _eval_guard(rec, r):
-                        blocked = True; guard_note = "hit-veto"; break
-                except Exception:
-                    pass
+#     return {
+#         "feature": name,
+#         "key": key,
+#         "raw": raw,
+#         "norm": v,
+#         "target": t,
+#         "weight": w,
+#         "hit_op": hop,
+#         "eligible": eligible,
+#         "hit": (None if hit is None else bool(hit)),
+#         "dir_dist": absdist,              # directional distance by hit_op (>=0)
+#         "sum_penalty_contrib": (w * absdist) if absdist is not None and not np.isnan(absdist) else np.nan,
+#         "rmse_sq_contrib": sq_term,       # goes into weighted RMSE
+#         "delta": delta,                    # signed v - t (useful to see bias)
+#     }
 
-        rows = [dbg_feature_score(f'{i}:{_safe_first_key(f)}', f, rec, tol=tol)
-                for i, f in enumerate(feats_spec)]
+# # ---- Profile-level breakdown (features + RMSE + AND-penalty + guards) -------
+# def debug_profile_breakdown(rec, profiles, K_RATIO=0.6, GAMMA=1.5, tol=0.95):
+#     """
+#     For each profile:
+#       - run must/veto guards
+#       - collect per-feature details
+#       - compute RMSE distance (weighted_nanaware)
+#       - compute AND-ish multiplier from hits/eligible
+#       - final distance = rmse * multiplier
+#     """
+#     out = {}
+#     for pname, spec in profiles.items():
+#         feats_spec = spec.get("features", [])
+#         if not feats_spec:
+#             out[pname] = {"guard": "no-features", "blocked": False, "rows": [], "raw_distance": np.inf,
+#                           "hits": 0, "eligible": 0, "K": None, "multiplier": 1.0, "final_distance": np.inf}
+#             continue
 
-        # Distances (RMSE-style, comparable across profiles)
-        vals   = [r["norm"]   for r in rows]
-        targs  = [r["target"] for r in rows]
-        wts    = [r["weight"] for r in rows]
-        raw_d  = _weighted_nanaware_distance(vals, targs, wts)
+#         # Guards
+#         blocked = False
+#         guard_note = "ok"
+#         if "must" in spec:
+#             for r in spec["must"]:
+#                 try:
+#                     if not _eval_guard(rec, r):
+#                         blocked = True; guard_note = "fail-must"; break
+#                 except Exception:
+#                     pass
+#         if not blocked and "veto" in spec:
+#             for r in spec["veto"]:
+#                 try:
+#                     if _eval_guard(rec, r):
+#                         blocked = True; guard_note = "hit-veto"; break
+#                 except Exception:
+#                     pass
 
-        # AND-ish multiplier
-        hits = 0; eligible = 0
-        for r in rows:
-            if r["eligible"] and r["hit"] is not None:
-                eligible += 1
-                hits     += int(r["hit"])
-        mult = 1.0; K = None
-        if eligible > 0:
-            K = max(1, int(np.ceil(K_RATIO * eligible)))
-            if hits < K:
-                mult = ((K / max(hits, 1)) ** GAMMA)
+#         rows = [dbg_feature_score(f'{i}:{_safe_first_key(f)}', f, rec, tol=tol)
+#                 for i, f in enumerate(feats_spec)]
 
-        final_d = (raw_d * mult) if not blocked else np.inf
-        out[pname] = {
-            "guard": guard_note,
-            "blocked": blocked,
-            "rows": rows,
-            "raw_distance": raw_d,
-            "hits": hits,
-            "eligible": eligible,
-            "K": K,
-            "multiplier": mult,
-            "final_distance": final_d
-        }
-    return out
+#         # Distances (RMSE-style, comparable across profiles)
+#         vals   = [r["norm"]   for r in rows]
+#         targs  = [r["target"] for r in rows]
+#         wts    = [r["weight"] for r in rows]
+#         raw_d  = _weighted_nanaware_distance(vals, targs, wts)
 
-# ================= STREAMLIT: DEBUG VIEWS ====================================
-st.markdown("### 🔍 Debug: profile scoring breakdown")
+#         # AND-ish multiplier
+#         hits = 0; eligible = 0
+#         for r in rows:
+#             if r["eligible"] and r["hit"] is not None:
+#                 eligible += 1
+#                 hits     += int(r["hit"])
+#         mult = 1.0; K = None
+#         if eligible > 0:
+#             K = max(1, int(np.ceil(K_RATIO * eligible)))
+#             if hits < K:
+#                 mult = ((K / max(hits, 1)) ** GAMMA)
 
-with st.expander("Show scoring debug", expanded=False):
-    # Choose a record to inspect
-    default_id = None
-    try:
-        default_id = int(str(record.get("record_id")).strip())
-    except Exception:
-        pass
+#         final_d = (raw_d * mult) if not blocked else np.inf
+#         out[pname] = {
+#             "guard": guard_note,
+#             "blocked": blocked,
+#             "rows": rows,
+#             "raw_distance": raw_d,
+#             "hits": hits,
+#             "eligible": eligible,
+#             "K": K,
+#             "multiplier": mult,
+#             "final_distance": final_d
+#         }
+#     return out
 
-    rid = st.number_input("Record ID to inspect", min_value=1, step=1,
-                          value=(default_id if default_id else 148))
+# # ================= STREAMLIT: DEBUG VIEWS ====================================
+# st.markdown("### 🔍 Debug: profile scoring breakdown")
 
-    # Try current record, else pop_data, else fallback fetch
-    rec_dbg = None
-    if record and str(record.get("record_id", "")) == str(rid):
-        rec_dbg = record
-    elif "pop_data" in globals() and isinstance(pop_data, pd.DataFrame) and "record_id" in pop_data.columns:
-        try:
-            rec_dbg = pop_data.loc[pop_data["record_id"] == rid].iloc[0].to_dict()
-        except Exception:
-            rec_dbg = None
-    if rec_dbg is None and "fetch_by_record_id" in globals():
-        try:
-            rec_dbg = fetch_by_record_id(str(rid))
-        except Exception:
-            rec_dbg = None
+# with st.expander("Show scoring debug", expanded=False):
+#     # Choose a record to inspect
+#     default_id = None
+#     try:
+#         default_id = int(str(record.get("record_id")).strip())
+#     except Exception:
+#         pass
 
-    if rec_dbg is None:
-        st.error("Could not find that record in `record`, `pop_data`, or REDCap.")
-    else:
-        bd = debug_profile_breakdown(rec_dbg, PROFILES, K_RATIO=0.6, GAMMA=1.5, tol=0.95)
+#     rid = st.number_input("Record ID to inspect", min_value=1, step=1,
+#                           value=(default_id if default_id else 148))
 
-        # Summary (sorted by final distance, guard-aware)
-        rows = []
-        for p, info in bd.items():
-            rows.append({
-                "profile": p,
-                "guard": info["guard"],
-                "blocked": info["blocked"],
-                "raw_distance": info["raw_distance"],
-                "hits": info["hits"],
-                "eligible": info["eligible"],
-                "K_required": info["K"],
-                "penalty_multiplier": info["multiplier"],
-                "final_distance": info["final_distance"],
-            })
-        df_summary = pd.DataFrame(rows).sort_values(["blocked", "final_distance"], ascending=[True, True]).reset_index(drop=True)
-        st.markdown("**Summary — final distance (lower wins; blocked profiles are filtered by must/veto):**")
-        st.dataframe(df_summary, hide_index=True, use_container_width=True)
+#     # Try current record, else pop_data, else fallback fetch
+#     rec_dbg = None
+#     if record and str(record.get("record_id", "")) == str(rid):
+#         rec_dbg = record
+#     elif "pop_data" in globals() and isinstance(pop_data, pd.DataFrame) and "record_id" in pop_data.columns:
+#         try:
+#             rec_dbg = pop_data.loc[pop_data["record_id"] == rid].iloc[0].to_dict()
+#         except Exception:
+#             rec_dbg = None
+#     if rec_dbg is None and "fetch_by_record_id" in globals():
+#         try:
+#             rec_dbg = fetch_by_record_id(str(rid))
+#         except Exception:
+#             rec_dbg = None
 
-        # Per-profile details
-        for pname, info in sorted(bd.items(), key=lambda x: (x[1]["blocked"], x[1]["final_distance"])):
-            guard_txt = f" [{info['guard']}]" if info["guard"] != "ok" else ""
-            with st.expander(f"{pname}{guard_txt} — final={_fmt_safe(info['final_distance'],3)} | raw={_fmt_safe(info['raw_distance'],3)} | hits={info['hits']}/{info['eligible']} ×{_fmt_safe(info['multiplier'],2)}", expanded=False):
-                feat_rows = []
-                for r in info["rows"]:
-                    feat_rows.append({
-                        "feature": r["feature"],
-                        "key": r["key"],
-                        "raw": _fmt_safe(r["raw"], 3),
-                        "norm": _fmt_safe(r["norm"], 3),
-                        "target": _fmt_safe(r["target"], 3),
-                        "weight": _fmt_safe(r["weight"], 3),
-                        "hit_op": r["hit_op"],
-                        "eligible": r["eligible"],
-                        "hit": r["hit"],
-                        "delta(v-t)": _fmt_safe(r["delta"], 3),
-                        "dir_dist(op)": _fmt_safe(r["dir_dist"], 3),
-                        "sum_pen(w*|op|)": _fmt_safe(r["sum_penalty_contrib"], 3),
-                        "rmse_sq(w*(v-t)^2)": _fmt_safe(r["rmse_sq_contrib"], 3),
-                    })
-                if feat_rows:
-                    df_feat = pd.DataFrame(feat_rows)
-                    st.dataframe(df_feat, hide_index=True, use_container_width=True)
-                else:
-                    st.info("No features defined for this profile.")
+#     if rec_dbg is None:
+#         st.error("Could not find that record in `record`, `pop_data`, or REDCap.")
+#     else:
+#         bd = debug_profile_breakdown(rec_dbg, PROFILES, K_RATIO=0.6, GAMMA=1.5, tol=0.95)
 
-# ---- Optional: one-click trace for the current page record ------------------
-def scorer_trace_for_record(rec, profiles, K_RATIO=0.6, GAMMA=1.5, tol=0.95):
-    """Compact table of what the scorer sees after guards."""
-    rows = []
-    for name, cfg in profiles.items():
-        feats = cfg.get("features", [])
-        if not feats:
-            continue
+#         # Summary (sorted by final distance, guard-aware)
+#         rows = []
+#         for p, info in bd.items():
+#             rows.append({
+#                 "profile": p,
+#                 "guard": info["guard"],
+#                 "blocked": info["blocked"],
+#                 "raw_distance": info["raw_distance"],
+#                 "hits": info["hits"],
+#                 "eligible": info["eligible"],
+#                 "K_required": info["K"],
+#                 "penalty_multiplier": info["multiplier"],
+#                 "final_distance": info["final_distance"],
+#             })
+#         df_summary = pd.DataFrame(rows).sort_values(["blocked", "final_distance"], ascending=[True, True]).reset_index(drop=True)
+#         st.markdown("**Summary — final distance (lower wins; blocked profiles are filtered by must/veto):**")
+#         st.dataframe(df_summary, hide_index=True, use_container_width=True)
 
-        # Guards
-        blocked = False
-        guard_note = "ok"
-        if "must" in cfg:
-            for r in cfg["must"]:
-                try:
-                    if not _eval_guard(rec, r):
-                        blocked = True; guard_note = "fail-must"; break
-                except Exception:
-                    pass
-        if not blocked and "veto" in cfg:
-            for r in cfg["veto"]:
-                try:
-                    if _eval_guard(rec, r):
-                        blocked = True; guard_note = "hit-veto"; break
-                except Exception:
-                    pass
+#         # Per-profile details
+#         for pname, info in sorted(bd.items(), key=lambda x: (x[1]["blocked"], x[1]["final_distance"])):
+#             guard_txt = f" [{info['guard']}]" if info["guard"] != "ok" else ""
+#             with st.expander(f"{pname}{guard_txt} — final={_fmt_safe(info['final_distance'],3)} | raw={_fmt_safe(info['raw_distance'],3)} | hits={info['hits']}/{info['eligible']} ×{_fmt_safe(info['multiplier'],2)}", expanded=False):
+#                 feat_rows = []
+#                 for r in info["rows"]:
+#                     feat_rows.append({
+#                         "feature": r["feature"],
+#                         "key": r["key"],
+#                         "raw": _fmt_safe(r["raw"], 3),
+#                         "norm": _fmt_safe(r["norm"], 3),
+#                         "target": _fmt_safe(r["target"], 3),
+#                         "weight": _fmt_safe(r["weight"], 3),
+#                         "hit_op": r["hit_op"],
+#                         "eligible": r["eligible"],
+#                         "hit": r["hit"],
+#                         "delta(v-t)": _fmt_safe(r["delta"], 3),
+#                         "dir_dist(op)": _fmt_safe(r["dir_dist"], 3),
+#                         "sum_pen(w*|op|)": _fmt_safe(r["sum_penalty_contrib"], 3),
+#                         "rmse_sq(w*(v-t)^2)": _fmt_safe(r["rmse_sq_contrib"], 3),
+#                     })
+#                 if feat_rows:
+#                     df_feat = pd.DataFrame(feat_rows)
+#                     st.dataframe(df_feat, hide_index=True, use_container_width=True)
+#                 else:
+#                     st.info("No features defined for this profile.")
 
-        vals, targs, wts, hits, eligible = [], [], [], 0, 0
-        for f in feats:
-            v = _feature_value_from_record(rec, {}, f)
-            vals.append(v); targs.append(float(f.get("target", np.nan))); wts.append(float(f.get("weight", 1.0)))
-            h = _feature_hit(rec, f, v, tol=tol)
-            if h is not None: eligible += 1; hits += int(h)
+# # ---- Optional: one-click trace for the current page record ------------------
+# def scorer_trace_for_record(rec, profiles, K_RATIO=0.6, GAMMA=1.5, tol=0.95):
+#     """Compact table of what the scorer sees after guards."""
+#     rows = []
+#     for name, cfg in profiles.items():
+#         feats = cfg.get("features", [])
+#         if not feats:
+#             continue
 
-        raw_d = _weighted_nanaware_distance(vals, targs, wts)
-        mult  = 1.0; K = None
-        if eligible > 0:
-            K = max(1, int(np.ceil(K_RATIO * eligible)))
-            if hits < K:
-                mult = ((K / max(hits, 1)) ** GAMMA)
-        final_d = raw_d * mult if not blocked else np.inf
+#         # Guards
+#         blocked = False
+#         guard_note = "ok"
+#         if "must" in cfg:
+#             for r in cfg["must"]:
+#                 try:
+#                     if not _eval_guard(rec, r):
+#                         blocked = True; guard_note = "fail-must"; break
+#                 except Exception:
+#                     pass
+#         if not blocked and "veto" in cfg:
+#             for r in cfg["veto"]:
+#                 try:
+#                     if _eval_guard(rec, r):
+#                         blocked = True; guard_note = "hit-veto"; break
+#                 except Exception:
+#                     pass
 
-        rows.append({
-            "profile": name, "guard": guard_note, "blocked": blocked,
-            "raw_distance": raw_d, "hits": hits, "eligible": eligible,
-            "K_required": K, "penalty_multiplier": mult, "final_distance": final_d
-        })
-    return pd.DataFrame(rows)
+#         vals, targs, wts, hits, eligible = [], [], [], 0, 0
+#         for f in feats:
+#             v = _feature_value_from_record(rec, {}, f)
+#             vals.append(v); targs.append(float(f.get("target", np.nan))); wts.append(float(f.get("weight", 1.0)))
+#             h = _feature_hit(rec, f, v, tol=tol)
+#             if h is not None: eligible += 1; hits += int(h)
 
-with st.expander("🔧 Scorer internals (this record)", expanded=False):
-    rec_dbg = record
-    if rec_dbg is None:
-        st.error("No record loaded.")
-    else:
-        df_trace = scorer_trace_for_record(rec_dbg, PROFILES, K_RATIO=0.6, GAMMA=1.5, tol=0.95)
-        st.dataframe(df_trace.sort_values(["blocked", "final_distance"]).reset_index(drop=True),
-                     hide_index=True, use_container_width=True)
+#         raw_d = _weighted_nanaware_distance(vals, targs, wts)
+#         mult  = 1.0; K = None
+#         if eligible > 0:
+#             K = max(1, int(np.ceil(K_RATIO * eligible)))
+#             if hits < K:
+#                 mult = ((K / max(hits, 1)) ** GAMMA)
+#         final_d = raw_d * mult if not blocked else np.inf
+
+#         rows.append({
+#             "profile": name, "guard": guard_note, "blocked": blocked,
+#             "raw_distance": raw_d, "hits": hits, "eligible": eligible,
+#             "K_required": K, "penalty_multiplier": mult, "final_distance": final_d
+#         })
+#     return pd.DataFrame(rows)
+
+# with st.expander("🔧 Scorer internals (this record)", expanded=False):
+#     rec_dbg = record
+#     if rec_dbg is None:
+#         st.error("No record loaded.")
+#     else:
+#         df_trace = scorer_trace_for_record(rec_dbg, PROFILES, K_RATIO=0.6, GAMMA=1.5, tol=0.95)
+#         st.dataframe(df_trace.sort_values(["blocked", "final_distance"]).reset_index(drop=True),
+#                      hide_index=True, use_container_width=True)
