@@ -3263,7 +3263,7 @@ try:
         lik_sorted   = lik_pct[order]
 
                 # --- Plot (gradient + icons, clean axis) ---
-        fig, ax = plt.subplots(figsize=(7.0, 3.2))
+        fig, ax = plt.subplots(figsize=(7.0, 3.2), dpi=200)
         fig.patch.set_alpha(0)
         ax.set_facecolor("none")
 
