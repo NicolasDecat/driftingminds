@@ -18,6 +18,7 @@ import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde, truncnorm
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
 # ==============
 # App config
@@ -3261,42 +3262,92 @@ try:
         names_sorted = [prof_names[i] for i in order]
         lik_sorted   = lik_pct[order]
 
-        # --- Plot (clean, minimal aesthetic) ---
+                # --- Plot (gradient + icons, clean axis) ---
         fig, ax = plt.subplots(figsize=(7.0, 3.2))
         fig.patch.set_alpha(0)
         ax.set_facecolor("none")
-        
+
         x = np.arange(len(names_sorted))
-        ax.bar(x, lik_sorted, width=0.6, color=PURPLE_HEX, edgecolor="white")
-        
+
+        # Gradient from dark purple (left) → light purple (right)
+        dark_rgb  = np.array([0x5B/255, 0x21/255, 0xB6/255])   # same purple as timeline
+        light_rgb = np.array([0.94, 0.90, 0.99])               # very light lilac
+
+        if len(names_sorted) > 1:
+            cols = np.linspace(dark_rgb, light_rgb, len(names_sorted))
+        else:
+            cols = np.array([dark_rgb])
+
+        bar_colors = [tuple(c) for c in cols]
+
+        ax.bar(x, lik_sorted, width=0.6, color=bar_colors, edgecolor="white")
+
         # X labels
         ax.set_xticks(x)
         ax.set_xticklabels(names_sorted, rotation=20, ha="right", fontsize=9)
-        
-        # Y axis: custom minimal scaling
+
+        # Y axis: custom low/high scaling (no numbers)
         min_lik = float(np.nanmin(lik_sorted)) if len(lik_sorted) else 0.0
-        
+
         if min_lik < 1.0:
             y_min = 0.0
         else:
             y_min = max(min_lik - 1.0, 0.0)
-        
+
         y_max = float(np.nanmax(lik_sorted)) if len(lik_sorted) else 1.0
-        y_max = y_max * 1.08   # small headroom
-        
+        if y_max <= y_min:
+            y_max = y_min + 1.0  # safety
+
+        y_max = y_max * 1.08   # small headroom above tallest bar
         ax.set_ylim(y_min, y_max)
-        
-        # Remove all y ticks and labels
-        ax.set_yticks([])
-        ax.set_ylabel("Profile likelihood", fontsize=10)
-        
-        # Remove grid + top/right spines
+
+        # Only "low" (min) and "high" (max) as y-axis labels
+        ax.set_yticks([y_min, y_max])
+        ax.set_yticklabels(["low", "high"], fontsize=8)
+        ax.set_ylabel("")  # no numeric label
+
+        # Title = more understandable than "profile likelihood"
+        ax.set_title("How much you match each profile", fontsize=11, pad=8)
+
+        # No grid, minimal frame
         ax.grid(False)
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
-        
+
+        # --- Icons above bars ------------------------------------------------
+        for xi, name, p in zip(x, names_sorted, lik_sorted):
+            icon_file = PROFILES.get(name, {}).get("icon")
+            img_path = None
+
+            if icon_file:
+                base, ext = os.path.splitext(icon_file)
+                # Prefer PNG if available (better for matplotlib), otherwise try the given file
+                candidates = [
+                    os.path.join("assets", base + ".png"),
+                    os.path.join("assets", icon_file),
+                ]
+                for cpath in candidates:
+                    # Skip SVGs for matplotlib; keep code safe if only SVG exists
+                    if os.path.exists(cpath) and not cpath.lower().endswith(".svg"):
+                        img_path = cpath
+                        break
+
+            if img_path:
+                try:
+                    img = plt.imread(img_path)
+                    im = OffsetImage(img, zoom=0.35)  # tweak zoom if icons too big/small
+
+                    # Place icon a bit above the bar
+                    icon_y = p + (y_max - y_min) * 0.06
+                    ab = AnnotationBbox(im, (xi, icon_y), frameon=False)
+                    ax.add_artist(ab)
+                except Exception:
+                    # Fail silently if an icon can't be loaded
+                    pass
+
         plt.tight_layout()
         st.pyplot(fig, use_container_width=True)
+
 
         # Short explanatory line below
         st.markdown(
