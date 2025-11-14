@@ -1563,17 +1563,17 @@ has_icon = bool(icon_path and os.path.exists(icon_path))
 # --- Add population percentage at the end of the profile description ---
 POP_PERC = {
     "Dreamweaver": 4,
-    "Quick Diver": 14,
-    "Fantasizer": 5,
-    "Archivist": 9,
+    "Quick Diver": 11,
+    "Fantasizer": 18,
+    "Archivist": 5,
     "Worrier": 6,
-    "Freewheeler": 7,
-    "Quiet Mind": 8,
-    "Radio Tuner": 9,
+    "Freewheeler": 8,
+    "Quiet Mind": 15,
+    "Radio Tuner": 4,
     "Strategist": 7,
-    "Sentinelle": 10,
+    "Sentinelle": 4,
     "Fragmented Mind": 5,
-    "Pragmatic": 15
+    "Pragmatic": 13
 }
 
 perc_val = POP_PERC.get(prof_name, 0)
