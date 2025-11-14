@@ -3335,10 +3335,10 @@ try:
             if img_path:
                 try:
                     img = plt.imread(img_path)
-                    im = OffsetImage(img, zoom=0.06)  # tweak zoom if icons too big/small
+                    im = OffsetImage(img, zoom=0.08)  # tweak zoom if icons too big/small
 
                     # Place icon a bit above the bar
-                    icon_y = p + (y_max - y_min) * 0.10
+                    icon_y = p + (y_max - y_min) * 0.6
                     ab = AnnotationBbox(im, (xi, icon_y), frameon=False)
                     ax.add_artist(ab)
                 except Exception:
