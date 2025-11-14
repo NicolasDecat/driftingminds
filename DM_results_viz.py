@@ -1458,6 +1458,63 @@ def assign_profile_from_record(record):
 
     return best_name, scores
 
+
+def compute_profile_distances(record):
+    """
+    Compute the same AND-ish, weighted distance used in assign_profile_from_record,
+    but return a dict of distances for ALL profiles.
+    """
+    scores = {}
+    dists = {}
+
+    # Must match assign_profile_from_record
+    K_RATIO = 0.6   # need ~60% of eligible criteria to be met
+    GAMMA   = 1.5   # >1 increases penalty steepness
+
+    for name, cfg in PROFILES.items():
+        feats = cfg.get("features", [])
+        if not feats:
+            continue
+
+        vals, targs, wts = [], [], []
+        hits, eligible = 0, 0
+        tmp_vals = []
+
+        # Collect values + targets + weights
+        for f in feats:
+            v   = _feature_value_from_record(record, scores, f)
+            tgt = float(f.get("target", np.nan))
+            wt  = float(f.get("weight", 1.0))
+
+            tmp_vals.append((f, v))
+            vals.append(v)
+            targs.append(tgt)
+            wts.append(wt)
+
+        # Hit count (respecting only_if / AND-ish logic)
+        for f, v in tmp_vals:
+            h = _feature_hit(record, f, v)
+            if h is None:
+                continue
+            eligible += 1
+            hits     += h
+
+        # Raw distance
+        d = _weighted_nanaware_distance(vals, targs, wts)
+
+        # AND-ish penalty
+        if eligible > 0:
+            K = max(1, int(np.ceil(K_RATIO * eligible)))
+            if hits < K:
+                penalty = ((K / max(hits, 1)) ** GAMMA)
+                d *= penalty
+
+        dists[name] = d
+
+    return dists
+
+
+
 # ---- MUST/VETO guard evaluation --------------------------------------------
 def _eval_guard(record, rule):
     """
@@ -3169,6 +3226,97 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
+
+# ==============
+# Profile likelihoods for this participant (all 12 profiles)
+# ==============
+st.markdown("<div style='height:36px;'></div>", unsafe_allow_html=True)
+
+try:
+    profile_dists = compute_profile_distances(record)
+
+    if profile_dists:
+        # Fixed order (definition order) for reproducibility
+        prof_names = list(PROFILES.keys())
+        d_arr = np.array([profile_dists.get(n, np.inf) for n in prof_names], dtype=float)
+
+        # Convert distances → similarities → normalized likelihoods (0–1, sum = 1)
+        finite_mask = np.isfinite(d_arr)
+        if not finite_mask.any():
+            sims = np.ones_like(d_arr) / len(d_arr)
+        else:
+            sims = np.zeros_like(d_arr)
+            sims[finite_mask] = 1.0 / (1.0 + d_arr[finite_mask])
+            total = sims.sum()
+            if total <= 0:
+                sims = np.ones_like(d_arr) / len(d_arr)
+            else:
+                sims /= total
+
+        lik_pct = sims * 100.0
+
+        # Sort profiles from most to least likely (left → right)
+        order = np.argsort(-lik_pct)
+        names_sorted = [prof_names[i] for i in order]
+        lik_sorted   = lik_pct[order]
+
+        # --- Plot ---
+        fig, ax = plt.subplots(figsize=(7.0, 3.2))
+        fig.patch.set_alpha(0)
+        ax.set_facecolor("none")
+
+        x = np.arange(len(names_sorted))
+        ax.bar(x, lik_sorted, width=0.6, color=PURPLE_HEX, edgecolor="white")
+
+        ax.set_xticks(x)
+        ax.set_xticklabels(names_sorted, rotation=20, ha="right", fontsize=9)
+        ax.set_ylabel("Profile likelihood (%)", fontsize=10)
+        ax.set_title("How close you are to each profile", fontsize=11, pad=8)
+
+        ax.grid(axis="y", linestyle=":", linewidth=0.6, alpha=0.5)
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+
+        # Nice headroom + labels on top of bars
+        ymax = float(np.nanmax(lik_sorted)) if len(lik_sorted) else 0.0
+        if ymax <= 0:
+            ymax = 10.0
+        ax.set_ylim(0, ymax * 1.15)
+        offset = max(ymax * 0.02, 0.4)
+
+        for xi, p in zip(x, lik_sorted):
+            ax.text(
+                xi, p + offset, f"{p:.0f}%",
+                ha="center", va="bottom",
+                fontsize=8, color="#111"
+            )
+
+        plt.tight_layout()
+        st.pyplot(fig, use_container_width=True)
+
+        # Short explanatory line below
+        st.markdown(
+            """
+            <div style="
+                max-width:740px;
+                margin:6px 0 0 0;
+                font-size:0.82rem;
+                color:#444;
+                line-height:1.35;
+            ">
+              <em>
+                Each bar shows how well your pattern of answers matches the ideal pattern for every profile.
+                The leftmost bar is the profile you were assigned.
+              </em>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+except Exception as e:
+    st.warning("Could not compute profile likelihoods for this record.")
+
+
 
 
 # ==============
