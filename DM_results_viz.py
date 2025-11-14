@@ -3232,7 +3232,7 @@ st.markdown(
 # ==============
 # Profile likelihoods for this participant (all 12 profiles)
 # ==============
-st.markdown("<div style='height:50px;'></div>", unsafe_allow_html=True)
+st.markdown("<div style='height:60px;'></div>", unsafe_allow_html=True)
 
 try:
     profile_dists = compute_profile_distances(record)
@@ -3304,7 +3304,7 @@ try:
         # Only "low" (min) and "high" (max) as y-axis labels
         ax.set_yticks([y_min, y_max])
         ax.set_yticklabels(["low", "high"], fontsize=8)
-        ax.set_ylabel("Matching level", fontsize=10, labelpad=4)
+        ax.set_ylabel("Matching level", fontsize=8, labelpad=2)
 
 
         # Title = more understandable than "profile likelihood"
@@ -3361,8 +3361,7 @@ try:
                 line-height:1.35;
             ">
               <em>
-                Each bar shows how well your pattern of answers matches the ideal pattern for every profile.
-                The leftmost bar is the profile you were assigned.
+                Each bar shows how closely your answers align with each profile, from your strongest match (left) to your weakest (right).
               </em>
             </div>
             """,
