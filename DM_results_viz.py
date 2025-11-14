@@ -3232,7 +3232,7 @@ st.markdown(
 # ==============
 # Profile likelihoods for this participant (all 12 profiles)
 # ==============
-st.markdown("<div style='height:36px;'></div>", unsafe_allow_html=True)
+st.markdown("<div style='height:50px;'></div>", unsafe_allow_html=True)
 
 try:
     profile_dists = compute_profile_distances(record)
