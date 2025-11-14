@@ -3261,37 +3261,40 @@ try:
         names_sorted = [prof_names[i] for i in order]
         lik_sorted   = lik_pct[order]
 
-        # --- Plot ---
+        # --- Plot (clean, minimal aesthetic) ---
         fig, ax = plt.subplots(figsize=(7.0, 3.2))
         fig.patch.set_alpha(0)
         ax.set_facecolor("none")
-
+        
         x = np.arange(len(names_sorted))
         ax.bar(x, lik_sorted, width=0.6, color=PURPLE_HEX, edgecolor="white")
-
+        
+        # X labels
         ax.set_xticks(x)
         ax.set_xticklabels(names_sorted, rotation=20, ha="right", fontsize=9)
-        ax.set_ylabel("Profile likelihood (%)", fontsize=10)
-        ax.set_title("How close you are to each profile", fontsize=11, pad=8)
-
-        ax.grid(axis="y", linestyle=":", linewidth=0.6, alpha=0.5)
+        
+        # Y axis: custom minimal scaling
+        min_lik = float(np.nanmin(lik_sorted)) if len(lik_sorted) else 0.0
+        
+        if min_lik < 1.0:
+            y_min = 0.0
+        else:
+            y_min = max(min_lik - 1.0, 0.0)
+        
+        y_max = float(np.nanmax(lik_sorted)) if len(lik_sorted) else 1.0
+        y_max = y_max * 1.08   # small headroom
+        
+        ax.set_ylim(y_min, y_max)
+        
+        # Remove all y ticks and labels
+        ax.set_yticks([])
+        ax.set_ylabel("Profile likelihood", fontsize=10)
+        
+        # Remove grid + top/right spines
+        ax.grid(False)
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
-
-        # Nice headroom + labels on top of bars
-        ymax = float(np.nanmax(lik_sorted)) if len(lik_sorted) else 0.0
-        if ymax <= 0:
-            ymax = 10.0
-        ax.set_ylim(0, ymax * 1.15)
-        offset = max(ymax * 0.02, 0.4)
-
-        for xi, p in zip(x, lik_sorted):
-            ax.text(
-                xi, p + offset, f"{p:.0f}%",
-                ha="center", va="bottom",
-                fontsize=8, color="#111"
-            )
-
+        
         plt.tight_layout()
         st.pyplot(fig, use_container_width=True)
 
