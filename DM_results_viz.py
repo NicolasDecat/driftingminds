@@ -85,7 +85,7 @@ st.markdown(
 PURPLE_HEX = "#7C3AED"   # plots/polygons
 PURPLE_NAME = "#7A5CFA"  # profile name
 CAP_MIN = 60.0           # sleep latency cap (minutes)
-ASSETS_CSV = os.path.join("assets", "N1000_comparative_viz_ready.csv")
+ASSETS_CSV = os.path.join("assets", "N1400_comparative_viz_ready.csv")
 
 
 # ==============
@@ -1987,7 +1987,7 @@ with left_note:
             <strong>Immersive</strong>: how deeply absorbed you are in your mental content. 
             <strong>Spontaneous</strong>: how much the content comes to you on its own, without deliberate control. 
             <strong>Emotional</strong>: how strongly you felt emotions.<br>
-            <span style="font-size:0.6rem; margin-right:6px;">⚫️</span>= "world average”: represents the average scores from 1,000 people worldwide.
+            <span style="font-size:0.6rem; margin-right:6px;">⚫️</span>= "world average”: represents the average scores from 1,400 people worldwide.
           </p>
         </div>
         """,
@@ -2448,7 +2448,7 @@ st.markdown(
         line-height:1.45;
     ">
       <em>
-        Grey info ("world”) represents data from 1,000 people worldwide.<br>
+        Grey info ("world”) represents data from 1,400 people worldwide.<br>
         Left graph: Vividness of visual imagery when awake (VVIQ score).  Middle and right: self-rated creativity and anxiety over the past year.
       </em>
     </div>
@@ -3427,7 +3427,7 @@ st.markdown(
 
 
 # ==============
-# Profile distribution across the N=1000 population
+# Profile distribution across the N=1400 population
 # ==============
 st.markdown("<div style='height:120px;'></div>", unsafe_allow_html=True)
 
