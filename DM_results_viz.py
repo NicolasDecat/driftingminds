@@ -887,12 +887,13 @@ else:
 # =====================================================
 # Language detection
 # =====================================================
-if record.get("questionnaire_fr_complete") in ("2", 2):
+if q_fr in ("2", 2):
     LANG = "fr"
-elif record.get("questionnaire_en_complete") in ("2", 2):
+elif q_sp in ("2", 2):
     LANG = "es"     # Spanish version uses _en suffix → language = ES
 else:
     LANG = "en"
+
 
 
 # =====================================================
