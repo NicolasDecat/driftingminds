@@ -884,6 +884,156 @@ else:
     pass
 
 
+# =====================================================
+# Language detection
+# =====================================================
+if record.get("questionnaire_fr_complete") in ("2", 2):
+    LANG = "fr"
+elif record.get("questionnaire_en_complete") in ("2", 2):
+    LANG = "es"     # Spanish version uses _en suffix → language = ES
+else:
+    LANG = "en"
+
+
+# =====================================================
+# Translation dictionary
+# =====================================================
+TEXT = {
+    # -----------------------
+    # SECTION HEADERS
+    # -----------------------
+    "DRIFTING MINDS STUDY": {
+        "en": "DRIFTING MINDS STUDY",
+        "fr": "ÉTUDE DRIFTING MINDS",
+        "es": "ESTUDIO DRIFTING MINDS",
+    },
+    "YOU": {
+        "en": "YOU",
+        "fr": "VOUS",
+        "es": "TÚ",
+    },
+    "YOUR SLEEP": {
+        "en": "YOUR SLEEP",
+        "fr": "VOTRE SOMMEIL",
+        "es": "TU SUEÑO",
+    },
+    "YOUR EXPERIENCE": {
+        "en": "YOUR EXPERIENCE",
+        "fr": "VOTRE EXPÉRIENCE",
+        "es": "TU EXPERIENCIA",
+    },
+    "Dynamics of your experience": {
+        "en": "Dynamics of your experience",
+        "fr": "Dynamique de votre expérience",
+        "es": "Dinámica de tu experiencia",
+    },
+    "Intensity of your experience": {
+        "en": "Intensity of your experience",
+        "fr": "Intensité de votre expérience",
+        "es": "Intensidad de tu experiencia",
+    },
+
+    # -----------------------
+    # AXIS LABELS
+    # -----------------------
+    "hours": {"en": "hours", "fr": "heures", "es": "horas"},
+    "minutes": {"en": "minutes", "fr": "minutes", "es": "minutos"},
+    "low": {"en": "low", "fr": "faible", "es": "bajo"},
+    "high": {"en": "high", "fr": "élevé", "es": "alto"},
+    "Matching strength": {
+        "en": "Matching strength",
+        "fr": "Niveau de correspondance",
+        "es": "Nivel de correspondencia",
+    },
+
+    # -----------------------
+    # PROFILE HEADER
+    # -----------------------
+    "You drift into sleep like a": {
+        "en": "You drift into sleep like a",
+        "fr": "Vous glissez dans le sommeil comme un·e",
+        "es": "Te deslizas hacia el sueño como un·a",
+    },
+
+    # -----------------------
+    # POPULATION STATS LINE
+    # -----------------------
+    "{name}s represent {perc}% of the population.": {
+        "en": "{name}s represent {perc}% of the population.",
+        "fr": "{name} représente {perc}% de la population.",
+        "es": "{name} representa el {perc}% de la población.",
+    },
+
+    # -----------------------
+    # RADAR LABELS
+    # -----------------------
+    "vivid": {"en": "vivid", "fr": "vive", "es": "vívida"},
+    "immersive": {"en": "immersive", "fr": "immersive", "es": "inmersiva"},
+    "bizarre": {"en": "bizarre", "fr": "bizarre", "es": "extraña"},
+    "spontaneous": {"en": "spontaneous", "fr": "spontanée", "es": "espontánea"},
+    "fleeting": {"en": "fleeting", "fr": "fugace", "es": "fugaz"},
+    "positive\nemotions": {
+        "en": "positive\nemotions",
+        "fr": "émotions\npositives",
+        "es": "emociones\npositivas",
+    },
+    "sleepy": {"en": "sleepy", "fr": "somnolent·e", "es": "adormilado·a"},
+
+    # -----------------------
+    # HISTOGRAM TITLES
+    # -----------------------
+    "Your visual imagery at wake: {val}": {
+        "en": "Your visual imagery at wake: {val}",
+        "fr": "Votre imagerie visuelle à l’éveil : {val}",
+        "es": "Tu imaginación visual al despertar: {val}",
+    },
+    "Your self-rated creativity: {val}": {
+        "en": "Your self-rated creativity: {val}",
+        "fr": "Votre créativité auto-évaluée : {val}",
+        "es": "Tu creatividad autoevaluada: {val}",
+    },
+    "Your self-rated anxiety: {val}": {
+        "en": "Your self-rated anxiety: {val}",
+        "fr": "Votre anxiété auto-évaluée : {val}",
+        "es": "Tu ansiedad autoevaluada: {val}",
+    },
+
+    # -----------------------
+    # INFO / ERROR MESSAGES
+    # -----------------------
+    "Population data for creativity unavailable.": {
+        "en": "Population data for creativity unavailable.",
+        "fr": "Les données de population pour la créativité ne sont pas disponibles.",
+        "es": "Los datos de población sobre creatividad no están disponibles.",
+    },
+    "Population data for anxiety unavailable.": {
+        "en": "Population data for anxiety unavailable.",
+        "fr": "Les données de population pour l’anxiété ne sont pas disponibles.",
+        "es": "Los datos de población sobre ansiedad no están disponibles.",
+    },
+    "Population data unavailable.": {
+        "en": "Population data unavailable.",
+        "fr": "Les données de population ne sont pas disponibles.",
+        "es": "Los datos de población no están disponibles.",
+    },
+    "Could not compute profile likelihoods for this record.": {
+        "en": "Could not compute profile likelihoods for this record.",
+        "fr": "Impossible de calculer les probabilités de profil pour ce participant.",
+        "es": "No se pudieron calcular las probabilidades de perfil para este participante.",
+    },
+}
+
+
+# =====================================================
+# translation function
+# =====================================================
+def tr(key, **kwargs):
+    """Translate a display string into the participant's language."""
+    entry = TEXT.get(key)
+    if entry is None:
+        return key.format(**kwargs) if kwargs else key
+    text = entry.get(LANG, entry.get("en", key))
+    return text.format(**kwargs) if kwargs else text
 
 
 
@@ -1602,7 +1752,7 @@ def _data_uri(path: str) -> str:
 # Title
 st.markdown("""
 <div class="dm-center">
-  <div class="dm-title">DRIFTING MINDS STUDY</div>
+    <div class="dm-title">{tr("DRIFTING MINDS STUDY")}</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -2287,7 +2437,7 @@ st.markdown(
     <div class="dm-center" style="max-width:960px; margin:18px auto 10px;">
       <div style="display:flex; align-items:center; gap:18px;">
         <div style="height:1px; background:#000; flex:1;"></div>
-        <div style="flex:0; font-weight:600; font-size:1.35rem; letter-spacing:0.2px;">YOU</div>
+        <div class="dm-section-title">{tr("YOU")}</div>
         <div style="height:1px; background:#000; flex:1;"></div>
       </div>
     </div>
@@ -2526,9 +2676,7 @@ st.markdown(
     <div class="dm-center" style="max-width:1020px; margin:28px auto 16px;">
       <div style="display:flex; align-items:center; gap:20px;">
         <div style="height:1px; background:#000; flex:0.5;"></div>
-        <div style="flex:0; font-weight: 600; font-size:1.35rem; letter-spacing:0.2px; white-space:nowrap;">
-          YOUR SLEEP
-        </div>
+        <div class="dm-section-title">{tr("YOUR SLEEP")}</div>
         <div style="height:1px; background:#000; flex:0.5;"></div>
       </div>
     </div>
@@ -2937,9 +3085,7 @@ st.markdown(
     <div class="dm-center" style="max-width:1020px; margin:28px auto 32px;">
       <div style="display:flex; align-items:center; gap:24px;">
         <div style="height:1px; background:#000; flex:1;"></div>
-        <div style="flex:0; font-weight:600; font-size:1.35rem; letter-spacing:0.2px; white-space:nowrap;">
-          YOUR EXPERIENCE
-        </div>
+        <div class="dm-section-title">{tr("YOUR EXPERIENCE")}</div>
         <div style="height:1px; background:#000; flex:1;"></div>
       </div>
     </div>
