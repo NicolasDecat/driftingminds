@@ -837,11 +837,6 @@ _dm_register_fonts()
 # Language-based normalization of questionnaire columns
 # =====================================================
 
-# Detect which version was completed
-is_en = record.get("questionnaire_complete") == 2
-is_fr = record.get("questionnaire_fr_complete") == 2
-is_es = record.get("questionnaire_es_complete") == 2
-
 # Copy once so we can safely modify
 record = dict(record)
 
@@ -861,18 +856,33 @@ def _strip_suffix(rec, suffix):
     return new_rec
 
 
-# Apply rules
-if is_fr:
+# --- Original completion flags (keep them, but don't rely solely on them) ---
+is_en_flag = record.get("questionnaire_complete") == 2
+is_fr_flag = record.get("questionnaire_fr_complete") == 2
+is_es_flag = record.get("questionnaire_es_complete") == 2
+
+# --- ALSO infer language from actual field names -----------------------------
+has_fr = any(k.endswith("_fr") for k in record.keys())
+has_es = any(k.endswith("_es") for k in record.keys())
+has_en = any(k.endswith("_en") for k in record.keys())
+
+# Priority:
+# 1) if an explicit *_complete flag says FR/ES, trust it
+# 2) otherwise, fall back to “do I see *_fr / *_es fields?”
+# 3) else assume EN (and strip _en if present)
+if is_fr_flag or (not is_en_flag and has_fr and not has_es):
+    # French
     record = _strip_suffix(record, "_fr")
 
-elif is_es:
+elif is_es_flag or (not is_en_flag and has_es):
+    # Spanish
     record = _strip_suffix(record, "_es")
 
 else:
     # English or fallback: keep as is, but normalise by removing _en if it exists
-    # (optional but keeps things clean)
-    if any(k.endswith("_en") for k in record):
+    if has_en:
         record = _strip_suffix(record, "_en")
+
 
 
 
