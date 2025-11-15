@@ -2523,8 +2523,16 @@ with c2:
     else:
         fig, ax = plt.subplots(figsize=FIGSIZE_STANDARD)
         fig.patch.set_alpha(0); ax.set_facecolor("none")
-        _mini_hist(ax, cre_counts, cre_edges, cre_hidx,
-           f"Your self-rated creativity: {int(round(cre_part))}")
+
+        # build a safe title
+        if np.isfinite(cre_part):
+            cre_label_val = int(round(cre_part))
+            cre_title = f"Your self-rated creativity: {cre_label_val}"
+        else:
+            cre_title = "Your self-rated creativity: n/a"
+
+        _mini_hist(ax, cre_counts, cre_edges, cre_hidx, cre_title)
+
         # Replace default x-labels
         ax.text(0.0, -0.05, "low (1)",  transform=ax.transAxes,
                 ha="left", va="top", fontsize=7.5)
@@ -2540,16 +2548,23 @@ with c3:
     else:
         fig, ax = plt.subplots(figsize=FIGSIZE_STANDARD)
         fig.patch.set_alpha(0); ax.set_facecolor("none")
-        
-        _mini_hist(ax, anx_counts, anx_edges, anx_hidx,
-           f"Your self-rated anxiety: {int(round(anx_part))}")
+
+        if np.isfinite(anx_part):
+            anx_label_val = int(round(anx_part))
+            anx_title = f"Your self-rated anxiety: {anx_label_val}"
+        else:
+            anx_title = "Your self-rated anxiety: n/a"
+
+        _mini_hist(ax, anx_counts, anx_edges, anx_hidx, anx_title)
+
         # Replace default x-labels
         ax.text(0.0, -0.05, "low (1)",  transform=ax.transAxes,
                 ha="left", va="top", fontsize=7.5)
         ax.text(1.0, -0.05, "high (100)", transform=ax.transAxes,
                 ha="right", va="top", fontsize=7.5)
-        ax.set_position(AX_POS_YOU)  # ← lock baseline
+        ax.set_position(AX_POS_YOU)
         st.pyplot(fig, use_container_width=False)
+
 
 # --- Explanatory note below the three histograms ----------------------------
 st.markdown(
