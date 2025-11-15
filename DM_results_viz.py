@@ -837,51 +837,51 @@ _dm_register_fonts()
 # Language-based normalization of questionnaire columns
 # =====================================================
 
-# Copy once so we can safely modify
+# Make a local mutable copy
 record = dict(record)
 
-def _strip_suffix(rec, suffix):
-    """Return a NEW record with only columns ending in the suffix,
-       but the suffix removed from their names."""
+# Detect which questionnaire version was completed
+q_base = record.get("questionnaire_complete")
+q_fr   = record.get("questionnaire_fr_complete")
+q_sp   = record.get("questionnaire_en_complete")   # Spanish version
+
+def _strip_suffix_keep_first(rec, suffix, n_keep=5):
+    """
+    Keep the first n_keep columns as-is, and for all other columns
+    that end with the given suffix, remove the suffix.
+
+    Example:
+      freq_mindwandering_fr -> freq_mindwandering
+    """
     new_rec = {}
-    # keep the first 5 cols EXACTLY as you asked
-    essential_keys = list(rec.keys())[:5]
-    for k in essential_keys:
+
+    # Keep the first n_keep keys exactly as they are
+    keys = list(rec.keys())
+    for k in keys[:n_keep]:
         new_rec[k] = rec[k]
 
+    # Add all suffixed questionnaire variables with suffix removed
     for k, v in rec.items():
         if k.endswith(suffix):
-            base = k[: -len(suffix)]
+            base = k[:-len(suffix)]
             new_rec[base] = v
+
     return new_rec
 
+# Apply your rules:
+# - If questionnaire_complete = 2 → English, keep as is
+# - If questionnaire_fr_complete = 2 → keep first 5 cols + *_fr → strip _fr
+# - If questionnaire_en_complete = 2 → keep first 5 cols + *_en → strip _en
+if q_fr == "2" or q_fr == 2:
+    record = _strip_suffix_keep_first(record, "_fr")
 
-# --- Original completion flags (keep them, but don't rely solely on them) ---
-is_en_flag = record.get("questionnaire_complete") == 2
-is_fr_flag = record.get("questionnaire_fr_complete") == 2
-is_es_flag = record.get("questionnaire_es_complete") == 2
-
-# --- ALSO infer language from actual field names -----------------------------
-has_fr = any(k.endswith("_fr") for k in record.keys())
-has_es = any(k.endswith("_es") for k in record.keys())
-has_en = any(k.endswith("_en") for k in record.keys())
-
-# Priority:
-# 1) if an explicit *_complete flag says FR/ES, trust it
-# 2) otherwise, fall back to “do I see *_fr / *_es fields?”
-# 3) else assume EN (and strip _en if present)
-if is_fr_flag or (not is_en_flag and has_fr and not has_es):
-    # French
-    record = _strip_suffix(record, "_fr")
-
-elif is_es_flag or (not is_en_flag and has_es):
-    # Spanish
-    record = _strip_suffix(record, "_es")
+elif q_sp == "2" or q_sp == 2:
+    record = _strip_suffix_keep_first(record, "_en")
 
 else:
-    # English or fallback: keep as is, but normalise by removing _en if it exists
-    if has_en:
-        record = _strip_suffix(record, "_en")
+    # Default: original English version (questionnaire_complete = 2)
+    # do nothing, keep the original column names
+    pass
 
 
 
