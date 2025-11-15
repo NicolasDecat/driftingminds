@@ -847,26 +847,23 @@ q_sp   = record.get("questionnaire_en_complete")   # Spanish version
 
 def _strip_suffix_keep_first(rec, suffix, n_keep=5):
     """
-    Keep the first n_keep columns as-is, and for all other columns
-    that end with the given suffix, remove the suffix.
+    Keep ALL original keys, and for any key ending with `suffix`,
+    also add a copy without the suffix.
 
     Example:
       freq_mindwandering_fr -> freq_mindwandering
     """
-    new_rec = {}
+    new_rec = dict(rec)  # start from a full copy of the record
 
-    # Keep the first n_keep keys exactly as they are
-    keys = list(rec.keys())
-    for k in keys[:n_keep]:
-        new_rec[k] = rec[k]
-
-    # Add all suffixed questionnaire variables with suffix removed
     for k, v in rec.items():
         if k.endswith(suffix):
             base = k[:-len(suffix)]
-            new_rec[base] = v
+            # don't overwrite if base already exists (e.g., English original)
+            if base not in new_rec:
+                new_rec[base] = v
 
     return new_rec
+
 
 # Apply your rules:
 # - If questionnaire_complete = 2 → English, keep as is
