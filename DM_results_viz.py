@@ -1750,11 +1750,12 @@ def _data_uri(path: str) -> str:
     return f"data:{mime};base64,{b64}"
 
 # Title
-st.markdown("""
+st.markdown(f"""
 <div class="dm-center">
     <div class="dm-title">{tr("DRIFTING MINDS STUDY")}</div>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 # Assign profile + get text/icon
@@ -1782,23 +1783,32 @@ POP_PERC = {
 }
 
 perc_val = POP_PERC.get(prof_name, 0)
-prof_desc_ext = f"""{prof_desc}<br><span style='display:block; margin-top:2px; font-size:1rem; color:#222;'>
-{prof_name}s represent {perc_val}% of the population.</span>"""
+lead_txt = tr("You drift into sleep like a")
+pop_line = tr("{name}s represent {perc}% of the population.",
+              name=prof_name, perc=perc_val)
+
+prof_desc_ext = (
+    f"{prof_desc}<br>"
+    f"<span style='display:block; margin-top:2px; font-size:1rem; color:#222;'>"
+    f"{pop_line}</span>"
+)
 
 # --- Render profile header ---
 icon_src = _data_uri(icon_path) if has_icon else ""
+
 st.markdown(f"""
 <div class="dm-center">
   <div class="dm-row">
     {'<img class="dm-icon" src="'+icon_src+'" alt="profile icon"/>' if has_icon else ''}
     <div class="dm-text">
-      <p class="dm-lead">You drift into sleep like a</p>
+      <p class="dm-lead">{lead_txt}</p>
       <div class="dm-key">{prof_name}</div>
       <p class="dm-desc">{prof_desc_ext}</p>
     </div>
   </div>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 # ==============
@@ -2433,7 +2443,7 @@ st.markdown('<div class="dm-spacer-you"></div>', unsafe_allow_html=True)
 
 # --- Centered title for "You" (thinner black line) -----------------
 st.markdown(
-    """
+    f"""
     <div class="dm-center" style="max-width:960px; margin:18px auto 10px;">
       <div style="display:flex; align-items:center; gap:18px;">
         <div style="height:1px; background:#000; flex:1;"></div>
@@ -2444,6 +2454,7 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
 
 
 # --- Color setup -------------------------------------------------------------
@@ -2672,7 +2683,7 @@ st.markdown('<div class="dm-spacer-sleep"></div>', unsafe_allow_html=True)
 
 # --- Centered title for "Your sleep" (thinner black line, one line text) -----
 st.markdown(
-    """
+    f"""
     <div class="dm-center" style="max-width:1020px; margin:28px auto 16px;">
       <div style="display:flex; align-items:center; gap:20px;">
         <div style="height:1px; background:#000; flex:0.5;"></div>
@@ -2683,6 +2694,7 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
 
 
 # --- Three-column layout -----------------------------------------------------
@@ -3081,7 +3093,7 @@ st.markdown('<div class="dm-spacer-exp"></div>', unsafe_allow_html=True)
 # Your experience — Section header + 3-column layout (image left, radar middle)
 # ==============
 st.markdown(
-    """
+    f"""
     <div class="dm-center" style="max-width:1020px; margin:28px auto 32px;">
       <div style="display:flex; align-items:center; gap:24px;">
         <div style="height:1px; background:#000; flex:1;"></div>
@@ -3092,6 +3104,7 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
 
 
 # 3-column scaffold
