@@ -2415,8 +2415,18 @@ except NameError:
         "quest_c1","quest_c2","quest_c3","quest_c4",
         "quest_d1","quest_d2","quest_d3","quest_d4"
     ]
-    vviq_vals  = [float(record.get(k, np.nan)) if pd.notna(record.get(k, np.nan)) else np.nan for k in VVIQ_FIELDS]
-    vviq_score = sum(v for v in vviq_vals if np.isfinite(v))
+    vviq_vals = []
+    for k in VVIQ_FIELDS:
+        raw = record.get(k, np.nan)
+        v = _to_float(raw)   # <- tolerant to "NA", "", "  ", etc.
+        vviq_vals.append(v)
+
+    # sum only finite values
+    vviq_score = float(np.nansum(vviq_vals))
+    
+    if not np.isfinite(vviq_score):
+        vviq_score = np.nan
+
 
 N = 8000; mu, sigma = 61.0, 9.2; low, high = 30, 80
 a, b = (low - mu) / sigma, (high - mu) / sigma
