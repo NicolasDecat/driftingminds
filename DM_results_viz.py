@@ -32,6 +32,159 @@ REDCAP_API_TOKEN = st.secrets.get("REDCAP_API_TOKEN")
 # Shareable png starts now
 st.markdown('<div id="dm-share-card">', unsafe_allow_html=True)
 
+# ==============
+# Data access
+# ==============
+def fetch_by_record_id(record_id: str):
+    """Fetch a single REDCap record as dict."""
+    payload = {
+        "token": REDCAP_API_TOKEN,
+        "content": "record",
+        "format": "json",
+        "type": "flat",
+        "records[0]": record_id,
+        "rawOrLabel": "raw",
+        "rawOrLabelHeaders": "raw",
+        "exportSurveyFields": "true",
+        "exportDataAccessGroups": "false",
+    }
+    try:
+        with st.spinner("Fetching your responses…"):
+            r = requests.post(REDCAP_API_URL, data=payload, timeout=10)
+        r.raise_for_status()
+        data = r.json()
+        return data[0] if data else None
+    except requests.Timeout:
+        st.error("REDCap API request timed out. The server might be behind a firewall/VPN.")
+    except Exception as e:
+        st.exception(e)
+    return None
+
+# ==============
+# Query param → record
+# ==============
+record = None
+record_id = st.query_params.get("id")
+if record_id:
+    record = fetch_by_record_id(record_id)
+if not record:
+    st.error("We couldn’t find your responses.")
+    st.stop()
+    
+# Export helpers
+from matplotlib import font_manager as _fm
+
+def _dm_register_fonts():
+    candidates = [
+        ("Inter Regular", "assets/Inter-Regular.ttf"),
+        ("Inter Medium",  "assets/Inter-Medium.ttf"),
+        ("Inter Bold",    "assets/Inter-Bold.ttf"),
+    ]
+    for _, path in candidates:
+        try:
+            _fm.fontManager.addfont(path)
+        except Exception:
+            pass
+_dm_register_fonts()
+
+
+# ==============
+# Language
+# ==============
+
+LANGUAGE_MAP = {1: "en", 2: "fr", 3: "es"}
+
+def _get_lang_code_from_record(rec):
+    """
+    Map REDCap 'language' field (1=en, 2=fr, 3=es) to a short code.
+    Safe to call even if field is missing or malformed.
+    """
+    raw = rec.get("language", 1)
+    try:
+        if isinstance(raw, str):
+            raw_int = int(raw.strip())
+        else:
+            raw_int = int(raw)
+    except Exception:
+        raw_int = 1
+    return LANGUAGE_MAP.get(raw_int, "en")
+
+# Global language code used everywhere below
+LANG_CODE = _get_lang_code_from_record(record)
+
+# Prefixes of variables that exist in different language versions
+LANG_AWARE_PREFIXES = ("freq_", "timequest_", "degreequest_", "anytime_", "quest_")
+
+def _resolve_lang_key(key: str) -> str:
+    """
+    Return the actual field name in `record` taking language and suffix into account.
+
+    Rules:
+      - If `key` already exists in record → use it as is.
+      - For questionnaire variables (freq_/timequest_/degreequest_/anytime_/quest_):
+          * if LANG_CODE == 'fr' → prefer `<base>_fr`, then `<base>_en`, then `<base>`
+          * if LANG_CODE == 'es' → prefer `<base>_en`, then `<base>_fr`, then `<base>`
+          * else (English/other) → prefer `<base>_en`, then `<base>_fr`, then `<base>`
+      - Non questionnaire keys are left untouched.
+    """
+    # If the exact key exists, keep it
+    if key in record:
+        return key
+
+    base = key
+
+    # If it's not a questionnaire variable, don't try to add suffixes
+    if not base.startswith(LANG_AWARE_PREFIXES):
+        return base
+
+    # If key already came with a suffix, also try without it
+    m = re.match(r"^(.*)_(en|fr|es)$", base)
+    if m:
+        base_no = m.group(1)
+        if base_no in record:
+            return base_no
+        base = base_no
+
+    candidates = []
+    if LANG_CODE == "fr":
+        # French participants: all relevant fields end with _fr
+        candidates += [base + "_fr", base + "_en"]
+    elif LANG_CODE == "es":
+        # Spanish participants: all relevant fields end with _en (your rule)
+        candidates += [base + "_en", base + "_fr"]
+    else:
+        # English / default: try _en then _fr then bare
+        candidates += [base + "_en", base + "_fr"]
+
+    candidates.append(base)  # final fallback
+
+    for c in candidates:
+        if c in record:
+            return c
+
+    # Nothing found; caller will just get None from record.get()
+    return key
+
+
+def _get_lang(record, var):
+    """
+    Returns the value of a variable based on the participant's language.
+    Example: var="freq_mindwandering" → returns record["freq_mindwandering_fr"] if LANG_CODE=fr.
+    Falls back gracefully if field missing.
+    """
+    lang_var = f"{var}{LANG_SUFFIX}"
+    if lang_var in record:
+        return record.get(lang_var)
+
+    # fallback: try English
+    fallback = f"{var}_en"
+    if fallback in record:
+        return record.get(fallback)
+
+    # final fallback: try the raw variable name
+    return record.get(var)
+
+
 
 # ==============
 # QR code
@@ -778,60 +931,7 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stAppViewContainer
 """, unsafe_allow_html=True)
 
 
-# ==============
-# Data access
-# ==============
-def fetch_by_record_id(record_id: str):
-    """Fetch a single REDCap record as dict."""
-    payload = {
-        "token": REDCAP_API_TOKEN,
-        "content": "record",
-        "format": "json",
-        "type": "flat",
-        "records[0]": record_id,
-        "rawOrLabel": "raw",
-        "rawOrLabelHeaders": "raw",
-        "exportSurveyFields": "true",
-        "exportDataAccessGroups": "false",
-    }
-    try:
-        with st.spinner("Fetching your responses…"):
-            r = requests.post(REDCAP_API_URL, data=payload, timeout=10)
-        r.raise_for_status()
-        data = r.json()
-        return data[0] if data else None
-    except requests.Timeout:
-        st.error("REDCap API request timed out. The server might be behind a firewall/VPN.")
-    except Exception as e:
-        st.exception(e)
-    return None
 
-# ==============
-# Query param → record
-# ==============
-record = None
-record_id = st.query_params.get("id")
-if record_id:
-    record = fetch_by_record_id(record_id)
-if not record:
-    st.error("We couldn’t find your responses.")
-    st.stop()
-    
-# Export helpers
-from matplotlib import font_manager as _fm
-
-def _dm_register_fonts():
-    candidates = [
-        ("Inter Regular", "assets/Inter-Regular.ttf"),
-        ("Inter Medium",  "assets/Inter-Medium.ttf"),
-        ("Inter Bold",    "assets/Inter-Bold.ttf"),
-    ]
-    for _, path in candidates:
-        try:
-            _fm.fontManager.addfont(path)
-        except Exception:
-            pass
-_dm_register_fonts()
 
 
 # ==============
@@ -1193,13 +1293,15 @@ PROFILES = {
 # Dimensions & composite scores
 # ==============
 def _get_first(record, keys):
-    """Return the first present, non-empty value for any of the candidate keys."""
+    """Return the first present, non-empty value for any of the candidate keys (language-aware)."""
     if isinstance(keys, (list, tuple)):
         for k in keys:
-            if k in record and record[k] not in (None, "", "NA"):
-                return record[k]
+            real_k = _resolve_lang_key(k)
+            if real_k in record and record[real_k] not in (None, "", "NA"):
+                return record[real_k]
         return np.nan
-    return record.get(keys, np.nan)
+    real_k = _resolve_lang_key(keys)
+    return record.get(real_k, np.nan)
 
 # === Conditional helpers ======================================================
 def _eval_condition(record, cond: dict) -> bool:
@@ -1651,7 +1753,10 @@ DIM_BAR_CONFIG = {
     },
 }
 
-def _get(record, key, default=np.nan): return record.get(key, default)
+def _get(record, key, default=np.nan):
+    """Language-aware getter for questionnaire variables."""
+    real_k = _resolve_lang_key(key)
+    return record.get(real_k, default)
 
 def _norm16(x):
     try: v = float(x)
@@ -2950,7 +3055,7 @@ def _as_float_or_nan(x):
         return np.nan
 
 # Pull values from current participant record (1..6 scale expected)
-vals = [_as_float_or_nan(record.get(k)) for k, _ in FIELDS]
+vals = [_as_float_or_nan(_get(record, k)) for k, _ in FIELDS]
 labels = [lab for _, lab in FIELDS]
 
 # If all missing, default to zeros so the chart still renders
@@ -3085,8 +3190,8 @@ def _as_float(x):
         return np.nan
 
 # Pair time (1..100) with frequency (1..6) per concept, and keep only complete pairs
-freq_scores = {_core_name(v): _as_float(record.get(v, np.nan)) for v in FREQ_VARS}
-time_scores = {_core_name(v): _as_float(record.get(v, np.nan)) for v in TIME_VARS}
+freq_scores = {_core_name(v): _as_float(_get(record, v)) for v in FREQ_VARS}
+time_scores = {_core_name(v): _as_float(_get(record, v)) for v in TIME_VARS}
 common = [c for c in time_scores if c in freq_scores and not np.isnan(time_scores[c]) and not np.isnan(freq_scores[c])]
 
 # Build core tuples: (concept_key, time, freq, label)
