@@ -3680,7 +3680,7 @@ with col_right:
         # FIGURE: slightly less flat than before
         # ---------------------------------------------------------------------
         fig, (ax1, ax2) = plt.subplots(
-            nrows=2, ncols=1, figsize=(2.6, 2.4)  # was 2.6 → a bit taller
+            nrows=2, ncols=1, figsize=(2.6, 2.1)  # was 2.6 → a bit taller
         )
         fig.patch.set_alpha(0)
 
@@ -3724,7 +3724,7 @@ with col_right:
         else:
             chrono_title = tr("Chronotype")
         
-        ax1.set_title(chrono_title, fontsize=9.5, pad=7, color="#222222")
+        ax1.set_title(chrono_title, fontsize=8.5, pad=7, color="#222222")
 
 
         ax1.set_xticks(chrono_x)
@@ -3771,7 +3771,7 @@ with col_right:
 
         ax2.set_title(
             dr_title,
-            fontsize=9.5,      # slightly reduced
+            fontsize=8.5,      # slightly reduced
             pad=7,
             color="#222222",
         )
