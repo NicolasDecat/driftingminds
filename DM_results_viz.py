@@ -962,8 +962,8 @@ TEXT = {
     },
 
     # --------------------
-# Profile names
-# --------------------
+    # Profile names
+    # --------------------
      "PROFILE_Dreamweaver": {
             "en": "Dreamweaver",
             "fr": "Tisseur de rêves",
@@ -1132,6 +1132,46 @@ TEXT = {
    },
    "Negative": {"en": "Negative", "fr": "Négatif", "es": "Negativo"},
    "Positive": {"en": "Positive", "fr": "Positif", "es": "Positivo"},
+   
+   # -----------------------
+   # Notes bars
+   # -----------------------
+    "EXPERIENCE_DIM_NOTES_HTML": {
+     "en": (
+         '<strong>Vivid</strong>: brightness or contrast of your imagery, '
+         'or the loudness of what you hear. '
+         '<strong>Bizarre</strong>: how unusual or unrealistic the content feels. '
+         '<strong>Immersive</strong>: how deeply absorbed you are in your mental content. '
+         '<strong>Spontaneous</strong>: how much the content comes to you on its own, '
+         'without deliberate control. '
+         '<strong>Emotional</strong>: how strongly you felt emotions.<br>'
+         '<span style="font-size:0.6rem; margin-right:6px;">⚫️</span>'
+         '= world average: represents the average scores from 1,400 people worldwide.'
+     ),
+     "fr": (
+         '<strong>Vif</strong> : luminosité ou contraste de vos images mentales, '
+         'ou intensité de ce que vous entendez. '
+         '<strong>Bizarre</strong> : à quel point le contenu vous paraît inhabituel ou irréaliste. '
+         '<strong>Immersif</strong> : à quel point vous êtes absorbé·e par ce qui se passe dans votre esprit. '
+         '<strong>Spontané</strong> : à quel point le contenu vient tout seul, sans contrôle volontaire. '
+         '<strong>Émotionnel</strong> : à quel point vous avez ressenti des émotions.<br>'
+         '<span style="font-size:0.6rem; margin-right:6px;">⚫️</span>'
+         '= moyenne mondiale : correspond à la moyenne des scores de 1 400 personnes dans le monde.'
+     ),
+     "es": (
+         '<strong>Vívido</strong>: brillo o contraste de tus imágenes mentales, '
+         'o intensidad de lo que oyes. '
+         '<strong>Bizarro</strong>: cuán inusual o poco realista se siente el contenido. '
+         '<strong>Inmersivo</strong>: hasta qué punto estás profundamente absorbido/a '
+         'por tu contenido mental. '
+         '<strong>Espontáneo</strong>: hasta qué punto el contenido aparece por sí solo, '
+         'sin control deliberado. '
+         '<strong>Emocional</strong>: cuán intensamente sentiste emociones.<br>'
+         '<span style="font-size:0.6rem; margin-right:6px;">⚫️</span>'
+         '= media mundial: representa la media de las puntuaciones de 1.400 personas en todo el mundo.'
+     ),
+ },
+
 
    # -----------------------
    # YOUR SLEEP TITLES
@@ -2615,7 +2655,7 @@ left_note, right_btn = st.columns([7, 3], gap="small")
 
 with left_note:
     st.markdown(
-        """
+        f"""
         <div style="
             max-width:720px;
             margin:14px 0 0 0;
@@ -2626,17 +2666,13 @@ with left_note:
             line-height:1.2;
         ">
           <p style="margin:0;">
-            <strong>Vivid</strong>: brightness or contrast of your imagery, or the loudness of what you hear. 
-            <strong>Bizarre</strong>: how unusual or unrealistic the content feels. 
-            <strong>Immersive</strong>: how deeply absorbed you are in your mental content. 
-            <strong>Spontaneous</strong>: how much the content comes to you on its own, without deliberate control. 
-            <strong>Emotional</strong>: how strongly you felt emotions.<br>
-            <span style="font-size:0.6rem; margin-right:6px;">⚫️</span>= "world average”: represents the average scores from 1,400 people worldwide.
+            {tr("EXPERIENCE_DIM_NOTES_HTML")}
           </p>
         </div>
         """,
         unsafe_allow_html=True
     )
+
 
 
 with right_btn:
