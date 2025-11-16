@@ -1259,66 +1259,66 @@ TEXT = {
     # PROFILE NAMES (display)
     # -----------------------
     "Dreamweaver": {
-        "en": "Dreamweaver",
-        "fr": "Dreamweaver",
-        "es": "Dreamweaver",
+    "en": "Dreamweaver",
+    "fr": "Tisseur de rêves",
+    "es": "Tejedor de sueños",
     },
     "Quick Diver": {
         "en": "Quick Diver",
-        "fr": "Quick Diver",
-        "es": "Quick Diver",
+        "fr": "Plongeur rapide",
+        "es": "Buceador veloz",
     },
     "Fantasizer": {
         "en": "Fantasizer",
-        "fr": "Fantasizer",
-        "es": "Fantasizer",
+        "fr": "Fantasmeur",
+        "es": "Fantaseador",
     },
     "Archivist": {
         "en": "Archivist",
-        "fr": "Archivist",
-        "es": "Archivist",
+        "fr": "Archiviste",
+        "es": "Archivista",
     },
     "Worrier": {
         "en": "Worrier",
-        "fr": "Worrier",
-        "es": "Worrier",
+        "fr": "Inquiet",
+        "es": "Preocupado",
     },
     "Freewheeler": {
         "en": "Freewheeler",
-        "fr": "Freewheeler",
-        "es": "Freewheeler",
+        "fr": "Esprit libre",
+        "es": "Mente libre",
     },
     "Quiet Mind": {
         "en": "Quiet Mind",
-        "fr": "Quiet Mind",
-        "es": "Quiet Mind",
+        "fr": "Esprit calme",
+        "es": "Mente tranquila",
     },
     "Radio Tuner": {
         "en": "Radio Tuner",
-        "fr": "Radio Tuner",
-        "es": "Radio Tuner",
+        "fr": "Capteur d'ondes",
+        "es": "Sintonizador mental",
     },
     "Strategist": {
         "en": "Strategist",
-        "fr": "Strategist",
-        "es": "Strategist",
+        "fr": "Stratège",
+        "es": "Estratega",
     },
     "Sentinelle": {
         "en": "Sentinelle",
         "fr": "Sentinelle",
-        "es": "Sentinelle",
+        "es": "Centinela",
     },
     "Fragmented Mind": {
         "en": "Fragmented Mind",
-        "fr": "Fragmented Mind",
-        "es": "Fragmented Mind",
+        "fr": "Esprit fragmenté",
+        "es": "Mente fragmentada",
     },
     "Pragmatic": {
         "en": "Pragmatic",
-        "fr": "Pragmatic",
-        "es": "Pragmatic",
+        "fr": "Pragmatique",
+        "es": "Pragmático",
     },
-    
+        
     # -----------------------
     # PROFILE DESCRIPTIONS (display)
     # -----------------------
@@ -2447,13 +2447,14 @@ export_header_html = f"""
   <div class="dm-row">
     {export_icon_html}
     <div class="dm-text">
-      <p class="dm-lead">You drift into sleep like a</p>
-      <div class="dm-key">{prof_name}</div>
+      <p class="dm-lead">{lead_txt}</p>
+      <div class="dm-key">{prof_name_disp}</div>
       <p class="dm-desc">{prof_desc_ext or "&nbsp;"}</p>
     </div>
   </div>
 </div>
 """
+
 
 
 # Bars (same values you computed above)
