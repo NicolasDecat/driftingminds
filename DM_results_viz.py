@@ -3726,13 +3726,13 @@ with col_right:
         else:
             chrono_title = tr("Chronotype")
         
-        ax1.set_title(chrono_title, fontsize=14.5, pad=8, color="#222222")
+        ax1.set_title(chrono_title, fontsize=14.5, pad=7, color="#222222")
 
 
         ax1.set_xticks(chrono_x)
         ax1.set_xticklabels(
             [tr("morning"), tr("evening"), tr("no type")],
-            fontsize=8,
+            fontsize=13,
             rotation=0,
             ha="center",
         )
@@ -3773,7 +3773,7 @@ with col_right:
 
         ax2.set_title(
             dr_title,
-            fontsize=9.5,      # slightly reduced
+            fontsize=14.5,      # slightly reduced
             pad=7,
             color="#222222",
         )
@@ -3786,7 +3786,7 @@ with col_right:
                 tr("several/week"),
                 tr("every day"),
             ],
-            fontsize=8,
+            fontsize=13,
             rotation=18,
             ha="right",
         )
