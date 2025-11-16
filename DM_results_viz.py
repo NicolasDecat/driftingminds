@@ -1466,6 +1466,168 @@ TEXT = {
         "fr": "Vos pensées restent pratiques et ancrées dans le quotidien plutôt que de dériver vers le monde onirique.",
         "es": "Tus pensamientos se mantienen prácticos y anclados en lo cotidiano, en lugar de derivar hacia lo onírico.",
     },
+    
+    # -----------------------
+    # Timeline 
+    # -----------------------
+    "LBL_freq_think_ordinary": {
+        "en": "thinking logical thoughts",
+        "fr": "penser de façon logique",
+        "es": "pensar de forma lógica",
+    },
+    "LBL_freq_scenario": {
+        "en": "imagining scenarios",
+        "fr": "imaginer des scénarios",
+        "es": "imaginar escenarios",
+    },
+    "LBL_freq_negative": {
+        "en": "feeling negative",
+        "fr": "ressentir du négatif",
+        "es": "sentirse negativo",
+    },
+    "LBL_freq_absorbed": {
+        "en": "feeling absorbed",
+        "fr": "se sentir absorbé",
+        "es": "sentirse absorbido",
+    },
+    "LBL_freq_percept_fleeting": {
+        "en": "fleeting perceptions",
+        "fr": "perceptions fugaces",
+        "es": "percepciones fugaces",
+    },
+    "LBL_freq_think_bizarre": {
+        "en": "thinking strange things",
+        "fr": "penser des choses étranges",
+        "es": "pensar cosas extrañas",
+    },
+    "LBL_freq_planning": {
+        "en": "planning the day",
+        "fr": "planifier sa journée",
+        "es": "planificar el día",
+    },
+    "LBL_freq_spectator": {
+        "en": "feeling like a spectator",
+        "fr": "se sentir spectateur",
+        "es": "sentirse espectador",
+    },
+    "LBL_freq_ruminate": {
+        "en": "ruminating",
+        "fr": "ruminer",
+        "es": "rumiar",
+    },
+    "LBL_freq_percept_intense": {
+        "en": "intense perceptions",
+        "fr": "perceptions intenses",
+        "es": "percepciones intensas",
+    },
+    "LBL_freq_percept_narrative": {
+        "en": "narrative scenes",
+        "fr": "scènes narratives",
+        "es": "escenas narrativas",
+    },
+    "LBL_freq_percept_ordinary": {
+        "en": "ordinary perceptions",
+        "fr": "perceptions ordinaires",
+        "es": "percepciones ordinarias",
+    },
+    "LBL_freq_time_perc_fast": {
+        "en": "time feels fast",
+        "fr": "le temps semble rapide",
+        "es": "el tiempo parece ir rápido",
+    },
+    "LBL_freq_percept_vague": {
+        "en": "vague perceptions",
+        "fr": "perceptions vagues",
+        "es": "percepciones vagas",
+    },
+    "LBL_freq_replay": {
+        "en": "replaying the day",
+        "fr": "rejouer sa journée",
+        "es": "repasar el día",
+    },
+    "LBL_freq_percept_bizarre": {
+        "en": "strange perceptions",
+        "fr": "perceptions étranges",
+        "es": "percepciones extrañas",
+    },
+    "LBL_freq_emo_intense": {
+        "en": "feeling intense emotions",
+        "fr": "ressentir des émotions intenses",
+        "es": "sentir emociones intensas",
+    },
+    "LBL_freq_percept_continuous": {
+        "en": "continuous perceptions",
+        "fr": "perceptions continues",
+        "es": "percepciones continuas",
+    },
+    "LBL_freq_think_nocontrol": {
+        "en": "losing control of thoughts",
+        "fr": "perdre le contrôle de ses pensées",
+        "es": "perder el control de los pensamientos",
+    },
+    "LBL_freq_percept_dull": {
+        "en": "dull perceptions",
+        "fr": "perceptions ternes",
+        "es": "percepciones apagadas",
+    },
+    "LBL_freq_actor": {
+        "en": "acting in the scene",
+        "fr": "agir dans la scène",
+        "es": "actuar en la escena",
+    },
+    "LBL_freq_think_seq_bizarre": {
+        "en": "thinking illogical thoughts",
+        "fr": "penser de façon illogique",
+        "es": "pensar de forma ilógica",
+    },
+    "LBL_freq_percept_precise": {
+        "en": "precise perceptions",
+        "fr": "perceptions précises",
+        "es": "percepciones precisas",
+    },
+    "LBL_freq_percept_imposed": {
+        "en": "imposed perceptions",
+        "fr": "perceptions imposées",
+        "es": "percepciones impuestas",
+    },
+    "LBL_freq_hear_env": {
+        "en": "hearing my environment",
+        "fr": "entendre mon environnement",
+        "es": "oír mi entorno",
+    },
+    "LBL_freq_positive": {
+        "en": "feeling positive",
+        "fr": "se sentir positif",
+        "es": "sentirse positivo",
+    },
+    "LBL_freq_think_seq_ordinary": {
+        "en": "thinking logical thoughts",
+        "fr": "penser de façon logique",
+        "es": "pensar de forma lógica",
+    },
+    "LBL_freq_percept_real": {
+        "en": "perceptions feel real",
+        "fr": "les perceptions semblent réelles",
+        "es": "las percepciones parecen reales",
+    },
+    "LBL_freq_time_perc_slow": {
+        "en": "time feels slow",
+        "fr": "le temps semble lent",
+        "es": "el tiempo parece lento",
+    },
+    "LBL_freq_syn": {
+        "en": "experiencing synaesthesia",
+        "fr": "vivre une synesthésie",
+        "es": "experimentar sinestesia",
+    },
+    "LBL_freq_creat": {
+        "en": "feeling creative",
+        "fr": "se sentir créatif",
+        "es": "sentirse creativo",
+    },
+
+})
+
 
     # -----------------------
     # DISCLAIMER
@@ -3787,38 +3949,42 @@ with exp_mid:
 st.markdown("<div style='height:30px;'></div>", unsafe_allow_html=True)
 
 CUSTOM_LABELS = {
-    "freq_think_ordinary": "thinking logical thoughts",
-    "freq_scenario": "imagining scenarios",
-    "freq_negative": "feeling negative",
-    "freq_absorbed": "feeling absorbed",
-    "freq_percept_fleeting": "fleeting perceptions",
-    "freq_think_bizarre": "thinking strange things",
-    "freq_planning": "planning the day",
-    "freq_spectator": "feeling like a spectator",
-    "freq_ruminate": "ruminating",
-    "freq_percept_intense": "intense perceptions",
-    "freq_percept_narrative": "narrative scenes",
-    "freq_percept_ordinary": "ordinary perceptions",
-    "freq_time_perc_fast": "time feels fast",
-    "freq_percept_vague": "vague perceptions",
-    "freq_replay": "replaying the day",
-    "freq_percept_bizarre": "strange perceptions",
-    "freq_emo_intense": "feeling intense emotions",
-    "freq_percept_continuous": "continuous perceptions",
-    "freq_think_nocontrol": "losing control of thoughts",
-    "freq_percept_dull": "dull perceptions",
-    "freq_actor": "acting in the scene",
-    "freq_think_seq_bizarre": "thinking illogical thoughts",
-    "freq_percept_precise": "precise perceptions",
-    "freq_percept_imposed": "imposed perceptions",
-    "freq_hear_env": "hearing my environment",
-    "freq_positive": "feeling positive",
-    "freq_think_seq_ordinary": "thinking logical thoughts",
-    "freq_percept_real": "perceptions feel real",
-    "freq_time_perc_slow": "time feels slow",
-    "freq_syn": "experiencing synaesthesia",
-    "freq_creat": "feeling creative",
+    key: tr(f"LBL_{key}")
+    for key in [
+        "freq_think_ordinary",
+        "freq_scenario",
+        "freq_negative",
+        "freq_absorbed",
+        "freq_percept_fleeting",
+        "freq_think_bizarre",
+        "freq_planning",
+        "freq_spectator",
+        "freq_ruminate",
+        "freq_percept_intense",
+        "freq_percept_narrative",
+        "freq_percept_ordinary",
+        "freq_time_perc_fast",
+        "freq_percept_vague",
+        "freq_replay",
+        "freq_percept_bizarre",
+        "freq_emo_intense",
+        "freq_percept_continuous",
+        "freq_think_nocontrol",
+        "freq_percept_dull",
+        "freq_actor",
+        "freq_think_seq_bizarre",
+        "freq_percept_precise",
+        "freq_percept_imposed",
+        "freq_hear_env",
+        "freq_positive",
+        "freq_think_seq_ordinary",
+        "freq_percept_real",
+        "freq_time_perc_slow",
+        "freq_syn",
+        "freq_creat",
+    ]
 }
+
 FREQ_VARS = list(CUSTOM_LABELS.keys())
 TIME_VARS = [
     "timequest_scenario","timequest_positive","timequest_absorbed","timequest_percept_fleeting",
