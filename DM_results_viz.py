@@ -3680,7 +3680,7 @@ with col_right:
         # FIGURE: slightly less flat than before
         # ---------------------------------------------------------------------
         fig, (ax1, ax2) = plt.subplots(
-            nrows=2, ncols=1, figsize=(2.5, 2.8)  # was 2.6 → a bit taller
+            nrows=2, ncols=1, figsize=(2.6, 2.4)  # was 2.6 → a bit taller
         )
         fig.patch.set_alpha(0)
 
@@ -3794,7 +3794,7 @@ with col_right:
         # SPACING BETWEEN SUBPLOTS
         # ---------------------------------------------------------------------
         fig.subplots_adjust(
-            hspace=1.25,
+            hspace=1.15,
             left=0.20,
             right=0.98,
             bottom=0.18,
