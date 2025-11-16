@@ -3794,10 +3794,10 @@ with col_right:
         # SPACING BETWEEN SUBPLOTS
         # ---------------------------------------------------------------------
         fig.subplots_adjust(
-            hspace=1.25,
+            hspace=1.20,
             left=0.20,
             right=0.98,
-            bottom=0.18,
+            bottom=0.12,
             top=0.98,
         )
 
