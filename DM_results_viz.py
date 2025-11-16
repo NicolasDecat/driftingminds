@@ -3403,13 +3403,19 @@ st.markdown(
     <div class="dm-center" style="max-width:1020px; margin:28px auto 16px;">
       <div style="display:flex; align-items:center; gap:20px;">
         <div style="height:1px; background:#000; flex:0.5;"></div>
-        <div class="dm-section-title">{tr("YOUR SLEEP")}</div>
+
+        <!-- Bigger font size for this title -->
+        <div class="dm-section-title" style="font-size:28px; font-weight:600;">
+            {tr("YOUR SLEEP")}
+        </div>
+
         <div style="height:1px; background:#000; flex:0.5;"></div>
       </div>
     </div>
     """,
     unsafe_allow_html=True
 )
+
 
 
 
@@ -3819,13 +3825,19 @@ st.markdown(
     <div class="dm-center" style="max-width:1020px; margin:28px auto 32px;">
       <div style="display:flex; align-items:center; gap:24px;">
         <div style="height:1px; background:#000; flex:1;"></div>
-        <div class="dm-section-title">{tr("YOUR EXPERIENCE")}</div>
+
+        <!-- Bigger font size override -->
+        <div class="dm-section-title" style="font-size:28px; font-weight:600;">
+            {tr("YOUR EXPERIENCE")}
+        </div>
+
         <div style="height:1px; background:#000; flex:1;"></div>
       </div>
     </div>
     """,
     unsafe_allow_html=True
 )
+
 
 
 
