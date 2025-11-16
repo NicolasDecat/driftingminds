@@ -3680,7 +3680,9 @@ with col_right:
         # FIGURE: slightly less flat than before
         # ---------------------------------------------------------------------
         fig, (ax1, ax2) = plt.subplots(
-            nrows=2, ncols=1, figsize=(2.7, 2.8)  # was 2.6 → a bit taller
+        nrows=2,
+        ncols=1,
+        figsize=(3.2, 3.8)   # ← bigger width & height, same proportions
         )
         fig.patch.set_alpha(0)
 
