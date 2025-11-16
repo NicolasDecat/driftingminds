@@ -2133,9 +2133,17 @@ def compute_profile_distances(record):
     GAMMA   = 1.5   # >1 increases penalty steepness
 
     for name, cfg in PROFILES.items():
+        
+        # Apply must/veto filtering to match assign_profile_from_record
+        if any(not _eval_guard(record, r) for r in cfg.get("must", [])):
+            continue
+        if any(_eval_guard(record, r) for r in cfg.get("veto", [])):
+            continue
+        
         feats = cfg.get("features", [])
         if not feats:
             continue
+
 
         vals, targs, wts = [], [], []
         hits, eligible = 0, 0
