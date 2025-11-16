@@ -1105,6 +1105,12 @@ TEXT = {
        "fr": "monde",
        "es": "mundo",
    },
+   
+   "WORLD_AVERAGE_TAG": {
+        "en": "world average",
+        "fr": "moyenne mondiale",
+        "es": "promedio mundial",
+    },
 
    # -----------------------
    # DIMENSION BAR NAMES
@@ -2425,6 +2431,7 @@ def _clamp_pct(p, lo=2.0, hi=98.0):
     return max(lo, min(hi, p))
 
 min_fill = 2  # minimal % fill for aesthetic continuity
+world_tag = tr("WORLD_AVERAGE_TAG")   # ⟵ ajoute cette ligne une fois avant la boucle
 
 for b in bars:
     name = b["name"]
@@ -2462,7 +2469,9 @@ for b in bars:
     if is_perception and (med_left_clamped is not None):
         overlap = (score_txt != "NA" and abs(width_clamped - med_left_clamped) <= 6.0)
         mediantag_class = "dm2-mediantag below" if overlap else "dm2-mediantag"
-        mediantag_html = f"<div class='{mediantag_class}' style='left:{med_left_clamped}%;'>world average</div>"
+        mediantag_html = (
+            f"<div class='{mediantag_class}' style='left:{med_left_clamped}%;'>{world_tag}</div>"
+        )
 
     scoretag_html = "" if score_txt == "NA" else f"<div class='dm2-scoretag' style='left:{width_clamped}%;'>{score_txt}</div>"
 
@@ -2520,6 +2529,8 @@ export_header_html = f"""
 
 # Bars (same values you computed above)
 export_bars_html = ["<div class='dm2-outer'><div class='dm2-bars'>"]
+world_tag = tr("WORLD_AVERAGE_TAG")   # ⟵ ajoute ici aussi
+
 for b in bars:
     name = b["name"]; help_txt = b["help"]; score = b["score"]
     median = pop_medians.get(name, None)
@@ -2548,7 +2559,9 @@ for b in bars:
     if name.lower() in ("perception", "vivid") and (med_left_clamped is not None):
         overlap = (score_txt != "NA" and abs(width_clamped - med_left_clamped) <= 6.0)
         mediantag_class = "dm2-mediantag below" if overlap else "dm2-mediantag"
-        mediantag_html = f"<div class='{mediantag_class}' style='left:{med_left_clamped}%;'>world average</div>"
+        mediantag_html = (
+            f"<div class='{mediantag_class}' style='left:{med_left_clamped}%;'>{world_tag}</div>"
+        )
 
     scoretag_html = "" if score_txt == "NA" else f"<div class='dm2-scoretag' style='left:{width_clamped}%;'>{score_txt}</div>"
 
