@@ -3799,8 +3799,8 @@ with col_right:
             hspace=1.05,
             left=0.20,
             right=0.98,
-            bottom=0.18,
-            top=0.68,
+            bottom=0.28,
+            top=0.88,
         )
 
         st.pyplot(fig, use_container_width=False)
