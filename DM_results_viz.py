@@ -2123,64 +2123,59 @@ def assign_profile_from_record(record):
 def compute_profile_distances(record):
     """
     Compute the same AND-ish, weighted distance used in assign_profile_from_record,
-    but return a dict of distances for ALL profiles.
+    but return a dict of distances for ALL eligible profiles.
     """
     scores = {}
     dists = {}
 
     # Must match assign_profile_from_record
-    K_RATIO = 0.6   # need ~60% of eligible criteria to be met
-    GAMMA   = 1.5   # >1 increases penalty steepness
+    K_RATIO = 0.20
+    GAMMA   = 0.8
+    CAP     = 3.0
 
     for name, cfg in PROFILES.items():
-        
+        feats = cfg.get("features", [])
+        if not feats:
+            continue
+
         # Apply must/veto filtering to match assign_profile_from_record
         if any(not _eval_guard(record, r) for r in cfg.get("must", [])):
             continue
         if any(_eval_guard(record, r) for r in cfg.get("veto", [])):
             continue
-        
-        feats = cfg.get("features", [])
-        if not feats:
-            continue
-
 
         vals, targs, wts = [], [], []
         hits, eligible = 0, 0
         tmp_vals = []
 
-        # Collect values + targets + weights
         for f in feats:
             v   = _feature_value_from_record(record, scores, f)
             tgt = float(f.get("target", np.nan))
             wt  = float(f.get("weight", 1.0))
-
-            tmp_vals.append((f, v))
             vals.append(v)
             targs.append(tgt)
             wts.append(wt)
+            tmp_vals.append((f, v))
 
-        # Hit count (respecting only_if / AND-ish logic)
-        for f, v in tmp_vals:
+            # Same eligibility-aware hit logic
             h = _feature_hit(record, f, v)
-            if h is None:
-                continue
-            eligible += 1
-            hits     += h
+            if h is not None:
+                eligible += 1
+                hits += int(h)
 
-        # Raw distance
+        # Same distance as in assign_profile_from_record
         d = _weighted_nanaware_distance(vals, targs, wts)
 
-        # AND-ish penalty
         if eligible > 0:
-            K = max(1, int(np.ceil(K_RATIO * eligible)))
-            if hits < K:
-                penalty = ((K / max(hits, 1)) ** GAMMA)
-                d *= penalty
+            r = hits / float(eligible)
+            if r < K_RATIO:
+                penalty = (K_RATIO / max(r, 1e-6)) ** GAMMA
+                d *= min(penalty, CAP)
 
         dists[name] = d
 
     return dists
+
 
 
 
