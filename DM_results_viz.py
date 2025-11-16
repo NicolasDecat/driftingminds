@@ -3724,7 +3724,7 @@ with col_right:
         else:
             chrono_title = tr("Chronotype")
         
-        ax1.set_title(chrono_title, fontsize=9.5, pad=7, color="#222222")
+        ax1.set_title(chrono_title, fontsize=8.5, pad=7, color="#222222")
 
 
         ax1.set_xticks(chrono_x)
@@ -3771,7 +3771,7 @@ with col_right:
 
         ax2.set_title(
             dr_title,
-            fontsize=9.5,      # slightly reduced
+            fontsize=8.5,      # slightly reduced
             pad=7,
             color="#222222",
         )
