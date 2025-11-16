@@ -3411,7 +3411,7 @@ st.markdown(
 
 
 # --- Three-column layout -----------------------------------------------------
-col_left, col_mid, col_right = st.columns(3, gap="small")
+col_left, col_mid, col_right = st.columns([1.0, 1.0, 1.35], gap="small")
 
 from scipy.stats import gaussian_kde
 
@@ -3680,9 +3680,7 @@ with col_right:
         # FIGURE: slightly less flat than before
         # ---------------------------------------------------------------------
         fig, (ax1, ax2) = plt.subplots(
-        nrows=2,
-        ncols=1,
-        figsize=(3.8, 4.6)  # ← bigger width & height, same proportions
+            nrows=2, ncols=1, figsize=(2.7, 2.8)  # was 2.6 → a bit taller
         )
         fig.patch.set_alpha(0)
 
@@ -3726,13 +3724,13 @@ with col_right:
         else:
             chrono_title = tr("Chronotype")
         
-        ax1.set_title(chrono_title, fontsize=14.5, pad=7, color="#222222")
+        ax1.set_title(chrono_title, fontsize=9.5, pad=7, color="#222222")
 
 
         ax1.set_xticks(chrono_x)
         ax1.set_xticklabels(
             [tr("morning"), tr("evening"), tr("no type")],
-            fontsize=13,
+            fontsize=8,
             rotation=0,
             ha="center",
         )
@@ -3773,7 +3771,7 @@ with col_right:
 
         ax2.set_title(
             dr_title,
-            fontsize=14.5,      # slightly reduced
+            fontsize=9.5,      # slightly reduced
             pad=7,
             color="#222222",
         )
@@ -3786,7 +3784,7 @@ with col_right:
                 tr("several/week"),
                 tr("every day"),
             ],
-            fontsize=13,
+            fontsize=8,
             rotation=18,
             ha="right",
         )
@@ -3796,11 +3794,11 @@ with col_right:
         # SPACING BETWEEN SUBPLOTS
         # ---------------------------------------------------------------------
         fig.subplots_adjust(
-            hspace=1.05,
+            hspace=1.25,
             left=0.20,
             right=0.98,
-            bottom=0.28,
-            top=0.88,
+            bottom=0.18,
+            top=0.98,
         )
 
         st.pyplot(fig, use_container_width=False)
