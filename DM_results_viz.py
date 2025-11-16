@@ -1162,9 +1162,196 @@ TEXT = {
      "fr": 'La partie grise ("monde") représente les données de 1 400 personnes dans le monde.<br>'
            'Graphique de gauche : vivacité des images mentales à l’éveil (score VVIQ). '
            'Au centre et à droite : créativité et anxiété auto-évaluées sur l’année écoulée.',
-     "es": "...",
+     "es": 'La parte gris ("mundo") representa los datos de 1.400 personas en todo el mundo.<br>'
+          'Gráfico de la izquierda: viveza de las imágenes mentales en vigilia (puntuación VVIQ). '
+          'En el centro y la derecha: creatividad y ansiedad autoevaluadas durante el último año.',
  },
     
+    # -----------------------
+    # PROFILE LIKELIHOOD BAR (12 profiles)
+    # -----------------------
+    "How much you match each profile": {
+        "en": "How much you match each profile",
+        "fr": "À quel point vous correspondez à chaque profil",
+        "es": "Cuánto encajas con cada perfil",
+    },
+    "PROFILE_BARS_NOTE": {
+        "en": (
+            "Each bar shows how closely your answers align with each profile, "
+            "from your strongest match (left) to your weakest (right)."
+        ),
+        "fr": (
+            "Chaque barre montre à quel point vos réponses s’alignent avec chaque profil, "
+            "du profil qui vous correspond le plus (à gauche) au moins marqué (à droite)."
+        ),
+        "es": (
+            "Cada barra muestra hasta qué punto tus respuestas se alinean con cada perfil, "
+            "desde el perfil que más te corresponde (izquierda) hasta el más débil (derecha)."
+        ),
+    },
+    
+    
+    # -----------------------
+    # PROFILE NAMES (display)
+    # -----------------------
+    "Dreamweaver": {
+        "en": "Dreamweaver",
+        "fr": "Dreamweaver",
+        "es": "Dreamweaver",
+    },
+    "Quick Diver": {
+        "en": "Quick Diver",
+        "fr": "Quick Diver",
+        "es": "Quick Diver",
+    },
+    "Fantasizer": {
+        "en": "Fantasizer",
+        "fr": "Fantasizer",
+        "es": "Fantasizer",
+    },
+    "Archivist": {
+        "en": "Archivist",
+        "fr": "Archivist",
+        "es": "Archivist",
+    },
+    "Worrier": {
+        "en": "Worrier",
+        "fr": "Worrier",
+        "es": "Worrier",
+    },
+    "Freewheeler": {
+        "en": "Freewheeler",
+        "fr": "Freewheeler",
+        "es": "Freewheeler",
+    },
+    "Quiet Mind": {
+        "en": "Quiet Mind",
+        "fr": "Quiet Mind",
+        "es": "Quiet Mind",
+    },
+    "Radio Tuner": {
+        "en": "Radio Tuner",
+        "fr": "Radio Tuner",
+        "es": "Radio Tuner",
+    },
+    "Strategist": {
+        "en": "Strategist",
+        "fr": "Strategist",
+        "es": "Strategist",
+    },
+    "Sentinelle": {
+        "en": "Sentinelle",
+        "fr": "Sentinelle",
+        "es": "Sentinelle",
+    },
+    "Fragmented Mind": {
+        "en": "Fragmented Mind",
+        "fr": "Fragmented Mind",
+        "es": "Fragmented Mind",
+    },
+    "Pragmatic": {
+        "en": "Pragmatic",
+        "fr": "Pragmatic",
+        "es": "Pragmatic",
+    },
+    
+    # -----------------------
+    # PROFILE DESCRIPTIONS (display)
+    # -----------------------
+    "PROFILE_DESC_DREAMWEAVER": {
+        "en": "You drift into vivid, sensory mini-dreams as you fall asleep.",
+        "fr": "Vous glissez vers le sommeil dans de petites mini-rêveries vives et sensorielles.",
+        "es": "Te deslizas hacia el sueño a través de pequeños mini-sueños vívidos y sensoriales.",
+    },
+    "PROFILE_DESC_QUICK_DIVER": {
+        "en": "You fall asleep quickly, especially when you already feel sleepy.",
+        "fr": "Vous vous endormez rapidement, surtout lorsque vous vous sentez déjà somnolent·e.",
+        "es": "Te duermes rápido, especialmente cuando ya te sientes somnoliento·a.",
+    },
+    "PROFILE_DESC_FANTASIZER": {
+        "en": "You tend to drift into constructed scenes or stories, with rich imagery and absorption.",
+        "fr": "Vous dérivez vers des scènes ou des histoires construites, avec des images riches et une forte immersion.",
+        "es": "Tiendes a entrar en escenas o historias construidas, con imágenes ricas y una fuerte inmersión.",
+    },
+    "PROFILE_DESC_ARCHIVIST": {
+        "en": "You mentally revisit past events as you fall asleep, like an archivist sorting through memories.",
+        "fr": "Vous revisitez mentalement des événements passés en vous endormant, comme un·e archiviste triant ses souvenirs.",
+        "es": "Revisitas mentalmente hechos pasados al quedarte dormido·a, como un archivero ordenando recuerdos.",
+    },
+    "PROFILE_DESC_WORRIER": {
+        "en": "Your mind keeps turning over worries or emotionally charged thoughts before sleep.",
+        "fr": "Votre esprit ressasse des inquiétudes ou des pensées chargées d’émotion avant de s’endormir.",
+        "es": "Tu mente sigue dando vueltas a preocupaciones o pensamientos cargados de emoción antes de dormirte.",
+    },
+    "PROFILE_DESC_FREEWHEELER": {
+        "en": "You start with intentional thoughts, then let go into more spontaneous imagery.",
+        "fr": "Vous commencez avec des pensées intentionnelles, puis vous lâchez prise vers des images plus spontanées.",
+        "es": "Empiezas con pensamientos intencionales y luego te dejas llevar hacia imágenes más espontáneas.",
+    },
+    "PROFILE_DESC_QUIET_MIND": {
+        "en": "Your mental field stays relatively quiet at lights-out—less vivid, less odd, less all-absorbing.",
+        "fr": "Votre paysage mental reste relativement calme à l’extinction des lumières — moins vif, moins étrange, moins absorbant.",
+        "es": "Tu paisaje mental se mantiene relativamente tranquilo al apagar la luz: menos vivo, menos extraño y menos absorbente.",
+    },
+    "PROFILE_DESC_RADIO_TUNER": {
+        "en": "Your mind shifts rapidly between thoughts, images, and sensations, like tuning through mental stations.",
+        "fr": "Votre esprit passe rapidement d’une pensée, image ou sensation à l’autre, comme si vous faisiez défiler des stations mentales.",
+        "es": "Tu mente cambia rápidamente entre pensamientos, imágenes y sensaciones, como si fueras pasando por estaciones mentales.",
+    },
+    "PROFILE_DESC_STRATEGIST": {
+        "en": "Your thoughts stay clear and structured, focused on plans and everyday logic.",
+        "fr": "Vos pensées restent claires et structurées, centrées sur vos plans et une logique du quotidien.",
+        "es": "Tus pensamientos se mantienen claros y estructurados, centrados en tus planes y en la lógica cotidiana.",
+    },
+    "PROFILE_DESC_SENTINELLE": {
+        "en": "Your mind stays mostly quiet but your attention monitors the environment, like a sentinel keeping watch.",
+        "fr": "Votre esprit reste plutôt calme mais une partie de vous surveille l’environnement, comme une sentinelle qui veille.",
+        "es": "Tu mente permanece bastante tranquila, pero una parte de ti vigila el entorno, como una centinela en guardia.",
+    },
+    "PROFILE_DESC_FRAGMENTED_MIND": {
+        "en": "Your experience breaks into fleeting fragments of thoughts, images or sensations that vanish quickly.",
+        "fr": "Votre expérience se fragmente en brèves pensées, images ou sensations qui disparaissent très vite.",
+        "es": "Tu experiencia se fragmenta en breves pensamientos, imágenes o sensaciones que desaparecen rápidamente.",
+    },
+    "PROFILE_DESC_PRAGMATIC": {
+        "en": "Your thoughts stay practical and grounded in everyday concerns rather than drifting into the dreamlike.",
+        "fr": "Vos pensées restent pratiques et ancrées dans le quotidien plutôt que de dériver vers le monde onirique.",
+        "es": "Tus pensamientos se mantienen prácticos y anclados en lo cotidiano, en lugar de derivar hacia lo onírico.",
+    },
+
+    # -----------------------
+    # DISCLAIMER
+    # -----------------------
+    "DISCLAIMER_NOTE": {
+        "en": (
+            'These results are automatically generated from your responses to the '
+            '<strong>Drifting Minds</strong> questionnaire.<br>'
+            'They are meant for research and self-reflection only — not as medical or diagnostic advice.<br>'
+            'For any questions, contact '
+            '<a href="mailto:driftingminds@icm-institute.org" '
+            'style="color:#7C3AED; text-decoration:none;">driftingminds@icm-institute.org</a>.'
+        ),
+        "fr": (
+            'Ces résultats sont générés automatiquement à partir de vos réponses au '
+            'questionnaire <strong>Drifting Minds</strong>.<br>'
+            'Ils sont destinés à la recherche et à la réflexion personnelle uniquement — '
+            "ils ne constituent ni un avis médical ni un outil de diagnostic.<br>"
+            'Pour toute question, contactez '
+            '<a href="mailto:driftingminds@icm-institute.org" '
+            'style="color:#7C3AED; text-decoration:none;">driftingminds@icm-institute.org</a>.'
+        ),
+        "es": (
+            'Estos resultados se generan automáticamente a partir de tus respuestas al '
+            'cuestionario <strong>Drifting Minds</strong>.<br>'
+            'Están pensados solo para la investigación y la reflexión personal — '
+            'no constituyen consejo médico ni una herramienta de diagnóstico.<br>'
+            'Para cualquier pregunta, contacta con '
+            '<a href="mailto:driftingminds@icm-institute.org" '
+            'style="color:#7C3AED; text-decoration:none;">driftingminds@icm-institute.org</a>.'
+        ),
+    },
+
+        
     
 
 }
@@ -1907,12 +2094,30 @@ st.markdown(f"""
 # Assign profile + get text/icon
 prof_name, scores = assign_profile_from_record(record)
 prof_cfg = PROFILES.get(prof_name, {})
-prof_desc = prof_cfg.get("description", "")
 icon_file = prof_cfg.get("icon")
 icon_path = f"assets/{icon_file}" if icon_file else None
 has_icon = bool(icon_path and os.path.exists(icon_path))
 
-# --- Add population percentage at the end of the profile description ---
+# Profile description via translation keys
+PROFILE_TEXT_KEYS = {
+    "Dreamweaver": "PROFILE_DESC_DREAMWEAVER",
+    "Quick Diver": "PROFILE_DESC_QUICK_DIVER",
+    "Fantasizer": "PROFILE_DESC_FANTASIZER",
+    "Archivist": "PROFILE_DESC_ARCHIVIST",
+    "Worrier": "PROFILE_DESC_WORRIER",
+    "Freewheeler": "PROFILE_DESC_FREEWHEELER",
+    "Quiet Mind": "PROFILE_DESC_QUIET_MIND",
+    "Radio Tuner": "PROFILE_DESC_RADIO_TUNER",
+    "Strategist": "PROFILE_DESC_STRATEGIST",
+    "Sentinelle": "PROFILE_DESC_SENTINELLE",
+    "Fragmented Mind": "PROFILE_DESC_FRAGMENTED_MIND",
+    "Pragmatic": "PROFILE_DESC_PRAGMATIC",
+}
+
+
+desc_key = PROFILE_TEXT_KEYS.get(prof_name, "")
+prof_desc = tr(desc_key) if desc_key else ""
+
 POP_PERC = {
     "Dreamweaver": 4,
     "Quick Diver": 11,
@@ -1925,20 +2130,26 @@ POP_PERC = {
     "Strategist": 7,
     "Sentinelle": 4,
     "Fragmented Mind": 5,
-    "Pragmatic": 13
+    "Pragmatic": 13,
 }
 
 perc_val = POP_PERC.get(prof_name, 0)
 lead_txt = tr("You drift into sleep like a")
-pop_line = tr("{name}s represent {perc}% of the population.",
-              name=prof_name, perc=perc_val)
+
+# Display name translated (keeps English if no entry)
+prof_name_disp = tr(prof_name)
+
+pop_line = tr(
+    "{name}s represent {perc}% of the population.",
+    name=prof_name_disp,
+    perc=perc_val,
+)
 
 prof_desc_ext = (
     f"{prof_desc}<br>"
     f"<span style='display:block; margin-top:2px; font-size:1rem; color:#222;'>"
     f"{pop_line}</span>"
 )
-
 # --- Render profile header ---
 icon_src = _data_uri(icon_path) if has_icon else ""
 
@@ -1948,7 +2159,7 @@ st.markdown(f"""
     {'<img class="dm-icon" src="'+icon_src+'" alt="profile icon"/>' if has_icon else ''}
     <div class="dm-text">
       <p class="dm-lead">{lead_txt}</p>
-      <div class="dm-key">{prof_name}</div>
+      <div class="dm-key">{prof_name_disp}</div>
       <p class="dm-desc">{prof_desc_ext}</p>
     </div>
   </div>
@@ -3181,6 +3392,7 @@ with col_right:
         ax1.set_title(chrono_title, fontsize=9.5, pad=7, color="#222222")
 
 
+        ax1.set_xticks(chrono_x)
         ax1.set_xticklabels(
             [tr("morning"), tr("evening"), tr("no type")],
             fontsize=8,
@@ -3209,17 +3421,18 @@ with col_right:
 
         # Dynamic title based on participant’s recall frequency
         if dreamrec_val_raw == 1:
-            dr_title = tr("You recall your dreams\nless than once a month")
+            dr_title = tr("You recall your dreams less than once a month")
         elif dreamrec_val_raw == 2:
-            dr_title = tr("You recall your dreams\nonce or twice a month")
+            dr_title = tr("You recall your dreams once or twice a month")
         elif dreamrec_val_raw == 3:
-            dr_title = tr("You recall your dreams\nonce a week")
+            dr_title = tr("You recall your dreams once a week")
         elif dreamrec_val_raw == 4:
-            dr_title = tr("You recall your dreams\nseveral times a week")
+            dr_title = tr("You recall your dreams several times a week")
         elif dreamrec_val_raw == 5:
-            dr_title = tr("You recall your dreams\nevery day")
+            dr_title = tr("You recall your dreams every day")
         else:
             dr_title = tr("Dream recall")
+
 
         ax2.set_title(
             dr_title,
@@ -3337,7 +3550,7 @@ def _as_float_or_nan(x):
 
 # Pull values from current participant record (1..6 scale expected)
 vals = [_as_float_or_nan(record.get(k)) for k, _ in FIELDS]
-labels = [lab for _, lab in FIELDS]
+labels = [tr(lab) for _, lab in FIELDS]
 
 # If all missing, default to zeros so the chart still renders
 if np.all(np.isnan(vals)):
@@ -3690,11 +3903,8 @@ try:
         # Only "low" (min) and "high" (max) as y-axis labels
         ax.set_yticks([y_min, y_max])
         ax.set_yticklabels(["low", "high"], fontsize=8)
-        ax.set_ylabel("Matching strength", fontsize=8, labelpad=2)
-
-
-        # Title = more understandable than "profile likelihood"
-        ax.set_title("How much you match each profile", fontsize=11, pad=8)
+        ax.set_ylabel(tr("Matching strength"), fontsize=8, labelpad=2)
+        ax.set_title(tr("How much you match each profile"), fontsize=11, pad=8)
 
         # No grid, minimal frame
         ax.grid(False)
@@ -3738,7 +3948,7 @@ try:
 
         # Short explanatory line below
         st.markdown(
-            """
+            f"""
             <div style="
                 max-width:740px;
                 margin:6px 0 0 0;
@@ -3746,13 +3956,12 @@ try:
                 color:#444;
                 line-height:1.35;
             ">
-              <em>
-                Each bar shows how closely your answers align with each profile, from your strongest match (left) to your weakest (right).
-              </em>
+              <em>{tr("PROFILE_BARS_NOTE")}</em>
             </div>
             """,
             unsafe_allow_html=True
         )
+
 except Exception as e:
     st.warning("Could not compute profile likelihoods for this record.")
 
@@ -3788,7 +3997,7 @@ st.markdown(
 # ==============
 
 st.markdown(
-    """
+    f"""
     <div style="
         max-width:740px;
         margin: 0 auto 0 auto;    /* auto centers horizontally */
@@ -3797,13 +4006,7 @@ st.markdown(
         color:#444;
         line-height:1.6;
     ">
-      <em>
-        These results are automatically generated from your responses to the <strong>Drifting Minds</strong> questionnaire.<br>
-        They are meant for research and self-reflection only — not as medical or diagnostic advice.<br>
-        For any questions, contact 
-        <a href="mailto:driftingminds@icm-institute.org" 
-           style="color:#7C3AED; text-decoration:none;">driftingminds@icm-institute.org</a>.
-      </em>
+      <em>{tr("DISCLAIMER_NOTE")}</em>
     </div>
     """,
     unsafe_allow_html=True
