@@ -1318,6 +1318,26 @@ TEXT = {
         ),
     },
     
+    # -----------------------
+    # Your experience - notes 
+    # -----------------------
+    "YOUR_EXPERIENCE_LAYOUT_NOTE": {
+        "en": (
+            "Left graph: your own trajectory selection. "
+            "Middle graph: your self-rated intensity scores of your typical mental content (1 = low, 6 = high). "
+            "Right graph: mental content that most often emerged early vs. late as you fall asleep."
+        ),
+        "fr": (
+            "Graphique de gauche : la trajectoire que vous avez choisie. "
+            "Graphique central : vos scores d’intensité pour votre contenu mental typique (1 = faible, 6 = élevé). "
+            "Graphique de droite : les contenus mentaux qui apparaissent le plus souvent au début vs à la fin de l’endormissement."
+        ),
+        "es": (
+            "Gráfico de la izquierda: tu propia selección de trayectoria. "
+            "Gráfico central: tus puntuaciones de intensidad para tu contenido mental típico (1 = bajo, 6 = alto). "
+            "Gráfico de la derecha: el contenido mental que aparece con más frecuencia al principio vs al final de quedarte dormido."
+        ),
+    },
     
     # -----------------------
     # PROFILE NAMES (display)
@@ -2503,9 +2523,9 @@ st.markdown("</div></div>", unsafe_allow_html=True)
 
 # === Build exportable HTML mirror of the title + icon/text + 5 bars ===
 # Title
-export_title_html = """
+export_title_html = f"""
 <div class="dm-center">
-  <div class="dm-title">DRIFTING MINDS STUDY</div>
+  <div class="dm-title">{tr("DRIFTING MINDS STUDY")}</div>
 </div>
 """
 
@@ -3947,7 +3967,7 @@ with exp_right:
 
 # --- Explanatory note below "Your Experience" -----------------------------------
 st.markdown(
-    """
+    f"""
     <div style="
         max-width:740px;
         margin:-20px 0 0 0;
@@ -3957,9 +3977,7 @@ st.markdown(
         line-height:1.35;
     ">
       <em>
-        Left graph: your own trajectory selection.  
-        Middle graph: your self-rated intensity scores of your typical mental content (1 = low, 6 = high).
-        Right graph: mental content that most often emerged early vs. late as you fall asleep.
+        {tr("YOUR_EXPERIENCE_LAYOUT_NOTE")}
       </em>
     </div>
     """,
