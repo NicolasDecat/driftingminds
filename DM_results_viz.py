@@ -3682,7 +3682,7 @@ with col_right:
         fig, (ax1, ax2) = plt.subplots(
         nrows=2,
         ncols=1,
-        figsize=(3.2, 3.8)   # ← bigger width & height, same proportions
+        figsize=(3.8, 4.6)  # ← bigger width & height, same proportions
         )
         fig.patch.set_alpha(0)
 
