@@ -3146,13 +3146,16 @@ st.markdown(
     <div class="dm-center" style="max-width:960px; margin:18px auto 10px;">
       <div style="display:flex; align-items:center; gap:18px;">
         <div style="height:1px; background:#000; flex:1;"></div>
-        <div class="dm-section-title">{tr("YOU")}</div>
+        <div class="dm-section-title" style="font-size:28px; font-weight:600;">
+            {tr("YOU")}
+        </div>
         <div style="height:1px; background:#000; flex:1;"></div>
       </div>
     </div>
     """,
     unsafe_allow_html=True
 )
+
 
 
 
