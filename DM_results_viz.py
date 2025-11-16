@@ -3797,7 +3797,7 @@ with col_right:
             hspace=1.20,
             left=0.20,
             right=0.98,
-            bottom=0.12,
+            bottom=0.08,
             top=0.98,
         )
 
