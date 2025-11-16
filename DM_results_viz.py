@@ -1067,6 +1067,20 @@ TEXT = {
         "fr": "Votre anxiété auto-évaluée : {val}",
         "es": "Tu ansiedad autoevaluada: {val}",
     },
+    
+    # -----------------------
+   # Timeline axis labels
+   # -----------------------
+   "LBL_Awake": {
+       "en": "Awake",
+       "fr": "Éveillé",
+       "es": "Despierto",
+   },
+   "LBL_Asleep": {
+       "en": "Asleep",
+       "fr": "Endormi",
+       "es": "Dormido",
+   },
 
     # -----------------------
     # INFO / ERROR MESSAGES
@@ -4081,10 +4095,11 @@ with exp_right:
 
     # In-bar end labels
     end_fs = 22
-    ax.text(tx(6),   y_bar, "Awake",  ha="left",  va="center",
-            fontsize=end_fs, color="#000000")
-    ax.text(tx(94),  y_bar, "Asleep", ha="right", va="center",
+    ax.text(tx(6),   y_bar, tr("LBL_Awake"),  ha="left",  va="center",
+        fontsize=end_fs, color="#000000")
+    ax.text(tx(94),  y_bar, tr("LBL_Asleep"), ha="right", va="center",
             fontsize=end_fs, color="#FFFFFF")
+
 
         # --- Single-stem stacked labels per bin ---
     # --- Single-stem stacked labels per bin ---
