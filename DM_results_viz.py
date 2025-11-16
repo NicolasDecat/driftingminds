@@ -3925,6 +3925,7 @@ try:
         order = np.argsort(-lik_pct)
         names_sorted = [prof_names[i] for i in order]
         lik_sorted   = lik_pct[order]
+        names_sorted_disp = [tr(name) for name in names_sorted]
 
                 # --- Plot (gradient + icons, clean axis) ---
         fig, ax = plt.subplots(figsize=(7.0, 3.2), dpi=200)
@@ -3948,7 +3949,7 @@ try:
 
         # X labels
         ax.set_xticks(x)
-        ax.set_xticklabels(names_sorted, rotation=20, ha="right", fontsize=9)
+        ax.set_xticklabels(names_sorted_disp, rotation=20, ha="right", fontsize=9)
 
         # Y axis: custom low/high scaling (no numbers)
         min_lik = float(np.nanmin(lik_sorted)) if len(lik_sorted) else 0.0
