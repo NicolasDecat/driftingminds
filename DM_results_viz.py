@@ -3680,7 +3680,7 @@ with col_right:
         # FIGURE: slightly less flat than before
         # ---------------------------------------------------------------------
         fig, (ax1, ax2) = plt.subplots(
-            nrows=2, ncols=1, figsize=(3.2, 3.2)  # was 2.6 → a bit taller
+            nrows=2, ncols=1, figsize=(2.7, 2.8)  # was 2.6 → a bit taller
         )
         fig.patch.set_alpha(0)
 
@@ -3756,15 +3756,15 @@ with col_right:
 
         # Dynamic title based on participant’s recall frequency
         if dreamrec_val_raw == 1:
-            dr_title = tr("You recall your dreams less than once a month")
+            dr_title = tr("You recall your dreams\nless than once a month")
         elif dreamrec_val_raw == 2:
-            dr_title = tr("You recall your dreams once or twice a month")
+            dr_title = tr("You recall your dreams\nonce or twice a month")
         elif dreamrec_val_raw == 3:
-            dr_title = tr("You recall your dreams once a week")
+            dr_title = tr("You recall your dreams\nonce a week")
         elif dreamrec_val_raw == 4:
-            dr_title = tr("You recall your dreams several times a week")
+            dr_title = tr("You recall your dreams\nseveral times a week")
         elif dreamrec_val_raw == 5:
-            dr_title = tr("You recall your dreams every day")
+            dr_title = tr("You recall your dreams\nevery day")
         else:
             dr_title = tr("Dream recall")
 
