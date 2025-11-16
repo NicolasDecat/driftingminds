@@ -1152,7 +1152,7 @@ TEXT = {
          '<strong>Vif</strong> : luminosité ou contraste de vos images mentales, '
          'ou intensité de ce que vous entendez. '
          '<strong>Bizarre</strong> : à quel point le contenu vous paraît inhabituel ou irréaliste. '
-         '<strong>Immersif</strong> : à quel point vous êtes absorbé·e par ce qui se passe dans votre esprit. '
+         '<strong>Immersif</strong> : à quel point vous êtes absorbé(e) par ce qui se passe dans votre esprit. '
          '<strong>Spontané</strong> : à quel point le contenu vient tout seul, sans contrôle volontaire. '
          '<strong>Émotionnel</strong> : à quel point vous avez ressenti des émotions.<br>'
          '<span style="font-size:0.6rem; margin-right:6px;">⚫️</span>'
@@ -1172,6 +1172,24 @@ TEXT = {
      ),
  },
 
+   # -----------------------
+   # Buttons
+   # -----------------------
+    "DOWNLOAD_BUTTON": {
+            "en": "⬇️ Download",
+            "fr": "⬇️ Télécharger",
+            "es": "⬇️ Descargar",
+        },
+        "COPY_LINK_BUTTON": {
+            "en": "🔗 Copy link",
+            "fr": "🔗 Copier le lien",
+            "es": "🔗 Copiar el enlace",
+        },
+        "COPY_LINK_COPIED": {
+            "en": "✅ Copied!",
+            "fr": "✅ Copié !",
+            "es": "✅ Copiado",
+        },
 
    # -----------------------
    # YOUR SLEEP TITLES
@@ -2676,7 +2694,11 @@ with left_note:
 
 
 with right_btn:
-    # keep the button in its own iframe so JS works; align it to the right
+    
+  download_label = tr("DOWNLOAD_BUTTON")
+  copy_label = tr("COPY_LINK_BUTTON")
+  copied_label = tr("COPY_LINK_COPIED")  
+  
   components.html(
     f"""
 <!doctype html>
@@ -2719,8 +2741,8 @@ with right_btn:
 </head>
 <body data-rec="{record_id or ''}">
   <div class="wrap">
-    <button id="dmshot"  class="bar">⬇️ Download</button>
-    <button id="copylink" class="bar">🔗 Copy link</button>
+    <button id="dmshot"  class="bar">{download_label}</button>
+    <button id="copylink" class="bar">{copy_label}</button>
   </div>
 
   <!-- Hidden, fully-opaque export mirror (toggled visible only during capture) -->
@@ -2750,7 +2772,7 @@ with right_btn:
       try {{
         await navigator.clipboard.writeText(share);
         const prev = copyBtn.textContent;
-        copyBtn.textContent = '✅ Copied!';
+        copyBtn.textContent = "{copied_label}";
         setTimeout(() => copyBtn.textContent = prev, 1500);
       }} catch (e) {{
         const ta = document.createElement('textarea');
