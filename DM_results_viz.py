@@ -957,10 +957,74 @@ TEXT = {
     # -----------------------
     "You drift into sleep like a": {
         "en": "You drift into sleep like a",
-        "fr": "Vous glissez dans le sommeil comme un·e",
-        "es": "Te deslizas hacia el sueño como un·a",
+        "fr": "Vous glissez dans le sommeil comme un(e)",
+        "es": "Te deslizas hacia el sueño como un(a)",
     },
 
+    # --------------------
+# Profile names
+# --------------------
+     "PROFILE_Dreamweaver": {
+            "en": "Dreamweaver",
+            "fr": "Tisseur de rêves",
+            "es": "Tejedor de sueños"
+        },
+        "PROFILE_Freewheeler": {
+            "en": "Freewheeler",
+            "fr": "Esprit libre",
+            "es": "Mente libre"
+        },
+        "PROFILE_Strategist": {
+            "en": "Strategist",
+            "fr": "Stratège",
+            "es": "Estratega"
+        },
+        "PROFILE_QuietMind": {
+            "en": "Quiet Mind",
+            "fr": "Esprit calme",
+            "es": "Mente tranquila"
+        },
+        "PROFILE_Archivist": {
+            "en": "Archivist",
+            "fr": "Archiviste",
+            "es": "Archivista"
+        },
+        "PROFILE_Worrier": {
+            "en": "Worrier",
+            "fr": "Inquiet",
+            "es": "Preocupado"
+        },
+        "PROFILE_RadioTuner": {
+            "en": "Radio Tuner",
+            "fr": "Capteur d'ondes",
+            "es": "Sintonizador mental"
+        },
+        "PROFILE_QuickDiver": {
+            "en": "Quick Diver",
+            "fr": "Plongeur rapide",
+            "es": "Buceador veloz"
+        },
+        "PROFILE_Fantasizer": {
+            "en": "Fantasizer",
+            "fr": "Fantasmeur",
+            "es": "Fantaseador"
+        },
+        "PROFILE_Sentinelle": {
+            "en": "Sentinelle",
+            "fr": "Sentinelle",
+            "es": "Centinela"
+        },
+        "PROFILE_FragmentedMind": {
+            "en": "Fragmented Mind",
+            "fr": "Esprit fragmenté",
+            "es": "Mente fragmentada"
+        },
+        "PROFILE_Pragmatic": {
+            "en": "Pragmatic",
+            "fr": "Pragmatique",
+            "es": "Pragmático"
+        },
+        
     # -----------------------
     # POPULATION STATS LINE
     # -----------------------
@@ -983,7 +1047,7 @@ TEXT = {
         "fr": "émotions\npositives",
         "es": "emociones\npositivas",
     },
-    "sleepy": {"en": "sleepy", "fr": "somnolent·e", "es": "adormilado·a"},
+    "sleepy": {"en": "sleepy", "fr": "somnolent(e)", "es": "adormilado/a"},
 
     # -----------------------
     # HISTOGRAM TITLES
@@ -1265,8 +1329,8 @@ TEXT = {
     },
     "PROFILE_DESC_QUICK_DIVER": {
         "en": "You fall asleep quickly, especially when you already feel sleepy.",
-        "fr": "Vous vous endormez rapidement, surtout lorsque vous vous sentez déjà somnolent·e.",
-        "es": "Te duermes rápido, especialmente cuando ya te sientes somnoliento·a.",
+        "fr": "Vous vous endormez rapidement, surtout lorsque vous vous sentez déjà somnolent(e).",
+        "es": "Te duermes rápido, especialmente cuando ya te sientes somnoliento/a.",
     },
     "PROFILE_DESC_FANTASIZER": {
         "en": "You tend to drift into constructed scenes or stories, with rich imagery and absorption.",
@@ -1275,8 +1339,8 @@ TEXT = {
     },
     "PROFILE_DESC_ARCHIVIST": {
         "en": "You mentally revisit past events as you fall asleep, like an archivist sorting through memories.",
-        "fr": "Vous revisitez mentalement des événements passés en vous endormant, comme un·e archiviste triant ses souvenirs.",
-        "es": "Revisitas mentalmente hechos pasados al quedarte dormido·a, como un archivero ordenando recuerdos.",
+        "fr": "Vous revisitez mentalement des événements passés en vous endormant, comme un(e) archiviste triant ses souvenirs.",
+        "es": "Revisitas mentalmente hechos pasados al quedarte dormido/a, como un archivero ordenando recuerdos.",
     },
     "PROFILE_DESC_WORRIER": {
         "en": "Your mind keeps turning over worries or emotionally charged thoughts before sleep.",
