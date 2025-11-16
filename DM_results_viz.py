@@ -3849,13 +3849,31 @@ def _safe_int(val):
 
 
 traj_val = _safe_int(record.get("trajectories"))
-traj_map = {
+
+# Base filenames (English)
+base_traj_map = {
     1: "trajectories-01.png",
     2: "trajectories-02.png",
     3: "trajectories-03.png",
     4: "trajectories-04.png",
 }
+
+# Adjust filenames depending on detected language
+traj_map = {}
+for k, fname in base_traj_map.items():
+    root, ext = os.path.splitext(fname)  # e.g., "trajectories-01", ".png"
+
+    if LANG == "fr":
+        # trajectories-01 → trajectories_fr-01
+        root = root.replace("trajectories-", "trajectories_fr-")
+    elif LANG == "es":
+        # trajectories-01 → trajectories_en-01  (per your naming)
+        root = root.replace("trajectories-", "trajectories_en-")
+
+    traj_map[k] = root + ext
+
 img_name = traj_map.get(traj_val)
+
 
 with exp_left:
     # mini-title to match histo titles
