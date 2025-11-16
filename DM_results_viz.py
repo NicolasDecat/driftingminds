@@ -3411,7 +3411,7 @@ st.markdown(
 
 
 # --- Three-column layout -----------------------------------------------------
-col_left, col_mid, col_right = st.columns([1.0, 1.0, 1.35], gap="small")
+col_left, col_mid, col_right = st.columns(3, gap="small")
 
 from scipy.stats import gaussian_kde
 
@@ -3680,7 +3680,7 @@ with col_right:
         # FIGURE: slightly less flat than before
         # ---------------------------------------------------------------------
         fig, (ax1, ax2) = plt.subplots(
-            nrows=2, ncols=1, figsize=(2.7, 2.8)  # was 2.6 → a bit taller
+            nrows=2, ncols=1, figsize=(3.2, 3.2)  # was 2.6 → a bit taller
         )
         fig.patch.set_alpha(0)
 
