@@ -1253,30 +1253,30 @@ TEXT = {
    },
 
    # Dream recall titles
-   "You recall your dreams less than once a month": {
-       "en": "You recall your dreams less than once a month",
-       "fr": "Vous vous souvenez de vos rêves moins d'une fois par mois",
-       "es": "Recuerdas tus sueños menos de una vez al mes",
+   "You recall your dreams\nless than once a month": {
+       "en": "You recall your dreams\nless than once a month",
+       "fr": "Vous vous souvenez de vos rêves\nmoins d'une fois par mois",
+       "es": "Recuerdas tus sueños\nmenos de una vez al mes",
    },
-   "You recall your dreams once or twice a month": {
-       "en": "You recall your dreams once or twice a month",
-       "fr": "Vous vous souvenez de vos rêves une à deux fois par mois",
-       "es": "Recuerdas tus sueños una o dos veces al mes",
+   "You recall your dreams\nonce or twice a month": {
+       "en": "You recall your dreams\nonce or twice a month",
+       "fr": "Vous vous souvenez de vos rêves\nune à deux fois par mois",
+       "es": "Recuerdas tus sueños\nuna o dos veces al mes",
    },
-   "You recall your dreams once a week": {
-       "en": "You recall your dreams once a week",
-       "fr": "Vous vous souvenez de vos rêves une fois par semaine",
-       "es": "Recuerdas tus sueños una vez por semana",
+   "You recall your dreams\nonce a week": {
+       "en": "You recall your dreams\nnce a week",
+       "fr": "Vous vous souvenez de vos rêves\nune fois par semaine",
+       "es": "Recuerdas tus sueños\nuna vez por semana",
    },
-   "You recall your dreams several times a week": {
-       "en": "You recall your dreams several times a week",
-       "fr": "Vous vous souvenez de vos rêves plusieurs fois par semaine",
-       "es": "Recuerdas tus sueños varias veces por semana",
+   "You recall your dreams\nseveral times a week": {
+       "en": "You recall your dreams\nseveral times a week",
+       "fr": "Vous vous souvenez de vos rêves\nplusieurs fois par semaine",
+       "es": "Recuerdas tus sueños\nvarias veces por semana",
    },
-   "You recall your dreams every day": {
+   "You recall your dreams\nevery day": {
        "en": "You recall your dreams every day",
-       "fr": "Vous vous souvenez de vos rêves tous les jours",
-       "es": "Recuerdas tus sueños todos los días",
+       "fr": "Vous vous souvenez de vos rêves\ntous les jours",
+       "es": "Recuerdas tus sueños\ntodos los días",
    },
    "Dream recall": {
        "en": "Dream recall",
