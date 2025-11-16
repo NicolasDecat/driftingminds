@@ -3776,6 +3776,7 @@ with col_right:
             color="#222222",
         )
 
+        ax2.set_xticks(recall_x)
         ax2.set_xticklabels(
             [
                 tr("<1/month"),
@@ -3789,12 +3790,11 @@ with col_right:
             ha="right",
         )
 
-
         # ---------------------------------------------------------------------
         # SPACING BETWEEN SUBPLOTS
         # ---------------------------------------------------------------------
         fig.subplots_adjust(
-            hspace=1.15,
+            hspace=1.25,
             left=0.20,
             right=0.98,
             bottom=0.18,
