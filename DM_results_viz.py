@@ -1027,6 +1027,146 @@ TEXT = {
         "fr": "Impossible de calculer les probabilités de profil pour ce participant.",
         "es": "No se pudieron calcular las probabilidades de perfil para este participante.",
     },
+    
+    # -----------------------
+   # LEGEND / SMALL LABELS
+   # -----------------------
+   "you": {
+       "en": "you",
+       "fr": "vous",
+       "es": "tú",
+   },
+   "world": {
+       "en": "world",
+       "fr": "monde",
+       "es": "mundo",
+   },
+
+   # -----------------------
+   # DIMENSION BAR NAMES
+   # -----------------------
+   "Vivid":       {"en": "Vivid",       "fr": "Vif",              "es": "Vívido"},
+   "Bizarre":     {"en": "Bizarre",     "fr": "Bizarre",          "es": "Extraño"},
+   "Immersive":   {"en": "Immersive",   "fr": "Immersif",         "es": "Inmersivo"},
+   "Spontaneous": {"en": "Spontaneous", "fr": "Spontané",         "es": "Espontáneo"},
+   "Emotional":   {"en": "Emotional",   "fr": "Émotionnel",       "es": "Emocional"},
+
+   # Anchors for the horizontal bars
+   "Dull":           {"en": "Dull",           "fr": "Terne",           "es": "Apagado"},
+   "Vivid_anchor":   {"en": "Vivid",          "fr": "Vif",             "es": "Vívido"},
+   "Ordinary":       {"en": "Ordinary",       "fr": "Ordinaire",       "es": "Ordinario"},
+   "Bizarre_anchor": {"en": "Bizarre",        "fr": "Bizarre",         "es": "Extraño"},
+   "External-oriented": {
+       "en": "External-oriented", "fr": "Tourné vers l'extérieur", "es": "Orientado al exterior",
+   },
+   "Immersive_anchor": {
+       "en": "Immersive", "fr": "Immersif", "es": "Inmersivo",
+   },
+   "Voluntary": {"en": "Voluntary", "fr": "Volontaire", "es": "Voluntario"},
+   "Spontaneous_anchor": {
+       "en": "Spontaneous", "fr": "Spontané", "es": "Espontáneo",
+   },
+   "Negative": {"en": "Negative", "fr": "Négatif", "es": "Negativo"},
+   "Positive": {"en": "Positive", "fr": "Positif", "es": "Positivo"},
+
+   # -----------------------
+   # YOUR SLEEP TITLES
+   # -----------------------
+   "You fall asleep in {val} minutes": {
+       "en": "You fall asleep in {val} minutes",
+       "fr": "Vous vous endormez en {val} minutes",
+       "es": "Te duermes en {val} minutos",
+   },
+   "You sleep {val} hours on average": {
+       "en": "You sleep {val} hours on average",
+       "fr": "Vous dormez en moyenne {val} heures",
+       "es": "Duermes una media de {val} horas",
+   },
+   "Your sleep duration": {
+       "en": "Your sleep duration",
+       "fr": "La durée de votre sommeil",
+       "es": "La duración de tu sueño",
+   },
+
+   # Chronotype titles
+   "You are a morning type": {
+       "en": "You are a morning type",
+       "fr": "Vous êtes de type matinal",
+       "es": "Eres de tipo matutino",
+   },
+   "You are an evening type": {
+       "en": "You are an evening type",
+       "fr": "Vous êtes de type vespéral",
+       "es": "Eres de tipo vespertino",
+   },
+   "You have no preference": {
+       "en": "You have no preference",
+       "fr": "Vous n'avez pas de préférence",
+       "es": "No tienes preferencia",
+   },
+   "Chronotype": {
+       "en": "Chronotype",
+       "fr": "Chronotype",
+       "es": "Cronotipo",
+   },
+
+   # Dream recall titles
+   "You recall your dreams less than once a month": {
+       "en": "You recall your dreams less than once a month",
+       "fr": "Vous vous souvenez de vos rêves moins d'une fois par mois",
+       "es": "Recuerdas tus sueños menos de una vez al mes",
+   },
+   "You recall your dreams once or twice a month": {
+       "en": "You recall your dreams once or twice a month",
+       "fr": "Vous vous souvenez de vos rêves une à deux fois par mois",
+       "es": "Recuerdas tus sueños una o dos veces al mes",
+   },
+   "You recall your dreams once a week": {
+       "en": "You recall your dreams once a week",
+       "fr": "Vous vous souvenez de vos rêves une fois par semaine",
+       "es": "Recuerdas tus sueños una vez por semana",
+   },
+   "You recall your dreams several times a week": {
+       "en": "You recall your dreams several times a week",
+       "fr": "Vous vous souvenez de vos rêves plusieurs fois par semaine",
+       "es": "Recuerdas tus sueños varias veces por semana",
+   },
+   "You recall your dreams every day": {
+       "en": "You recall your dreams every day",
+       "fr": "Vous vous souvenez de vos rêves tous les jours",
+       "es": "Recuerdas tus sueños todos los días",
+   },
+   "Dream recall": {
+       "en": "Dream recall",
+       "fr": "Rappel de rêves",
+       "es": "Recuerdo de sueños",
+   },
+
+   # Chronotype / recall tick labels
+   "morning": {"en": "morning", "fr": "matin", "es": "mañana"},
+   "evening": {"en": "evening", "fr": "soir", "es": "tarde"},
+   "no type": {"en": "no type", "fr": "aucun type", "es": "sin tipo"},
+
+   "<1/month": {"en": "<1/month", "fr": "<1/mois", "es": "<1/mes"},
+   "1-2/month": {"en": "1–2/month", "fr": "1–2/mois", "es": "1–2/mes"},
+   "1/week": {"en": "1/week", "fr": "1/semaine", "es": "1/semana"},
+   "several/week": {"en": "several/week", "fr": "plusieurs/sem.", "es": "varias/sem."},
+   "every day": {"en": "every day", "fr": "tous les jours", "es": "tous les jours"
+    },
+   
+   # Notes
+    "YOU_SECTION_NOTE": {
+     "en": 'Grey info ("world”) represents data from 1,400 people worldwide.<br>'
+           'Left graph: vividness of visual imagery when awake (VVIQ score). '
+           'Middle and right: self-rated creativity and anxiety over the past year.',
+     "fr": 'La partie grise ("monde") représente les données de 1 400 personnes dans le monde.<br>'
+           'Graphique de gauche : vivacité des images mentales à l’éveil (score VVIQ). '
+           'Au centre et à droite : créativité et anxiété auto-évaluées sur l’année écoulée.',
+     "es": "...",
+ },
+    
+    
+
 }
 
 
@@ -1952,6 +2092,7 @@ min_fill = 2  # minimal % fill for aesthetic continuity
 
 for b in bars:
     name = b["name"]
+    display_name = tr(name)
     help_txt = b["help"]
     score = b["score"]
     median = pop_medians.get(name, None)
@@ -1967,10 +2108,16 @@ for b in bars:
     else:
         med_left = float(np.clip(median, 0, 100)); med_left_clamped = _clamp_pct(med_left)
 
-    if isinstance(help_txt, str) and "↔" in help_txt:
-        left_anchor, right_anchor = [s.strip() for s in help_txt.split("↔", 1)]
-    else:
-        left_anchor, right_anchor = "0", "100"
+        if isinstance(help_txt, str) and "↔" in help_txt:
+            raw_left, raw_right = [s.strip() for s in help_txt.split("↔", 1)]
+            left_anchor  = tr(raw_left if raw_left != "Vivid" else "Vivid_anchor")
+            right_anchor = tr(
+                raw_right if raw_right not in {"Vivid", "Bizarre", "Immersive", "Spontaneous"}
+                else raw_right + "_anchor"
+                )
+        else:
+            left_anchor, right_anchor = "0", "100"
+
 
     median_html = "" if med_left is None else f"<div class='dm2-median' style='left:{med_left}%;'></div>"
 
@@ -1986,7 +2133,7 @@ for b in bars:
     row_html = (
         "<div class='dm2-row'>"
           "<div class='dm2-left'>"
-            f"<div class='dm2-label'>{name}</div>"
+            f"<div class='dm2-label'>{display_name}</div>"
           "</div>"
           "<div class='dm2-wrap'>"
             f"<div class='dm2-track' aria-label='{name} score {score_txt}'>"
@@ -2071,7 +2218,7 @@ for b in bars:
     export_bars_html.append(
         "<div class='dm2-row'>"
           "<div class='dm2-left'>"
-            f"<div class='dm2-label'>{name}</div>"
+            f"<div class='dm2-label'>{tr(name)}</div>"
           "</div>"
           "<div class='dm2-wrap'>"
             f"<div class='dm2-track' aria-label='{name} score {score_txt}'>"
@@ -2584,10 +2731,11 @@ with c1:
     )
 
     # --- Custom x-axis labels -------------------------------------------------
-    ax.text(0.00, -0.05, "low (16)",   transform=ax.transAxes,
-            ha="left",  va="top", fontsize=7.5)
-    ax.text(1.00, -0.05, "high (80)", transform=ax.transAxes,
-            ha="right", va="top", fontsize=7.5)
+    ax.text(0.00, -0.05, f"{tr('low')} (16)",   transform=ax.transAxes,
+        ha="left",  va="top", fontsize=7.5)
+    ax.text(1.00, -0.05, f"{tr('high')} (80)", transform=ax.transAxes,
+        ha="right", va="top", fontsize=7.5)
+
     
     # --- Optional vertical marker for very low imagery (<30) -----------------
     if vviq_score < 35:
@@ -2608,7 +2756,7 @@ with c1:
                                box_size, box_size,
                                transform=ax.transAxes,
                                color=PURPLE_HEX, lw=0))
-    ax.text(x0 + 0.05, y_top, "you",
+    ax.text(x0 + 0.05, y_top, tr("you"),
             transform=ax.transAxes, ha="left", va="center",
             fontsize=7.5, color=PURPLE_HEX)
 
@@ -2617,7 +2765,7 @@ with c1:
                                box_size, box_size,
                                transform=ax.transAxes,
                                color="#D9D9D9", lw=0))
-    ax.text(x0 + 0.05, y_top - y_gap, "world",
+    ax.text(x0 + 0.05, y_top - y_gap, tr("world"),
             transform=ax.transAxes, ha="left", va="center",
             fontsize=7.5, color="#444444")
 
@@ -2643,9 +2791,9 @@ with c2:
             tr("Your self-rated creativity: {val}", val=int(round(cre_part)))
         )
         # Replace default x-labels
-        ax.text(0.0, -0.05, "low (1)",  transform=ax.transAxes,
+        ax.text(0.0, -0.05, f"{tr('low')} (1)",  transform=ax.transAxes,
                 ha="left", va="top", fontsize=7.5)
-        ax.text(1.0, -0.05, "high (6)", transform=ax.transAxes,
+        ax.text(1.0, -0.05, f"{tr('high')} (6)", transform=ax.transAxes,
                 ha="right", va="top", fontsize=7.5)
         ax.set_position(AX_POS_YOU)  # ← lock baseline
         st.pyplot(fig, use_container_width=False)
@@ -2666,32 +2814,30 @@ with c3:
             tr("Your self-rated anxiety: {val}", val=int(round(anx_part)))
         )
         # Replace default x-labels
-        ax.text(0.0, -0.05, "low (1)",  transform=ax.transAxes,
+        ax.text(0.0, -0.05, f"{tr('low')} (1)",  transform=ax.transAxes,
                 ha="left", va="top", fontsize=7.5)
-        ax.text(1.0, -0.05, "high (100)", transform=ax.transAxes,
+        ax.text(1.0, -0.05, f"{tr('high')} (100)", transform=ax.transAxes,
                 ha="right", va="top", fontsize=7.5)
         ax.set_position(AX_POS_YOU)  # ← lock baseline
         st.pyplot(fig, use_container_width=False)
 
 # --- Explanatory note below the three histograms ----------------------------
 st.markdown(
-    """
+    f"""
     <div style="
         max-width:820px;
-        margin:14px 0 0 0;   /* no horizontal centering, flush left */
+        margin:14px 0 0 0;
         text-align:left;
         font-size:0.82rem;
         color:#444;
         line-height:1.45;
     ">
-      <em>
-        Grey info ("world”) represents data from 1,400 people worldwide.<br>
-        Left graph: Vividness of visual imagery when awake (VVIQ score).  Middle and right: self-rated creativity and anxiety over the past year.
-      </em>
+      <em>{tr("YOU_SECTION_NOTE")}</em>
     </div>
     """,
     unsafe_allow_html=True
 )
+
 
 
 
@@ -2786,7 +2932,10 @@ with col_left:
                                    color=PURPLE_HEX, edgecolors="none")
 
                         # Titles & labels
-                        ax.set_title(f"You fall asleep in {rounded_raw} minutes", fontsize=8, pad=6, color="#222222")
+                        ax.set_title(
+                            tr("You fall asleep in {val} minutes", val=rounded_raw),
+                            fontsize=8, pad=6, color="#222222"
+                        )                        
                         ax.set_xlabel(tr("minutes"), fontsize=7.5, color="#333333")
 
                         # Remove y-axis
@@ -2807,7 +2956,7 @@ with col_left:
                         circle = plt.Circle((x0 + size/2, y_top), size/2,
                                             transform=ax.transAxes, color=PURPLE_HEX, lw=0)
                         ax.add_patch(circle)
-                        ax.text(x0 + 0.05, y_top, "you", transform=ax.transAxes,
+                        ax.text(x0 + 0.05, y_top, tr("you"), transform=ax.transAxes,
                                 ha="left", va="center", fontsize=7.5, color=PURPLE_HEX)
                         
                         # "world" — gray square below
@@ -2815,7 +2964,7 @@ with col_left:
                                                    size, size,
                                                    transform=ax.transAxes,
                                                    color="#D9D9D9", lw=0))
-                        ax.text(x0 + 0.05, y_top - y_gap, "world",
+                        ax.text(x0 + 0.05, y_top - y_gap, tr("world"),
                                 transform=ax.transAxes, ha="left", va="center",
                                 fontsize=7.5, color="#444444")
 
@@ -2870,13 +3019,13 @@ with col_mid:
                 try:
                     if dur_raw_str.endswith("+"):
                         part_hours_plot = float(dur_raw_str[:-1])
-                        title_str = f"You sleep on average {dur_raw_str} hours"
+                        title_str = tr("You sleep {val} hours on average", val=dur_raw_str)
                     else:
                         part_hours_plot = float(dur_raw_str)
-                        title_str = f"You sleep {int(round(part_hours_plot))} hours on average"
+                        title_str = tr("You sleep {val} hours on average", val=int(round(part_hours_plot)))
                 except:
                     part_hours_plot = float(np.nanmedian(samples_h))
-                    title_str = "Your sleep duration"
+                    title_str = tr("Your sleep duration")
 
                 part_hours_plot = float(np.clip(part_hours_plot, 1.0, 12.0))
                 edges = np.arange(0.5, 12.5 + 1.0, 1.0)
@@ -3021,24 +3170,19 @@ with col_right:
 
         # Dynamic title based on participant’s type
         if chronotype_val == 1:
-            chrono_title = "You are a morning type"
+            chrono_title = tr("You are a morning type")
         elif chronotype_val == 2:
-            chrono_title = "You are an evening type"
+            chrono_title = tr("You are an evening type")
         elif chronotype_val == 3:
-            chrono_title = "You have no preference"
+            chrono_title = tr("You have no preference")
         else:
-            chrono_title = "Chronotype"
+            chrono_title = tr("Chronotype")
+        
+        ax1.set_title(chrono_title, fontsize=9.5, pad=7, color="#222222")
 
-        ax1.set_title(
-            chrono_title,
-            fontsize=9.5,      # slightly reduced vs previous 9–10
-            pad=7,
-            color="#222222",
-        )
 
-        ax1.set_xticks(chrono_x)
         ax1.set_xticklabels(
-            [CHRONO_LBL[i] for i in [1, 2, 3]],
+            [tr("morning"), tr("evening"), tr("no type")],
             fontsize=8,
             rotation=0,
             ha="center",
@@ -3065,17 +3209,17 @@ with col_right:
 
         # Dynamic title based on participant’s recall frequency
         if dreamrec_val_raw == 1:
-            dr_title = "You recall your dreams\nless than once a month"
+            dr_title = tr("You recall your dreams\nless than once a month")
         elif dreamrec_val_raw == 2:
-            dr_title = "You recall your dreams\nonce or twice a month"
+            dr_title = tr("You recall your dreams\nonce or twice a month")
         elif dreamrec_val_raw == 3:
-            dr_title = "You recall your dreams\nonce a week"
+            dr_title = tr("You recall your dreams\nonce a week")
         elif dreamrec_val_raw == 4:
-            dr_title = "You recall your dreams\nseveral times a week"
+            dr_title = tr("You recall your dreams\nseveral times a week")
         elif dreamrec_val_raw == 5:
-            dr_title = "You recall your dreams\nevery day"
+            dr_title = tr("You recall your dreams\nevery day")
         else:
-            dr_title = "Dream recall"
+            dr_title = tr("Dream recall")
 
         ax2.set_title(
             dr_title,
@@ -3084,13 +3228,19 @@ with col_right:
             color="#222222",
         )
 
-        ax2.set_xticks(recall_x)
         ax2.set_xticklabels(
-            [DREAMRECALL_LBL[i] for i in [1, 2, 3, 4, 5]],
+            [
+                tr("<1/month"),
+                tr("1-2/month"),
+                tr("1/week"),
+                tr("several/week"),
+                tr("every day"),
+            ],
             fontsize=8,
-            rotation=18,       # tilt ONLY for dream recall
+            rotation=18,
             ha="right",
         )
+
 
         # ---------------------------------------------------------------------
         # SPACING BETWEEN SUBPLOTS
