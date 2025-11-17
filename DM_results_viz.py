@@ -1009,8 +1009,8 @@ TEXT = {
             "fr": "Fantasmeur",
             "es": "Fantaseador"
         },
-        "PROFILE_Sentinelle": {
-            "en": "Sentinelle",
+        "PROFILE_Sentinel": {
+            "en": "Sentinel",
             "fr": "Sentinelle",
             "es": "Centinela"
         },
@@ -1243,8 +1243,8 @@ TEXT = {
    },
    "You have no preference": {
        "en": "You have no preference",
-       "fr": "Vous n'avez pas de préférence",
-       "es": "No tienes preferencia",
+       "fr": "Vous n'avez pas de chronotype",
+       "es": "No tienes cronotipo",
    },
    "Chronotype": {
        "en": "Chronotype",
@@ -1401,8 +1401,8 @@ TEXT = {
         "fr": "Stratège",
         "es": "Estratega",
     },
-    "Sentinelle": {
-        "en": "Sentinelle",
+    "Sentinel": {
+        "en": "Sentinel",
         "fr": "Sentinelle",
         "es": "Centinela",
     },
@@ -1465,7 +1465,7 @@ TEXT = {
         "fr": "Vos pensées restent claires et structurées, centrées sur vos plans et une logique du quotidien.",
         "es": "Tus pensamientos se mantienen claros y estructurados, centrados en tus planes y en la lógica cotidiana.",
     },
-    "PROFILE_DESC_SENTINELLE": {
+    "PROFILE_DESC_SENTINEL": {
         "en": "Your mind stays mostly quiet but your attention monitors the environment, like a sentinel keeping watch.",
         "fr": "Votre esprit reste plutôt calme mais une partie de vous surveille l’environnement, comme une sentinelle qui veille.",
         "es": "Tu mente permanece bastante tranquila, pero una parte de ti vigila el entorno, como una centinela en guardia.",
@@ -2000,9 +2000,9 @@ PROFILES = {
     },
     
     # =====================================================================
-    # Sentinelle
+    # Sentinel
     # =====================================================================
-    "Sentinelle": {
+    "Sentinel": {
         "features": [
             {"type": "var", "key": ["anytime_24"],                   "norm": norm_bool, "norm_kwargs": {},"target": 1,"weight": 1.3},
             {"type": "var", "key": ["sleep_latency"],                "norm": norm_latency_auto, "norm_kwargs": {"cap_minutes": CAP_MIN}, "target": 0.4, "weight": 0.3},
@@ -2436,7 +2436,7 @@ PROFILE_TEXT_KEYS = {
     "Quiet Mind": "PROFILE_DESC_QUIET_MIND",
     "Radio Tuner": "PROFILE_DESC_RADIO_TUNER",
     "Strategist": "PROFILE_DESC_STRATEGIST",
-    "Sentinelle": "PROFILE_DESC_SENTINELLE",
+    "Sentinel": "PROFILE_DESC_SENTINEL",
     "Fragmented Mind": "PROFILE_DESC_FRAGMENTED_MIND",
     "Pragmatic": "PROFILE_DESC_PRAGMATIC",
 }
@@ -2455,7 +2455,7 @@ POP_PERC = {
     "Quiet Mind": 15,
     "Radio Tuner": 4,
     "Strategist": 7,
-    "Sentinelle": 4,
+    "Sentinel": 4,
     "Fragmented Mind": 5,
     "Pragmatic": 13,
 }
@@ -3727,7 +3727,7 @@ with col_right:
         elif chronotype_val == 2:
             chrono_title = tr("You are an evening type")
         elif chronotype_val == 3:
-            chrono_title = tr("You have no preference")
+            chrono_title = tr("You have no chronotype")
         else:
             chrono_title = tr("Chronotype")
         
