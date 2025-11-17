@@ -1241,7 +1241,7 @@ TEXT = {
        "fr": "Vous êtes de type vespéral",
        "es": "Eres de tipo vespertino",
    },
-   "You have no preference": {
+   "You have no chronotype": {
        "en": "You have no preference",
        "fr": "Vous n'avez pas de chronotype",
        "es": "No tienes cronotipo",
