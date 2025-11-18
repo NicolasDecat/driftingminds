@@ -4267,7 +4267,7 @@ try:
 
         # Only "low" (min) and "high" (max) as y-axis labels
         ax.set_yticks([y_min, y_max])
-        ax.set_yticklabels(["low", "high"], fontsize=8)
+        ax.set_yticklabels([tr("low"), tr("high")], fontsize=8)
         ax.set_ylabel(tr("Matching strength"), fontsize=8, labelpad=2)
         ax.set_title(tr("How much you match each profile"), fontsize=11, pad=8)
 
