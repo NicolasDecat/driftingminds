@@ -4339,8 +4339,18 @@ except Exception as e:
 # ==============
 import base64
 
-with open("assets/all_DMs.png", "rb") as f:
+# Choose correct image depending on language
+if LANG == "fr":
+    final_img_path = "assets/all_DMs_fr.png"
+elif LANG == "es":
+    final_img_path = "assets/all_DMs_en.png"
+else:
+    final_img_path = "assets/all_DMs.png"
+
+# Load and encode
+with open(final_img_path, "rb") as f:
     all_dms_b64 = base64.b64encode(f.read()).decode()
+
 
 st.markdown(
     f"""
