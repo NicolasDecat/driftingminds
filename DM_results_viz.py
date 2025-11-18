@@ -1302,17 +1302,17 @@ TEXT = {
     # -----------------------
     "Dreamweaver": {
     "en": "Dreamweaver",
-    "fr": "Tisseur de rêves",
+    "fr": "Tisseur de songes",
     "es": "Tejedor de sueños",
     },
     "Quick Diver": {
         "en": "Quick Diver",
-        "fr": "Plongeur rapide",
+        "fr": "Plongeur éclair",
         "es": "Buceador veloz",
     },
     "Fantasizer": {
         "en": "Fantasizer",
-        "fr": "Fantasmeur",
+        "fr": "Scénariste",
         "es": "Fantaseador",
     },
     "Archivist": {
@@ -1322,22 +1322,22 @@ TEXT = {
     },
     "Worrier": {
         "en": "Worrier",
-        "fr": "Inquiet",
+        "fr": "Esprit en remous",
         "es": "Preocupado",
     },
     "Freewheeler": {
         "en": "Freewheeler",
-        "fr": "Esprit libre",
+        "fr": "Lâche-prise",
         "es": "Mente libre",
     },
     "Quiet Mind": {
         "en": "Quiet Mind",
-        "fr": "Esprit calme",
+        "fr": "Esprit silencieux",
         "es": "Mente tranquila",
     },
     "Radio Tuner": {
         "en": "Radio Tuner",
-        "fr": "Capteur d'ondes",
+        "fr": "Zappeur mental",
         "es": "Sintonizador mental",
     },
     "Strategist": {
@@ -1352,7 +1352,7 @@ TEXT = {
     },
     "Fragmented Mind": {
         "en": "Fragmented Mind",
-        "fr": "Esprit fragmenté",
+        "fr": "Esprit morcelé",
         "es": "Mente fragmentada",
     },
     "Pragmatic": {
