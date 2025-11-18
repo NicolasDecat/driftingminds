@@ -1646,28 +1646,28 @@ TEXT = {
     "DISCLAIMER_NOTE": {
     "en": (
         'These results are automatically generated from your responses to the '
-        '<strong>Drifting Minds</strong> questionnaire.<br>'
+        'Drifting Minds questionnaire.<br>'
         'They are meant for research and self-reflection only — not as medical or diagnostic advice.<br>'
         'For any questions, contact '
         '<a href="mailto:driftingminds@icm-institute.org" '
         'style="color:#7C3AED; text-decoration:none;">driftingminds@icm-institute.org</a>.<br>'
-        '<em>Researcher of the study: Nicolas Decat, Paris Brain Institute.</em>.'
+        '<em>Researcher of the study: Nicolas Decat, Paris Brain Institute</em>.'
     ),
     "fr": (
         'Ces résultats sont générés automatiquement à partir de vos réponses au '
-        'questionnaire <strong>Drifting Minds</strong>.<br>'
-        'Ils sont destinés à la recherche et à la réflexion personnelle uniquement — '
+        'questionnaire Drifting Minds.<br>'
+        'Ils sont destinés à la recherche et à la réflexion personnelle uniquement. '
         "ils ne constituent ni un avis médical ni un outil de diagnostic.<br>"
         'Pour toute question, contactez '
         '<a href="mailto:driftingminds@icm-institute.org" '
         'style="color:#7C3AED; text-decoration:none;">driftingminds@icm-institute.org</a>.<br>'
-        '<em>Chercheur de l’étude : Nicolas Decat, Institut du Cerveau.</em>.'
+        '<em>Chercheur de l’étude : Nicolas Decat, Institut du Cerveau</em>.'
     ),
     "es": (
         'Estos resultados se generan automáticamente a partir de tus respuestas al '
-        'cuestionario <strong>Drifting Minds</strong>.<br>'
-        'Están pensados solo para la investigación y la reflexión personal — '
-        'no constituyen consejo médico ni una herramienta de diagnóstico.<br>'
+        'cuestionario Drifting Minds.<br>'
+        'Están pensados solo para la investigación y la reflexión personal. '
+        'No constituyen consejo médico ni una herramienta de diagnóstico.<br>'
         'Para cualquier pregunta, contacta con '
         '<a href="mailto:driftingminds@icm-institute.org" '
         'style="color:#7C3AED; text-decoration:none;">driftingminds@icm-institute.org</a>.<br>'
