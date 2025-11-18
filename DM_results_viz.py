@@ -1303,17 +1303,17 @@ TEXT = {
     "Dreamweaver": {
     "en": "Dreamweaver",
     "fr": "Tisseur de songes",
-    "es": "Tejedor de sueños",
+    "es": "Tejedor(a) de sueños",
     },
     "Quick Diver": {
         "en": "Quick Diver",
         "fr": "Plongeur éclair",
-        "es": "Buceador veloz",
+        "es": "Buceador(a) fulminante",
     },
     "Fantasizer": {
         "en": "Fantasizer",
         "fr": "Scénariste",
-        "es": "Fantaseador",
+        "es": "Guionista",
     },
     "Archivist": {
         "en": "Archivist",
@@ -1323,22 +1323,22 @@ TEXT = {
     "Worrier": {
         "en": "Worrier",
         "fr": "Esprit en remous",
-        "es": "Preocupado",
+        "es": "Mente en agitación",
     },
     "Freewheeler": {
         "en": "Freewheeler",
         "fr": "Lâche-prise",
-        "es": "Mente libre",
+        "es": "Soltador(a)",
     },
     "Quiet Mind": {
         "en": "Quiet Mind",
         "fr": "Esprit silencieux",
-        "es": "Mente tranquila",
+        "es": "Mente silenciosa",
     },
     "Radio Tuner": {
         "en": "Radio Tuner",
         "fr": "Zappeur mental",
-        "es": "Sintonizador mental",
+        "es": "Sintonizador(a) mental",
     },
     "Strategist": {
         "en": "Strategist",
@@ -1358,7 +1358,7 @@ TEXT = {
     "Pragmatic": {
         "en": "Pragmatic",
         "fr": "Pragmatique",
-        "es": "Pragmático",
+        "es": "Pragmático/a",
     },
         
     # -----------------------
