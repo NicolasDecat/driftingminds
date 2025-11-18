@@ -4078,6 +4078,10 @@ for i, items in bin_items.items():
         continue
     items_sorted = sorted(items, key=lambda x: (-x[2], x[3]))  # highest freq, then label
     winners[i] = [it[3] for it in items_sorted[:3]]
+# If a bin is completely empty → display "no content"
+for i in winners:
+    if len(winners[i]) == 0:
+        winners[i] = [tr("no content")]
 
 # --- Plot (horizontal bar with L→R gradient: Awake → Asleep)
 with exp_right:
