@@ -961,69 +961,7 @@ TEXT = {
         "es": "Te deslizas hacia el sueño como un(a)",
     },
 
-    # --------------------
-    # Profile names
-    # --------------------
-     "PROFILE_Dreamweaver": {
-            "en": "Dreamweaver",
-            "fr": "Tisseur de rêves",
-            "es": "Tejedor de sueños"
-        },
-        "PROFILE_Freewheeler": {
-            "en": "Freewheeler",
-            "fr": "Esprit libre",
-            "es": "Mente libre"
-        },
-        "PROFILE_Strategist": {
-            "en": "Strategist",
-            "fr": "Stratège",
-            "es": "Estratega"
-        },
-        "PROFILE_QuietMind": {
-            "en": "Quiet Mind",
-            "fr": "Esprit calme",
-            "es": "Mente tranquila"
-        },
-        "PROFILE_Archivist": {
-            "en": "Archivist",
-            "fr": "Archiviste",
-            "es": "Archivista"
-        },
-        "PROFILE_Worrier": {
-            "en": "Worrier",
-            "fr": "Inquiet",
-            "es": "Preocupado"
-        },
-        "PROFILE_RadioTuner": {
-            "en": "Radio Tuner",
-            "fr": "Capteur d'ondes",
-            "es": "Sintonizador mental"
-        },
-        "PROFILE_QuickDiver": {
-            "en": "Quick Diver",
-            "fr": "Plongeur rapide",
-            "es": "Buceador veloz"
-        },
-        "PROFILE_Fantasizer": {
-            "en": "Fantasizer",
-            "fr": "Fantasmeur",
-            "es": "Fantaseador"
-        },
-        "PROFILE_Sentinel": {
-            "en": "Sentinel",
-            "fr": "Sentinelle",
-            "es": "Centinela"
-        },
-        "PROFILE_FragmentedMind": {
-            "en": "Fragmented Mind",
-            "fr": "Esprit fragmenté",
-            "es": "Mente fragmentada"
-        },
-        "PROFILE_Pragmatic": {
-            "en": "Pragmatic",
-            "fr": "Pragmatique",
-            "es": "Pragmático"
-        },
+    
         
     # -----------------------
     # POPULATION STATS LINE
