@@ -2668,7 +2668,7 @@ for b in bars:
     is_perception = (name.lower() in ("perception", "vivid"))
     mediantag_html = ""
     if is_perception and (med_left_clamped is not None):
-        overlap = (score_txt != "NA" and abs(width_clamped - med_left_clamped) <= 6.0)
+        overlap = (score_txt != "NA" and abs(width_clamped - med_left_clamped) <= 9.0)
         mediantag_class = "dm2-mediantag below" if overlap else "dm2-mediantag"
         mediantag_html = (
             f"<div class='{mediantag_class}' style='left:{med_left_clamped}%;'>{world_tag}</div>"
