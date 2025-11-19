@@ -1350,7 +1350,7 @@ TEXT = {
         "fr": "Sentinelle",
         "es": "Centinela",
     },
-    "Fragmented Mind": {
+    "Kaleidoscope": {
         "en": "Kaleidoscope",
         "fr": "Kaléidoscope",
         "es": "Caleidoscopio",
@@ -1960,7 +1960,7 @@ PROFILES = {
     # =====================================================================
     # Fragmented Mind
     # =====================================================================
-    "Fragmented Mind": {
+    "Kaleidoscope": {
         "features": [
             {"type": "var", "key": ["freq_percept_fleeting"],      "norm": norm_1_6, "norm_kwargs": {}, "target": 0.8, "weight": 1.2},  
             {"type": "var", "key": ["freq_think_seq_bizarre"],     "norm": norm_1_6, "norm_kwargs": {}, "target": 0.8, "weight": 1.0},  
@@ -2380,7 +2380,7 @@ PROFILE_TEXT_KEYS = {
     "Radio Tuner": "PROFILE_DESC_RADIO_TUNER",
     "Strategist": "PROFILE_DESC_STRATEGIST",
     "Sentinel": "PROFILE_DESC_SENTINEL",
-    "Fragmented Mind": "PROFILE_DESC_FRAGMENTED_MIND",
+    "Kaleidoscope": "PROFILE_DESC_FRAGMENTED_MIND",
     "Pragmatic": "PROFILE_DESC_PRAGMATIC",
 }
 
@@ -2399,7 +2399,7 @@ POP_PERC = {
     "Radio Tuner": 4,
     "Strategist": 7,
     "Sentinel": 4,
-    "Fragmented Mind": 5,
+    "Kaleidoscope": 5,
     "Pragmatic": 13,
 }
 
