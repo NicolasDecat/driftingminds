@@ -975,10 +975,10 @@ TEXT = {
     # -----------------------
     # RADAR LABELS
     # -----------------------
-    "vivid": {"en": "vivid", "fr": "vive", "es": "vívida"},
-    "immersive": {"en": "immersive", "fr": "immersive", "es": "inmersiva"},
-    "bizarre": {"en": "bizarre", "fr": "bizarre", "es": "extraña"},
-    "spontaneous": {"en": "spontaneous", "fr": "spontanée", "es": "espontánea"},
+    "vivid": {"en": "vivid", "fr": "vive", "es": "vívido"},
+    "immersive": {"en": "immersive", "fr": "immersive", "es": "inmersivo"},
+    "bizarre": {"en": "bizarre", "fr": "bizarre", "es": "extraño"},
+    "spontaneous": {"en": "spontaneous", "fr": "spontanée", "es": "espontáneo"},
     "fleeting": {"en": "fleeting", "fr": "fugace", "es": "fugaz"},
     "positive\nemotions": {
         "en": "positive\nemotions",
