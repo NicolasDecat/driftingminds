@@ -1415,7 +1415,7 @@ TEXT = {
         "es": "Tu mente se calma, pero una parte de ti permanece ligeramente atenta al entorno mientras te vas quedando dormido/a.",
     },
     "PROFILE_DESC_FRAGMENTED_MIND": {
-        "en": "Your mind breaks into fleeting fragments as you fall asleep: quick flashes of thoughts, images or sounds that don't quite connect.",
+        "en": "Your mind breaks into fragments as you fall asleep: quick flashes of thoughts, images or sounds that don't quite connect.",
         "fr": "Votre esprit se fragmente à l’endormissement : pensées déconnectées, bribes d’images ou de sons qui apparaissent et disparaissent rapidement.",
         "es": "Tu mente se fragmenta al quedarte dormido/a: pensamientos desconectados, destellos de imágenes o sonidos que aparecen y desaparecen rápidamente.",
     },
@@ -1967,7 +1967,7 @@ PROFILES = {
             {"type": "var", "key": ["degreequest_fleetingness"],   "norm": norm_1_6, "norm_kwargs": {}, "target": 0.8, "weight": 1.2},  
          
         ],
-        "description": "Your mind breaks into fleeting fragments. Flashes of images, words, or sensations that appear and vanish before taking shape.",
+        "description": "Your mind breaks into fragments. Flashes of images, words, or sensations that appear and vanish before taking shape.",
         "icon": "hummingbird.svg",
     },
     
