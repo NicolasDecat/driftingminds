@@ -1968,7 +1968,7 @@ PROFILES = {
          
         ],
         "description": "Your mind breaks into fragments. Flashes of images, words, or sensations that appear and vanish before taking shape.",
-        "icon": "hummingbird.svg",
+             "icon": "hummingbird.svg",
     },
     
     # =====================================================================
