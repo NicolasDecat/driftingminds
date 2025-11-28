@@ -2966,13 +2966,6 @@ with right_btn:
   transition:background .2s ease;
 }}
 
-/* Force text to break and buttons to stay narrow */
-.bar-wa, .bar-fb {{
-    white-space: normal !important; /* allow <br> */
-    width: 95px;                    /* choose your exact width */
-    text-align: center;
-    padding:3px 4px !important;     /* compact */
-}}
 
 
 /* Default dark style (Download / Copy link) */
@@ -3013,12 +3006,14 @@ with right_btn:
       background:#2e447d;
     }}
     
-    /* Reduce horizontal padding for WA / FB */
-    .bar-wa,
-    .bar-fb {{
-      padding-left:5px;
-      padding-right:5px;
-    }}
+    /* Force narrow WA / FB buttons with controlled line break */
+      .bar-wa,
+      .bar-fb {{
+          white-space: normal !important;   /* allow <br> */
+          width: 95px !important;           /* adjust as needed */
+          text-align: center !important;
+          padding:3px 4px !important;       /* compact left-right padding */
+      }}
 
 
   /* Export root: fixed width card, in-viewport but hidden (so iOS paints it) */
