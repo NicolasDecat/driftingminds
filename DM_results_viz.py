@@ -1155,15 +1155,25 @@ TEXT = {
             "es": "✅ Copiado",
         },
         "WHATSAPP_BUTTON": {
-            "en": "🟢 Share on WhatsApp",
-            "fr": "🟢 Partager sur WhatsApp",
-            "es": "🟢 Compartir por WhatsApp",
+            "en": "Share on WhatsApp",
+            "fr": "Partager sur WhatsApp",
+            "es": "Compartir por WhatsApp",
         },
-        "WHATSAPP_SHARE_TEXT": {
-            "en": "Here is my Drifting Minds profile – discover yours:",
-            "fr": "Voici mon profil Drifting Minds – découvrez le vôtre :",
-            "es": "Este es mi perfil de Drifting Minds – descubre el tuyo:",
-                
+        "FACEBOOK_BUTTON": {
+            "en": "Share on Facebook",
+            "fr": "Partager sur Facebook",
+            "es": "Compartir en Facebook",
+        },
+        # Share message (used by both WhatsApp & Facebook)
+        "SHARE_MESSAGE_PREFIX": {
+            "en": "Here is how I fall asleep: ",
+            "fr": "Voici comment je m'endors : ",
+            "es": "Así es como me duermo: ",
+        },
+        "SHARE_MESSAGE_SUFFIX": {
+            "en": "\\nHow about you? Do the test: https://redcap.link/DriftingMinds",
+            "fr": "\\nEt toi ? Fais le test : https://redcap.link/DriftingMinds",
+            "es": "\\n¿Y tú? Haz el test: https://redcap.link/DriftingMinds",
         },
 
    # -----------------------
@@ -2911,8 +2921,12 @@ with right_btn:
   download_label = tr("DOWNLOAD_BUTTON")
   copy_label = tr("COPY_LINK_BUTTON")
   copied_label = tr("COPY_LINK_COPIED")  
+
   whatsapp_label = tr("WHATSAPP_BUTTON")
-  whatsapp_share_text = tr("WHATSAPP_SHARE_TEXT")
+  facebook_label = tr("FACEBOOK_BUTTON")
+
+  share_prefix = tr("SHARE_MESSAGE_PREFIX")
+  share_suffix = tr("SHARE_MESSAGE_SUFFIX")
 
   components.html(
     f"""
@@ -2930,7 +2944,7 @@ with right_btn:
     gap:6px; 
     padding-top:14px;
   }}
-  .row-top {{
+  .row-top, .row-bottom {{
     display:flex;
     justify-content:flex-end;
     align-items:flex-start;
@@ -2944,15 +2958,26 @@ with right_btn:
   .bar:hover {{ background:#222; }}
   .bar:active {{ background:#444; }}
 
-  /* Optional: slight green tint for WhatsApp button */
+  /* WhatsApp button color */
   .bar-wa {{
-    background:#128C7E;
+    background:#25D366;
   }}
   .bar-wa:hover {{
-    background:#0f7469;
+    background:#1eb457;
   }}
   .bar-wa:active {{
-    background:#0b5b52;
+    background:#189446;
+  }}
+
+  /* Facebook button color */
+  .bar-fb {{
+    background:#4267B2;
+  }}
+  .bar-fb:hover {{
+    background:#385599;
+  }}
+  .bar-fb:active {{
+    background:#2e447d;
   }}
 
   /* Export root: fixed width card, in-viewport but hidden (so iOS paints it) */
@@ -2976,11 +3001,16 @@ with right_btn:
 </head>
 <body data-rec="{record_id or ''}">
   <div class="wrap">
+    <!-- TOP: WhatsApp + Facebook -->
     <div class="row-top">
-      <button id="dmshot"  class="bar">{download_label}</button>
+      <button id="sharewa" class="bar bar-wa">{whatsapp_label}</button>
+      <button id="sharefb" class="bar bar-fb">{facebook_label}</button>
+    </div>
+    <!-- BOTTOM: Download + Copy link -->
+    <div class="row-bottom">
+      <button id="dmshot"   class="bar">{download_label}</button>
       <button id="copylink" class="bar">{copy_label}</button>
     </div>
-    <button id="sharewa" class="bar bar-wa">{whatsapp_label}</button>
   </div>
 
   <!-- Hidden, fully-opaque export mirror (toggled visible only during capture) -->
@@ -2992,9 +3022,12 @@ with right_btn:
     const dlBtn   = document.getElementById('dmshot');
     const copyBtn = document.getElementById('copylink');
     const waBtn   = document.getElementById('sharewa');
+    const fbBtn   = document.getElementById('sharefb');
     const root    = document.getElementById('export-root');
     const recId   = document.body.dataset.rec || '';
-    const waPrefix = {json.dumps(whatsapp_share_text)};
+
+    const sharePrefix = {json.dumps(share_prefix)};
+    const shareSuffix = {json.dumps(share_suffix)};
 
     function buildShareUrl() {{
       let href = '';
@@ -3024,11 +3057,28 @@ with right_btn:
       }}
     }});
 
+    // Build full share message (for both WA & FB)
+    function buildShareMessage(shareUrl) {{
+      return sharePrefix + shareUrl + shareSuffix;
+    }}
+
     // WhatsApp share
     waBtn.addEventListener('click', () => {{
       const share = buildShareUrl();
-      const text = waPrefix + " " + share;
+      const text = buildShareMessage(share);
       const url = "https://wa.me/?text=" + encodeURIComponent(text);
+      window.open(url, "_blank", "noopener,noreferrer");
+    }});
+
+    // Facebook share
+    fbBtn.addEventListener('click', () => {{
+      const share = buildShareUrl();
+      const text = buildShareMessage(share);
+      const url =
+        "https://www.facebook.com/sharer/sharer.php?u=" +
+        encodeURIComponent(share) +
+        "&quote=" +
+        encodeURIComponent(text);
       window.open(url, "_blank", "noopener,noreferrer");
     }});
 
@@ -3067,15 +3117,9 @@ with right_btn:
 
       await Promise.all(imgs.map(async (img) => {{
         // Always prefer the rendered (CSS) size
-        let rect = img.getBoundingClientRect();
-        let w = Math.round(rect.width);
-        let h = Math.round(rect.height);
-
-        // Fallback to natural size if rect is 0 (rare, but safe)
-        if (!w || !h) {{
-          w = img.naturalWidth  || img.width  || 0;
-          h = img.naturalHeight || img.height || 0;
-        }}
+        let rect = img.getBoundingClientClientRect ? img.getBoundingClientRect() : {{ width: img.width, height: img.height }};
+        let w = Math.round(rect.width || img.width || img.naturalWidth || 0);
+        let h = Math.round(rect.height || img.height || img.naturalHeight || 0);
         if (!w || !h) return;
 
         const src = img.currentSrc || img.src;
@@ -3153,8 +3197,9 @@ with right_btn:
 </body>
 </html>
     """,
-    height=100  # slightly higher to accommodate the third button
+    height=110  # a bit more space for two rows
   )
+
 
 
 
