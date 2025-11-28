@@ -2952,42 +2952,50 @@ with right_btn:
     align-items:flex-start;
     gap:8px;
   }}
-  .bar {{
+  /* Common size & typography for ALL 4 buttons */
+.bar,
+.bar-wa,
+.bar-fb {{
   display:inline-block;
-  padding:5px 10px;        /* reduced to match Download/Copy */
+  padding:5px 10px;        /* same padding for all */
   border:none;
-  border-radius:6px;       /* slightly smaller curvature */
-  font-size:12px;          /* smaller text */
+  border-radius:6px;       /* same radius */
+  font-size:12px;          /* same font size */
   cursor:pointer;
-  background:#000;
   color:#fff;
-  box-shadow:0 1px 4px rgba(0,0,0,.08); /* lighter shadow */
+  box-shadow:0 1px 4px rgba(0,0,0,.08);
   transition:background .2s ease;
-    }}
-    .bar:hover {{ background:#222; }}
-    .bar:active {{ background:#444; }}
-    
-    /* WhatsApp button color */
-    .bar-wa {{
-      background:#25D366;
-    }}
-    .bar-wa:hover {{
-      background:#1eb457;
-    }}
-    .bar-wa:active {{
-      background:#189446;
-    }}
-    
-    /* Facebook button color */
-    .bar-fb {{
-      background:#4267B2;
-    }}
-    .bar-fb:hover {{
-      background:#385599;
-    }}
-    .bar-fb:active {{
-      background:#2e447d;
-    }}
+}}
+
+/* Default dark style (Download / Copy link) */
+.bar {{ 
+  background:#000;
+}}
+.bar:hover {{ background:#222; }}
+.bar:active {{ background:#444; }}
+
+/* WhatsApp button color */
+.bar-wa {{
+  background:#25D366;
+}}
+.bar-wa:hover {{
+  background:#1eb457;
+}}
+.bar-wa:active {{
+  background:#189446;
+}}
+
+/* Facebook button color */
+.bar-fb {{
+  background:#4267B2;
+}}
+.bar-fb:hover {{
+  background:#385599;
+}}
+.bar-fb:active {{
+  background:#2e447d;
+}}
+
 
 
   /* Export root: fixed width card, in-viewport but hidden (so iOS paints it) */
@@ -3008,16 +3016,6 @@ with right_btn:
     height: auto;
   }}
 </style>
-
-  /* --- FORCE SAME SIZE FOR ALL 4 BUTTONS --- */
-  .bar,
-  .bar-wa,
-  .bar-fb {{
-    padding:5px 10px !important;
-    border-radius:6px !important;
-    font-size:12px !important;
-    box-shadow:0 1px 4px rgba(0,0,0,.08) !important;
-  }}
 
 
 </head>
