@@ -2362,22 +2362,21 @@ PROFILE_NAME_FR_PLURAL = {
     "Pragmatic": "Pragmatiques",
 }
 
-PROFILE_GROUP_ES = {
-    # We use a gender-neutral group phrase to avoid the Soñador(a)s horror :)
-    "Dreamweaver": "Las personas del perfil Soñador(a)",
-    "Quick Diver": "Las personas del perfil Buceador(a)",
-    "Fantasizer": "Las personas del perfil Guionista",
-    "Archivist": "Las personas del perfil Archivero/a",
-    "Worrier": "Las personas del perfil Rumiante",
-    "Freewheeler": "Las personas del perfil Vagabundo/a",
-    "Quiet Mind": "Las personas del perfil Silencioso/a",
-    "Radio Tuner": "Las personas del perfil Sintonizador(a)",
-    "Strategist": "Las personas del perfil Estratega",
-    "Sentinel": "Las personas del perfil Centinela",
-    "Kaleidoscope": "Las personas del perfil Caleidoscopio",
-    "Pragmatic": "Las personas del perfil Pragmático/a",
-}
 
+PROFILE_ARTICLE_ES = {
+    "Dreamweaver": "Los",
+    "Quick Diver": "Los",
+    "Fantasizer": "Los",
+    "Archivist": "Los",
+    "Worrier": "Los",
+    "Freewheeler": "Los",
+    "Quiet Mind": "Los",
+    "Radio Tuner": "Los",
+    "Strategist": "Los",
+    "Sentinel": "Los",
+    "Kaleidoscope": "Los",
+    "Pragmatic": "Los",
+}
 
 # ==============
 # Title + Profile header (icon + text)
@@ -2445,25 +2444,22 @@ lead_txt = tr("You drift into sleep like a")
 # Display name translated (keeps English if no entry)
 prof_name_disp = tr(prof_name)
 
-# Build a correctly pluralised / grouped name for the population sentence
+# Build population sentence with proper grammar per language
 if LANG == "fr":
-    name_for_sentence = PROFILE_NAME_FR_PLURAL.get(
+    # Pluriel du nom de profil
+    name_plural_fr = PROFILE_NAME_FR_PLURAL.get(
         prof_name,
-        prof_name_disp + "s",  # fallback
+        prof_name_disp + "s"  # fallback si jamais
     )
-elif LANG == "es":
-    name_for_sentence = PROFILE_GROUP_ES.get(
-        prof_name,
-        f"Las personas del perfil {prof_name_disp}",
-    )
-else:  # English
-    name_for_sentence = prof_name_disp
+    pop_line = f"Les {name_plural_fr} représentent {perc_val}% de la population."
 
-pop_line = tr(
-    "{name}s represent {perc}% of the population.",
-    name=name_for_sentence,
-    perc=perc_val,
-)
+elif LANG == "es":
+    # Juste Los/Las + nom du profil, comme demandé
+    article = PROFILE_ARTICLE_ES.get(prof_name, "Los")
+    pop_line = f"{article} {prof_name_disp} representan el {perc_val}% de la población."
+
+else:  # EN
+    pop_line = f"{prof_name_disp}s represent {perc_val}% of the population."
 
 
 prof_desc_ext = (
