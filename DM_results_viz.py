@@ -2968,33 +2968,43 @@ with right_btn:
 }}
 
 /* Default dark style (Download / Copy link) */
-.bar {{ 
+  .bar {{
+  display:inline-block;
+  padding:5px 10px;        /* reduced to match Download/Copy */
+  border:none;
+  border-radius:6px;       /* slightly smaller curvature */
+  font-size:12px;          /* smaller text */
+  cursor:pointer;
   background:#000;
-}}
-.bar:hover {{ background:#222; }}
-.bar:active {{ background:#444; }}
+  color:#fff;
+  box-shadow:0 1px 4px rgba(0,0,0,.08); /* lighter shadow */
+  transition:background .2s ease;
+    }}
+    .bar:hover {{ background:#222; }}
+    .bar:active {{ background:#444; }}
+    
+    /* WhatsApp button color */
+    .bar-wa {{
+      background:#25D366;
+    }}
+    .bar-wa:hover {{
+      background:#1eb457;
+    }}
+    .bar-wa:active {{
+      background:#189446;
+    }}
+    
+    /* Facebook button color */
+    .bar-fb {{
+      background:#4267B2;
+    }}
+    .bar-fb:hover {{
+      background:#385599;
+    }}
+    .bar-fb:active {{
+      background:#2e447d;
+    }}
 
-/* WhatsApp button color */
-.bar-wa {{
-  background:#25D366;
-}}
-.bar-wa:hover {{
-  background:#1eb457;
-}}
-.bar-wa:active {{
-  background:#189446;
-}}
-
-/* Facebook button color */
-.bar-fb {{
-  background:#4267B2;
-}}
-.bar-fb:hover {{
-  background:#385599;
-}}
-.bar-fb:active {{
-  background:#2e447d;
-}}
 
 
 
