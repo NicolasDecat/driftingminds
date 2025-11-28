@@ -1171,7 +1171,7 @@ TEXT = {
    "Your sleep duration": {
        "en": "Your sleep duration",
        "fr": "La durée de votre sommeil",
-       "es": "La duración de tu sueño",
+       "es": "La duración de su sueño",
    },
 
    # Chronotype titles
@@ -1237,7 +1237,7 @@ TEXT = {
    "1-2/month": {"en": "1–2/month", "fr": "1–2/mois", "es": "1–2/mes"},
    "1/week": {"en": "1/week", "fr": "1/semaine", "es": "1/semana"},
    "several/week": {"en": "several/week", "fr": "plusieurs/sem.", "es": "varias/sem."},
-   "every day": {"en": "every day", "fr": "tous les jours", "es": "tous les jours"
+   "every day": {"en": "every day", "fr": "tous les jours", "es": "todos los días"
     },
    
    # Notes
@@ -1292,7 +1292,7 @@ TEXT = {
         ),
         "es": (
             "Gráfico de la izquierda: su propia selección de trayectoria. "
-            "Gráfico central: sus puntuaciones de intensidad para tu contenido mental típico (1 = bajo, 6 = alto). "
+            "Gráfico central: sus puntuaciones de intensidad para su contenido mental típico (1 = bajo, 6 = alto). "
             "Gráfico de la derecha: el contenido mental que aparece con más frecuencia al principio vs al final de quedarse dormido."
         ),
     },
@@ -2728,7 +2728,7 @@ DM_SHARE_HTML = f"""
 <div style='position:relative;'>
   <div style='position:absolute; top:5px; right:0px; text-align:center; font-size:0.9rem; color:#000; line-height:1.05;'>
     <img src="{qr_src}" width="88" style="display:block; margin:0 auto 1px auto;" />
-    <div style="font-weight:600; font-size:0.6rem; margin:0;">Participe!</div>
+    <div style="font-weight:600; font-size:0.6rem; margin:0;">Participate!</div>
     <div style="font-size:0.6rem; margin-top:3px;">redcap.link/DriftingMinds</div>
   </div>
   {export_title_html}
