@@ -1425,6 +1425,8 @@ TEXT = {
         "es": "Sus pensamientos mantienen una lógica clara y realista; están anclados en lo cotidiano más que en lo imaginario o lo extraño.",
     },
     
+    
+    
     # -----------------------
     # Timeline 
     # -----------------------
@@ -2342,6 +2344,40 @@ def _eval_guard(record, rule):
     # single condition
     return _eval_condition(record, rule)
 
+# =========
+# Plurals for profile names (FR) and group phrases (ES)
+# =========
+PROFILE_NAME_FR_PLURAL = {
+    "Dreamweaver": "Tisseurs de songes",
+    "Quick Diver": "Plongeurs",
+    "Fantasizer": "Scénaristes",
+    "Archivist": "Archivistes",
+    "Worrier": "Moulins à pensées",
+    "Freewheeler": "Vagabonds",
+    "Quiet Mind": "Silencieux",        # same form in plural
+    "Radio Tuner": "Zappeurs",
+    "Strategist": "Stratèges",
+    "Sentinel": "Sentinelles",
+    "Kaleidoscope": "Kaléidoscopes",
+    "Pragmatic": "Pragmatiques",
+}
+
+PROFILE_GROUP_ES = {
+    # We use a gender-neutral group phrase to avoid the Soñador(a)s horror :)
+    "Dreamweaver": "Las personas del perfil Soñador(a)",
+    "Quick Diver": "Las personas del perfil Buceador(a)",
+    "Fantasizer": "Las personas del perfil Guionista",
+    "Archivist": "Las personas del perfil Archivero/a",
+    "Worrier": "Las personas del perfil Rumiante",
+    "Freewheeler": "Las personas del perfil Vagabundo/a",
+    "Quiet Mind": "Las personas del perfil Silencioso/a",
+    "Radio Tuner": "Las personas del perfil Sintonizador(a)",
+    "Strategist": "Las personas del perfil Estratega",
+    "Sentinel": "Las personas del perfil Centinela",
+    "Kaleidoscope": "Las personas del perfil Caleidoscopio",
+    "Pragmatic": "Las personas del perfil Pragmático/a",
+}
+
 
 # ==============
 # Title + Profile header (icon + text)
@@ -2409,11 +2445,26 @@ lead_txt = tr("You drift into sleep like a")
 # Display name translated (keeps English if no entry)
 prof_name_disp = tr(prof_name)
 
+# Build a correctly pluralised / grouped name for the population sentence
+if LANG == "fr":
+    name_for_sentence = PROFILE_NAME_FR_PLURAL.get(
+        prof_name,
+        prof_name_disp + "s",  # fallback
+    )
+elif LANG == "es":
+    name_for_sentence = PROFILE_GROUP_ES.get(
+        prof_name,
+        f"Las personas del perfil {prof_name_disp}",
+    )
+else:  # English
+    name_for_sentence = prof_name_disp
+
 pop_line = tr(
     "{name}s represent {perc}% of the population.",
-    name=prof_name_disp,
+    name=name_for_sentence,
     perc=perc_val,
 )
+
 
 prof_desc_ext = (
     f"{prof_desc}<br>"
