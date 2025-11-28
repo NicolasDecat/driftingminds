@@ -1163,6 +1163,7 @@ TEXT = {
             "fr": "Partager sur<br>Facebook",
             "en": "Share on<br>Facebook",
             "es": "Compartir en<br>Facebook",
+            },
         "SHARE_MESSAGE_PREFIX": {
             "en": "Here is how I fall asleep: ",
             "fr": "Voici comment je m'endors : ",
