@@ -3008,8 +3008,8 @@ with right_btn:
     /* Reduce horizontal padding for WA / FB */
     .bar-wa,
     .bar-fb {{
-      padding-left:4px;
-      padding-right:4px;
+      padding-left:5px;
+      padding-right:5px;
     }}
 
 
