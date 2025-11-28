@@ -958,7 +958,7 @@ TEXT = {
     "You drift into sleep like a": {
         "en": "You drift into sleep like a",
         "fr": "Vous glissez dans le sommeil comme un(e)",
-        "es": "Te deslizas hacia el sueño como un(a)",
+        "es": "Se desliza hacia el sueño como un(a)",
     },
 
     
