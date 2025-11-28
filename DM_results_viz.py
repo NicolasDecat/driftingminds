@@ -1155,25 +1155,24 @@ TEXT = {
             "es": "✅ Copiado",
         },
         "WHATSAPP_BUTTON": {
-            "en": "Share on WhatsApp",
-            "fr": "Partager sur WhatsApp",
-            "es": "Compartir por WhatsApp",
+        "en": "Share on WhatsApp",
+        "fr": "Partager sur WhatsApp",
+        "es": "Compartir por WhatsApp",
         },
         "FACEBOOK_BUTTON": {
             "en": "Share on Facebook",
             "fr": "Partager sur Facebook",
             "es": "Compartir en Facebook",
         },
-        # Share message (used by both WhatsApp & Facebook)
         "SHARE_MESSAGE_PREFIX": {
             "en": "Here is how I fall asleep: ",
             "fr": "Voici comment je m'endors : ",
             "es": "Así es como me duermo: ",
         },
         "SHARE_MESSAGE_SUFFIX": {
-            "en": "\\nHow about you? Do the test: https://redcap.link/DriftingMinds",
-            "fr": "\\nEt toi ? Fais le test : https://redcap.link/DriftingMinds",
-            "es": "\\n¿Y tú? Haz el test: https://redcap.link/DriftingMinds",
+            "en": "\nHow about you? Do the test: https://redcap.link/DriftingMinds",
+            "fr": "\nEt toi ? Fais le test : https://redcap.link/DriftingMinds",
+            "es": "\n¿Y tú? Haz el test: https://redcap.link/DriftingMinds",
         },
 
    # -----------------------
@@ -2918,25 +2917,28 @@ with left_note:
 
 with right_btn:
     
-  download_label = tr("DOWNLOAD_BUTTON")
-  copy_label = tr("COPY_LINK_BUTTON")
-  copied_label = tr("COPY_LINK_COPIED")  
+    download_label = tr("DOWNLOAD_BUTTON")
+    copy_label = tr("COPY_LINK_BUTTON")
+    copied_label = tr("COPY_LINK_COPIED")  
 
-  whatsapp_label = tr("WHATSAPP_BUTTON")
-  facebook_label = tr("FACEBOOK_BUTTON")
+    whatsapp_label = tr("WHATSAPP_BUTTON")
+    facebook_label = tr("FACEBOOK_BUTTON")
 
-  share_prefix = tr("SHARE_MESSAGE_PREFIX")
-  share_suffix = tr("SHARE_MESSAGE_SUFFIX")
+    share_prefix = tr("SHARE_MESSAGE_PREFIX")
+    share_suffix = tr("SHARE_MESSAGE_SUFFIX")
 
-  components.html(
-    f"""
+    components.html(
+        f"""
 <!doctype html>
 <html>
 <head>
 <meta charset="utf-8" />
 {DM_SHARE_CSS}
 <style>
-  body {{ margin:0; background:#fff; }}
+  body {{
+    margin:0;
+    background:#fff;
+  }}
   .wrap {{
     display:flex; 
     flex-direction:column;
@@ -2951,9 +2953,16 @@ with right_btn:
     gap:8px;
   }}
   .bar {{
-    display:inline-block; padding:9px 14px; border:none; border-radius:8px;
-    font-size:14px; cursor:pointer; background:#000; color:#fff;
-    box-shadow:0 2px 6px rgba(0,0,0,.08); transition:background .2s ease;
+    display:inline-block;
+    padding:7px 12px;        /* slightly smaller */
+    border:none;
+    border-radius:8px;
+    font-size:13px;          /* slightly smaller */
+    cursor:pointer;
+    background:#000;
+    color:#fff;
+    box-shadow:0 2px 6px rgba(0,0,0,.08);
+    transition:background .2s ease;
   }}
   .bar:hover {{ background:#222; }}
   .bar:active {{ background:#444; }}
@@ -3116,8 +3125,7 @@ with right_btn:
       }});
 
       await Promise.all(imgs.map(async (img) => {{
-        // Always prefer the rendered (CSS) size
-        let rect = img.getBoundingClientClientRect ? img.getBoundingClientRect() : {{ width: img.width, height: img.height }};
+        let rect = img.getBoundingClientRect();
         let w = Math.round(rect.width || img.width || img.naturalWidth || 0);
         let h = Math.round(rect.height || img.height || img.naturalHeight || 0);
         if (!w || !h) return;
@@ -3133,7 +3141,6 @@ with right_btn:
           ctx.drawImage(bitmap, 0, 0, w, h);
           const data = c.toDataURL('image/png');
 
-          // Lock the rendered dimensions so layout remains identical
           img.style.width  = w + 'px';
           img.style.height = h + 'px';
 
@@ -3154,25 +3161,20 @@ with right_btn:
 
     async function capture() {{
       try {{
-        // Let layout settle
         await new Promise(r => requestAnimationFrame(r));
         await new Promise(r => requestAnimationFrame(r));
 
-        // Make export root visible (must be visible to measure/rasterize correctly)
         const prevVis = root.style.visibility;
         root.style.visibility = 'visible';
         void root.offsetHeight;
 
-        // Ensure images are decoded, then rasterize at rendered size
         await ensureImagesReady(root);
         await rasterizeImages(root);
 
-        // Measure the final card size *as rendered*
         const rect = root.getBoundingClientRect();
         const w = Math.max(1, Math.round(rect.width));
         const h = Math.max(1, Math.round(rect.height));
 
-        // Snapshot without extra scaling to avoid oversized outputs
         const blob = await window.domtoimage.toBlob(root, {{
           width:  w,
           height: h,
@@ -3196,9 +3198,9 @@ with right_btn:
   </script>
 </body>
 </html>
-    """,
-    height=110  # a bit more space for two rows
-  )
+        """,
+        height=110,
+    )
 
 
 
