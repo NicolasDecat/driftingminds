@@ -1155,15 +1155,14 @@ TEXT = {
             "es": "✅ Copiado",
         },
         "WHATSAPP_BUTTON": {
-        "en": "Share on WhatsApp",
-        "fr": "Partager sur WhatsApp",
-        "es": "Compartir por WhatsApp",
+            "fr": "Partager sur<br>WhatsApp",
+            "en": "Share on<br>WhatsApp",
+            "es": "Compartir en<br>WhatsApp",
         },
         "FACEBOOK_BUTTON": {
-            "en": "Share on Facebook",
-            "fr": "Partager sur Facebook",
-            "es": "Compartir en Facebook",
-        },
+            "fr": "Partager sur<br>Facebook",
+            "en": "Share on<br>Facebook",
+            "es": "Compartir en<br>Facebook",
         "SHARE_MESSAGE_PREFIX": {
             "en": "Here is how I fall asleep: ",
             "fr": "Voici comment je m'endors : ",
@@ -2966,6 +2965,15 @@ with right_btn:
   box-shadow:0 1px 4px rgba(0,0,0,.08);
   transition:background .2s ease;
 }}
+
+/* Force text to break and buttons to stay narrow */
+.bar-wa, .bar-fb {{
+    white-space: normal !important; /* allow <br> */
+    width: 95px;                    /* choose your exact width */
+    text-align: center;
+    padding:3px 4px !important;     /* compact */
+}}
+
 
 /* Default dark style (Download / Copy link) */
   .bar {{
