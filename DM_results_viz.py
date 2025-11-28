@@ -2957,7 +2957,7 @@ with right_btn:
 .bar-wa,
 .bar-fb {{
   display:inline-block;
-  padding:3px 7px;        /* same padding for all */
+  padding:3px 10px;        /* same padding for all */
   border:none;
   border-radius:6px;       /* same radius */
   font-size:12px;          /* same font size */
@@ -3004,8 +3004,13 @@ with right_btn:
     .bar-fb:active {{
       background:#2e447d;
     }}
-
-
+    
+    /* Reduce horizontal padding for WA / FB */
+    .bar-wa,
+    .bar-fb {{
+      padding-left:4px;
+      padding-right:4px;
+    }}
 
 
   /* Export root: fixed width card, in-viewport but hidden (so iOS paints it) */
