@@ -2952,50 +2952,42 @@ with right_btn:
     align-items:flex-start;
     gap:8px;
   }}
-  /* Taille commune pour tous les boutons */
-.bar,
-.bar-wa,
-.bar-fb {{
+  .bar {{
   display:inline-block;
-  padding:5px 10px;        /* plus petit */
+  padding:5px 10px;        /* reduced to match Download/Copy */
   border:none;
-  border-radius:6px;
-  font-size:12px;
+  border-radius:6px;       /* slightly smaller curvature */
+  font-size:12px;          /* smaller text */
   cursor:pointer;
   background:#000;
   color:#fff;
-  box-shadow:0 1px 4px rgba(0,0,0,.08);
+  box-shadow:0 1px 4px rgba(0,0,0,.08); /* lighter shadow */
   transition:background .2s ease;
-}}
-.bar:hover,
-.bar-wa:hover,
-.bar-fb:hover {{ background:#222; }}
-.bar:active,
-.bar-wa:active,
-.bar-fb:active {{ background:#444; }}
-
-/* WhatsApp button color */
-.bar-wa {{
-  background:#25D366;
-}}
-.bar-wa:hover {{
-  background:#1eb457;
-}}
-.bar-wa:active {{
-  background:#189446;
-}}
-
-/* Facebook button color */
-.bar-fb {{
-  background:#4267B2;
-}}
-.bar-fb:hover {{
-  background:#385599;
-}}
-.bar-fb:active {{
-  background:#2e447d;
-}}
-
+    }}
+    .bar:hover {{ background:#222; }}
+    .bar:active {{ background:#444; }}
+    
+    /* WhatsApp button color */
+    .bar-wa {{
+      background:#25D366;
+    }}
+    .bar-wa:hover {{
+      background:#1eb457;
+    }}
+    .bar-wa:active {{
+      background:#189446;
+    }}
+    
+    /* Facebook button color */
+    .bar-fb {{
+      background:#4267B2;
+    }}
+    .bar-fb:hover {{
+      background:#385599;
+    }}
+    .bar-fb:active {{
+      background:#2e447d;
+    }}
 
 
   /* Export root: fixed width card, in-viewport but hidden (so iOS paints it) */
@@ -3016,6 +3008,18 @@ with right_btn:
     height: auto;
   }}
 </style>
+
+  /* --- FORCE SAME SIZE FOR ALL 4 BUTTONS --- */
+  .bar,
+  .bar-wa,
+  .bar-fb {{
+    padding:5px 10px !important;
+    border-radius:6px !important;
+    font-size:12px !important;
+    box-shadow:0 1px 4px rgba(0,0,0,.08) !important;
+  }}
+
+
 </head>
 <body data-rec="{record_id or ''}">
   <div class="wrap">
@@ -3205,6 +3209,8 @@ with right_btn:
     dlBtn.addEventListener('click', capture);
   }})();
   </script>
+  
+  
 </body>
 </html>
         """,
