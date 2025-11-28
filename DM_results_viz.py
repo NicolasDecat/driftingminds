@@ -1303,7 +1303,7 @@ TEXT = {
     "Dreamweaver": {
     "en": "Dreamweaver",
     "fr": "Tisseur de songes",
-    "es": "Tejedor(a) de sueños",
+    "es": "Soñador(a)",
     },
     "Quick Diver": {
         "en": "Quick Diver",
@@ -1318,12 +1318,12 @@ TEXT = {
     "Archivist": {
         "en": "Archivist",
         "fr": "Archiviste",
-        "es": "Archivista",
+        "es": "Archivero/a",
     },
     "Worrier": {
         "en": "Worrier",
         "fr": "Moulin à pensées",
-        "es": "Molino de pensamientos",
+        "es": "Rumiante",
     },
     "Freewheeler": {
         "en": "Freewheeler",
@@ -1367,62 +1367,62 @@ TEXT = {
     "PROFILE_DESC_DREAMWEAVER": {
         "en": "Your mind drifts through mini-dreams as soon as you start falling asleep : colorful and narrative scenes, sometimes with a touch of weirdness.",
         "fr": "Votre esprit glisse vers le sommeil en tissant de petites scènes oniriques : des images colorées et des histoires, parfois étranges.",
-        "es": "Tu mente se desliza hacia el sueño tejiendo pequeñas escenas oníricas: imágenes coloridas e historias, a veces extrañas.",
+        "es": "Su mente se desliza hacia el sueño tejiendo pequeñas escenas oníricas: imágenes coloridas e historias, a veces extrañas.",
     },
     "PROFILE_DESC_QUICK_DIVER": {
         "en": "You fall asleep fast and head-first; an immediate dive into sleep that leaves little room for thinking.",
         "fr": "Vous vous endormez d’un seul coup; une plongée soudaine sans presque aucune pensée sur le chemin.",
-        "es": "Te duermes de golpe; una caída repentina sin casi ningún pensamiento en el camino.",
+        "es": "Se duerme de golpe; una inmersión repentina en el sueño sin casi ningún pensamiento en el camino.",
     },
     "PROFILE_DESC_FANTASIZER": {
         "en": "You create vivid, intentional inner stories as you drift off; imaginative scenes that unfold until sleep takes over.",
         "fr": "Vous imaginez des histoires ou des scénarios : des scènes volontairement construites qui vous portent jusqu’au sommeil.",
-        "es": "Imaginas historias o escenarios: escenas construidas a propósito que te acompañan hasta el sueño.",
+        "es": "Imagina historias o escenarios: escenas construidas y deliberadas que le acompañan hasta entregarse al sueño.",
     },
     "PROFILE_DESC_ARCHIVIST": {
         "en": "You fall asleep by revisiting the past; replaying moments, conversations, or scenes, as if sorting through memories before sleep.",
         "fr": "Vous vous endormez en revisitant la journée : moments, conversations ou scènes reviennent avant de vous laisser aller.",
-        "es": "Te duermes reviviendo el día: momentos, conversaciones o escenas vuelven antes de que te dejes llevar.",
+        "es": "Se duerme repasando el día: revives momentos, conversaciones o escenas antes de que el sueño te lleve.",
     },
     "PROFILE_DESC_WORRIER": {
         "en": "Your mind cycles through the same concerns or unfinished thoughts, looping them again and again before settling.",
         "fr": "Votre esprit tourne en boucle sur les mêmes préoccupations ou pensées persistantes jusqu’à ce que le sommeil s’installe.",
-        "es": "Tu mente da vueltas sobre las mismas preocupaciones o pensamientos persistentes hasta que el sueño llega.",
+        "es": "Su mente da vueltas sin parar sobre las mismas preocupaciones o pensamientos recurrentes hasta que el sueño se instala.",
     },
     "PROFILE_DESC_FREEWHEELER": {
         "en": "You start falling asleep with intentional thoughts, then loosen into spontaneous, free-flowing ideas that carry you toward sleep.",
         "fr": "Vous démarrez avec des pensées intentionelles puis vos pensées deviennent spontanées, vagabondant librement pour suivre leur propre cours jusqu'au sommeil.",
-        "es": "Empiezas con pensamientos intencionales, y luego tus ideas se vuelven espontáneas, vagando libremente hasta llevarte al sueño.",
+        "es": "Empieza con pensamientos intencionales, y luego sus ideas se vuelven espontáneas, vagando libremente hasta llevarle al sueño.",
     },
     "PROFILE_DESC_QUIET_MIND": {
         "en": "You drift into sleep with almost no mental noise, your mind simply fades out, calm and empty.",
         "fr": "Vous vous endormez dans un silence intérieur presque total : l’esprit s'éteint doucement, sans agitation.",
-        "es": "Te duermes en un silencio interior casi total: la mente se apaga suavemente, sin agitación.",
+        "es": "Se duerme envuelto/a en un silencio interior casi total: la mente se apaga suavemente, sin agitación.",
     },
     "PROFILE_DESC_RADIO_TUNER": {
         "en": "Your mind shifts rapidly between thoughts and perceptions as you fall asleep, like flicking through mental stations and never staying in one one for long.",
         "fr": "Votre esprit saute rapidement d'une idée ou perception à l'autre, comme si vous zappiez entre différentes chaînes mentales.",
-        "es": "Tu mente cambia rápidamente de forma —pensamientos y percepciones— sin detenerse nunca en un mismo contenido.",
+        "es": "Su mente pasa rápidamente de un pensamiento o una percepción a otro, sin detenerse nunca en un mismo contenido.",
     },
     "PROFILE_DESC_STRATEGIST": {
         "en": "You organize plans or tasks for the future as you fall asleep, thinking ahead to what comes next.",
         "fr": "Vous mettez de l’ordre dans vos idées en vous endormant, en préparant mentalement le futur et les tâches à venir.",
-        "es": "Pones orden en tus ideas al dormirte, preparando mentalmente el futuro y las tareas por venir.",
+        "es": "Pone orden en sus ideas al dormirse, preparando mentalmente el futuro y las tareas por venir.",
     },
     "PROFILE_DESC_SENTINEL": {
         "en": "Your mind quiets down, but part of you stays lightly aware of your surroundings as you fall asleep.",
         "fr": "Votre esprit s'apaise, mais une partie de vous reste légèrement attentive à votre environnement tout en basculant vers le sommeil.",
-        "es": "Tu mente se calma, pero una parte de ti permanece ligeramente atenta al entorno mientras te vas quedando dormido/a.",
+        "es": "Su mente se calma, pero una parte de usted permanece ligeramente atenta a su entorno mientras se va quedando dormido/a.",
     },
     "PROFILE_DESC_FRAGMENTED_MIND": {
         "en": "Your mind breaks into fragments as you fall asleep: quick flashes of thoughts, images or sounds that don't quite connect.",
         "fr": "Votre esprit se fragmente à l’endormissement : pensées déconnectées, bribes d’images ou de sons qui apparaissent et disparaissent rapidement.",
-        "es": "Tu mente se fragmenta al quedarte dormido/a: pensamientos desconectados, destellos de imágenes o sonidos que aparecen y desaparecen rápidamente.",
+        "es": "Su mente se fragmenta al quedarse dormido/a: destellos fugaces de pensamientos, imágenes o sonidos que no llegan a conectarse entre sí.",
     },
     "PROFILE_DESC_PRAGMATIC": {
         "en": "Your thoughts stay clear and practical; grounded in everyday logic rather than drifting into the strange.",
         "fr": "Vos pensées gardent une logique claire et terre-à-terre, elles sont ancrées dans le quotidien plutôt que dans l’imaginaire ou l’étrange.",
-        "es": "Tus pensamientos mantienen una lógica clara y realista; están anclados en lo cotidiano más que en lo imaginario o lo extraño.",
+        "es": "Sus pensamientos mantienen una lógica clara y realista; están anclados en lo cotidiano más que en lo imaginario o lo extraño.",
     },
     
     # -----------------------
