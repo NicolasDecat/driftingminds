@@ -2957,7 +2957,7 @@ with right_btn:
 .bar-wa,
 .bar-fb {{
   display:inline-block;
-  padding:5px 10px;        /* same padding for all */
+  padding:3px 7px;        /* same padding for all */
   border:none;
   border-radius:6px;       /* same radius */
   font-size:12px;          /* same font size */
