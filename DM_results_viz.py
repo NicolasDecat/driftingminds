@@ -911,32 +911,32 @@ TEXT = {
     "YOU": {
         "en": "YOU",
         "fr": "VOUS",
-        "es": "TÚ",
+        "es": "USTED",
     },
     "YOUR SLEEP": {
         "en": "YOUR SLEEP",
         "fr": "VOTRE SOMMEIL",
-        "es": "TU SUEÑO",
+        "es": "SU SUEÑO",
     },
     "YOUR EXPERIENCE": {
         "en": "YOUR EXPERIENCE",
         "fr": "VOTRE EXPÉRIENCE",
-        "es": "TU EXPERIENCIA",
+        "es": "SU EXPERIENCIA",
     },
     "Dynamics of your experience": {
         "en": "Dynamics of your experience",
         "fr": "Dynamique de votre expérience",
-        "es": "Dinámica de tu experiencia",
+        "es": "Dinámica de su experiencia",
     },
     "Intensity of your experience": {
         "en": "Intensity of your experience",
         "fr": "Intensité de votre expérience",
-        "es": "Intensidad de tu experiencia",
+        "es": "Intensidad de su experiencia",
     },
     "Your trajectory": {
        "en": "Your trajectory",
        "fr": "Votre trajectoire",
-       "es": "Tu trayectoria",
+       "es": "Su trayectoria",
    },
 
     # -----------------------
@@ -993,17 +993,17 @@ TEXT = {
     "Your visual imagery at wake: {val}": {
         "en": "Your visual imagery at wake: {val}",
         "fr": "Votre imagerie visuelle à l’éveil : {val}",
-        "es": "Tu imaginación visual al despertar: {val}",
+        "es": "Su imaginación visual al despertar: {val}",
     },
     "Your self-rated creativity: {val}": {
         "en": "Your self-rated creativity: {val}",
         "fr": "Votre créativité auto-évaluée : {val}",
-        "es": "Tu creatividad autoevaluada: {val}",
+        "es": "Su creatividad autoevaluada: {val}",
     },
     "Your self-rated anxiety: {val}": {
         "en": "Your self-rated anxiety: {val}",
         "fr": "Votre anxiété auto-évaluée : {val}",
-        "es": "Tu ansiedad autoevaluada: {val}",
+        "es": "Su ansiedad autoevaluada: {val}",
     },
     
     # -----------------------
@@ -1050,7 +1050,7 @@ TEXT = {
    "you": {
        "en": "you",
        "fr": "vous",
-       "es": "tú",
+       "es": "usted",
    },
    "world": {
        "en": "world",
@@ -1123,14 +1123,14 @@ TEXT = {
          '= moyenne mondiale : correspond à la moyenne des scores de 1 400 personnes dans le monde.'
      ),
      "es": (
-         '<strong>Vívido</strong>: brillo o contraste de tus imágenes mentales, '
-         'o intensidad de lo que oyes. '
+         '<strong>Vívido</strong>: brillo o contraste de las imágenes mentales, '
+         'o intensidad de lo que se oye. '
          '<strong>Bizarro</strong>: cuán inusual o poco realista se siente el contenido. '
-         '<strong>Inmersivo</strong>: hasta qué punto estás profundamente absorbido/a '
-         'por tu contenido mental. '
+         '<strong>Inmersivo</strong>: hasta qué punto se está profundamente absorbido '
+         'por el contenido mental. '
          '<strong>Espontáneo</strong>: hasta qué punto el contenido aparece por sí solo, '
          'sin control deliberado. '
-         '<strong>Emocional</strong>: cuán intensamente sentiste emociones.<br>'
+         '<strong>Emocional</strong>: cuán intensamente se experimentaron emociones.<br>'
          '<span style="font-size:0.6rem; margin-right:6px;">⚫️</span>'
          '= media mundial: representa la media de las puntuaciones de 1.400 personas en todo el mundo.'
      ),
@@ -1161,12 +1161,12 @@ TEXT = {
    "You fall asleep in {val} minutes": {
        "en": "You fall asleep in {val} minutes",
        "fr": "Vous vous endormez en {val} minutes",
-       "es": "Te duermes en {val} minutos",
+       "es": "Se duerme en {val} minutos",
    },
    "You sleep {val} hours on average": {
        "en": "You sleep {val} hours on average",
        "fr": "Vous dormez en moyenne {val} heures",
-       "es": "Duermes una media de {val} horas",
+       "es": "Duerme una media de {val} horas",
    },
    "Your sleep duration": {
        "en": "Your sleep duration",
@@ -1178,17 +1178,17 @@ TEXT = {
    "You are a morning type": {
        "en": "You are a morning type",
        "fr": "Vous êtes de type matinal",
-       "es": "Eres de tipo matutino",
+       "es": "Es de tipo matutino",
    },
    "You are an evening type": {
        "en": "You are an evening type",
        "fr": "Vous êtes de type vespéral",
-       "es": "Eres de tipo vespertino",
+       "es": "Es de tipo vespertino",
    },
    "You have no chronotype": {
        "en": "You have no preference",
        "fr": "Vous n'avez pas de chronotype",
-       "es": "No tienes cronotipo",
+       "es": "No tiene cronotipo",
    },
    "Chronotype": {
        "en": "Chronotype",
@@ -1200,27 +1200,27 @@ TEXT = {
    "You recall your dreams\nless than once a month": {
        "en": "You recall your dreams\nless than once a month",
        "fr": "Vous vous souvenez de vos rêves\nmoins d'une fois par mois",
-       "es": "Recuerdas tus sueños\nmenos de una vez al mes",
+       "es": "Recuerda sus sueños\nmenos de una vez al mes",
    },
    "You recall your dreams\nonce or twice a month": {
        "en": "You recall your dreams\nonce or twice a month",
        "fr": "Vous vous souvenez de vos rêves\nune à deux fois par mois",
-       "es": "Recuerdas tus sueños\nuna o dos veces al mes",
+       "es": "Recuerda sus sueños\nuna o dos veces al mes",
    },
    "You recall your dreams\nonce a week": {
        "en": "You recall your dreams\nnce a week",
        "fr": "Vous vous souvenez de vos rêves\nune fois par semaine",
-       "es": "Recuerdas tus sueños\nuna vez por semana",
+       "es": "Recuerda sus sueños\nuna vez por semana",
    },
    "You recall your dreams\nseveral times a week": {
        "en": "You recall your dreams\nseveral times a week",
        "fr": "Vous vous souvenez de vos rêves\nplusieurs fois par semaine",
-       "es": "Recuerdas tus sueños\nvarias veces por semana",
+       "es": "Recuerda sus sueños\nvarias veces por semana",
    },
    "You recall your dreams\nevery day": {
        "en": "You recall your dreams every day",
        "fr": "Vous vous souvenez de vos rêves\ntous les jours",
-       "es": "Recuerdas tus sueños\ntodos los días",
+       "es": "Recuerda sus sueños\ntodos los días",
    },
    "Dream recall": {
        "en": "Dream recall",
@@ -1259,7 +1259,7 @@ TEXT = {
     "How much you match each profile": {
         "en": "How much you match each profile",
         "fr": "À quel point vous correspondez à chaque profil",
-        "es": "Cuánto encajas con cada perfil",
+        "es": "Qué tanto encaja con cada perfil",
     },
     "PROFILE_BARS_NOTE": {
         "en": (
@@ -1271,8 +1271,8 @@ TEXT = {
             "du profil qui vous correspond le plus (à gauche) au moins marqué (à droite)."
         ),
         "es": (
-            "Cada barra muestra hasta qué punto tus respuestas se alinean con cada perfil, "
-            "desde el perfil que más te corresponde (izquierda) hasta el más débil (derecha)."
+           "Cada barra muestra hasta qué punto sus respuestas se alinean con cada perfil, "
+           "desde el perfil que más le corresponde (izquierda) hasta el más débil (derecha)."
         ),
     },
     
@@ -1291,9 +1291,9 @@ TEXT = {
             "Graphique de droite : les contenus mentaux qui apparaissent le plus souvent au début vs à la fin de l’endormissement."
         ),
         "es": (
-            "Gráfico de la izquierda: tu propia selección de trayectoria. "
-            "Gráfico central: tus puntuaciones de intensidad para tu contenido mental típico (1 = bajo, 6 = alto). "
-            "Gráfico de la derecha: el contenido mental que aparece con más frecuencia al principio vs al final de quedarte dormido."
+            "Gráfico de la izquierda: su propia selección de trayectoria. "
+            "Gráfico central: sus puntuaciones de intensidad para tu contenido mental típico (1 = bajo, 6 = alto). "
+            "Gráfico de la derecha: el contenido mental que aparece con más frecuencia al principio vs al final de quedarse dormido."
         ),
     },
     
@@ -1382,7 +1382,7 @@ TEXT = {
     "PROFILE_DESC_ARCHIVIST": {
         "en": "You fall asleep by revisiting the past; replaying moments, conversations, or scenes, as if sorting through memories before sleep.",
         "fr": "Vous vous endormez en revisitant la journée : moments, conversations ou scènes reviennent avant de vous laisser aller.",
-        "es": "Se duerme repasando el día: revives momentos, conversaciones o escenas antes de que el sueño te lleve.",
+        "es": "Se duerme repasando el día: revive momentos, conversaciones o escenas antes de que el sueño te lleve.",
     },
     "PROFILE_DESC_WORRIER": {
         "en": "Your mind cycles through the same concerns or unfinished thoughts, looping them again and again before settling.",
@@ -2728,7 +2728,7 @@ DM_SHARE_HTML = f"""
 <div style='position:relative;'>
   <div style='position:absolute; top:5px; right:0px; text-align:center; font-size:0.9rem; color:#000; line-height:1.05;'>
     <img src="{qr_src}" width="88" style="display:block; margin:0 auto 1px auto;" />
-    <div style="font-weight:600; font-size:0.6rem; margin:0;">Participate!</div>
+    <div style="font-weight:600; font-size:0.6rem; margin:0;">Participe!</div>
     <div style="font-size:0.6rem; margin-top:3px;">redcap.link/DriftingMinds</div>
   </div>
   {export_title_html}
