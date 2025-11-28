@@ -3011,7 +3011,7 @@ with right_btn:
       .bar-wa,
       .bar-fb {{
           white-space: normal !important;   /* allow <br> */
-          width: 100px !important;           /* adjust as needed */
+          width: 110px !important;           /* adjust as needed */
           text-align: center !important;
           padding:3px 4px !important;       /* compact left-right padding */
       }}
