@@ -1154,6 +1154,17 @@ TEXT = {
             "fr": "✅ Copié !",
             "es": "✅ Copiado",
         },
+        "WHATSAPP_BUTTON": {
+            "en": "🟢 Share on WhatsApp",
+            "fr": "🟢 Partager sur WhatsApp",
+            "es": "🟢 Compartir por WhatsApp",
+        },
+        "WHATSAPP_SHARE_TEXT": {
+            "en": "Here is my Drifting Minds profile – discover yours:",
+            "fr": "Voici mon profil Drifting Minds – découvrez le vôtre :",
+            "es": "Este es mi perfil de Drifting Minds – descubre el tuyo:",
+                
+        },
 
    # -----------------------
    # YOUR SLEEP TITLES
@@ -2900,7 +2911,9 @@ with right_btn:
   download_label = tr("DOWNLOAD_BUTTON")
   copy_label = tr("COPY_LINK_BUTTON")
   copied_label = tr("COPY_LINK_COPIED")  
-  
+  whatsapp_label = tr("WHATSAPP_BUTTON")
+  whatsapp_share_text = tr("WHATSAPP_SHARE_TEXT")
+
   components.html(
     f"""
 <!doctype html>
@@ -2911,8 +2924,17 @@ with right_btn:
 <style>
   body {{ margin:0; background:#fff; }}
   .wrap {{
-    display:flex; justify-content:flex-end; align-items:flex-start;
-    gap:8px; padding-top:14px;
+    display:flex; 
+    flex-direction:column;
+    align-items:flex-end;
+    gap:6px; 
+    padding-top:14px;
+  }}
+  .row-top {{
+    display:flex;
+    justify-content:flex-end;
+    align-items:flex-start;
+    gap:8px;
   }}
   .bar {{
     display:inline-block; padding:9px 14px; border:none; border-radius:8px;
@@ -2921,6 +2943,17 @@ with right_btn:
   }}
   .bar:hover {{ background:#222; }}
   .bar:active {{ background:#444; }}
+
+  /* Optional: slight green tint for WhatsApp button */
+  .bar-wa {{
+    background:#128C7E;
+  }}
+  .bar-wa:hover {{
+    background:#0f7469;
+  }}
+  .bar-wa:active {{
+    background:#0b5b52;
+  }}
 
   /* Export root: fixed width card, in-viewport but hidden (so iOS paints it) */
   #export-root {{
@@ -2943,8 +2976,11 @@ with right_btn:
 </head>
 <body data-rec="{record_id or ''}">
   <div class="wrap">
-    <button id="dmshot"  class="bar">{download_label}</button>
-    <button id="copylink" class="bar">{copy_label}</button>
+    <div class="row-top">
+      <button id="dmshot"  class="bar">{download_label}</button>
+      <button id="copylink" class="bar">{copy_label}</button>
+    </div>
+    <button id="sharewa" class="bar bar-wa">{whatsapp_label}</button>
   </div>
 
   <!-- Hidden, fully-opaque export mirror (toggled visible only during capture) -->
@@ -2955,8 +2991,10 @@ with right_btn:
   (function() {{
     const dlBtn   = document.getElementById('dmshot');
     const copyBtn = document.getElementById('copylink');
+    const waBtn   = document.getElementById('sharewa');
     const root    = document.getElementById('export-root');
     const recId   = document.body.dataset.rec || '';
+    const waPrefix = {json.dumps(whatsapp_share_text)};
 
     function buildShareUrl() {{
       let href = '';
@@ -2984,6 +3022,14 @@ with right_btn:
         try {{ document.execCommand('copy'); }} catch(_) {{}}
         ta.remove();
       }}
+    }});
+
+    // WhatsApp share
+    waBtn.addEventListener('click', () => {{
+      const share = buildShareUrl();
+      const text = waPrefix + " " + share;
+      const url = "https://wa.me/?text=" + encodeURIComponent(text);
+      window.open(url, "_blank", "noopener,noreferrer");
     }});
 
     async function ensureImagesReady(node) {{
@@ -3107,8 +3153,9 @@ with right_btn:
 </body>
 </html>
     """,
-    height=70
-)
+    height=100  # slightly higher to accommodate the third button
+  )
+
 
 
 
