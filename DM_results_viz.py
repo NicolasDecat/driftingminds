@@ -85,7 +85,7 @@ st.markdown(
 PURPLE_HEX = "#7C3AED"   # plots/polygons
 PURPLE_NAME = "#7A5CFA"  # profile name
 CAP_MIN = 60.0           # sleep latency cap (minutes)
-ASSETS_CSV = os.path.join("assets", "N1400_comparative_viz_ready.csv")
+ASSETS_CSV = os.path.join("assets", "N3100_comparative_viz_ready.csv")
 
 
 # ==============
