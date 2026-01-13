@@ -1120,7 +1120,7 @@ TEXT = {
          '<strong>Spontané</strong> : à quel point le contenu vient tout seul, sans contrôle volontaire. '
          '<strong>Émotionnel</strong> : à quel point vous avez ressenti des émotions.<br>'
          '<span style="font-size:0.6rem; margin-right:6px;">⚫️</span>'
-         '= moyenne mondiale : correspond à la moyenne des scores de 1 400 personnes dans le monde.'
+         '= moyenne mondiale : correspond à la moyenne des scores de 3 100 personnes dans le monde.'
      ),
      "es": (
          '<strong>Vívido</strong>: brillo o contraste de las imágenes mentales, '
@@ -1265,7 +1265,7 @@ TEXT = {
      "en": 'Grey info ("world”) represents data from 3,100 people worldwide.<br>'
            'Left graph: vividness of visual imagery when awake (VVIQ score). '
            'Middle and right: self-rated creativity and anxiety over the past year.',
-     "fr": 'La partie grise ("monde") représente les données de 1 400 personnes dans le monde.<br>'
+     "fr": 'La partie grise ("monde") représente les données de 3 100 personnes dans le monde.<br>'
            'Graphique de gauche : vivacité des images mentales à l’éveil (score VVIQ). '
            'Au centre et à droite : créativité et anxiété auto-évaluées sur l’année écoulée.',
      "es": 'La parte gris ("mundo") representa los datos de 3.100 personas en todo el mundo.<br>'
