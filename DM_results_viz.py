@@ -1110,7 +1110,7 @@ TEXT = {
          'without deliberate control. '
          '<strong>Emotional</strong>: how strongly you felt emotions.<br>'
          '<span style="font-size:0.6rem; margin-right:6px;">⚫️</span>'
-         '= world average: represents the average scores from 1,400 people worldwide.'
+         '= world average: represents the average scores from 3,100 people worldwide.'
      ),
      "fr": (
          '<strong>Vif</strong> : luminosité ou contraste de vos images mentales, '
@@ -1132,7 +1132,7 @@ TEXT = {
          'sin control deliberado. '
          '<strong>Emocional</strong>: cuán intensamente se experimentaron emociones.<br>'
          '<span style="font-size:0.6rem; margin-right:6px;">⚫️</span>'
-         '= media mundial: representa la media de las puntuaciones de 1.400 personas en todo el mundo.'
+         '= media mundial: representa la media de las puntuaciones de 3.100 personas en todo el mundo.'
      ),
  },
 
@@ -1262,13 +1262,13 @@ TEXT = {
    
    # Notes
     "YOU_SECTION_NOTE": {
-     "en": 'Grey info ("world”) represents data from 1,400 people worldwide.<br>'
+     "en": 'Grey info ("world”) represents data from 3,100 people worldwide.<br>'
            'Left graph: vividness of visual imagery when awake (VVIQ score). '
            'Middle and right: self-rated creativity and anxiety over the past year.',
      "fr": 'La partie grise ("monde") représente les données de 1 400 personnes dans le monde.<br>'
            'Graphique de gauche : vivacité des images mentales à l’éveil (score VVIQ). '
            'Au centre et à droite : créativité et anxiété auto-évaluées sur l’année écoulée.',
-     "es": 'La parte gris ("mundo") representa los datos de 1.400 personas en todo el mundo.<br>'
+     "es": 'La parte gris ("mundo") representa los datos de 3.100 personas en todo el mundo.<br>'
           'Gráfico de la izquierda: viveza de las imágenes mentales en vigilia (puntuación VVIQ). '
           'En el centro y la derecha: creatividad y ansiedad autoevaluadas durante el último año.',
  },
