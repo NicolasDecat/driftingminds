@@ -3356,30 +3356,32 @@ with right_btn:
 
     async function capture() {{
       try {{
+        const SCALE = 2;  // 2× resolution — change to 3 for even sharper
+    
         await new Promise(r => requestAnimationFrame(r));
         await new Promise(r => requestAnimationFrame(r));
-
         const prevVis = root.style.visibility;
         root.style.visibility = 'visible';
         void root.offsetHeight;
-
         await ensureImagesReady(root);
         await rasterizeImages(root);
-
         const rect = root.getBoundingClientRect();
         const w = Math.max(1, Math.round(rect.width));
         const h = Math.max(1, Math.round(rect.height));
-
         const blob = await window.domtoimage.toBlob(root, {{
-          width:  w,
-          height: h,
+          width:  w * SCALE,
+          height: h * SCALE,
           bgcolor: '#ffffff',
           quality: 1,
-          cacheBust: true
+          cacheBust: true,
+          style: {{
+            transform: 'scale(' + SCALE + ')',
+            transformOrigin: 'top left',
+            width: w + 'px',
+            height: h + 'px'
+          }}
         }});
-
         root.style.visibility = prevVis;
-
         if (!blob || !blob.size) throw new Error('empty blob');
         await downloadBlob(blob, 'drifting_minds_profile.png');
       }} catch (e) {{
@@ -3387,10 +3389,9 @@ with right_btn:
         alert('Capture failed. Try refreshing the page or a different browser.');
       }}
     }}
-
     dlBtn.addEventListener('click', capture);
-  }})();
-  </script>
+    }})();
+    </script>
   
   
 </body>
