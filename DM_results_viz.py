@@ -1366,7 +1366,10 @@ TEXT = {
           'Gráfico de la izquierda: viveza de las imágenes mentales en vigilia (puntuación VVIQ). '
           'En el centro y la derecha: creatividad y ansiedad autoevaluadas durante el último año.',
  
-        "it": "I valori mostrati qui vengono confrontati con i risultati di un grande campione internazionale.",},
+    "it": 'La parte grigia ("mondo") rappresenta i dati di 3.100 persone in tutto il mondo.<br>'
+       'Grafico a sinistra: vividezza delle immagini mentali in stato di veglia (punteggio VVIQ). '
+       'Al centro e a destra: creatività e ansia auto-valutate nell’ultimo anno.',
+       },
     
     # -----------------------
     # PROFILE LIKELIHOOD BAR (12 profiles)
