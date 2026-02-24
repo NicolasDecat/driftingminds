@@ -4661,6 +4661,8 @@ if LANG == "fr":
     final_img_path = "assets/all_DMs_fr.png"
 elif LANG == "es":
     final_img_path = "assets/all_DMs_en.png"
+elif LANG == "it":
+    final_img_path = "assets/all_DMs_it.png"
 else:
     final_img_path = "assets/all_DMs.png"
 
