@@ -3602,7 +3602,12 @@ with c1:
 
     # maintain alignment
     ax.set_position(AX_POS_YOU)
-    st.pyplot(fig, use_container_width=True)
+    import io
+    buf = io.BytesIO()
+    fig.savefig(buf, format='png', dpi=180, bbox_inches=None, pad_inches=0)
+    buf.seek(0)
+    st.image(buf, use_container_width=True)
+    plt.close(fig)
 
 
 
@@ -3627,7 +3632,11 @@ with c2:
         ax.text(1.0, -0.05, f"{tr('high')} (6)", transform=ax.transAxes,
                 ha="right", va="top", fontsize=7.5)
         ax.set_position(AX_POS_YOU)  # ← lock baseline
-        st.pyplot(fig, use_container_width=True)
+        buf = io.BytesIO()
+        fig.savefig(buf, format='png', dpi=180, bbox_inches=None, pad_inches=0)
+        buf.seek(0)
+        st.image(buf, use_container_width=True)
+        plt.close(fig)
 
 
 with c3:
@@ -3650,7 +3659,11 @@ with c3:
         ax.text(1.0, -0.05, f"{tr('high')} (100)", transform=ax.transAxes,
                 ha="right", va="top", fontsize=7.5)
         ax.set_position(AX_POS_YOU)  # ← lock baseline
-        st.pyplot(fig, use_container_width=True)
+        buf = io.BytesIO()
+        fig.savefig(buf, format='png', dpi=180, bbox_inches=None, pad_inches=0)
+        buf.seek(0)
+        st.image(buf, use_container_width=True)
+        plt.close(fig)
 
 # --- Explanatory note below the three histograms ----------------------------
 st.markdown(
