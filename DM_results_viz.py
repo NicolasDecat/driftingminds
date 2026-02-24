@@ -3670,7 +3670,7 @@ st.markdown(
     f"""
     <div style="
         max-width:820px;
-        margin:6px 0 0 0;
+        margin:-6px 0 0 0;
         text-align:left;
         font-size:0.82rem;
         color:#444;
