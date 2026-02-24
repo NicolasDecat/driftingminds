@@ -1188,18 +1188,20 @@ TEXT = {
          '= media mundial: representa la media de las puntuaciones de 3.100 personas en todo el mundo.'
      ),
  
-    "it": (
-        '<strong>Vivido</strong>: luminosità o contrasto delle tue immagini mentali, '
-        'o intensità di ciò che senti. '
-        '<strong>Bizzarro</strong>: quanto il contenuto appare insolito o irreale. '
-        '<strong>Immersivo</strong>: quanto ti senti profondamente assorbito/a nel tuo contenuto mentale. '
-        '<strong>Spontaneo</strong>: quanto il contenuto arriva da solo, '
-        'senza controllo deliberato. '
-        '<strong>Emotivo</strong>: quanto intensamente hai provato emozioni.<br>'
-        '<span style="font-size:0.6rem; margin-right:6px;">⚫️</span>'
-        '= media mondiale: rappresenta i punteggi medi di 3.100 persone in tutto il mondo.'
-    )}
-    
+        "it": (
+            '<strong>Vivido</strong>: luminosità o contrasto delle tue immagini mentali, '
+            'o intensità di ciò che senti. '
+            '<strong>Bizzarro</strong>: quanto il contenuto appare insolito o irreale. '
+            '<strong>Immersivo</strong>: quanto ti senti profondamente assorbito/a nel tuo contenuto mentale. '
+            '<strong>Spontaneo</strong>: quanto il contenuto arriva da solo, '
+            'senza controllo deliberato. '
+            '<strong>Emotivo</strong>: quanto intensamente hai provato emozioni.<br>'
+            '<span style="font-size:0.6rem; margin-right:6px;">⚫️</span>'
+            '= media mondiale: rappresenta i punteggi medi di 3.100 persone in tutto il mondo.'
+        )
+        
+        },
+
    # -----------------------
    # Buttons
    # -----------------------
