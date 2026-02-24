@@ -4150,6 +4150,9 @@ for k, fname in base_traj_map.items():
     elif LANG == "es":
         # trajectories-01 → trajectories_en-01  (per your naming)
         root = root.replace("trajectories-", "trajectories_en-")
+    elif LANG == "it":
+        # trajectories-01 → trajectories_en-01  (per your naming)
+        root = root.replace("trajectories-", "trajectories-it-")
 
     traj_map[k] = root + ext
 
