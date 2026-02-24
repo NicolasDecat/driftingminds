@@ -844,6 +844,7 @@ record = dict(record)
 q_base = record.get("questionnaire_complete")
 q_fr   = record.get("questionnaire_fr_complete")
 q_sp   = record.get("questionnaire_en_complete")   # Spanish version
+q_it   = record.get("questionnaire_it_complete")   # Italian version
 
 def _strip_suffix_keep_first(rec, suffix, n_keep=5):
     """
@@ -878,6 +879,9 @@ if q_fr == "2" or q_fr == 2:
 elif q_sp == "2" or q_sp == 2:
     record = _strip_suffix_keep_first(record, "_en")
 
+elif q_it == "2" or q_it == 2:
+    record = _strip_suffix_keep_first(record, "_en_it")
+
 else:
     # Default: original English version (questionnaire_complete = 2)
     # do nothing, keep the original column names
@@ -891,6 +895,8 @@ if q_fr in ("2", 2):
     LANG = "fr"
 elif q_sp in ("2", 2):
     LANG = "es"     # Spanish version uses _en suffix → language = ES
+elif q_it in ("2", 2):
+    LANG = "it"     # Italian version uses _en_it suffix → language = IT
 else:
     LANG = "en"
 
@@ -907,50 +913,62 @@ TEXT = {
         "en": "DRIFTING MINDS STUDY",
         "fr": "ÉTUDE DRIFTING MINDS",
         "es": "ESTUDIO DRIFTING MINDS",
-    },
+    
+        "it": "STUDIO DRIFTING MINDS",},
     "YOU": {
         "en": "YOU",
         "fr": "VOUS",
         "es": "USTED",
-    },
+    
+        "it": "LEI",},
     "YOUR SLEEP": {
         "en": "YOUR SLEEP",
         "fr": "VOTRE SOMMEIL",
         "es": "SU SUEÑO",
-    },
+    
+        "it": "IL SUO SONNO",},
     "YOUR EXPERIENCE": {
         "en": "YOUR EXPERIENCE",
         "fr": "VOTRE EXPÉRIENCE",
         "es": "SU EXPERIENCIA",
-    },
+    
+        "it": "LA SUA ESPERIENZA",},
     "Dynamics of your experience": {
         "en": "Dynamics of your experience",
         "fr": "Dynamique de votre expérience",
         "es": "Dinámica de su experiencia",
-    },
+    
+        "it": "Dinamica della sua esperienza",},
     "Intensity of your experience": {
         "en": "Intensity of your experience",
         "fr": "Intensité de votre expérience",
         "es": "Intensidad de su experiencia",
-    },
+    
+        "it": "Intensità della sua esperienza",},
     "Your trajectory": {
        "en": "Your trajectory",
        "fr": "Votre trajectoire",
        "es": "Su trayectoria",
-   },
+   
+        "it": "La sua traiettoria",},
 
     # -----------------------
     # AXIS LABELS
     # -----------------------
-    "hours": {"en": "hours", "fr": "heures", "es": "horas"},
-    "minutes": {"en": "minutes", "fr": "minutes", "es": "minutos"},
-    "low": {"en": "low", "fr": "faible", "es": "bajo"},
-    "high": {"en": "high", "fr": "élevé", "es": "alto"},
+    "hours": {"en": "hours", "fr": "heures", "es": "horas",
+        "it": "ore",},
+    "minutes": {"en": "minutes", "fr": "minutes", "es": "minutos",
+        "it": "minuti",},
+    "low": {"en": "low", "fr": "faible", "es": "bajo",
+        "it": "basso",},
+    "high": {"en": "high", "fr": "élevé", "es": "alto",
+        "it": "alto",},
     "Matching strength": {
         "en": "Matching strength",
         "fr": "Niveau de correspondance",
         "es": "Nivel de correspondencia",
-    },
+    
+        "it": "Forza di corrispondenza",},
 
     # -----------------------
     # PROFILE HEADER
@@ -959,7 +977,8 @@ TEXT = {
         "en": "You drift into sleep like a",
         "fr": "Vous glissez dans le sommeil comme un(e)",
         "es": "Se desliza hacia el sueño como un(a)",
-    },
+    
+        "it": "Si addormenta come un/a",},
 
     
         
@@ -970,22 +989,30 @@ TEXT = {
         "en": "{name}s represent {perc}% of the population.",
         "fr": "{name} représente {perc}% de la population.",
         "es": "{name} representa el {perc}% de la población.",
-    },
+    
+        "it": "I/Le {name} rappresentano il {perc}% della popolazione.",},
 
     # -----------------------
     # RADAR LABELS
     # -----------------------
-    "vivid": {"en": "vivid", "fr": "vif", "es": "vívido"},
-    "immersive": {"en": "immersive", "fr": "immersif", "es": "inmersivo"},
-    "bizarre": {"en": "bizarre", "fr": "bizarre", "es": "extraño"},
-    "spontaneous": {"en": "spontaneous", "fr": "spontané", "es": "espontáneo"},
-    "fleeting": {"en": "fleeting", "fr": "fugace", "es": "fugaz"},
+    "vivid": {"en": "vivid", "fr": "vif", "es": "vívido",
+        "it": "vivido",},
+    "immersive": {"en": "immersive", "fr": "immersif", "es": "inmersivo",
+        "it": "immersivo",},
+    "bizarre": {"en": "bizarre", "fr": "bizarre", "es": "extraño",
+        "it": "bizzarro",},
+    "spontaneous": {"en": "spontaneous", "fr": "spontané", "es": "espontáneo",
+        "it": "spontaneo",},
+    "fleeting": {"en": "fleeting", "fr": "fugace", "es": "fugaz",
+        "it": "fugace",},
     "positive\nemotions": {
         "en": "positive\nemotions",
         "fr": "émotions\npositives",
         "es": "emociones\npositivas",
-    },
-    "sleepy": {"en": "sleepy", "fr": "somnolent(e)", "es": "adormilado/a"},
+    
+        "it": "emozioni\npositive",},
+    "sleepy": {"en": "sleepy", "fr": "somnolent(e)", "es": "adormilado/a",
+        "it": "assonnato/a",},
 
     # -----------------------
     # HISTOGRAM TITLES
@@ -994,17 +1021,20 @@ TEXT = {
         "en": "Your visual imagery at wake: {val}",
         "fr": "Votre imagerie visuelle à l’éveil : {val}",
         "es": "Su imaginación visual al despertar: {val}",
-    },
+    
+        "it": "La sua immaginazione visiva da sveglio/a: {val}",},
     "Your self-rated creativity: {val}": {
         "en": "Your self-rated creativity: {val}",
         "fr": "Votre créativité auto-évaluée : {val}",
         "es": "Su creatividad autoevaluada: {val}",
-    },
+    
+        "it": "Creatività (autovalutazione): {val}",},
     "Your self-rated anxiety: {val}": {
         "en": "Your self-rated anxiety: {val}",
         "fr": "Votre anxiété auto-évaluée : {val}",
         "es": "Su ansiedad autoevaluada: {val}",
-    },
+    
+        "it": "Ansia (autovalutazione): {val}",},
     
     # -----------------------
    # Timeline axis labels
@@ -1013,12 +1043,14 @@ TEXT = {
        "en": "Awake",
        "fr": "Éveillé",
        "es": "Despierto",
-   },
+   
+        "it": "Veglia",},
    "LBL_Asleep": {
        "en": "Asleep",
        "fr": "Endormi",
        "es": "Dormido",
-   },
+   
+        "it": "Sonno",},
 
     # -----------------------
     # INFO / ERROR MESSAGES
@@ -1027,22 +1059,26 @@ TEXT = {
         "en": "Population data for creativity unavailable.",
         "fr": "Les données de population pour la créativité ne sont pas disponibles.",
         "es": "Los datos de población sobre creatividad no están disponibles.",
-    },
+    
+        "it": "Dati di popolazione sulla creatività non disponibili.",},
     "Population data for anxiety unavailable.": {
         "en": "Population data for anxiety unavailable.",
         "fr": "Les données de population pour l’anxiété ne sont pas disponibles.",
         "es": "Los datos de población sobre ansiedad no están disponibles.",
-    },
+    
+        "it": "Dati di popolazione sull’ansia non disponibili.",},
     "Population data unavailable.": {
         "en": "Population data unavailable.",
         "fr": "Les données de population ne sont pas disponibles.",
         "es": "Los datos de población no están disponibles.",
-    },
+    
+        "it": "Dati di popolazione non disponibili.",},
     "Could not compute profile likelihoods for this record.": {
         "en": "Could not compute profile likelihoods for this record.",
         "fr": "Impossible de calculer les probabilités de profil pour ce participant.",
         "es": "No se pudieron calcular las probabilidades de perfil para este participante.",
-    },
+    
+        "it": "Impossibile calcolare le probabilità dei profili per questo record.",},
     
     # -----------------------
    # LEGEND / SMALL LABELS
@@ -1051,51 +1087,70 @@ TEXT = {
        "en": "you",
        "fr": "vous",
        "es": "usted",
-   },
+   
+        "it": "lei",},
    "world": {
        "en": "world",
        "fr": "monde",
        "es": "mundo",
-   },
+   
+        "it": "mondo",},
    
    "WORLD_AVERAGE_TAG": {
         "en": "world average",
         "fr": "moyenne mondiale",
         "es": "promedio mundial",
-    },
+    
+        "it": "MEDIA MONDIALE",},
    
    "no content": {
     "en": "no content",
     "fr": "aucun contenu",
     "es": "sin contenido",
-},
+
+        "it": "nessun contenuto",},
 
    # -----------------------
    # DIMENSION BAR NAMES
    # -----------------------
-   "Vivid":       {"en": "Vivid",       "fr": "Vif",              "es": "Vívido"},
-   "Bizarre":     {"en": "Bizarre",     "fr": "Bizarre",          "es": "Extraño"},
-   "Immersive":   {"en": "Immersive",   "fr": "Immersif",         "es": "Inmersivo"},
-   "Spontaneous": {"en": "Spontaneous", "fr": "Spontané",         "es": "Espontáneo"},
-   "Emotional":   {"en": "Emotional",   "fr": "Émotionnel",       "es": "Emocional"},
+   "Vivid":       {"en": "Vivid",       "fr": "Vif",              "es": "Vívido",
+        "it": "Vivido",},
+   "Bizarre":     {"en": "Bizarre",     "fr": "Bizarre",          "es": "Extraño",
+        "it": "Bizzarro",},
+   "Immersive":   {"en": "Immersive",   "fr": "Immersif",         "es": "Inmersivo",
+        "it": "Immersivo",},
+   "Spontaneous": {"en": "Spontaneous", "fr": "Spontané",         "es": "Espontáneo",
+        "it": "Spontaneo",},
+   "Emotional":   {"en": "Emotional",   "fr": "Émotionnel",       "es": "Emocional",
+        "it": "Emotivo",},
 
    # Anchors for the horizontal bars
-   "Dull":           {"en": "Dull",           "fr": "Terne",           "es": "Apagado"},
-   "Vivid_anchor":   {"en": "Vivid",          "fr": "Vif",             "es": "Vívido"},
-   "Ordinary":       {"en": "Ordinary",       "fr": "Ordinaire",       "es": "Ordinario"},
-   "Bizarre_anchor": {"en": "Bizarre",        "fr": "Bizarre",         "es": "Extraño"},
+   "Dull":           {"en": "Dull",           "fr": "Terne",           "es": "Apagado",
+        "it": "Opaco",},
+   "Vivid_anchor":   {"en": "Vivid",          "fr": "Vif",             "es": "Vívido",
+        "it": "Vivido",},
+   "Ordinary":       {"en": "Ordinary",       "fr": "Ordinaire",       "es": "Ordinario",
+        "it": "Ordinario",},
+   "Bizarre_anchor": {"en": "Bizarre",        "fr": "Bizarre",         "es": "Extraño",
+        "it": "Bizzarro",},
    "External-oriented": {
        "en": "External-oriented", "fr": "Tourné vers l'extérieur", "es": "Orientado al exterior",
-   },
+   
+        "it": "Orientato all’esterno",},
    "Immersive_anchor": {
        "en": "Immersive", "fr": "Immersif", "es": "Inmersivo",
-   },
-   "Voluntary": {"en": "Voluntary", "fr": "Volontaire", "es": "Voluntario"},
+   
+        "it": "Immersivo",},
+   "Voluntary": {"en": "Voluntary", "fr": "Volontaire", "es": "Voluntario",
+        "it": "Volontario",},
    "Spontaneous_anchor": {
        "en": "Spontaneous", "fr": "Spontané", "es": "Espontáneo",
-   },
-   "Negative": {"en": "Negative", "fr": "Négatif", "es": "Negativo"},
-   "Positive": {"en": "Positive", "fr": "Positif", "es": "Positivo"},
+   
+        "it": "Spontaneo",},
+   "Negative": {"en": "Negative", "fr": "Négatif", "es": "Negativo",
+        "it": "Negativo",},
+   "Positive": {"en": "Positive", "fr": "Positif", "es": "Positivo",
+        "it": "Positivo",},
    
    # -----------------------
    # Notes bars
@@ -1134,7 +1189,8 @@ TEXT = {
          '<span style="font-size:0.6rem; margin-right:6px;">⚫️</span>'
          '= media mundial: representa la media de las puntuaciones de 3.100 personas en todo el mundo.'
      ),
- },
+ 
+        "it": "<strong>Vivido</strong>: luminosità o contrasto delle immagini mentali, o intensità di ciò che sente. <strong>Bizzarro</strong>: quanto il contenuto appare insolito o irreale. <strong>Immersivo</strong>: quanto è assorbito/a dal contenuto mentale. <strong>Spontaneo</strong>: quanto il contenuto arriva da solo, senza controllo deliberato. <strong>Emotivo</strong>: quanto forti sono le emozioni provate.",},
 
    # -----------------------
    # Buttons
@@ -1143,37 +1199,44 @@ TEXT = {
             "en": "⬇️ Download",
             "fr": "⬇️ Télécharger",
             "es": "⬇️ Descargar",
-        },
+        
+        "it": "Scarica la tua immagine",},
         "COPY_LINK_BUTTON": {
             "en": "🔗 Copy link",
             "fr": "🔗 Copier le lien",
             "es": "🔗 Copiar el enlace",
-        },
+        
+        "it": "Copia il link",},
         "COPY_LINK_COPIED": {
             "en": "✅ Copied!",
             "fr": "✅ Copié !",
             "es": "✅ Copiado",
-        },
+        
+        "it": "Link copiato!",},
         "WHATSAPP_BUTTON": {
             "fr": "Partager sur<br>WhatsApp",
             "en": "Share on<br>WhatsApp",
             "es": "Compartir en<br>WhatsApp",
-        },
+        
+        "it": "Condividi su WhatsApp",},
         "FACEBOOK_BUTTON": {
             "fr": "Partager sur<br>Facebook",
             "en": "Share on<br>Facebook",
             "es": "Compartir en<br>Facebook",
-            },
+            
+        "it": "Condividi su Facebook",},
         "SHARE_MESSAGE_PREFIX": {
             "en": "Here is how I fall asleep: ",
             "fr": "Voici comment je m'endors : ",
             "es": "Así es como me duermo: ",
-        },
+        
+        "it": "Ecco il mio profilo Drifting Minds:",},
         "SHARE_MESSAGE_SUFFIX": {
         "en": "\n\nHow about you? Do the test: https://redcap.link/DriftingMinds",
         "fr": "\n\nEt toi ? Fais le test : https://redcap.link/DriftingMinds",
         "es": "\n\n¿Y tú? Haz el test: https://redcap.link/DriftingMinds",
-        },
+        
+        "it": "Fai il questionario qui:",},
 
    # -----------------------
    # YOUR SLEEP TITLES
@@ -1182,83 +1245,104 @@ TEXT = {
        "en": "You fall asleep in {val} minutes",
        "fr": "Vous vous endormez en {val} minutes",
        "es": "Se duerme en {val} minutos",
-   },
+   
+        "it": "Si addormenta in {val} minuti",},
    "You sleep {val} hours on average": {
        "en": "You sleep {val} hours on average",
        "fr": "Vous dormez en moyenne {val} heures",
        "es": "Duerme una media de {val} horas",
-   },
+   
+        "it": "Dorme in media {val} ore",},
    "Your sleep duration": {
        "en": "Your sleep duration",
        "fr": "La durée de votre sommeil",
        "es": "La duración de su sueño",
-   },
+   
+        "it": "La durata del suo sonno",},
 
    # Chronotype titles
    "You are a morning type": {
        "en": "You are a morning type",
        "fr": "Vous êtes de type matinal",
        "es": "Es de tipo matutino",
-   },
+   
+        "it": "È un tipo mattiniero",},
    "You are an evening type": {
        "en": "You are an evening type",
        "fr": "Vous êtes de type vespéral",
        "es": "Es de tipo vespertino",
-   },
+   
+        "it": "È un tipo serale",},
    "You have no chronotype": {
        "en": "You have no preference",
        "fr": "Vous n'avez pas de chronotype",
        "es": "No tiene cronotipo",
-   },
+   
+        "it": "Non ha un cronotipo",},
    "Chronotype": {
        "en": "Chronotype",
        "fr": "Chronotype",
        "es": "Cronotipo",
-   },
+   
+        "it": "Cronotipo",},
 
    # Dream recall titles
    "You recall your dreams\nless than once a month": {
        "en": "You recall your dreams\nless than once a month",
        "fr": "Vous vous souvenez de vos rêves\nmoins d'une fois par mois",
        "es": "Recuerda sus sueños\nmenos de una vez al mes",
-   },
+   
+        "it": "Ricorda i suoi sogni\nmeno di una volta al mese",},
    "You recall your dreams\nonce or twice a month": {
        "en": "You recall your dreams\nonce or twice a month",
        "fr": "Vous vous souvenez de vos rêves\nune à deux fois par mois",
        "es": "Recuerda sus sueños\nuna o dos veces al mes",
-   },
+   
+        "it": "Ricorda i suoi sogni\nuna o due volte al mese",},
    "You recall your dreams\nonce a week": {
        "en": "You recall your dreams\nnce a week",
        "fr": "Vous vous souvenez de vos rêves\nune fois par semaine",
        "es": "Recuerda sus sueños\nuna vez por semana",
-   },
+   
+        "it": "Ricorda i suoi sogni\nuna volta a settimana",},
    "You recall your dreams\nseveral times a week": {
        "en": "You recall your dreams\nseveral times a week",
        "fr": "Vous vous souvenez de vos rêves\nplusieurs fois par semaine",
        "es": "Recuerda sus sueños\nvarias veces por semana",
-   },
+   
+        "it": "Ricorda i suoi sogni\npiù volte a settimana",},
    "You recall your dreams\nevery day": {
        "en": "You recall your dreams every day",
        "fr": "Vous vous souvenez de vos rêves\ntous les jours",
        "es": "Recuerda sus sueños\ntodos los días",
-   },
+   
+        "it": "Ricorda i suoi sogni\nogni giorno",},
    "Dream recall": {
        "en": "Dream recall",
        "fr": "Rappel de rêves",
        "es": "Recuerdo de sueños",
-   },
+   
+        "it": "Ricordo dei sogni",},
 
    # Chronotype / recall tick labels
-   "morning": {"en": "morning", "fr": "matin", "es": "mañana"},
-   "evening": {"en": "evening", "fr": "soir", "es": "tarde"},
-   "no type": {"en": "no type", "fr": "aucun type", "es": "sin tipo"},
+   "morning": {"en": "morning", "fr": "matin", "es": "mañana",
+        "it": "mattina",},
+   "evening": {"en": "evening", "fr": "soir", "es": "tarde",
+        "it": "sera",},
+   "no type": {"en": "no type", "fr": "aucun type", "es": "sin tipo",
+        "it": "nessun tipo",},
 
-   "<1/month": {"en": "<1/month", "fr": "<1/mois", "es": "<1/mes"},
-   "1-2/month": {"en": "1–2/month", "fr": "1–2/mois", "es": "1–2/mes"},
-   "1/week": {"en": "1/week", "fr": "1/semaine", "es": "1/semana"},
-   "several/week": {"en": "several/week", "fr": "plusieurs/sem.", "es": "varias/sem."},
+   "<1/month": {"en": "<1/month", "fr": "<1/mois", "es": "<1/mes",
+        "it": "<1/mese",},
+   "1-2/month": {"en": "1–2/month", "fr": "1–2/mois", "es": "1–2/mes",
+        "it": "1-2/mese",},
+   "1/week": {"en": "1/week", "fr": "1/semaine", "es": "1/semana",
+        "it": "1/settimana",},
+   "several/week": {"en": "several/week", "fr": "plusieurs/sem.", "es": "varias/sem.",
+        "it": "più volte/settimana",},
    "every day": {"en": "every day", "fr": "tous les jours", "es": "todos los días"
-    },
+    ,
+        "it": "ogni giorno",},
    
    # Notes
     "YOU_SECTION_NOTE": {
@@ -1271,7 +1355,8 @@ TEXT = {
      "es": 'La parte gris ("mundo") representa los datos de 3.100 personas en todo el mundo.<br>'
           'Gráfico de la izquierda: viveza de las imágenes mentales en vigilia (puntuación VVIQ). '
           'En el centro y la derecha: creatividad y ansiedad autoevaluadas durante el último año.',
- },
+ 
+        "it": "I valori mostrati qui vengono confrontati con i risultati di un grande campione internazionale.",},
     
     # -----------------------
     # PROFILE LIKELIHOOD BAR (12 profiles)
@@ -1280,7 +1365,8 @@ TEXT = {
         "en": "How much you match each profile",
         "fr": "À quel point vous correspondez à chaque profil",
         "es": "Qué tanto encaja con cada perfil",
-    },
+    
+        "it": "Quanto corrisponde a ciascun profilo",},
     "PROFILE_BARS_NOTE": {
         "en": (
             "Each bar shows how closely your answers align with each profile, "
@@ -1294,7 +1380,8 @@ TEXT = {
            "Cada barra muestra hasta qué punto sus respuestas se alinean con cada perfil, "
            "desde el perfil que más le corresponde (izquierda) hasta el más débil (derecha)."
         ),
-    },
+    
+        "it": "Queste barre mostrano quanto i suoi risultati assomigliano a ciascun profilo (più alto = maggiore corrispondenza).",},
     
     # -----------------------
     # Your experience - notes 
@@ -1315,7 +1402,8 @@ TEXT = {
             "Gráfico central: sus puntuaciones de intensidad para su contenido mental típico (1 = bajo, 6 = alto). "
             "Gráfico de la derecha: el contenido mental que aparece con más frecuencia al principio vs al final de quedarse dormido."
         ),
-    },
+    
+        "it": "Grafico a sinistra: la traiettoria che ha scelto. Grafico centrale: i suoi punteggi di intensità per il contenuto mentale tipico (1 = basso, 6 = alto). Grafico a destra: i contenuti mentali che compaiono più spesso all’inizio vs alla fine dell’addormentamento.",},
     
     # -----------------------
     # PROFILE NAMES (display)
@@ -1324,62 +1412,74 @@ TEXT = {
     "en": "Dreamweaver",
     "fr": "Tisseur de songes",
     "es": "Soñador(a)",
-    },
+    
+        "it": "Tessitore di sogni",},
     "Quick Diver": {
         "en": "Quick Diver",
         "fr": "Plongeur",
         "es": "Buceador(a)",
-    },
+    
+        "it": "Tuffatore",},
     "Fantasizer": {
         "en": "Fantasizer",
         "fr": "Scénariste",
         "es": "Guionista",
-    },
+    
+        "it": "Sceneggiatore",},
     "Archivist": {
         "en": "Archivist",
         "fr": "Archiviste",
         "es": "Archivero/a",
-    },
+    
+        "it": "Archivista",},
     "Worrier": {
         "en": "Worrier",
         "fr": "Moulin à pensées",
         "es": "Rumiante",
-    },
+    
+        "it": "Rimuginante",},
     "Freewheeler": {
         "en": "Freewheeler",
         "fr": "Vagabond",
         "es": "Vagabundo/a",
-    },
+    
+        "it": "Vagabondo/a",},
     "Quiet Mind": {
         "en": "Quiet Mind",
         "fr": "Silencieux",
         "es": "Silencioso/a",
-    },
+    
+        "it": "Silenzioso/a",},
     "Radio Tuner": {
         "en": "Radio Tuner",
         "fr": "Zappeur",
         "es": "Sintonizador(a)",
-    },
+    
+        "it": "Sintonizzatore",},
     "Strategist": {
         "en": "Strategist",
         "fr": "Stratège",
         "es": "Estratega",
-    },
+    
+        "it": "Stratega",},
     "Sentinel": {
         "en": "Sentinel",
         "fr": "Sentinelle",
         "es": "Centinela",
-    },
+    
+        "it": "Sentinella",},
     "Kaleidoscope": {
         "en": "Kaleidoscope",
         "fr": "Kaléidoscope",
         "es": "Caleidoscopio",
-    },
+    
+        "it": "Caleidoscopio",},
     "Pragmatic": {
         "en": "Pragmatic",
         "fr": "Pragmatique",
         "es": "Pragmático/a",
-    },
+    
+        "it": "Pragmatico/a",},
         
     # -----------------------
     # PROFILE DESCRIPTIONS (display)
@@ -1388,62 +1488,74 @@ TEXT = {
         "en": "Your mind drifts through mini-dreams as soon as you start falling asleep : colorful and narrative scenes, sometimes with a touch of weirdness.",
         "fr": "Votre esprit glisse vers le sommeil en tissant de petites scènes oniriques : des images colorées et des histoires, parfois étranges.",
         "es": "Su mente se desliza hacia el sueño tejiendo pequeñas escenas oníricas: imágenes coloridas e historias, a veces extrañas.",
-    },
+    
+        "it": "La mente scivola verso il sonno tessendo piccole scene oniriche: immagini colorate e storie, a volte bizzarre.",},
     "PROFILE_DESC_QUICK_DIVER": {
         "en": "You fall asleep fast and head-first; an immediate dive into sleep that leaves little room for thinking.",
         "fr": "Vous vous endormez d’un seul coup; une plongée soudaine sans presque aucune pensée sur le chemin.",
         "es": "Se duerme de golpe; una inmersión repentina en el sueño sin casi ningún pensamiento en el camino.",
-    },
+    
+        "it": "Si addormenta di colpo; un tuffo improvviso nel sonno, senza quasi nessun pensiero lungo il cammino.",},
     "PROFILE_DESC_FANTASIZER": {
         "en": "You create vivid, intentional inner stories as you drift off; imaginative scenes that unfold until sleep takes over.",
         "fr": "Vous imaginez des histoires ou des scénarios : des scènes volontairement construites qui vous portent jusqu’au sommeil.",
         "es": "Imagina historias o escenarios: escenas construidas y deliberadas que le acompañan hasta entregarse al sueño.",
-    },
+    
+        "it": "Immagina storie o scenari: scene costruite deliberatamente che accompagnano fino a cedere al sonno.",},
     "PROFILE_DESC_ARCHIVIST": {
         "en": "You fall asleep by revisiting the past; replaying moments, conversations, or scenes, as if sorting through memories before sleep.",
         "fr": "Vous vous endormez en revisitant la journée : moments, conversations ou scènes reviennent avant de vous laisser aller.",
         "es": "Se duerme repasando el día: revive momentos, conversaciones o escenas antes de que el sueño te lleve.",
-    },
+    
+        "it": "Si addormenta ripercorrendo la giornata: rivive mentalmente momenti, conversazioni o scene prima di lasciarsi andare.",},
     "PROFILE_DESC_WORRIER": {
         "en": "Your mind cycles through the same concerns or unfinished thoughts, looping them again and again before settling.",
         "fr": "Votre esprit tourne en boucle sur les mêmes préoccupations ou pensées persistantes jusqu’à ce que le sommeil s’installe.",
         "es": "Su mente da vueltas sin parar sobre las mismas preocupaciones o pensamientos recurrentes hasta que el sueño se instala.",
-    },
+    
+        "it": "La mente gira in loop sulle stesse preoccupazioni o pensieri ricorrenti, finché il sonno non si installa.",},
     "PROFILE_DESC_FREEWHEELER": {
         "en": "You start falling asleep with intentional thoughts, then loosen into spontaneous, free-flowing ideas that carry you toward sleep.",
         "fr": "Vous démarrez avec des pensées intentionelles puis vos pensées deviennent spontanées, vagabondant librement pour suivre leur propre cours jusqu'au sommeil.",
         "es": "Empieza con pensamientos intencionales, y luego sus ideas se vuelven espontáneas, vagando libremente hasta llevarle al sueño.",
-    },
+    
+        "it": "Inizia con pensieri intenzionali, poi le idee diventano spontanee, vagando liberamente fino a condurre al sonno.",},
     "PROFILE_DESC_QUIET_MIND": {
         "en": "You drift into sleep with almost no mental noise, your mind simply fades out, calm and empty.",
         "fr": "Vous vous endormez dans un silence intérieur presque total : l’esprit s'éteint doucement, sans agitation.",
         "es": "Se duerme envuelto/a en un silencio interior casi total: la mente se apaga suavemente, sin agitación.",
-    },
+    
+        "it": "Si addormenta avvolto/a in un silenzio interiore quasi totale: la mente si spegne dolcemente, senza agitazione.",},
     "PROFILE_DESC_RADIO_TUNER": {
         "en": "Your mind shifts rapidly between thoughts and perceptions as you fall asleep, like flicking through mental stations and never staying in one one for long.",
         "fr": "Votre esprit saute rapidement d'une idée ou perception à l'autre, comme si vous zappiez entre différentes chaînes mentales.",
         "es": "Su mente pasa rápidamente de un pensamiento o una percepción a otro, sin detenerse nunca en un mismo contenido.",
-    },
+    
+        "it": "La mente salta rapidamente da un pensiero o una percezione all'altra, senza soffermarsi mai a lungo su uno stesso contenuto.",},
     "PROFILE_DESC_STRATEGIST": {
         "en": "You organize plans or tasks for the future as you fall asleep, thinking ahead to what comes next.",
         "fr": "Vous mettez de l’ordre dans vos idées en vous endormant, en préparant mentalement le futur et les tâches à venir.",
         "es": "Pone orden en sus ideas al dormirse, preparando mentalmente el futuro y las tareas por venir.",
-    },
+    
+        "it": "Mette ordine nelle proprie idee addormentandosi, preparando mentalmente il futuro e i compiti da svolgere.",},
     "PROFILE_DESC_SENTINEL": {
         "en": "Your mind quiets down, but part of you stays lightly aware of your surroundings as you fall asleep.",
         "fr": "Votre esprit s'apaise, mais une partie de vous reste légèrement attentive à votre environnement tout en basculant vers le sommeil.",
         "es": "Su mente se calma, pero una parte de usted permanece ligeramente atenta a su entorno mientras se va quedando dormido/a.",
-    },
+    
+        "it": "La mente si calma, ma una parte resta leggermente attenta all'ambiente circostante mentre si scivola nel sonno.",},
     "PROFILE_DESC_FRAGMENTED_MIND": {
         "en": "Your mind breaks into fragments as you fall asleep: quick flashes of thoughts, images or sounds that don't quite connect.",
         "fr": "Votre esprit se fragmente à l’endormissement : pensées déconnectées, bribes d’images ou de sons qui apparaissent et disparaissent rapidement.",
         "es": "Su mente se fragmenta al quedarse dormido/a: destellos fugaces de pensamientos, imágenes o sonidos que no llegan a conectarse entre sí.",
-    },
+    
+        "it": "La mente si frammenta al momento di addormentarsi: lampi fugaci di pensieri, immagini o suoni che non riescono a connettersi tra loro.",},
     "PROFILE_DESC_PRAGMATIC": {
         "en": "Your thoughts stay clear and practical; grounded in everyday logic rather than drifting into the strange.",
         "fr": "Vos pensées gardent une logique claire et terre-à-terre, elles sont ancrées dans le quotidien plutôt que dans l’imaginaire ou l’étrange.",
         "es": "Sus pensamientos mantienen una lógica clara y realista; están anclados en lo cotidiano más que en lo imaginario o lo extraño.",
-    },
+    
+        "it": "I pensieri mantengono una logica chiara e concreta; sono ancorati al quotidiano piuttosto che all'immaginario o allo strano.",},
     
     
     
@@ -1454,157 +1566,188 @@ TEXT = {
         "en": "thinking logical thoughts",
         "fr": "penser de façon logique",
         "es": "pensar de forma lógica",
-    },
+    
+        "it": "pensieri logici",},
     "LBL_freq_scenario": {
         "en": "imagining scenarios",
         "fr": "imaginer des scénarios",
         "es": "imaginar escenarios",
-    },
+    
+        "it": "creare scenari volontariamente",},
     "LBL_freq_negative": {
         "en": "feeling negative",
         "fr": "ressentir du négatif",
         "es": "sentirse negativo",
-    },
+    
+        "it": "pensieri negativi",},
     "LBL_freq_absorbed": {
         "en": "feeling absorbed",
         "fr": "se sentir absorbé",
         "es": "sentirse absorbido",
-    },
+    
+        "it": "essere assorbito/a",},
     "LBL_freq_percept_fleeting": {
         "en": "fleeting perceptions",
         "fr": "perceptions fugaces",
         "es": "percepciones fugaces",
-    },
+    
+        "it": "immagini o suoni fugaci",},
     "LBL_freq_think_bizarre": {
         "en": "thinking strange things",
         "fr": "penser des choses étranges",
         "es": "pensar cosas extrañas",
-    },
+    
+        "it": "pensieri assurdi o insoliti",},
     "LBL_freq_planning": {
         "en": "planning the day",
         "fr": "planifier sa journée",
         "es": "planificar el día",
-    },
+    
+        "it": "fare piani per il futuro",},
     "LBL_freq_spectator": {
         "en": "feeling like a spectator",
         "fr": "se sentir spectateur",
         "es": "sentirse espectador",
-    },
+    
+        "it": "sentirsi spettatore/spettatrice",},
     "LBL_freq_ruminate": {
         "en": "ruminating",
         "fr": "ruminer",
         "es": "rumiar",
-    },
+    
+        "it": "rimuginare",},
     "LBL_freq_percept_intense": {
         "en": "intense perceptions",
         "fr": "perceptions intenses",
         "es": "percepciones intensas",
-    },
+    
+        "it": "immagini o suoni vividi",},
     "LBL_freq_percept_narrative": {
         "en": "narrative scenes",
         "fr": "scènes narratives",
         "es": "escenas narrativas",
-    },
+    
+        "it": "contenuti con una struttura narrativa",},
     "LBL_freq_percept_ordinary": {
         "en": "ordinary perceptions",
         "fr": "perceptions ordinaires",
         "es": "percepciones ordinarias",
-    },
+    
+        "it": "vedere o sentire cose ordinarie",},
     "LBL_freq_time_perc_fast": {
         "en": "time feels fast",
         "fr": "le temps semble rapide",
         "es": "el tiempo parece ir rápido",
-    },
+    
+        "it": "il tempo passa più veloce",},
     "LBL_freq_percept_vague": {
         "en": "vague perceptions",
         "fr": "perceptions vagues",
         "es": "percepciones vagas",
-    },
+    
+        "it": "immagini o suoni vaghi",},
     "LBL_freq_replay": {
         "en": "replaying the day",
         "fr": "rejouer sa journée",
         "es": "repasar el día",
-    },
+    
+        "it": "rivivere eventi passati",},
     "LBL_freq_percept_bizarre": {
         "en": "strange perceptions",
         "fr": "perceptions étranges",
         "es": "percepciones extrañas",
-    },
+    
+        "it": "vedere o sentire cose bizzarre",},
     "LBL_freq_emo_intense": {
         "en": "feeling intense emotions",
         "fr": "ressentir des émotions intenses",
         "es": "sentir emociones intensas",
-    },
+    
+        "it": "emozioni intense",},
     "LBL_freq_percept_continuous": {
         "en": "continuous perceptions",
         "fr": "perceptions continues",
         "es": "percepciones continuas",
-    },
+    
+        "it": "immagini o suoni continui",},
     "LBL_freq_think_nocontrol": {
         "en": "losing control of thoughts",
         "fr": "perdre le contrôle de ses pensées",
         "es": "perder el control de los pensamientos",
-    },
+    
+        "it": "perdere il controllo dei pensieri",},
     "LBL_freq_percept_dull": {
         "en": "dull perceptions",
         "fr": "perceptions ternes",
         "es": "percepciones apagadas",
-    },
+    
+        "it": "immagini o suoni deboli",},
     "LBL_freq_actor": {
         "en": "acting in the scene",
         "fr": "agir dans la scène",
         "es": "actuar en la escena",
-    },
+    
+        "it": "sentirsi coinvolto/a nella scena",},
     "LBL_freq_think_seq_bizarre": {
         "en": "thinking illogical thoughts",
         "fr": "penser de façon illogique",
         "es": "pensar de forma ilógica",
-    },
+    
+        "it": "sequenza illogica",},
     "LBL_freq_percept_precise": {
         "en": "precise perceptions",
         "fr": "perceptions précises",
         "es": "percepciones precisas",
-    },
+    
+        "it": "immagini o suoni dettagliati",},
     "LBL_freq_percept_imposed": {
         "en": "imposed perceptions",
         "fr": "perceptions imposées",
         "es": "percepciones impuestas",
-    },
+    
+        "it": "immagini o suoni che si impongono",},
     "LBL_freq_hear_env": {
         "en": "hearing my environment",
         "fr": "entendre mon environnement",
         "es": "oír mi entorno",
-    },
+    
+        "it": "sentire l’ambiente",},
     "LBL_freq_positive": {
         "en": "feeling positive",
         "fr": "se sentir positif",
         "es": "sentirse positivo",
-    },
+    
+        "it": "pensieri positivi",},
     "LBL_freq_think_seq_ordinary": {
         "en": "thinking logical thoughts",
         "fr": "penser de façon logique",
         "es": "pensar de forma lógica",
-    },
+    
+        "it": "sequenza logica",},
     "LBL_freq_percept_real": {
         "en": "perceptions feel real",
         "fr": "les perceptions semblent réelles",
         "es": "las percepciones parecen reales",
-    },
+    
+        "it": "sembra reale",},
     "LBL_freq_time_perc_slow": {
         "en": "time feels slow",
         "fr": "le temps semble lent",
         "es": "el tiempo parece lento",
-    },
+    
+        "it": "il tempo passa più lento",},
     "LBL_freq_syn": {
         "en": "experiencing synaesthesia",
         "fr": "vivre une synesthésie",
         "es": "experimentar sinestesia",
-    },
+    
+        "it": "percepire sinestesie",},
     "LBL_freq_creat": {
         "en": "feeling creative",
         "fr": "se sentir créatif",
         "es": "sentirse creativo",
-    },
+    
+        "it": "avere idee nuove / creatività",},
 
 
 
@@ -1639,7 +1782,8 @@ TEXT = {
         'style="color:#7C3AED; text-decoration:none;">driftingminds@icm-institute.org</a>.<br>'
         '<em>Investigador del estudio : Nicolas Decat, Paris Brain Institute</em>.'
     ),
-},
+
+        "it": "Nota: questi risultati sono indicativi e servono solo a scopo di ricerca.",},
         
     
 
