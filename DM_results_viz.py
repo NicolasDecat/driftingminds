@@ -1796,7 +1796,15 @@ TEXT = {
         '<em>Investigador del estudio : Nicolas Decat, Paris Brain Institute</em>.'
     ),
 
-        "it": "Nota: questi risultati sono indicativi e servono solo a scopo di ricerca.",},
+        "it": 
+    'Questi risultati sono generati automaticamente a partire dalle tue risposte al '
+    'questionario Drifting Minds.<br>'
+    'Sono destinati esclusivamente alla ricerca e alla riflessione personale. '
+    'Non costituiscono un parere medico né uno strumento diagnostico.<br>'
+    'Per qualsiasi domanda, contatta '
+    '<a href="mailto:driftingminds@icm-institute.org" '
+    'style="color:#7C3AED; text-decoration:none;">driftingminds@icm-institute.org</a>.<br>'
+    '<em>Ricercatore dello studio: Nicolas Decat, Paris Brain Institute</em>.',},
         
     
 
