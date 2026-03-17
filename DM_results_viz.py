@@ -3774,7 +3774,7 @@ with col_left:
                         ax.fill_between(xs, ys, color="#e6e6e6", linewidth=0)
 
                         # Participant marker (line capped to KDE height)
-                        y_part = float(kde(part_display))
+                        y_part = float(kde([part_display])[0])
                         ax.vlines(part_display, 0, y_part, lw=0.8, color="#222222")
                         ax.scatter([part_display], [y_part], s=28, zorder=3,
                                    color=PURPLE_HEX, edgecolors="none")
