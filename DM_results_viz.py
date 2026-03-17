@@ -1279,8 +1279,8 @@ TEXT = {
         "it": "È un tipo mattiniero",},
    "You are an evening type": {
        "en": "You are an evening type",
-       "fr": "Vous êtes de type vespéral",
-       "es": "Es de tipo vespertino",
+       "fr": "Vous êtes du soir",
+       "es": "Es de la tarde/noche",
    
         "it": "È un tipo serale",},
    "You have no chronotype": {
