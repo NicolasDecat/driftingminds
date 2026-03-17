@@ -1280,7 +1280,7 @@ TEXT = {
    "You are an evening type": {
        "en": "You are an evening type",
        "fr": "Vous êtes du soir",
-       "es": "Es de la tarde/noche",
+       "es": "Es de la tarde",
    
         "it": "È un tipo serale",},
    "You have no chronotype": {
